@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>GulagGazRoom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" media="screen" href="styles.css" />
+</head>
+
+<body>
+  <div id="blocker">
+    <div id="instructions">
+      <div style="font-size:40px; color: red;">WARNING</div>
+      <div>This app contains fast flashing images</div>
+      <br />
+      <div>TV set model is adapted from "<a href="https://opengameart.org/content/simple-house-objects">house-objects</a>" by IllusionOfMana, used under CC BY 4.0. TV set model is licensed under CC BY 4.0 by VladislavPetyukevich</div>
+      <br />
+      <div style="font-size:25px">Click to play</div>
+      <div id="settings">
+        <div>Game settings:</div>
+        <span>Audio volume:</span>
+        <input id="audio-volume" type="range" min="0" max="10" value="10" step="1" >
+        <span id="audio-volume-value"></span>
+        <br />
+        <span>FOV:</span>
+        <input id="fov" type="range" min="50" max="110" value="95" step="1" >
+        <span id="fov-value"></span>
+      </div>
+    </div>
+  </div>
+  <div id="render-container" />
+
+  <% for(var i=0; i < htmlWebpackPlugin.files.js.length; i++) {%>
+    <script type="text/javascript" src="<%= htmlWebpackPlugin.files.js[i] %>"></script>
+  <% } %>
+  <script type="text/javascript">
+    var blocker = document.getElementById('blocker');
+    var instructions = document.getElementById('instructions');
+    var renderContainer = document.getElementById('render-container');
+    var settings = document.getElementById('settings');
+    var audioVolume = document.getElementById('audio-volume');
+    var audioVolumeValue = document.getElementById('audio-volume-value');
+    var fov = document.getElementById('fov');
+    var fovValue = document.getElementById('fov-value');
+
+    function updateAudioVolumeValue(value) {
+      var valueNode = document.createTextNode(value.toFixed(1));
+      audioVolumeValue.innerHTML = '';
+      audioVolumeValue.appendChild(valueNode);
+    }
+
+    function updateFovValue(value) {
+      var valueNode = document.createTextNode(value);
+      fovValue.innerHTML = '';
+      fovValue.appendChild(valueNode);
+    }
+
+    function onLoad() {
+      console.log('game loaded');
+    }
+
+    function getRendererSize() {
+      return {
+        width: ~~renderContainer.offsetWidth,
+        height: ~~renderContainer.offsetHeight
+      };
+    }
+
+    var rendererSize = getRendererSize();
+
+    var threeShooter = new ThreeShooter.default({
+      renderContainer: renderContainer,
+      renderWidth: rendererSize.width,
+      renderHeight: rendererSize.height,
+      onLoad: onLoad
+    });
+
+    window.addEventListener('resize', () => {
+      var newRendererSize = getRendererSize();
+      threeShooter.handleResize(
+        newRendererSize.width,
+        newRendererSize.height
+      );
+    });
+
+    instructions.addEventListener('click', function (event) {
+      instructions.style.display = 'none';
+      blocker.style.display = 'none';
+      renderContainer.requestPointerLock();
+    });
+
+    settings.addEventListener('click', function(event) {
+      event.stopPropagation();
+    });
+
+    audioVolume.addEventListener('input', function(event) {
+      const value = +event.target.value;
+      updateAudioVolume(value);
+    });
+
+    function updateAudioVolume(value) {
+      var newVolume = value / 10;
+      threeShooter.updateAudioVolume(newVolume);
+      updateAudioVolumeValue(newVolume);
+      saveSettings();
+    }
+
+    fov.addEventListener('input', function(event) {
+      const value = +event.target.value;
+      updateFov(value);
+    });
+
+    function updateFov(value) {
+      threeShooter.updateFov(value);
+      updateFovValue(value);
+      saveSettings();
+    }
+
+    var settingsKey = 'settings';
+
+    function saveSettings() {
+      if (!localStorage) {
+        return;
+      }
+      var settings = {
+        audioVolume: +audioVolume.value,
+        fov: +fov.value,
+      };
+      localStorage.setItem(settingsKey, JSON.stringify(settings));
+    }
+
+    function loadSetting() {
+      if (!localStorage) {
+        return;
+      }
+      try {
+        var settings = JSON.parse(localStorage.getItem(settingsKey));
+        audioVolume.value = settings.audioVolume;
+        updateAudioVolume(settings.audioVolume);
+        fov.value = settings.fov;
+        updateFov(settings.fov);
+      } catch {
+        console.error('Falied to load game settings');
+      }
+    }
+    loadSetting();
+
+    document.addEventListener('pointerlockchange', function (event) {
+      if (document.pointerLockElement != renderContainer) {
+        blocker.style.display = 'block';
+        instructions.style.display = '';
+      }
+    });
+  </script>
+
+  <script type="text/javascript">
+    function showFps(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);}
+  </script>
+</body>
+
+</html>
