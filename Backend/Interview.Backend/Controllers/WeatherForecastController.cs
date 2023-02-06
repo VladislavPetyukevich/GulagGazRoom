@@ -31,6 +31,7 @@ public class WeatherForecastController : ControllerBase
             .ToArray();
     }
     
+    [ApiExplorerSettings(IgnoreApi=true)]
     [Route("/ws")]
     public async Task WS()
     {
@@ -44,6 +45,7 @@ public class WeatherForecastController : ControllerBase
         await Echo(webSocket);
     }
     
+    [ApiExplorerSettings(IgnoreApi=true)]
     private static async Task Echo(WebSocket webSocket)
     {
         var buffer = new byte[1024 * 4];
@@ -67,4 +69,5 @@ public class WeatherForecastController : ControllerBase
             receiveResult.CloseStatusDescription,
             CancellationToken.None);
     }
+    
 }

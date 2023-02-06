@@ -49,7 +49,7 @@ public class TwitchChatMessageSource : IChatMessageSource
         if(observers.Count == 0)
             return;
         
-        var user = await _userRepository.FindUserAsync(e.ChatMessage.Username);
+        var user = await _userRepository.FindByNicknameAsync(e.ChatMessage.Username);
         if(user == null)
             return;
 
