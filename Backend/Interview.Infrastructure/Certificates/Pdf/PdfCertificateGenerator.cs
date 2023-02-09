@@ -33,11 +33,11 @@ public sealed class PdfCertificateGenerator : ICertificateGenerator
         stream.Position = 0;
         return stream;
     }
-    
+
     public sealed class Settings
     {
         private const int DefaultHeaderSize = 36;
-        
+
         public int TextSize { get; set; } = 18;
         public int HeaderSize { get; set; } = DefaultHeaderSize;
         public int PersonWhomCertificateSize { get; set; } = DefaultHeaderSize - 8;

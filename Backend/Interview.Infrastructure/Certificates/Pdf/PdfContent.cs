@@ -21,13 +21,13 @@ internal class PdfContent : IComponent
                 column.Spacing(0.1f, Unit.Inch);
 
                 column.Item().Text(txt => txt.EmptyLine());
-                
+
                 column.Item().Text(text =>
                 {
                     text.Span("Результат прохождения: ");
                     text.Span(_detail.Grade.Name).Underline();
                 });
-                
+
                 column.Item().Text(_detail.Description);
             });
     }

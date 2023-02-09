@@ -6,8 +6,8 @@ namespace Interview.Infrastructure.Certificates.Pdf;
 
 internal class PdfHeader : IComponent
 {
-    private readonly CertificateDetail _detail;
     private readonly PdfCertificateGenerator.Settings _currentSettings;
+    private readonly CertificateDetail _detail;
 
     public PdfHeader(CertificateDetail detail, PdfCertificateGenerator.Settings currentSettings)
     {
@@ -24,7 +24,7 @@ internal class PdfHeader : IComponent
                 txt.Line("Сертификат").FontSize(_currentSettings.HeaderSize);
                 txt.AlignCenter();
             });
-            
+
             col.Item().Text(txt =>
             {
                 txt.Span("Выдан: ").FontSize(_currentSettings.PersonWhomCertificateSize);

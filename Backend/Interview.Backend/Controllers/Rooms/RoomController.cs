@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Interview.Domain.Rooms;
+using Interview.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -16,11 +17,12 @@ public class RoomController : ControllerBase
         _roomRepository = userRepository;
     }
 
-    
+
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<Room>> GetPage([Range(1, Int32.MaxValue)] int pageNumber)
+    public Task<IPagedList<Room>> GetPage([Range(1, int.MaxValue)] int pageNumber, 
+        [Range(1, PageProperty.DefaultSize)] int pageSize)
     {
-        return _roomRepository.GetPage(pageNumber, 30);
+        return _roomRepository.GetPage(pageNumber, pageSize);
     }
 
     [HttpPost(nameof(Create))]
@@ -28,5 +30,4 @@ public class RoomController : ControllerBase
     {
         return _roomRepository.CreateAsync(room);
     }
-
 }

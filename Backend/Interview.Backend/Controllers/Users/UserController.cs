@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices.JavaScript;
 using Interview.Domain.Users;
-using Interview.Infrastructure.Users;
+using Interview.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -18,17 +17,17 @@ public class UserController : ControllerBase
         _userRepository = userRepository;
     }
 
-    
+
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<User>> GetPage([Range(1, Int32.MaxValue)] int pageNumber)
+    public Task<IPagedList<User>> GetPage([Range(1, int.MaxValue)] int pageNumber,
+        [Range(1, PageProperty.DefaultSize)] int pageSize)
     {
-        return _userRepository.GetPage(pageNumber, 30);
+        return _userRepository.GetPage(pageNumber, pageSize);
     }
 
     [HttpGet(nameof(FindByNickname))]
-    public Task<User?> FindByNickname(String nickname)
+    public Task<User?> FindByNickname(string nickname)
     {
         return _userRepository.FindByNicknameAsync(nickname);
     }
-    
 }

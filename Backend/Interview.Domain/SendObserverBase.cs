@@ -2,8 +2,8 @@
 
 public abstract class SendObserverBase<T> : IObserver<T>
 {
-    private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly List<Task> _activeSendActions;
+    private readonly CancellationTokenSource _cancellationTokenSource;
 
     public SendObserverBase()
     {
@@ -14,10 +14,10 @@ public abstract class SendObserverBase<T> : IObserver<T>
     public void OnCompleted()
     {
         _cancellationTokenSource.Cancel();
-        
+
         Task.WhenAll(_activeSendActions).ConfigureAwait(false).GetAwaiter().GetResult();
         _activeSendActions.Clear();
-        
+
         _cancellationTokenSource.Dispose();
     }
 
@@ -34,7 +34,7 @@ public abstract class SendObserverBase<T> : IObserver<T>
             activeAction.Dispose();
             _activeSendActions.Remove(activeAction);
         }
-        
+
         var newSendAction = SendAsync(value, _cancellationTokenSource.Token);
         _activeSendActions.Add(newSendAction);
     }

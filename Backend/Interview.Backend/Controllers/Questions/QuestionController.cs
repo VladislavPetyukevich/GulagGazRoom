@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Interview.Domain.Questions;
-using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -10,7 +10,6 @@ namespace Interview.Backend.Controllers.Questions;
 [Route("[controller]")]
 public class QuestionController : ControllerBase
 {
-
     private readonly IQuestionRepository _questionRepository;
 
     public QuestionController(IQuestionRepository questionRepository)
@@ -18,11 +17,12 @@ public class QuestionController : ControllerBase
         _questionRepository = questionRepository;
     }
 
-    
+
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<Question>> GetPage([Range(1, Int32.MaxValue)] int pageNumber)
+    public Task<IPagedList<Question>> GetPage([Range(1, int.MaxValue)] int pageNumber,
+        [Range(1, PageProperty.DefaultSize)] int pageSize)
     {
-        return _questionRepository.GetPage(pageNumber, 30);
+        return _questionRepository.GetPage(pageNumber, pageSize);
     }
 
     [HttpPost(nameof(Create))]
@@ -30,6 +30,4 @@ public class QuestionController : ControllerBase
     {
         return _questionRepository.CreateAsync(room);
     }
-
-    
 }

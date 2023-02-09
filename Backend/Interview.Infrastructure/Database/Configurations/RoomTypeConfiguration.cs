@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Interview.Infrastructure.Database.Configurations;
 
-public class RoomTypeConfiguration: EntityTypeConfigurationBase<Room>
+public class RoomTypeConfiguration : EntityTypeConfigurationBase<Room>
 {
     protected override void ConfigureCore(EntityTypeBuilder<Room> builder)
     {
@@ -11,5 +11,4 @@ public class RoomTypeConfiguration: EntityTypeConfigurationBase<Room>
         builder.HasMany(room => room.Users).WithMany();
         builder.HasMany(room => room.Questions).WithMany();
     }
-    
 }

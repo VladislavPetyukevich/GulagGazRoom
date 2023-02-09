@@ -3,7 +3,7 @@ using X.PagedList;
 
 namespace Interview.Domain;
 
-public interface IRepository<T> 
+public interface IRepository<T>
     where T : Entity
 {
     Task CreateAsync(T entity, CancellationToken cancellationToken = default);
@@ -12,5 +12,4 @@ public interface IRepository<T>
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
     Task<IPagedList<T>> GetPage(Expression<Func<T, bool>> expression, int pageNumber, int pageSize);
     Task<IPagedList<T>> GetPage(int pageNumber, int pageSize);
-
 }

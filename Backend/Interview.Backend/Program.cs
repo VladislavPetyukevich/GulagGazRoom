@@ -21,9 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(optionsBuilder =>
 {
     if (builder.Environment.IsDevelopment())
-    {
         optionsBuilder.UseSqlite(builder.Configuration.GetConnectionString("sqlite"));
-    }
 });
 
 var app = builder.Build();

@@ -49,5 +49,4 @@ public class EfRepository<T> : IRepository<T>
     {
         return _set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize);
     }
-    
 }

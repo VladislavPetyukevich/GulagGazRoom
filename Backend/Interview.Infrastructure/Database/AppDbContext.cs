@@ -7,15 +7,15 @@ namespace Interview.Infrastructure.Database;
 
 public sealed class AppDbContext : DbContext
 {
-    public DbSet<User> Users { get; private set; } = null!;
-
-    public DbSet<Question> Questions { get; private set; } = null!;
-
-    public DbSet<Room> Rooms { get; private set; } = null!;
-
     public AppDbContext(DbContextOptions options) : base(options)
     {
     }
+
+    public DbSet<User> Users { get; } = null!;
+
+    public DbSet<Question> Questions { get; } = null!;
+
+    public DbSet<Room> Rooms { get; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
