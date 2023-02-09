@@ -11,13 +11,14 @@ namespace Interview.Backend.Controllers.Users;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private IUserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
 
     public UserController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
 
+    
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<User>> GetPage([Range(1, Int32.MaxValue)] int pageNumber)
     {

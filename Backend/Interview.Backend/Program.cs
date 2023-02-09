@@ -1,5 +1,9 @@
+using Interview.Domain.Questions;
+using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Interview.Infrastructure.Database;
+using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
