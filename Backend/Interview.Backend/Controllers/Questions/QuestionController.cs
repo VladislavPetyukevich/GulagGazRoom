@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using Interview.Backend.Shared;
 using Interview.Domain.Questions;
-using Interview.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -19,10 +18,9 @@ public class QuestionController : ControllerBase
 
 
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<Question>> GetPage([Range(1, int.MaxValue)] int pageNumber,
-        [Range(1, PageProperty.DefaultSize)] int pageSize)
+    public Task<IPagedList<Question>> GetPage([FromQuery]PageRequest request)
     {
-        return _questionRepository.GetPage(pageNumber, pageSize);
+        return _questionRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
     [HttpPost(nameof(Create))]

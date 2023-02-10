@@ -11,8 +11,4 @@
         <PackageReference Include="X.PagedList" Version="8.4.3"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="obj\Debug\net7.0"/>
-    </ItemGroup>
-
 </Project>

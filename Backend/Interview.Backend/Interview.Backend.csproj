@@ -20,10 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="obj\Debug\net7.0" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Interview.DependencyInjection\Interview.DependencyInjection.csproj" />
         <ProjectReference Include="..\Interview.Infrastructure\Interview.Infrastructure.csproj" />
     </ItemGroup>
