@@ -1,13 +1,15 @@
-﻿using Interview.Domain;
+﻿using System.Linq.Expressions;
+using Interview.Domain;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
 
 namespace Interview.Infrastructure.Database;
 
-public class EfRepository<T> : IRepository<T> 
+public class EfRepository<T> : IRepository<T>
     where T : Entity
 {
-    private readonly AppDbContext _db;
-    private readonly DbSet<T> _set;
+    protected readonly AppDbContext _db;
+    protected readonly DbSet<T> _set;
 
     public EfRepository(AppDbContext db)
     {
@@ -36,5 +38,15 @@ public class EfRepository<T> : IRepository<T>
     {
         _set.Remove(entity);
         return _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task<IPagedList<T>> GetPage(Expression<Func<T, bool>> expression, int pageNumber, int pageSize)
+    {
+        return _set.OrderBy(entity => entity.Id).Where(expression).ToPagedListAsync(pageNumber, pageSize);
+    }
+
+    public Task<IPagedList<T>> GetPage(int pageNumber, int pageSize)
+    {
+        return _set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize);
     }
 }

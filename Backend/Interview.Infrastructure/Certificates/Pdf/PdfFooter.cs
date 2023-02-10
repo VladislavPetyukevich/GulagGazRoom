@@ -12,7 +12,7 @@ internal class PdfFooter : IComponent
     {
         _detail = detail;
     }
-        
+
     public void Compose(IContainer container)
     {
         container.Row(descriptor =>
@@ -28,7 +28,7 @@ internal class PdfFooter : IComponent
                             txt.Span("Дата");
                             txt.AlignCenter();
                         });
-                        
+
                         col.Item()
                             .PaddingLeft(5)
                             .PaddingRight(5)

@@ -1,6 +1,6 @@
 ﻿namespace Interview.Domain.Users;
 
-public interface IUserRepository
+public interface IUserRepository : IRepository<User>
 {
-    Task<User?> FindUserAsync(string nickname, CancellationToken cancellationToken = default);
+    Task<User?> FindByNicknameAsync(string nickname, CancellationToken cancellationToken = default);
 }

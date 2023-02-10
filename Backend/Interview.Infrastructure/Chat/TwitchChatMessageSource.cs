@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Interview.Domain.Chat;
+﻿using Interview.Domain.Chat;
 using Interview.Domain.Users;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
@@ -16,14 +13,27 @@ namespace Interview.Infrastructure.Chat;
 public class TwitchChatMessageSource : IChatMessageSource
 {
     private readonly Lazy<TwitchClient> _client;
-    private readonly IUserRepository _userRepository;
     private readonly List<IObserver<ChatMessage>> _observers;
+    private readonly IUserRepository _userRepository;
 
     public TwitchChatMessageSource(IClient client, IUserRepository userRepository)
     {
         _userRepository = userRepository;
         _client = new Lazy<TwitchClient>(() => new TwitchClient(client), LazyThreadSafetyMode.None);
         _observers = new List<IObserver<ChatMessage>>();
+    }
+
+    public IDisposable Subscribe(IObserver<ChatMessage> observer)
+    {
+        return new UnSubscriber(observer, _observers);
+    }
+
+    public void Dispose()
+    {
+        if (_client.IsValueCreated)
+            _client.Value.Disconnect();
+
+        _observers.Clear();
     }
 
     public void Connect(ConnectionCredentials credentials, string chanel)
@@ -46,11 +56,11 @@ public class TwitchChatMessageSource : IChatMessageSource
     private async void OnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
         var observers = _observers;
-        if(observers.Count == 0)
+        if (observers.Count == 0)
             return;
-        
-        var user = await _userRepository.FindUserAsync(e.ChatMessage.Username);
-        if(user == null)
+
+        var user = await _userRepository.FindByNicknameAsync(e.ChatMessage.Username);
+        if (user == null)
             return;
 
         var chatMessage = new ChatMessage(user, e.ChatMessage.Message);
@@ -65,8 +75,6 @@ public class TwitchChatMessageSource : IChatMessageSource
             observer.OnError(e.Exception);
     }
 
-    public IDisposable Subscribe(IObserver<ChatMessage> observer) => new UnSubscriber(observer, _observers);
-    
     private sealed class UnSubscriber : IDisposable
     {
         private readonly IObserver<ChatMessage> _observer;
@@ -79,14 +87,9 @@ public class TwitchChatMessageSource : IChatMessageSource
             observers.Add(observer);
         }
 
-        public void Dispose() => _observers.Remove(_observer);
-    }
-
-    public void Dispose()
-    {
-        if(_client.IsValueCreated)
-            _client.Value.Disconnect();
-        
-        _observers.Clear();
+        public void Dispose()
+        {
+            _observers.Remove(_observer);
+        }
     }
 }

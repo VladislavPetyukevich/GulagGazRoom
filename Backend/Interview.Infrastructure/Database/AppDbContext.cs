@@ -1,15 +1,21 @@
-﻿using Interview.Domain.Users;
+﻿using Interview.Domain.Questions;
+using Interview.Domain.Rooms;
+using Interview.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Infrastructure.Database;
 
 public sealed class AppDbContext : DbContext
 {
-    public DbSet<User> Users { get; private set; } = null!;
-
     public AppDbContext(DbContextOptions options) : base(options)
     {
     }
+
+    public DbSet<User> Users { get; } = null!;
+
+    public DbSet<Question> Questions { get; } = null!;
+
+    public DbSet<Room> Rooms { get; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
