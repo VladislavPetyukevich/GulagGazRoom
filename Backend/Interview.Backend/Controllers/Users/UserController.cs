@@ -1,10 +1,10 @@
-using System.ComponentModel.DataAnnotations;
+using Interview.Backend.Shared;
 using Interview.Domain.Users;
-using Interview.Infrastructure.Constants;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TwitchLib.Api.Helix.Models.Users.GetUsers;
 using X.PagedList;
+using User = Interview.Domain.Users.User;
 
 namespace Interview.Backend.Controllers.Users;
 
@@ -22,10 +22,9 @@ public class UserController : ControllerBase
 
     [Authorize(policy: "user")]
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<User>> GetPage([Range(1, int.MaxValue)] int pageNumber,
-        [Range(1, PageProperty.DefaultSize)] int pageSize)
+    public Task<IPagedList<User>> GetPage([FromQuery]PageRequest request)
     {
-        return _userRepository.GetPage(pageNumber, pageSize);
+        return _userRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
     [HttpGet(nameof(FindByNickname))]
@@ -36,17 +35,9 @@ public class UserController : ControllerBase
     
     [Authorize(policy: "user")]
     [HttpGet(nameof(GetMe))]
-    public Task<List<String>> GetMe()
+    public Task<List<string>> GetMe()
     {
         var claims = HttpContext.User.Claims.Select(claim => claim.Value).ToList();
         return Task.FromResult(claims);
     }
-
-    public class Claim
-    {
-        public string Type { get; init; } = string.Empty;
-        
-        public string Name { get; init; } = string.Empty;
-    }
-
 }
