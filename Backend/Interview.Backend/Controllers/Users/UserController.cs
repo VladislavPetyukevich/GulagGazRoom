@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Interview.Domain.Users;
 using Interview.Infrastructure.Constants;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -19,7 +20,7 @@ public class UserController : ControllerBase
     }
 
 
-    [Authorize(AuthenticationSchemes = "twitch")]
+    [Authorize(policy: "user")]
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<User>> GetPage([Range(1, int.MaxValue)] int pageNumber,
         [Range(1, PageProperty.DefaultSize)] int pageSize)
@@ -32,4 +33,20 @@ public class UserController : ControllerBase
     {
         return _userRepository.FindByNicknameAsync(nickname);
     }
+    
+    [Authorize(policy: "user")]
+    [HttpGet(nameof(GetMe))]
+    public Task<List<Claim>> GetMe()
+    {
+        List<Claim> claims = HttpContext.User.Claims.Select(claim => new Claim {Type = claim.Type, Name = claim.Value}).ToList();
+        return Task.FromResult(claims);
+    }
+
+    public class Claim
+    {
+        public string Type { get; init; } = string.Empty;
+        
+        public string Name { get; init; } = string.Empty;
+    }
+
 }
