@@ -36,9 +36,9 @@ public class UserController : ControllerBase
     
     [Authorize(policy: "user")]
     [HttpGet(nameof(GetMe))]
-    public Task<List<Claim>> GetMe()
+    public Task<List<String>> GetMe()
     {
-        List<Claim> claims = HttpContext.User.Claims.Select(claim => new Claim {Type = claim.Type, Name = claim.Value}).ToList();
+        var claims = HttpContext.User.Claims.Select(claim => claim.Value).ToList();
         return Task.FromResult(claims);
     }
 
