@@ -65,10 +65,10 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         options.TokenEndpoint = oAuthTwitchOptions.TokenEndpoint;
         options.UserInformationEndpoint = oAuthTwitchOptions.UserInformationEndpoint;
 
-        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email", "data");
-        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "display_name", "data");
-        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "login", "data");
-        options.ClaimActions.MapJsonKey(ClaimTypes.Hash, "id", "data");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email", "email");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "display_name", "name");
+        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "login", "nameIdentifier");
+        options.ClaimActions.MapJsonKey(ClaimTypes.Hash, "id", "id");
 
         var scopes = new List<string>(oAuthTwitchOptions.Scopes);
         scopes.ForEach(scope => { options.Scope.Add(scope.ToLower()); });
@@ -129,9 +129,6 @@ services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-app.MapGet("oauth2/login/twitch", async context =>
-        await context.ChallengeAsync("twitch"))
-    .RequireAuthorization("user");
 
 using (var serviceScope = app.Services.CreateScope())
 {
