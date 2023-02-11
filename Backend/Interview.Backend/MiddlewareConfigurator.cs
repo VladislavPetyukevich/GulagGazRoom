@@ -22,6 +22,7 @@ public class MiddlewareConfigurator
             MinimumSameSitePolicy = SameSiteMode.Lax,
         });
         
+        _app.UseAuthentication();
         _app.UseAuthorization();
 
         _app.UseWebSockets();

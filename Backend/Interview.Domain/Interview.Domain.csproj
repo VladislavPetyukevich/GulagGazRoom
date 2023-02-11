@@ -8,7 +8,6 @@
 
     <ItemGroup>
         <PackageReference Include="Ardalis.SmartEnum" Version="2.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
         <PackageReference Include="X.PagedList" Version="8.4.3" />
     </ItemGroup>
 
