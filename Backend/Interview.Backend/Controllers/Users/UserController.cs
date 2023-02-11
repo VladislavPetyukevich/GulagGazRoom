@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using Interview.Backend.Shared;
 using Interview.Domain.Users;
-using Interview.Infrastructure.Constants;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -19,10 +18,9 @@ public class UserController : ControllerBase
 
 
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<User>> GetPage([Range(1, int.MaxValue)] int pageNumber,
-        [Range(1, PageProperty.DefaultSize)] int pageSize)
+    public Task<IPagedList<User>> GetPage([FromQuery]PageRequest request)
     {
-        return _userRepository.GetPage(pageNumber, pageSize);
+        return _userRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
     [HttpGet(nameof(FindByNickname))]
