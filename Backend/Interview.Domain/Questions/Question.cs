@@ -6,6 +6,10 @@ public class Question : Entity
     {
         Value = value;
     }
+    
+    private Question() : this(string.Empty)
+    {
+    }
 
     public string Value { get; }
 }

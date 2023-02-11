@@ -8,14 +8,12 @@ public sealed class TwitchTokenProvider : ITwitchTokenProvider
     private const string TwitchOAuth2Uri = "https://id.twitch.tv/oauth2/";
     private const string DefaultScope = "chat:edit chat:read";
     private const string DefaultGrantType = "client_credentials";
-    
-    private readonly string _clientId;
-    private readonly string _clientSecret;
 
-    public TwitchTokenProvider(string clientId, string clientSecret)
+    private readonly TwitchTokenProviderOption _option;
+
+    public TwitchTokenProvider(TwitchTokenProviderOption options)
     {
-        _clientId = clientId;
-        _clientSecret = clientSecret;
+        _option = options;
     }
     
     public async ValueTask<TwitchToken> GetTokenAsync(CancellationToken cancellationToken = default)
@@ -29,8 +27,8 @@ public sealed class TwitchTokenProvider : ITwitchTokenProvider
     
     private StringContent BuildStringContent()
     {
-        var content = "client_id=" + _clientId + 
-                      "&client_secret=" + _clientSecret + 
+        var content = "client_id=" + _option.ClientId + 
+                      "&client_secret=" + _option.ClientSecret + 
                       "&grant_type=" + DefaultGrantType + 
                       "&scope=" + DefaultScope;
         return new StringContent(content, Encoding.UTF8, "application/x-www-form-urlencoded");

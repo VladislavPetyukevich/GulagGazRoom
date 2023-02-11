@@ -22,7 +22,7 @@ public class ServiceConfigurator
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
         
-        var serviceOption = new DependencyInjectionAppServiceOption(optionsBuilder =>
+        var serviceOption = new DependencyInjectionAppServiceOption(_configuration, optionsBuilder =>
         {
             if (_environment.IsDevelopment())
                 optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));

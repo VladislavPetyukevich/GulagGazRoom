@@ -6,6 +6,10 @@ public class User : Entity
     {
         Nickname = nickname;
     }
+    
+    private User() : this(string.Empty)
+    {
+    }
 
     public string Nickname { get; }
 }
