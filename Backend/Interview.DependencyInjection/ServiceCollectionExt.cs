@@ -2,6 +2,7 @@
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Chat.TokenProviders;
 using Interview.Infrastructure.Database;
@@ -20,8 +21,11 @@ public static class ServiceCollectionExt
         self.AddScoped<IUserRepository, UserRepository>();
         self.AddScoped<IRoomRepository, RoomRepository>();
         self.AddScoped<IQuestionRepository, QuestionRepository>();
+        self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
+        
+        self.AddScoped<UserService>();
 
         var section = option.Configuration.GetSection("TwitchTokenProvider");
         var twitchTokenProviderOption = new TwitchTokenProviderOption();

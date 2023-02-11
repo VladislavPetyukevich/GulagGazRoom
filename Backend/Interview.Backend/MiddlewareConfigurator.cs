@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Extensions.Options;
-
-namespace Interview.Backend;
+﻿namespace Interview.Backend;
 
 public class MiddlewareConfigurator
 {
