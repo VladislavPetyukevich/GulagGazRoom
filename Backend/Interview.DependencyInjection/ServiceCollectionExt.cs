@@ -27,10 +27,7 @@ public static class ServiceCollectionExt
         
         self.AddScoped<UserService>();
 
-        var section = option.Configuration.GetSection("TwitchTokenProvider");
-        var twitchTokenProviderOption = new TwitchTokenProviderOption();
-        section.Bind(twitchTokenProviderOption);
-        self.AddSingleton(twitchTokenProviderOption);
+        self.AddSingleton(option.TwitchTokenProviderOption);
         self.AddSingleton<ITwitchTokenProvider, TwitchTokenProvider>();
         self.Decorate<ITwitchTokenProvider, ReloadableCacheTwitchTokenProvider>();
         return self;

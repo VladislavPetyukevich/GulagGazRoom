@@ -4,6 +4,7 @@ using Interview.Backend.options;
 using Interview.DependencyInjection;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
+using Interview.Infrastructure.Chat.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,22 +33,28 @@ public class ServiceConfigurator
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
-        
-        var serviceOption = new DependencyInjectionAppServiceOption(_configuration, optionsBuilder =>
+     
+        var oAuthTwitchOptions = new OAuthTwitchOptions();
+        _configuration.GetSection(OAuthTwitchOptions.OAuthTwitch).Bind(oAuthTwitchOptions);
+
+        var twitchTokenProviderOption = new TwitchTokenProviderOption
+        {
+            ClientId = oAuthTwitchOptions.ClientId,
+            ClientSecret = oAuthTwitchOptions.ClientSecret
+        };
+        var serviceOption = new DependencyInjectionAppServiceOption(twitchTokenProviderOption, optionsBuilder =>
         {
             if (_environment.IsDevelopment())
                 optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));
         });
         serviceCollection.AddAppServices(serviceOption);
 
-        AddAuth(serviceCollection);
+        AddAuth(serviceCollection, oAuthTwitchOptions);
     }
 
-    private void AddAuth(IServiceCollection serviceCollection)
+    private static void AddAuth(IServiceCollection serviceCollection, OAuthTwitchOptions oAuthTwitchOptions)
     {
-        var oAuthTwitchOptions = new OAuthTwitchOptions();
-        _configuration.GetSection(OAuthTwitchOptions.OAuthTwitch).Bind(oAuthTwitchOptions);
-
+        const string twitchScheme = "twitch";
         serviceCollection.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
@@ -57,7 +64,7 @@ public class ServiceConfigurator
                 options.ClaimsIssuer = oAuthTwitchOptions.ClaimsIssuer;
                 options.ExpireTimeSpan = TimeSpan.FromDays(10);
             })
-            .AddTwitch("twitch", options =>
+            .AddTwitch(twitchScheme, options =>
             {
                 options.ClientId = oAuthTwitchOptions.ClientId;
                 options.ClientSecret = oAuthTwitchOptions.ClientSecret;
@@ -66,15 +73,13 @@ public class ServiceConfigurator
                 options.UsePkce = oAuthTwitchOptions.UsePkce;
                 options.Events.OnTicketReceived += async context =>
                 {
-                    if(context.Principal == null)
-                        return;
-
                     var user = ToUser(context.Principal);
                     if(user == null)
                         return;
                     
                     var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
-                    await userService.CreateOrUpdateAsync(user);
+                    await userService.UpsertByTwitchIdentityAsync(user);
+                    EnrichRoles(context.Principal, user);
                 };
             });
 
@@ -82,13 +87,23 @@ public class ServiceConfigurator
         {
             options.AddPolicy("user", policyBuilder =>
             {
-                policyBuilder.AddAuthenticationSchemes("twitch").RequireAuthenticatedUser();
+                policyBuilder.AddAuthenticationSchemes(twitchScheme).RequireAuthenticatedUser();
             });
         });
     }
 
-    private static User? ToUser(ClaimsPrincipal claimsPrincipal)
+    private static void EnrichRoles(ClaimsPrincipal contextPrincipal, User user)
     {
+        var newRoles = user.Roles.Select(e => new Claim(ClaimTypes.Role, e.Name.Name));
+        var claimIdentity = new ClaimsIdentity(newRoles);
+        contextPrincipal.AddIdentity(claimIdentity);
+    }
+
+    private static User? ToUser(ClaimsPrincipal? claimsPrincipal)
+    {
+        if (claimsPrincipal == null)
+            return null;
+        
         var id = claimsPrincipal.Claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier);
         var email = claimsPrincipal.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Email);
         var nickname = claimsPrincipal.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Name);

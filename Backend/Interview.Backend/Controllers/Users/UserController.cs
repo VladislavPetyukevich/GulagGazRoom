@@ -1,5 +1,6 @@
 using Interview.Backend.Shared;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TwitchLib.Api.Helix.Models.Users.GetUsers;
@@ -27,6 +28,7 @@ public class UserController : ControllerBase
         return _userRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
+    [Authorize(Roles = RoleNameConstants.User + "," + RoleNameConstants.Admin)]
     [HttpGet(nameof(FindByNickname))]
     public Task<User?> FindByNickname(string nickname)
     {
