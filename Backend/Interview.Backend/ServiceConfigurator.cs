@@ -73,6 +73,9 @@ public class ServiceConfigurator
                 options.UsePkce = oAuthTwitchOptions.UsePkce;
                 options.Events.OnTicketReceived += async context =>
                 {
+                    if(context.Principal == null)
+                        return;
+                    
                     var user = ToUser(context.Principal);
                     if(user == null)
                         return;
@@ -99,11 +102,8 @@ public class ServiceConfigurator
         contextPrincipal.AddIdentity(claimIdentity);
     }
 
-    private static User? ToUser(ClaimsPrincipal? claimsPrincipal)
+    private static User? ToUser(ClaimsPrincipal claimsPrincipal)
     {
-        if (claimsPrincipal == null)
-            return null;
-        
         var id = claimsPrincipal.Claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier);
         var email = claimsPrincipal.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Email);
         var nickname = claimsPrincipal.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Name);
