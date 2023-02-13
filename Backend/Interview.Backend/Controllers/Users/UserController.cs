@@ -1,10 +1,7 @@
 using Interview.Backend.Shared;
-using Interview.Domain.Users;
-using Interview.Domain.Users.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
-using User = Interview.Domain.Users.User;
 
 namespace Interview.Backend.Controllers.Users;
 
