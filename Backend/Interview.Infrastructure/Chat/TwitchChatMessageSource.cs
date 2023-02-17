@@ -31,7 +31,9 @@ public class TwitchChatMessageSource : IChatMessageSource
     public void Dispose()
     {
         if (_client.IsValueCreated)
+        {
             _client.Value.Disconnect();
+        }
 
         _observers.Clear();
     }
@@ -50,29 +52,39 @@ public class TwitchChatMessageSource : IChatMessageSource
     {
         var observers = _observers;
         foreach (var observer in observers)
+        {
             observer.OnCompleted();
+        }
     }
 
     private async void OnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
         var observers = _observers;
         if (observers.Count == 0)
+        {
             return;
+        }
 
         var user = await _userRepository.FindByNicknameAsync(e.ChatMessage.Username);
         if (user == null)
+        {
             return;
+        }
 
         var chatMessage = new ChatMessage(user, e.ChatMessage.Message);
         foreach (var observer in observers)
+        {
             observer.OnNext(chatMessage);
+        }
     }
 
     private void OnError(object? sender, OnErrorEventArgs e)
     {
         var observers = _observers;
         foreach (var observer in observers)
+        {
             observer.OnError(e.Exception);
+        }
     }
 
     private sealed class UnSubscriber : IDisposable
