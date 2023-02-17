@@ -16,7 +16,6 @@ public class UserController : ControllerBase
         _userRepository = userRepository;
     }
 
-
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<User>> GetPage([FromQuery]PageRequest request)
     {

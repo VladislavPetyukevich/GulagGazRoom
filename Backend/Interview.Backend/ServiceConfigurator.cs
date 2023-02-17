@@ -17,15 +17,17 @@ public class ServiceConfigurator
     public void AddServices(IServiceCollection serviceCollection)
     {
         serviceCollection.AddControllers();
-        
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
-        
+
         var serviceOption = new DependencyInjectionAppServiceOption(_configuration, optionsBuilder =>
         {
             if (_environment.IsDevelopment())
+            {
                 optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));
+            }
         });
         serviceCollection.AddAppServices(serviceOption);
     }

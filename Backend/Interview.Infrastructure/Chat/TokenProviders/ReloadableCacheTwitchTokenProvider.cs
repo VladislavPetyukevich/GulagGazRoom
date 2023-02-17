@@ -31,8 +31,11 @@ public sealed class ReloadableCacheTwitchTokenProvider : ITwitchTokenProvider
     {
         _cacheToken ??= await _original.GetTokenAsync(cancellationToken);
         var twitchToken = _cacheToken.Value;
-        if (!twitchToken.Expired) 
+        if (!twitchToken.Expired)
+        {
             return twitchToken;
+        }
+
         // Refresh
         _cacheToken = twitchToken = await _original.GetTokenAsync(cancellationToken);
         return twitchToken;

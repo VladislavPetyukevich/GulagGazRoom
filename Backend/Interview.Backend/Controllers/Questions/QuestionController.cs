@@ -16,7 +16,6 @@ public class QuestionController : ControllerBase
         _questionRepository = questionRepository;
     }
 
-
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<Question>> GetPage([FromQuery]PageRequest request)
     {
