@@ -1,4 +1,4 @@
-﻿using Interview.DependencyInjection;
+using Interview.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Backend;

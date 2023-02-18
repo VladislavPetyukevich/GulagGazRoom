@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Users;
+using Interview.Domain.Users;
 
 namespace Interview.Domain.Chat;
 

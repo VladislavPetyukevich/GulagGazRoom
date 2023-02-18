@@ -17,7 +17,7 @@ public class QuestionController : ControllerBase
     }
 
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<Question>> GetPage([FromQuery]PageRequest request)
+    public Task<IPagedList<Question>> GetPage([FromQuery] PageRequest request)
     {
         return _questionRepository.GetPage(request.PageNumber, request.PageSize);
     }

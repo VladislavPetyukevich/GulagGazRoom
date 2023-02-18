@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Certificates;
+namespace Interview.Domain.Certificates;
 
 public interface ICertificateGenerator
 {

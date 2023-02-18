@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Chat;
+namespace Interview.Domain.Chat;
 
 public sealed class ChatObserver : SendObserverBase<ChatMessage>
 {

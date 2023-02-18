@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Users;
+namespace Interview.Domain.Users;
 
 public class User : Entity
 {
@@ -6,8 +6,9 @@ public class User : Entity
     {
         Nickname = nickname;
     }
-    
-    private User() : this(string.Empty)
+
+    private User()
+        : this(string.Empty)
     {
     }
 
