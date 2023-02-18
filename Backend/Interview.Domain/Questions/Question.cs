@@ -6,8 +6,9 @@ public class Question : Entity
     {
         Value = value;
     }
-    
-    private Question() : this(string.Empty)
+
+    private Question()
+        : this(string.Empty)
     {
     }
 

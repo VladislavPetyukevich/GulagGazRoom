@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain;
+namespace Interview.Domain;
 
 public abstract class SendObserverBase<T> : IObserver<T>
 {

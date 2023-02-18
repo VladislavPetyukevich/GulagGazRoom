@@ -6,7 +6,7 @@ namespace Interview.Infrastructure.Certificates.Pdf;
 
 public sealed class PdfCertificateGenerator : ICertificateGenerator
 {
-    public Settings CurrentSettings { get; } = new();
+    public Settings CurrentSettings { get; } = new ();
 
     public Task<Stream> GenerateAsync(CertificateDetail detail, CancellationToken cancellationToken = default)
     {
@@ -39,7 +39,9 @@ public sealed class PdfCertificateGenerator : ICertificateGenerator
         private const int DefaultHeaderSize = 36;
 
         public int TextSize { get; set; } = 18;
+
         public int HeaderSize { get; set; } = DefaultHeaderSize;
+
         public int PersonWhomCertificateSize { get; set; } = DefaultHeaderSize - 8;
     }
 }

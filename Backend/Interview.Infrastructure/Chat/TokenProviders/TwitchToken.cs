@@ -3,7 +3,9 @@
 public readonly struct TwitchToken : IEquatable<TwitchToken>
 {
     public string? AccessToken { get; }
+
     public DateTime ExpiresIn { get; }
+
     public bool Expired => DateTime.UtcNow >= ExpiresIn;
 
     public TwitchToken(string? accessToken, long expiresIn)
@@ -26,6 +28,6 @@ public readonly struct TwitchToken : IEquatable<TwitchToken>
     public static bool operator ==(TwitchToken left, TwitchToken right) => left.Equals(right);
 
     public static bool operator !=(TwitchToken left, TwitchToken right) => !(left == right);
-    
+
     public override string ToString() => $"AccessToken(Token = \"{AccessToken}\", ExpiresIn = \"{ExpiresIn}\", Expired = \"{Expired}\")";
 }

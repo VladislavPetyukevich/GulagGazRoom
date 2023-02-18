@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Users;
+using Interview.Domain.Users;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Interview.Infrastructure.Database.Configurations;

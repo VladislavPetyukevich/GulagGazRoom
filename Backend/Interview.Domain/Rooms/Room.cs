@@ -10,13 +10,14 @@ public class Room : Entity
         Name = name;
     }
 
-    private Room() : this("")
+    private Room()
+        : this(string.Empty)
     {
     }
 
     public string Name { get; set; }
 
-    public List<Question> Questions { get; set; } = new();
+    public List<Question> Questions { get; set; } = new ();
 
-    public List<User> Users { get; set; } = new();
+    public List<User> Users { get; set; } = new ();
 }

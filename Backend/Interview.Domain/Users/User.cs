@@ -6,8 +6,9 @@ public class User : Entity
     {
         Nickname = nickname;
     }
-    
-    private User() : this(string.Empty)
+
+    private User()
+        : this(string.Empty)
     {
     }
 

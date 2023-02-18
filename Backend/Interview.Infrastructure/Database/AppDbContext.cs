@@ -7,7 +7,8 @@ namespace Interview.Infrastructure.Database;
 
 public sealed class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions options) : base(options)
+    public AppDbContext(DbContextOptions options)
+        : base(options)
     {
     }
 

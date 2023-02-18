@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Certificates;
+using Interview.Domain.Certificates;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
