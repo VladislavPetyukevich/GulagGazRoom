@@ -1,4 +1,4 @@
-﻿namespace Interview.Infrastructure.Chat.TokenProviders;
+namespace Interview.Infrastructure.Chat.TokenProviders;
 
 public readonly struct TwitchToken : IEquatable<TwitchToken>
 {

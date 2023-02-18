@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Users;
+namespace Interview.Domain.Users;
 
 public class User : Entity
 {
