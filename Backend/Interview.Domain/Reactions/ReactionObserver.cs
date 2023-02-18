@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Reactions;
+namespace Interview.Domain.Reactions;
 
 public sealed class ReactionObserver : SendObserverBase<Reaction>
 {

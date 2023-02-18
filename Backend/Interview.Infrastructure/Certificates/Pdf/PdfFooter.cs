@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Certificates;
+using Interview.Domain.Certificates;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 

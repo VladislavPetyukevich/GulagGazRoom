@@ -6,7 +6,8 @@ namespace Interview.Infrastructure.Users;
 
 public class UserRepository : EfRepository<User>, IUserRepository
 {
-    public UserRepository(AppDbContext db) : base(db)
+    public UserRepository(AppDbContext db)
+        : base(db)
     {
     }
 

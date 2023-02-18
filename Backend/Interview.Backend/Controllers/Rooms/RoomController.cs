@@ -17,7 +17,7 @@ public class RoomController : ControllerBase
     }
 
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<Room>> GetPage([FromQuery]PageRequest request)
+    public Task<IPagedList<Room>> GetPage([FromQuery] PageRequest request)
     {
         return _roomRepository.GetPage(request.PageNumber, request.PageSize);
     }

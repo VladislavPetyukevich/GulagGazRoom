@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain;
+namespace Interview.Domain;
 
 public class Constants
 {

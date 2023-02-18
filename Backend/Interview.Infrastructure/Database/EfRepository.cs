@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Interview.Domain;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;

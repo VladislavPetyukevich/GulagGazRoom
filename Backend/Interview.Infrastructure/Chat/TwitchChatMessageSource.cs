@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Chat;
+using Interview.Domain.Chat;
 using Interview.Domain.Users;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
