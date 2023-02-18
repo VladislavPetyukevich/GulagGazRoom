@@ -12,6 +12,6 @@ public class UserRepository : EfRepository<User>, IUserRepository
 
     public Task<User?> FindByNicknameAsync(string nickname, CancellationToken cancellationToken = default)
     {
-        return _set.FirstOrDefaultAsync(user => user.Nickname == nickname, cancellationToken);
+        return Set.FirstOrDefaultAsync(user => user.Nickname == nickname, cancellationToken);
     }
 }

@@ -1,6 +1,6 @@
-﻿using System.Linq.Expressions;
-using Interview.Domain;
+﻿using Interview.Domain;
 using Microsoft.EntityFrameworkCore;
+using NSpecifications;
 using X.PagedList;
 
 namespace Interview.Infrastructure.Database;
@@ -8,45 +8,45 @@ namespace Interview.Infrastructure.Database;
 public class EfRepository<T> : IRepository<T>
     where T : Entity
 {
-    protected readonly AppDbContext _db;
-    protected readonly DbSet<T> _set;
+    protected readonly AppDbContext Db;
+    protected readonly DbSet<T> Set;
 
     public EfRepository(AppDbContext db)
     {
-        _db = db;
-        _set = db.Set<T>();
+        Db = db;
+        Set = db.Set<T>();
     }
 
     public Task CreateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        _set.Add(entity);
-        return _db.SaveChangesAsync(cancellationToken);
+        Set.Add(entity);
+        return Db.SaveChangesAsync(cancellationToken);
     }
 
     public ValueTask<T?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _set.FindAsync(id, cancellationToken);
+        return Set.FindAsync(id, cancellationToken);
     }
 
     public Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        _set.Update(entity);
-        return _db.SaveChangesAsync(cancellationToken);
+        Set.Update(entity);
+        return Db.SaveChangesAsync(cancellationToken);
     }
 
     public Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
     {
-        _set.Remove(entity);
-        return _db.SaveChangesAsync(cancellationToken);
+        Set.Remove(entity);
+        return Db.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<IPagedList<T>> GetPage(Expression<Func<T, bool>> expression, int pageNumber, int pageSize)
+    public Task<IPagedList<T>> GetPage(ISpecification<T> specification, int pageNumber, int pageSize)
     {
-        return _set.OrderBy(entity => entity.Id).Where(expression).ToPagedListAsync(pageNumber, pageSize);
+        return Set.OrderBy(entity => entity.Id).Where(specification.Expression).ToPagedListAsync(pageNumber, pageSize);
     }
 
     public Task<IPagedList<T>> GetPage(int pageNumber, int pageSize)
     {
-        return _set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize);
+        return Set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize);
     }
 }
