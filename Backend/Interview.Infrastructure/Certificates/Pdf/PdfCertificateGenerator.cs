@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Certificates;
+using Interview.Domain.Certificates;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
@@ -6,7 +6,7 @@ namespace Interview.Infrastructure.Certificates.Pdf;
 
 public sealed class PdfCertificateGenerator : ICertificateGenerator
 {
-    public Settings CurrentSettings { get; } = new ();
+    public Settings CurrentSettings { get; } = new();
 
     public Task<Stream> GenerateAsync(CertificateDetail detail, CancellationToken cancellationToken = default)
     {
