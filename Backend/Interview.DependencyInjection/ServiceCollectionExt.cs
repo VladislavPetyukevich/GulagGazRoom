@@ -24,7 +24,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
-        
+
         self.AddScoped<UserService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);

@@ -10,15 +10,16 @@ public class User : Entity
         Email = email;
         TwitchIdentity = twitchIdentity;
     }
-    
-    private User() : this(string.Empty, string.Empty, string.Empty)
+
+    private User()
+        : this(string.Empty, string.Empty, string.Empty)
     {
     }
 
     public string Nickname { get; internal set; }
-    
+
     public string Email { get; internal set; }
-    
+
     public string TwitchIdentity { get; private set; }
 
     public List<Role> Roles { get; private set; } = new List<Role>();

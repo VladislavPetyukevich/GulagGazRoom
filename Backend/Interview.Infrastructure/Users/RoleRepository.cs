@@ -5,7 +5,8 @@ namespace Interview.Infrastructure.Users;
 
 public class RoleRepository : EfRepository<Role>, IRoleRepository
 {
-    public RoleRepository(AppDbContext db) : base(db)
+    public RoleRepository(AppDbContext db)
+        : base(db)
     {
     }
 }

@@ -24,11 +24,11 @@ public class ServiceConfigurator
             {
                 options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoleName, int>());
             });
-        
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
-     
+
         var oAuthTwitchOptions = new OAuthTwitchOptions(_configuration);
         var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), optionsBuilder =>
         {
@@ -41,4 +41,3 @@ public class ServiceConfigurator
         serviceCollection.AddAppAuth(oAuthTwitchOptions);
     }
 }
-

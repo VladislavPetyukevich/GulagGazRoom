@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Users.Roles;
+namespace Interview.Domain.Users.Roles;
 
 public static class RoleNameConstants
 {

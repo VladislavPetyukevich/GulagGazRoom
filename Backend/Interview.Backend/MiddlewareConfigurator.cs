@@ -17,7 +17,7 @@ public class MiddlewareConfigurator
         {
             MinimumSameSitePolicy = SameSiteMode.Lax,
         });
-        
+
         _app.UseAuthentication();
         _app.UseAuthorization();
 
@@ -29,7 +29,7 @@ public class MiddlewareConfigurator
             _app.UseSwagger();
             _app.UseSwaggerUI();
         }
-        
+
         _app.MapControllers();
     }
 }

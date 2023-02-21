@@ -15,7 +15,7 @@ public class UserController : ControllerBase
     {
         _userRepository = userRepository;
     }
-    
+
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<User>> GetPage([FromQuery] PageRequest request)
     {
@@ -28,7 +28,7 @@ public class UserController : ControllerBase
     {
         return _userRepository.FindByNicknameAsync(nickname);
     }
-    
+
     [Authorize(policy: "user")]
     [HttpGet(nameof(GetMe))]
     public Task<List<string>> GetMe()

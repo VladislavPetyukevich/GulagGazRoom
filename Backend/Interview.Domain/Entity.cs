@@ -1,11 +1,11 @@
-﻿namespace Interview.Domain;
+namespace Interview.Domain;
 
 public abstract class Entity
 {
     public Entity()
     {
     }
-    
+
     public Entity(Guid id)
     {
         Id = id;

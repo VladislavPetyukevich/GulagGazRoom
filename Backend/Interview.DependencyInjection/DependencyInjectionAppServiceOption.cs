@@ -1,4 +1,4 @@
-﻿using Interview.Infrastructure.Chat.TokenProviders;
+using Interview.Infrastructure.Chat.TokenProviders;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.DependencyInjection;

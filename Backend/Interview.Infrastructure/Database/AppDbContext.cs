@@ -18,7 +18,7 @@ public sealed class AppDbContext : DbContext
     public DbSet<Question> Questions { get; } = null!;
 
     public DbSet<Room> Rooms { get; } = null!;
-    
+
     public DbSet<Role> Roles { get; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
