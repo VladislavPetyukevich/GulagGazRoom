@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using NSpecifications;
 using X.PagedList;
 
 namespace Interview.Domain;
@@ -14,7 +15,7 @@ public interface IRepository<T>
 
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
-    Task<IPagedList<T>> GetPage(Expression<Func<T, bool>> expression, int pageNumber, int pageSize);
+    Task<IPagedList<T>> GetPage(ISpecification<T> specification, int pageNumber, int pageSize);
 
     Task<IPagedList<T>> GetPage(int pageNumber, int pageSize);
 }
