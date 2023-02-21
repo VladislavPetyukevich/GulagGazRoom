@@ -1,10 +1,10 @@
-﻿namespace Interview.Infrastructure.Chat.TokenProviders;
+namespace Interview.Infrastructure.Chat.TokenProviders;
 
 public sealed class ReloadableCacheTwitchTokenProvider : ITwitchTokenProvider
 {
-    private TwitchToken? _cacheToken;
     private readonly ITwitchTokenProvider _original;
     private readonly SemaphoreSlim _semaphore;
+    private TwitchToken? _cacheToken;
 
     public ReloadableCacheTwitchTokenProvider(ITwitchTokenProvider original)
     {

@@ -1,4 +1,4 @@
-﻿namespace Interview.Backend;
+namespace Interview.Backend;
 
 public class MiddlewareConfigurator
 {
@@ -13,6 +13,12 @@ public class MiddlewareConfigurator
     {
         _app.UseHttpsRedirection();
 
+        _app.UseCookiePolicy(new CookiePolicyOptions
+        {
+            MinimumSameSitePolicy = SameSiteMode.Lax,
+        });
+
+        _app.UseAuthentication();
         _app.UseAuthorization();
 
         _app.UseWebSockets();

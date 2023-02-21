@@ -1,5 +1,5 @@
 using Interview.Backend.Shared;
-using Interview.Domain.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -17,14 +17,23 @@ public class UserController : ControllerBase
     }
 
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<User>> GetPage([FromQuery]PageRequest request)
+    public Task<IPagedList<User>> GetPage([FromQuery] PageRequest request)
     {
         return _userRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
+    [Authorize(Roles = RoleNameConstants.User + "," + RoleNameConstants.Admin)]
     [HttpGet(nameof(FindByNickname))]
     public Task<User?> FindByNickname(string nickname)
     {
         return _userRepository.FindByNicknameAsync(nickname);
+    }
+
+    [Authorize(policy: "user")]
+    [HttpGet(nameof(GetMe))]
+    public Task<List<string>> GetMe()
+    {
+        var claims = HttpContext.User.Claims.Select(claim => claim.Value).ToList();
+        return Task.FromResult(claims);
     }
 }

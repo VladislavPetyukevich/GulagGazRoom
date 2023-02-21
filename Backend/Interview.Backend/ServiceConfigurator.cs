@@ -1,4 +1,6 @@
-﻿using Interview.DependencyInjection;
+using Ardalis.SmartEnum.SystemTextJson;
+using Interview.Backend.Auth;
+using Interview.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Backend;
@@ -16,13 +18,19 @@ public class ServiceConfigurator
 
     public void AddServices(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddControllers();
+        serviceCollection
+            .AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoleName, int>());
+            });
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
 
-        var serviceOption = new DependencyInjectionAppServiceOption(_configuration, optionsBuilder =>
+        var oAuthTwitchOptions = new OAuthTwitchOptions(_configuration);
+        var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), optionsBuilder =>
         {
             if (_environment.IsDevelopment())
             {
@@ -30,5 +38,6 @@ public class ServiceConfigurator
             }
         });
         serviceCollection.AddAppServices(serviceOption);
+        serviceCollection.AddAppAuth(oAuthTwitchOptions);
     }
 }

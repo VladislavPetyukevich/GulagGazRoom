@@ -10,7 +10,8 @@ public class Room : Entity
         Name = name;
     }
 
-    private Room() : this("")
+    private Room()
+        : this(string.Empty)
     {
     }
 

@@ -8,6 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Ardalis.SmartEnum.SystemTextJson" Version="7.0.0" />
+        <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="7.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -22,10 +24,11 @@
             <Link>.dockerignore</Link>
         </Content>
     </ItemGroup>
+    
 
     <ItemGroup>
         <ProjectReference Include="..\Interview.DependencyInjection\Interview.DependencyInjection.csproj" />
         <ProjectReference Include="..\Interview.Infrastructure\Interview.Infrastructure.csproj" />
     </ItemGroup>
-
+    
 </Project>

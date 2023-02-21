@@ -1,6 +1,15 @@
-﻿namespace Interview.Domain;
+namespace Interview.Domain;
 
-public class Entity
+public abstract class Entity
 {
-    public Guid Id { get; private set; }
+    public Entity()
+    {
+    }
+
+    public Entity(Guid id)
+    {
+        Id = id;
+    }
+
+    public Guid Id { get; protected set; }
 }
