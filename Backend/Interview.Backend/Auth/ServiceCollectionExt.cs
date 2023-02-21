@@ -6,7 +6,7 @@ public static class ServiceCollectionExt
 {
     public static void AddAppAuth(this IServiceCollection self, OAuthTwitchOptions oAuthTwitchOptions)
     {
-        const string twitchScheme = "twitch";
+        const string TwitchScheme = "twitch";
         self.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
@@ -16,7 +16,7 @@ public static class ServiceCollectionExt
                 options.ClaimsIssuer = oAuthTwitchOptions.ClaimsIssuer;
                 options.ExpireTimeSpan = TimeSpan.FromDays(10);
             })
-            .AddTwitch(twitchScheme, options =>
+            .AddTwitch(TwitchScheme, options =>
             {
                 options.ClientId = oAuthTwitchOptions.ClientId;
                 options.ClientSecret = oAuthTwitchOptions.ClientSecret;
@@ -26,9 +26,11 @@ public static class ServiceCollectionExt
                 options.Events.OnTicketReceived += async context =>
                 {
                     var user = context.Principal?.ToUser();
-                    if(user == null)
+                    if (user == null)
+                    {
                         return;
-                    
+                    }
+
                     var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
                     await userService.UpsertByTwitchIdentityAsync(user);
                     context.Principal!.EnrichRoles(user);
@@ -39,7 +41,7 @@ public static class ServiceCollectionExt
         {
             options.AddPolicy("user", policyBuilder =>
             {
-                policyBuilder.AddAuthenticationSchemes(twitchScheme).RequireAuthenticatedUser();
+                policyBuilder.AddAuthenticationSchemes(TwitchScheme).RequireAuthenticatedUser();
             });
         });
     }

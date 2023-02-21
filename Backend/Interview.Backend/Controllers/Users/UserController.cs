@@ -15,11 +15,9 @@ public class UserController : ControllerBase
     {
         _userRepository = userRepository;
     }
-
-
-    [Authorize(policy: "user")]
+    
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<User>> GetPage([FromQuery]PageRequest request)
+    public Task<IPagedList<User>> GetPage([FromQuery] PageRequest request)
     {
         return _userRepository.GetPage(request.PageNumber, request.PageSize);
     }

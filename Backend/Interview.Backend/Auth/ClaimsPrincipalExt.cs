@@ -16,9 +16,11 @@ public static class ClaimsPrincipalExt
         var id = self.Claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier);
         var email = self.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Email);
         var nickname = self.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Name);
-        if(id == null || email == null || nickname == null)
+        if (id == null || email == null || nickname == null)
+        {
             return null;
-                    
+        }
+
         return new User(nickname.Value, email.Value, id.Value);
     }
 }

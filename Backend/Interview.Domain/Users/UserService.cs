@@ -27,7 +27,9 @@ public sealed class UserService
 
         var userRole = await _roleRepository.FindByIdAsync(RoleName.User.Id, cancellationToken);
         if (userRole == null)
+        {
             throw new InvalidOperationException("Not found \"User\" role");
+        }
 
         user.Roles.Add(userRole);
         await _userRepository.CreateAsync(user, cancellationToken);

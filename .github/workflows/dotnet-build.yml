@@ -1,0 +1,38 @@
+name: build
+
+on:
+  push:    
+    paths-ignore:
+    - 'README.md'
+    
+  pull_request:    
+    paths-ignore:
+    - 'README.md'
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['7.0.x']
+        
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.version }}
+        
+    - name: Restore dependencies
+      run: dotnet restore Backend/Interview.Backend
+      
+    - name: Build
+      run: dotnet build Backend/Interview.Backend --no-restore
+
+    - name: Test
+      run: dotnet test Backend/Interview.Test --no-restore --verbosity normal

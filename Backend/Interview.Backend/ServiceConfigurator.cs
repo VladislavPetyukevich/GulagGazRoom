@@ -1,4 +1,4 @@
-﻿using Ardalis.SmartEnum.SystemTextJson;
+using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
 using Interview.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -33,9 +33,12 @@ public class ServiceConfigurator
         var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), optionsBuilder =>
         {
             if (_environment.IsDevelopment())
+            {
                 optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));
+            }
         });
         serviceCollection.AddAppServices(serviceOption);
         serviceCollection.AddAppAuth(oAuthTwitchOptions);
     }
 }
+
