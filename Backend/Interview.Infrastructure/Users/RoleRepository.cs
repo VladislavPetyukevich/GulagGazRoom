@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Users.Roles;
+using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Database;
 
 namespace Interview.Infrastructure.Users;
