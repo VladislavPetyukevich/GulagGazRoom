@@ -1,5 +1,4 @@
 using Interview.Backend.Shared;
-using Interview.Domain.Questions;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 

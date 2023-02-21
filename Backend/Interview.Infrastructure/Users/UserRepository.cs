@@ -13,6 +13,13 @@ public class UserRepository : EfRepository<User>, IUserRepository
 
     public Task<User?> FindByNicknameAsync(string nickname, CancellationToken cancellationToken = default)
     {
-        return _set.FirstOrDefaultAsync(user => user.Nickname == nickname, cancellationToken);
+        return _set.Include(e => e.Roles)
+            .FirstOrDefaultAsync(user => user.Nickname == nickname, cancellationToken);
+    }
+
+    public Task<User?> FindByTwitchIdentityAsync(string twitchIdentity, CancellationToken cancellationToken = default)
+    {
+        return _set.Include(e => e.Roles)
+            .FirstOrDefaultAsync(user => user.TwitchIdentity == twitchIdentity, cancellationToken);
     }
 }
