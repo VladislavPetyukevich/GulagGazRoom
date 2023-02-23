@@ -20,6 +20,7 @@ import HomePakTV from '@/assets/HomePakTV.fbx';
 import { TextCanvas } from '@/TextCanvas';
 import { TimeoutsManager } from '@/TimeoutsManager';
 import { EntitiesPool } from './Spawner/EntitiesPool';
+import { playerActions } from '@/PlayerActions';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
@@ -151,7 +152,9 @@ export class TestScene extends BasicScene {
     this.smokeCenter = new Vector3(30.55, 1.0, 50.0);
     const smokeParticlesCount = 40;
     this.smokeParticlesPool = new EntitiesPool(this.createSmokeParticle, smokeParticlesCount);
-    this.disableEnableSmoke(true);
+
+    playerActions.addActionListener('gasEnable', this.onGasEnable);
+    playerActions.addActionListener('gasDisable', this.onGasDisable);
   }
 
   createTV = (object: Group, text: TvText) => {
@@ -237,6 +240,14 @@ export class TestScene extends BasicScene {
     }
   }
 
+  onGasEnable = () => {
+    this.disableEnableSmoke(true);
+  }
+
+  onGasDisable = () => {
+    this.disableEnableSmoke(false);
+  }
+
   disableEnableSmoke(isEnable: boolean) {
     this.smokeParticlesPool.entities.forEach(
       smokeParticle => (smokeParticle as Smoke).disableEnableSmoke(isEnable)
@@ -259,6 +270,8 @@ export class TestScene extends BasicScene {
   };
 
   finish() {
+    playerActions.removeActionListener('gasEnable', this.onGasEnable);
+    playerActions.removeActionListener('gasDisable', this.onGasDisable);
     this.onFinish();
   }
 }

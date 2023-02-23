@@ -1,4 +1,6 @@
-export type PlayerActionName = 'none';
+export type PlayerActionName =
+  'gasEnable' |
+  'gasDisable';
 
 export interface PlayerAction {
   name: PlayerActionName;

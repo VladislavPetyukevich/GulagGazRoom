@@ -76,6 +76,7 @@
       renderHeight: rendererSize.height,
       onLoad: onLoad
     });
+    setTimeout(() => threeShooter.onPlayerActionStart('gasEnable'), 5000);
 
     window.addEventListener('resize', () => {
       var newRendererSize = getRendererSize();
