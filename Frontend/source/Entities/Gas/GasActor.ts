@@ -14,7 +14,7 @@ export class GasActor implements Actor {
   player: Player;
 
   constructor(props: GasActorProps) {
-    const smokeFile = texturesStore.getTexture('smokeTextureFile');
+    const smokeFile = texturesStore.getTexture('gasTextureFile');
     const size = 1.5;
     const geometry = new BoxGeometry(size, size, 0.1);
     const material = new MeshLambertMaterial({
