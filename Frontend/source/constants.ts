@@ -15,6 +15,7 @@ export const enum ENTITY_TYPE {
   PLAYER = 'PLAYER',
   WALL = 'WALL',
   GAS = 'GAS',
+  TV = 'TV',
 };
 
 const createColor = (r: number, g: number, b: number) => {

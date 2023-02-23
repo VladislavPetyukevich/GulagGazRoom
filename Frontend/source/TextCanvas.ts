@@ -2,7 +2,6 @@ import { Sprite, CanvasTexture, SpriteMaterial } from 'three';
 
 interface TextCanvasProps {
   size: ImageSize;
-  prefix: string;
   textAlign?: TextCanvas['textAlign'];
 }
 
@@ -13,7 +12,6 @@ interface ImageSize {
 
 export class TextCanvas {
   fontSize: number;
-  prefix: string;
   textAlign: CanvasRenderingContext2D['textAlign'];
   sprite: Sprite;
   texture: CanvasTexture;
@@ -25,7 +23,6 @@ export class TextCanvas {
   constructor(props: TextCanvasProps) {
     this.fontSize = 28;
     this.maxLineLength = 28;
-    this.prefix = props.prefix;
     this.textAlign = props.textAlign || 'left';
     this.canvas = this.initCanvas(props.size);
     this.context = this.initContext();

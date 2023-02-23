@@ -4,20 +4,17 @@ import {
   Vector3,
   Fog,
   AmbientLight,
-  MeshPhongMaterial,
-  RepeatWrapping,
-  Group,
 } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { BasicSceneProps, BasicScene } from '@/core/Scene';
 import { PLAYER } from '@/constants';
 import { Player } from '@/Entities/Player/Player';
 import { Gas } from '@/Entities/Gas/Gas';
+import { TV } from '@/Entities/TV/TV';
 import { Room, RoomSpawner } from './Spawner/RoomSpawner';
 import { CellCoordinates } from './CellCoordinates';
 import { randomNumbers } from '@/RandomNumbers';
 import HomePakTV from '@/assets/HomePakTV.fbx';
-import { TextCanvas } from '@/TextCanvas';
 import { TimeoutsManager } from '@/TimeoutsManager';
 import { EntitiesPool } from './Spawner/EntitiesPool';
 import { playerActions } from '@/PlayerActions';
@@ -25,18 +22,6 @@ import { playerActions } from '@/PlayerActions';
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
 }
-
-let tvQuestionMaterial: MeshPhongMaterial;
-let tvChatMaterial: MeshPhongMaterial;
-let tvRandomMaterial: MeshPhongMaterial;
-
-let chatText: TextCanvas;
-
-const enum TvText {
-  Question,
-  Chat,
-  Random,
-};
 
 type TimeoutNames =
   'lightFlash';
@@ -54,6 +39,9 @@ export class TestScene extends BasicScene {
   onFinish: Function;
   gasCenter: Vector3;
   gasParticlesPool: EntitiesPool;
+  tvMain?: TV;
+  tvChat?: TV;
+  tvStats?: TV;
 
   constructor(props: TestSceneProps) {
     super(props);
@@ -121,23 +109,45 @@ export class TestScene extends BasicScene {
 
     const loader = new FBXLoader();
     loader.load(HomePakTV, (object) => {
-      const tvMain = this.createTV(object, TvText.Question);
-      tvMain.position.set(30, 0.8, 44);
-      this.scene.add(tvMain);
+      this.tvMain = this.entitiesContainer.add(new TV({
+        model: object,
+        position: new Vector3(30, 0.8, 44),
+        rotationY: 0,
+        screenSpinSpeed: 0.2,
+        screenSpinAxis: 'y',
+      })) as TV;
+      this.scene.add(object);
+      this.tvMain.printText(
+        '💀\nЧем контекст выполнения\nотличается от\nлексического окружения?'
+      );
     });
 
     loader.load(HomePakTV, (object) => {
-      const tvBack = this.createTV(object, TvText.Chat);
-      tvBack.position.set(24, 0.8, 45);
-      tvBack.rotateY(0.436332);
-      this.scene.add(tvBack);
+      this.tvChat = this.entitiesContainer.add(new TV({
+        model: object,
+        position: new Vector3(24, 0.8, 45),
+        rotationY: 0.436332,
+        screenSpinSpeed: -8.0,
+        screenSpinAxis: 'y',
+      })) as TV;
+      this.scene.add(object);
+      this.tvChat.printText(
+        'izede:\nЗа этим стоит лаборатория'
+      );
     });
 
     loader.load(HomePakTV, (object) => {
-      const tvBackUp = this.createTV(object.clone(), TvText.Random);
-      tvBackUp.position.set(24, 3.07, 45);
-      tvBackUp.rotateY(0.436332);
-      this.scene.add(tvBackUp);
+      this.tvStats = this.entitiesContainer.add(new TV({
+        model: object,
+        position: new Vector3(24, 3.07, 45),
+        rotationY: 0.436332,
+        screenSpinSpeed: -0.1,
+        screenSpinAxis: 'x',
+      })) as TV;
+      this.scene.add(object);
+      this.tvStats.printText(
+        '666\n😍\n777\n😈'
+      );
     });
 
     this.player.mesh.position.set(31.0, 1.5, 52.0);
@@ -156,49 +166,6 @@ export class TestScene extends BasicScene {
     playerActions.addActionListener('gasEnable', this.onGasEnable);
     playerActions.addActionListener('gasDisable', this.onGasDisable);
   }
-
-  createTV = (object: Group, text: TvText) => {
-    const question = new TextCanvas({
-      size: { width: 256 * 2, height: 32 * 5 },
-      prefix: '💀',
-      textAlign: 'center',
-    });
-    const scale = 30;
-    object.scale.set(scale, scale, scale);
-
-    const screenMaterial: MeshPhongMaterial = (object.children[0].children as any)[0].children[0].material;
-
-    screenMaterial.map = question.texture;
-
-    screenMaterial.map.wrapS = screenMaterial.map.wrapT = RepeatWrapping;
-    screenMaterial.map.repeat.x = 9;
-    screenMaterial.map.repeat.y = 10;
-    screenMaterial.map.offset.set(0.8, 0.5);
-    screenMaterial.map.center.set(0.1, 0);
-    question.clear();
-    switch (text) {
-      case TvText.Question:
-        const questionText = '💀\nЧем контекст выполнения\nотличается от\nлексического окружения?';
-        question.printAll(questionText);
-        tvQuestionMaterial = screenMaterial;
-        break;
-      case TvText.Chat:
-        const chatMessage = 'izede:\nЗа этим стоит лаборатория';
-        question.printAll(chatMessage);
-        tvChatMaterial = screenMaterial;
-        chatText = question;
-        break;
-      case TvText.Random:
-        const scoresText = '666\n😍\n777\n😈';
-        question.printAll(scoresText);
-        tvRandomMaterial = screenMaterial;
-        break;
-      default:
-        break;
-    }
-
-    return object;
-  };
 
   getInitialPlayerPositon() {
     const roomCenterCell = this.getCenterPosition(this.currentRoom.cellPosition, this.roomSpawner.roomSize);
@@ -219,15 +186,6 @@ export class TestScene extends BasicScene {
   update(delta: number) {
     super.update(delta);
     this.pointLight.position.copy(this.player.mesh.position);
-    if (tvQuestionMaterial && tvQuestionMaterial.map) {
-      tvQuestionMaterial.map.offset.y -= delta * 0.2;
-    }
-    if (tvChatMaterial && tvChatMaterial.map) {
-      tvChatMaterial.map.offset.y += delta * 8;
-    }
-    if (tvRandomMaterial && tvRandomMaterial.map) {
-      tvRandomMaterial.map.offset.x += delta * 0.1;
-    }
     this.timeoutsManager.updateTimeOut('lightFlash', delta);
     if (this.timeoutsManager.checkIsTimeOutExpired('lightFlash')) {
       this.player.onHit(0);
