@@ -12,7 +12,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { BasicSceneProps, BasicScene } from '@/core/Scene';
 import { PLAYER } from '@/constants';
 import { Player } from '@/Entities/Player/Player';
-import { Smoke } from '@/Entities/Smoke/Smoke';
+import { Gas } from '@/Entities/Gas/Gas';
 import { Room, RoomSpawner } from './Spawner/RoomSpawner';
 import { CellCoordinates } from './CellCoordinates';
 import { randomNumbers } from '@/RandomNumbers';
@@ -52,8 +52,8 @@ export class TestScene extends BasicScene {
   roomSpawner: RoomSpawner;
   timeoutsManager: TimeoutsManager<TimeoutNames>;
   onFinish: Function;
-  smokeCenter: Vector3;
-  smokeParticlesPool: EntitiesPool;
+  gasCenter: Vector3;
+  gasParticlesPool: EntitiesPool;
 
   constructor(props: TestSceneProps) {
     super(props);
@@ -149,9 +149,9 @@ export class TestScene extends BasicScene {
       true
     );
 
-    this.smokeCenter = new Vector3(30.55, 1.0, 50.0);
-    const smokeParticlesCount = 40;
-    this.smokeParticlesPool = new EntitiesPool(this.createSmokeParticle, smokeParticlesCount);
+    this.gasCenter = new Vector3(30.55, 1.0, 50.0);
+    const gasParticlesCount = 40;
+    this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
     playerActions.addActionListener('gasEnable', this.onGasEnable);
     playerActions.addActionListener('gasDisable', this.onGasDisable);
@@ -241,32 +241,32 @@ export class TestScene extends BasicScene {
   }
 
   onGasEnable = () => {
-    this.disableEnableSmoke(true);
+    this.disableEnableGas(true);
   }
 
   onGasDisable = () => {
-    this.disableEnableSmoke(false);
+    this.disableEnableGas(false);
   }
 
-  disableEnableSmoke(isEnable: boolean) {
-    this.smokeParticlesPool.entities.forEach(
-      smokeParticle => (smokeParticle as Smoke).disableEnableSmoke(isEnable)
+  disableEnableGas(isEnable: boolean) {
+    this.gasParticlesPool.entities.forEach(
+      gasParticle => (gasParticle as Gas).disableEnableGas(isEnable)
     );
   }
 
-  createSmokeParticle = () => {
-    const smokePosition = this.smokeCenter.clone();
-    smokePosition.add(new Vector3(
+  createGasParticle = () => {
+    const gasPosition = this.gasCenter.clone();
+    gasPosition.add(new Vector3(
       randomNumbers.getRandomFloatInRange(-2, 1),
       randomNumbers.getRandomFloatInRange(-0.5, 0.5),
       randomNumbers.getRandomFloatInRange(-1, 0.5),
     ));
-    const smoke = new Smoke({
-      position: smokePosition,
+    const gas = new Gas({
+      position: gasPosition,
       player: this.player,
     });
-    smoke.disableImmediately();
-    return this.entitiesContainer.add(smoke);
+    gas.disableImmediately();
+    return this.entitiesContainer.add(gas);
   };
 
   finish() {

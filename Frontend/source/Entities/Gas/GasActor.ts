@@ -4,16 +4,16 @@ import { Player } from '@/Entities/Player/Player';
 import { texturesStore } from '@/core/loaders/TextureLoader';
 import { randomNumbers } from '@/RandomNumbers';
 
-interface ActorProps {
+interface GasActorProps {
   position: Vector3;
   player: Player;
 }
 
-export class SmokeActor implements Actor {
+export class GasActor implements Actor {
   mesh: Mesh;
   player: Player;
 
-  constructor(props: ActorProps) {
+  constructor(props: GasActorProps) {
     const smokeFile = texturesStore.getTexture('smokeTextureFile');
     const size = 1.5;
     const geometry = new BoxGeometry(size, size, 0.1);

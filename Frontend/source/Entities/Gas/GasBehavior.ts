@@ -1,18 +1,18 @@
 import { Behavior } from '@/core/Entities/Behavior';
-import { SmokeActor } from './SmokeActor';
+import { GasActor } from './GasActor';
 
-interface SmokeBehaviorProps {
-  actor: SmokeActor;
+interface GasBehaviorProps {
+  actor: GasActor;
 }
 
-export class SmokeBehavior implements Behavior {
-  actor: SmokeActor;
+export class GasBehavior implements Behavior {
+  actor: GasActor;
   originalY: number;
   disabledY: number;
   targetY: number;
   moveSpeed: number;
 
-  constructor(props: SmokeBehaviorProps) {
+  constructor(props: GasBehaviorProps) {
     this.actor = props.actor;
     this.originalY = this.actor.mesh.position.y;
     this.disabledY = -1;
