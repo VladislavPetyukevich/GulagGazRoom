@@ -12,12 +12,14 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { BasicSceneProps, BasicScene } from '@/core/Scene';
 import { PLAYER } from '@/constants';
 import { Player } from '@/Entities/Player/Player';
+import { Smoke } from '@/Entities/Smoke/Smoke';
 import { Room, RoomSpawner } from './Spawner/RoomSpawner';
 import { CellCoordinates } from './CellCoordinates';
 import { randomNumbers } from '@/RandomNumbers';
 import HomePakTV from '@/assets/HomePakTV.fbx';
 import { TextCanvas } from '@/TextCanvas';
 import { TimeoutsManager } from '@/TimeoutsManager';
+import { EntitiesPool } from './Spawner/EntitiesPool';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
@@ -49,6 +51,8 @@ export class TestScene extends BasicScene {
   roomSpawner: RoomSpawner;
   timeoutsManager: TimeoutsManager<TimeoutNames>;
   onFinish: Function;
+  smokeCenter: Vector3;
+  smokeParticlesPool: EntitiesPool;
 
   constructor(props: TestSceneProps) {
     super(props);
@@ -143,6 +147,11 @@ export class TestScene extends BasicScene {
       new Vector2(this.roomSpawner.cellCoordinates.size * 15, this.roomSpawner.cellCoordinates.size),
       true
     );
+
+    this.smokeCenter = new Vector3(30.55, 1.0, 50.0);
+    const smokeParticlesCount = 40;
+    this.smokeParticlesPool = new EntitiesPool(this.createSmokeParticle, smokeParticlesCount);
+    this.disableEnableSmoke(true);
   }
 
   createTV = (object: Group, text: TvText) => {
@@ -227,6 +236,27 @@ export class TestScene extends BasicScene {
       this.timeoutsManager.updateExpiredTimeOut('lightFlash');
     }
   }
+
+  disableEnableSmoke(isEnable: boolean) {
+    this.smokeParticlesPool.entities.forEach(
+      smokeParticle => (smokeParticle as Smoke).disableEnableSmoke(isEnable)
+    );
+  }
+
+  createSmokeParticle = () => {
+    const smokePosition = this.smokeCenter.clone();
+    smokePosition.add(new Vector3(
+      randomNumbers.getRandomFloatInRange(-2, 1),
+      randomNumbers.getRandomFloatInRange(-0.5, 0.5),
+      randomNumbers.getRandomFloatInRange(-1, 0.5),
+    ));
+    const smoke = new Smoke({
+      position: smokePosition,
+      player: this.player,
+    });
+    smoke.disableImmediately();
+    return this.entitiesContainer.add(smoke);
+  };
 
   finish() {
     this.onFinish();

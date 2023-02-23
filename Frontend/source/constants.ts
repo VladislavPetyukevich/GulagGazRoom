@@ -4,6 +4,7 @@ import wallDecal1TextureFile from '@/assets/wallDecal1.png';
 import wallDecal2TextureFile from '@/assets/wallDecal2.png';
 import wallDecal3TextureFile from '@/assets/wallDecal3.png';
 import floorTextureFile from '@/assets/floor.png';
+import smokeTextureFile from '@/assets/smoke.png';
 import damage from './assets/damage.mp3';
 
 export const PI_2 = Math.PI / 2;
@@ -13,6 +14,7 @@ export const RANDOM_NUMBERS_COUNT = 100;
 export const enum ENTITY_TYPE {
   PLAYER = 'PLAYER',
   WALL = 'WALL',
+  SMOKE = 'SMOKE',
 };
 
 const createColor = (r: number, g: number, b: number) => {
@@ -52,6 +54,7 @@ export const gameTextures = {
   wallDecal2TextureFile,
   wallDecal3TextureFile,
   floorTextureFile,
+  smokeTextureFile,
 };
 
 export const gameSounds = {
