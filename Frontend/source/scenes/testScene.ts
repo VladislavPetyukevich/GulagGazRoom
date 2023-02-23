@@ -166,23 +166,19 @@ export class TestScene extends BasicScene {
     question.clear();
     switch (text) {
       case TvText.Question:
-        question.print(`💀`, 1);
-        question.print(`Чем контекст выполнения`, 2);
-        question.print(`отличается`, 3);
-        question.print(`от лексического окружения?`, 4);
+        const questionText = '💀\nЧем контекст выполнения\nотличается от\nлексического окружения?';
+        question.printAll(questionText);
         tvQuestionMaterial = screenMaterial;
         break;
       case TvText.Chat:
-        question.print(`izede:`, 1);
-        question.print(`За этим стоит лаборатория`, 2);
+        const chatMessage = 'izede:\nЗа этим стоит лаборатория';
+        question.printAll(chatMessage);
         tvChatMaterial = screenMaterial;
         chatText = question;
         break;
       case TvText.Random:
-        question.print(`666`, 1);
-        question.print(`😍`, 2);
-        question.print(`777`, 3);
-        question.print(`😈`, 4);
+        const scoresText = '666\n😍\n777\n😈';
+        question.printAll(scoresText);
         tvRandomMaterial = screenMaterial;
         break;
       default:
