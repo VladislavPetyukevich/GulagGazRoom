@@ -77,6 +77,7 @@
       onLoad: onLoad
     });
     setTimeout(() => threeShooter.onPlayerActionStart('gasEnable'), 5000);
+    setTimeout(() => threeShooter.onPlayerActionStart('newQuestion', 'Новый интересный вопрос от собеседующих!'), 5000);
 
     window.addEventListener('resize', () => {
       var newRendererSize = getRendererSize();

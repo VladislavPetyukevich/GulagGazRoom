@@ -17,7 +17,7 @@ import { randomNumbers } from '@/RandomNumbers';
 import HomePakTV from '@/assets/HomePakTV.fbx';
 import { TimeoutsManager } from '@/TimeoutsManager';
 import { EntitiesPool } from './Spawner/EntitiesPool';
-import { playerActions } from '@/PlayerActions';
+import { PlayerAction, playerActions } from '@/PlayerActions';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
@@ -165,6 +165,7 @@ export class TestScene extends BasicScene {
 
     playerActions.addActionListener('gasEnable', this.onGasEnable);
     playerActions.addActionListener('gasDisable', this.onGasDisable);
+    playerActions.addActionListener('newQuestion', this.onQuestion);
   }
 
   getInitialPlayerPositon() {
@@ -210,6 +211,10 @@ export class TestScene extends BasicScene {
     this.gasParticlesPool.entities.forEach(
       gasParticle => (gasParticle as Gas).disableEnableGas(isEnable)
     );
+  }
+
+  onQuestion = (action: PlayerAction) => {
+    this.tvMain?.printText(action.payload);
   }
 
   createGasParticle = () => {

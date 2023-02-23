@@ -1,9 +1,11 @@
 export type PlayerActionName =
   'gasEnable' |
-  'gasDisable';
+  'gasDisable' |
+  'newQuestion';
 
 export interface PlayerAction {
   name: PlayerActionName;
+  payload: string;
 }
 
 export interface PlayerActionListener {
@@ -45,14 +47,10 @@ class PlayerActions {
     this.listeners.splice(listenerIndex, 1);
   }
 
-  startAction(actionName: PlayerActionName) {
-    this.handleAction(actionName);
-  }
-
-  handleAction(actionName: PlayerActionName) {
+  startAction(actionName: PlayerActionName, payload?: string) {
     this.listeners.forEach(listener => {
       if (listener.name === actionName) {
-        listener.listener({ name: actionName });
+        listener.listener({ name: actionName, payload: payload || '' });
       }
     });
   }
