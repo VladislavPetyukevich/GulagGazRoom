@@ -4,7 +4,6 @@ export type PlayerActionName =
 
 export interface PlayerAction {
   name: PlayerActionName;
-  isEnded: boolean;
 }
 
 export interface PlayerActionListener {
@@ -47,29 +46,13 @@ class PlayerActions {
   }
 
   startAction(actionName: PlayerActionName) {
-    this.handleAction(actionName, false);
+    this.handleAction(actionName);
   }
 
-  endAction(actionName: PlayerActionName) {
-    this.handleAction(actionName, true);
-  }
-
-  addCameraMovement(movementX: number) {
-    this.cameraMovementX += movementX;
-  }
-
-  getCameraMovement() {
-    return Number(this.cameraMovementX);
-  }
-
-  resetCameraMovement() {
-    this.cameraMovementX = 0;
-  }
-
-  handleAction(actionName: PlayerActionName, isEnded: boolean) {
+  handleAction(actionName: PlayerActionName) {
     this.listeners.forEach(listener => {
       if (listener.name === actionName) {
-        listener.listener({ name: actionName, isEnded: isEnded });
+        listener.listener({ name: actionName });
       }
     });
   }

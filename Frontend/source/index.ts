@@ -80,10 +80,6 @@ export default class ThreeShooter {
     playerActions.startAction(actionName);
   }
 
-  onPlayerActionEnd(actionName: PlayerActionName) {
-    playerActions.endAction(actionName);
-  }
-
   loadTextures(gameProps: any) {
     const imageScaler = new ImageScaler(8);
     const onLoad = () => {
