@@ -6,20 +6,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Infrastructure.Database;
 
-public sealed class AppDbContext : DbContext
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions options)
         : base(options)
     {
     }
 
-    public DbSet<User> Users { get; } = null!;
+    private AppDbContext()
+    {
+    }
 
-    public DbSet<Question> Questions { get; } = null!;
+    public DbSet<User> Users { get; private set; } = null!;
 
-    public DbSet<Room> Rooms { get; } = null!;
+    public DbSet<Question> Questions { get; private set; } = null!;
 
-    public DbSet<Role> Roles { get; } = null!;
+    public DbSet<Room> Rooms { get; private set; } = null!;
+
+    public DbSet<Role> Roles { get; private set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

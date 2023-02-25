@@ -42,7 +42,10 @@ public class EfRepository<T> : IRepository<T>
 
     public Task<IPagedList<T>> GetPage(ISpecification<T> specification, int pageNumber, int pageSize)
     {
-        return Set.OrderBy(entity => entity.Id).Where(specification.Expression).ToPagedListAsync(pageNumber, pageSize);
+        return Set
+            .OrderBy(entity => entity.Id)
+            .Where(specification.Expression)
+            .ToPagedListAsync(pageNumber, pageSize);
     }
 
     public Task<IPagedList<T>> GetPage(int pageNumber, int pageSize)
