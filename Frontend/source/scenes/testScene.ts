@@ -17,7 +17,8 @@ import { randomNumbers } from '@/RandomNumbers';
 import HomePakTV from '@/assets/HomePakTV.fbx';
 import { TimeoutsManager } from '@/TimeoutsManager';
 import { EntitiesPool } from './Spawner/EntitiesPool';
-import { PlayerAction, playerActions } from '@/PlayerActions';
+import { PlayerAction, PlayerActionListener, PlayerActionName, playerActions } from '@/PlayerActions';
+import { Stats } from './Stats';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
@@ -39,6 +40,8 @@ export class TestScene extends BasicScene {
   onFinish: Function;
   gasCenter: Vector3;
   gasParticlesPool: EntitiesPool;
+  actions: Record<PlayerActionName, PlayerActionListener['listener']>;
+  stats: Stats;
   tvMain?: TV;
   tvChat?: TV;
   tvStats?: TV;
@@ -107,6 +110,8 @@ export class TestScene extends BasicScene {
 
     this.scene.fog = new Fog(0x202020, 0.15, 150);
 
+    this.stats = new Stats();
+
     const loader = new FBXLoader();
     loader.load(HomePakTV, (object) => {
       this.tvMain = this.entitiesContainer.add(new TV({
@@ -145,9 +150,7 @@ export class TestScene extends BasicScene {
         screenSpinAxis: 'x',
       })) as TV;
       this.scene.add(object);
-      this.tvStats.printText(
-        '666\n😍\n777\n😈'
-      );
+      this.updateStatsTv();
     });
 
     this.player.mesh.position.set(31.0, 1.5, 52.0);
@@ -163,9 +166,14 @@ export class TestScene extends BasicScene {
     const gasParticlesCount = 40;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
-    playerActions.addActionListener('gasEnable', this.onGasEnable);
-    playerActions.addActionListener('gasDisable', this.onGasDisable);
-    playerActions.addActionListener('newQuestion', this.onQuestion);
+    this.actions = {
+      gasEnable: this.onGasEnable,
+      gasDisable: this.onGasDisable,
+      newQuestion: this.onQuestion,
+      like: this.onLike,
+      dislike: this.onDislike,
+    };
+    this.addActionListeners();
   }
 
   getInitialPlayerPositon() {
@@ -217,6 +225,22 @@ export class TestScene extends BasicScene {
     this.tvMain?.printText(action.payload);
   }
 
+  onLike = () => {
+    this.stats.increaseCount('like');
+    this.updateStatsTv();
+  }
+
+  onDislike = () => {
+    this.stats.increaseCount('dislike');
+    this.updateStatsTv();
+  }
+
+  updateStatsTv() {
+    this.tvStats?.printText(
+      this.stats.toString()
+    );
+  }
+
   createGasParticle = () => {
     const gasPosition = this.gasCenter.clone();
     gasPosition.add(new Vector3(
@@ -233,8 +257,25 @@ export class TestScene extends BasicScene {
   };
 
   finish() {
-    playerActions.removeActionListener('gasEnable', this.onGasEnable);
-    playerActions.removeActionListener('gasDisable', this.onGasDisable);
+    this.removeActionListeners();
     this.onFinish();
+  }
+
+  addActionListeners() {
+    Object.keys(this.actions).forEach(actionName =>
+      playerActions.addActionListener(
+        actionName as PlayerActionName,
+        this.actions[actionName as PlayerActionName]
+      )
+    );
+  }
+
+  removeActionListeners() {
+    Object.keys(this.actions).forEach(actionName =>
+      playerActions.removeActionListener(
+        actionName as PlayerActionName,
+        this.actions[actionName as PlayerActionName]
+      )
+    );
   }
 }

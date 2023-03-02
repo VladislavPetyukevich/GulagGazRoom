@@ -1,6 +1,8 @@
 export type PlayerActionName =
   'gasEnable' |
   'gasDisable' |
+  'like' |
+  'dislike' |
   'newQuestion';
 
 export interface PlayerAction {

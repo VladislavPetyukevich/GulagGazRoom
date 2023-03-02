@@ -79,6 +79,11 @@
     setTimeout(() => threeShooter.onPlayerActionStart('gasEnable'), 5000);
     setTimeout(() => threeShooter.onPlayerActionStart('newQuestion', 'Новый интересный вопрос от собеседующих!'), 5000);
 
+    for(var i = 10; i--;) {
+      setTimeout(() => threeShooter.onPlayerActionStart('like'), i * 1000);
+      setTimeout(() => threeShooter.onPlayerActionStart('dislike'), i * 1500);
+    }
+
     window.addEventListener('resize', () => {
       var newRendererSize = getRendererSize();
       threeShooter.handleResize(

@@ -32,7 +32,7 @@ export class TvActor implements Actor {
     this.screenMaterial.map.wrapS = this.screenMaterial.map.wrapT = RepeatWrapping;
     this.screenMaterial.map.repeat.x = 9;
     this.screenMaterial.map.repeat.y = 10;
-    this.screenMaterial.map.offset.set(0.8, 0.5);
+    this.screenMaterial.map.offset.set(0.8, 0.3);
     this.screenMaterial.map.center.set(0.1, 0);
   }
 
