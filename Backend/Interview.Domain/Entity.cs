@@ -11,5 +11,9 @@ public abstract class Entity
         Id = id;
     }
 
-    public Guid Id { get; protected set; }
+    public Guid Id { get; set; }
+
+    public DateTime CreateDate { get; set; }
+
+    public DateTime UpdateDate { get; set; }
 }

@@ -1,5 +1,6 @@
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
+using Interview.Backend.Controllers.WebSocket;
 using Interview.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,5 +40,9 @@ public class ServiceConfigurator
         });
         serviceCollection.AddAppServices(serviceOption);
         serviceCollection.AddAppAuth(oAuthTwitchOptions);
+
+        serviceCollection.AddHostedService<JobWriter>();
+        serviceCollection.AddHostedService<EventSenderJob>();
+        serviceCollection.AddSingleton<SubscribeUserProvider>();
     }
 }

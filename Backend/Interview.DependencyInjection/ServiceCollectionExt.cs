@@ -1,4 +1,6 @@
+using Interview.Backend.Controllers.WebSocket;
 using Interview.Domain.Certificates;
+using Interview.Domain.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
@@ -24,6 +26,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
+        self.AddSingleton<IEventDispatcher, EventDispatcher>();
 
         self.AddScoped<UserService>();
 

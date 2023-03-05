@@ -1,4 +1,5 @@
 using Interview.Backend.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -25,5 +26,23 @@ public class RoomController : ControllerBase
     public Task Create(Room room)
     {
         return _roomRepository.CreateAsync(room);
+    }
+
+    [Authorize(Roles = RoleNameConstants.Admin)]
+    [HttpPost(nameof(StartRoom))]
+    public async Task<IActionResult> StartRoom(Guid id)
+    {
+        var room = await _roomRepository.FindByIdAsync(id);
+
+        if (room == null)
+        {
+            return NotFound($"Not found room by id = \"{id}\"");
+        }
+
+        // TODO make jobs [reactionSender, chatMessaging]
+
+        // TODO modify state room
+
+        return Ok();
     }
 }

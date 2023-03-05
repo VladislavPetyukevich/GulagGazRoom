@@ -7,8 +7,9 @@ public static class ServiceCollectionExt
     public static void AddAppAuth(this IServiceCollection self, OAuthTwitchOptions oAuthTwitchOptions)
     {
         const string TwitchScheme = "twitch";
-        self.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        var authenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        self.AddAuthentication(authenticationScheme)
+            .AddCookie(authenticationScheme, options =>
             {
                 options.Cookie.Name = "_communist";
                 options.LoginPath = "/login";
@@ -33,7 +34,7 @@ public static class ServiceCollectionExt
 
                     var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
                     await userService.UpsertByTwitchIdentityAsync(user);
-                    context.Principal!.EnrichRoles(user);
+                    context.Principal!.EnrichRolesWithId(user);
                 };
             });
 
