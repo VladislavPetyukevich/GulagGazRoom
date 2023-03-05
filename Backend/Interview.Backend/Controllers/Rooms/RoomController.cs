@@ -42,7 +42,6 @@ public class RoomController : ControllerBase
         // TODO make jobs [reactionSender, chatMessaging]
 
         // TODO modify state room
-
         return Ok();
     }
 }

@@ -38,7 +38,9 @@ namespace Interview.Backend.Controllers.WebSocket
         private static Channel<T> CreateBoundedChannel<T>(int capacity = 100) => Channel.CreateBounded<T>(
             new BoundedChannelOptions(capacity)
             {
-                SingleWriter = false, SingleReader = false, FullMode = BoundedChannelFullMode.DropOldest,
+                SingleWriter = false,
+                SingleReader = false,
+                FullMode = BoundedChannelFullMode.DropOldest,
             });
 
         private Channel<IWebSocketEvent> GetChannel(Guid roomId)

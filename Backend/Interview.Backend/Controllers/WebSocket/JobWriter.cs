@@ -5,7 +5,7 @@ namespace Interview.Backend.Controllers.WebSocket
 {
     public class JobWriter : BackgroundService
     {
-        private IRoomEventDispatcher _dispatcher;
+        private readonly IRoomEventDispatcher _dispatcher;
 
         public JobWriter(IRoomEventDispatcher dispatcher)
         {

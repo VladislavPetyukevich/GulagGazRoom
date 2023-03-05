@@ -22,17 +22,17 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<Role> Roles { get; } = null!;
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-    }
-
     public override int SaveChanges()
     {
         ModifyFieldByState(UpdateCreateDate, EntityState.Added);
         ModifyFieldByState(ModifiedUpdateDate, EntityState.Modified);
 
         return base.SaveChanges();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 
     private static void UpdateCreateDate(Entity entity) => entity.CreateDate = DateTime.UtcNow;

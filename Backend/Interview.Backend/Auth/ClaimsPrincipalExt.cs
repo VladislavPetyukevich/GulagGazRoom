@@ -11,9 +11,9 @@ public static class ClaimsPrincipalExt
         self.AddIdentity(claimIdentity);
 
         var idIdentity = new Claim(ClaimTypes.UserData, user.Id.ToString("N"));
-        self.AddIdentity(new ClaimsIdentity(new []
+        self.AddIdentity(new ClaimsIdentity(new[]
         {
-            idIdentity
+            idIdentity,
         }));
     }
 

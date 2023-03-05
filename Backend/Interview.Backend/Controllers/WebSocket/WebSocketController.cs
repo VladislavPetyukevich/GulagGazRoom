@@ -17,7 +17,7 @@ public class WebSocketController : ControllerBase
 {
     private readonly IRoomRepository _roomRepository;
     private readonly IUserRepository _userRepository;
-    
+
     private readonly UserRoomObservable _userRoomObservable;
 
     public WebSocketController(IRoomRepository roomRepository, IUserRepository userRepository, UserRoomObservable userRoomObservable)
