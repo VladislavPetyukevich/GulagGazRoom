@@ -43,6 +43,6 @@ public class ServiceConfigurator
 
         serviceCollection.AddHostedService<JobWriter>();
         serviceCollection.AddHostedService<EventSenderJob>();
-        serviceCollection.AddSingleton<SubscribeUserProvider>();
+        serviceCollection.AddSingleton<UserRoomObservable>();
     }
 }

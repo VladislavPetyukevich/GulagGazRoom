@@ -18,13 +18,13 @@ public class WebSocketController : ControllerBase
     private readonly IRoomRepository _roomRepository;
     private readonly IUserRepository _userRepository;
     
-    private readonly SubscribeUserProvider _subscribeUserProvider;
+    private readonly UserRoomObservable _userRoomObservable;
 
-    public WebSocketController(IRoomRepository roomRepository, IUserRepository userRepository, SubscribeUserProvider subscribeUserProvider)
+    public WebSocketController(IRoomRepository roomRepository, IUserRepository userRepository, UserRoomObservable userRoomObservable)
     {
         _roomRepository = roomRepository;
         _userRepository = userRepository;
-        _subscribeUserProvider = subscribeUserProvider;
+        _userRoomObservable = userRoomObservable;
     }
 
     [Route("/ws")]
@@ -71,7 +71,7 @@ public class WebSocketController : ControllerBase
                 await _roomRepository.UpdateAsync(currentRoom);
             }
 
-            await _subscribeUserProvider.SubscribeAsync(currentRoom.Id, webSocket);
+            await _userRoomObservable.SubscribeAsync(currentRoom.Id, webSocket);
         }
         catch (Exception e)
         {

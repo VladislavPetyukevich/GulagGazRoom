@@ -5,16 +5,16 @@ namespace Interview.Backend.Controllers.WebSocket
 {
     public class JobWriter : BackgroundService
     {
-        private IEventDispatcher _dispatcher;
+        private IRoomEventDispatcher _dispatcher;
 
-        public JobWriter(IEventDispatcher dispatcher)
+        public JobWriter(IRoomEventDispatcher dispatcher)
         {
             _dispatcher = dispatcher;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var roomIds = new Guid[]
+            var roomIds = new[]
             {
                 Guid.Parse("2E87B752-84FD-475C-B7C4-719C72D9B01A"),
                 Guid.Parse("2E87B752-84FD-475C-B7C4-239C72D9B02A"),
@@ -41,7 +41,9 @@ namespace Interview.Backend.Controllers.WebSocket
     public sealed class CustomEvent : IWebSocketEvent
     {
         public Guid RoomId { get; set; }
+
         public EventType Type { get; set; }
+
         public string Value { get; set; }
     }
 }

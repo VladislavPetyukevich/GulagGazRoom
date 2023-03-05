@@ -26,7 +26,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
-        self.AddSingleton<IEventDispatcher, EventDispatcher>();
+        self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
 
         self.AddScoped<UserService>();
 

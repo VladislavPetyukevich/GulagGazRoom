@@ -1,59 +1,50 @@
-using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Interview.Domain.Events;
 
 namespace Interview.Backend.Controllers.WebSocket
 {
     public class EventSenderJob : BackgroundService
     {
-        private readonly IEventDispatcher _eventDispatcher;
-        private readonly SubscribeUserProvider _subscribeUserProvider;
+        private readonly IRoomEventDispatcher _roomEventDispatcher;
 
-        public EventSenderJob(IEventDispatcher eventDispatcher, SubscribeUserProvider subscribeUserProvider)
+        private readonly UserRoomObservable _userRoomObservable;
+
+        public EventSenderJob(IRoomEventDispatcher roomEventDispatcher, UserRoomObservable userRoomObservable)
         {
-            _eventDispatcher = eventDispatcher;
-            _subscribeUserProvider = subscribeUserProvider;
+            _roomEventDispatcher = roomEventDispatcher;
+            _userRoomObservable = userRoomObservable;
         }
-        
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                foreach (var currentEvent in await _eventDispatcher.ReadFromRoomsAsync(TimeSpan.FromSeconds(30)))
+                foreach (var currentEvent in await _roomEventDispatcher.ReadAsync(TimeSpan.FromSeconds(30)))
                 {
-                    var json = JsonSerializer.Serialize(currentEvent, new JsonSerializerOptions
-                    {
-                        WriteIndented = true,
-                        Converters =
-                        {
-                            new JsonStringEnumConverter()
-                        }
-                    });
-                    var bytes = Encoding.UTF8.GetBytes(json);
-
-                    if (!_subscribeUserProvider.TryGetUsers(currentEvent.RoomId, out var users))
+                    if (!_userRoomObservable.TryGetUsers(currentEvent.RoomId, out var users))
                     {
                         continue;
                     }
 
                     try
                     {
-                        foreach (var pair in users)
+                        foreach (var entry in users)
                         {
-                            var socket = pair.Key;
+                            var socket = entry.Key;
+
                             try
                             {
                                 if (socket.CloseStatus.HasValue)
                                 {
                                     await socket.CloseAsync(socket.CloseStatus.Value, socket.CloseStatusDescription, stoppingToken);
-                                    users.TryRemove(pair);
-                                    pair.Value.SetCanceled(stoppingToken);
+                                    users.TryRemove(entry);
+                                    entry.Value.SetCanceled(stoppingToken);
                                     continue;
                                 }
-                                            
+
+                                var bytes = Encoding.UTF8.GetBytes(currentEvent.Stringify());
+
                                 await socket.SendAsync(
                                     new ArraySegment<byte>(bytes, 0, bytes.Length),
                                     WebSocketMessageType.Text,

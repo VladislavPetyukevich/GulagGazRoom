@@ -1,3 +1,7 @@
+using System.Net.Http.Headers;
+using Interview.DependencyInjection;
+using Microsoft.AspNetCore.Http.Headers;
+
 namespace Interview.Backend;
 
 public class MiddlewareConfigurator
@@ -19,27 +23,17 @@ public class MiddlewareConfigurator
         });
 
         _app.UseWebSockets();
-        
-        _app.Use(((context, next) =>
-        {
-            if (context.WebSockets.IsWebSocketRequest)
-            {
-                var headers = context.Request.Headers;
-                if (!headers.TryGetValue("Authorization", out var value))
-                {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    return Task.CompletedTask;
-                }
 
-                context.Request.Headers["Cookie"] = $"_communist={value}";
-                context.Request.Cookies = new ReqCollection { { "_communist", value } };
-            }
-            
-            return next();
-        }));
+        _app.UseWebSocketsAuthorization(new WebSocketAuthorizationOptions()
+        {
+            CookieName = "_communist",
+
+            WebSocketHeaderName = "Authorization",
+        });
+
         _app.UseAuthentication();
         _app.UseAuthorization();
-        
+
         // Configure the HTTP request pipeline.
         if (_app.Environment.IsDevelopment())
         {
@@ -48,10 +42,5 @@ public class MiddlewareConfigurator
         }
 
         _app.MapControllers();
-    }
-    
-    private sealed class ReqCollection : Dictionary<string, string>, IRequestCookieCollection
-    {
-        public ICollection<string> Keys => this.Select(e => e.Key).ToList();
     }
 }
