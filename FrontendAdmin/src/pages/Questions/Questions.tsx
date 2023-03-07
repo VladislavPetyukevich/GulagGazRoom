@@ -1,26 +1,57 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useEffect } from 'react';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
+import { Question, useQuestionsApi } from './hooks/useQuestionsApi';
 
 import './Questions.css';
 
-const createQuestionItem = (name: string) => (
-  <li key={name}>
+const createQuestionItem = (question: Question) => (
+  <li key={question.id}>
     <Field>
-      {name}
+      {question.value}
     </Field>
   </li>
 );
 
 export const Questions: FunctionComponent = () => {
+  const {
+    questionsState,
+    loadQuestions,
+  } = useQuestionsApi();
+  const { process: { loading, error }, questions } = questionsState;
+
+  useEffect(() => {
+    loadQuestions({ pageSize: 10, pageNumber: 1 });
+  }, [loadQuestions]);
+
+  const renderMainContent = () => {
+    if (error) {
+      return (
+        <Field>
+          <div>Error: {error}</div>
+        </Field>
+      );
+    }
+    if (loading) {
+      return (
+        <Field>
+          <div>Loading...</div>
+        </Field>
+      );
+    }
+    return (
+      <ul className="questions-list">
+        {questions.map(createQuestionItem)}
+      </ul>
+    );
+  };
+
   return (
     <MainContentWrapper>
       <Field>
-        <div>Questions</div>
+        <div>Questions:</div>
       </Field>
-      <ul className="questions-list">
-        {Array.from({ length: 11 }, (_, index) => `Question ${index}`).map(createQuestionItem)}
-      </ul>
+      {renderMainContent()}
     </MainContentWrapper>
   );
 };
