@@ -1,11 +1,8 @@
-using Interview.Backend.Controllers.WebSocket;
+namespace Interview.Domain.Events;
 
-namespace Interview.Domain.Events
+public interface IRoomEventDispatcher
 {
-    public interface IRoomEventDispatcher
-    {
-        Task<IEnumerable<IWebSocketEvent>> ReadAsync(TimeSpan timeSpan);
+    Task<IEnumerable<IWebSocketEvent>> ReadAsync(TimeSpan timeSpan);
 
-        Task WriteAsync(IWebSocketEvent @event, CancellationToken cancellationToken = default);
-    }
+    Task WriteAsync(IWebSocketEvent @event, CancellationToken cancellationToken = default);
 }

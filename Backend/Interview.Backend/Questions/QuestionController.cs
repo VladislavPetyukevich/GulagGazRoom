@@ -2,7 +2,7 @@ using Interview.Backend.Shared;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
-namespace Interview.Backend.Controllers.Questions;
+namespace Interview.Backend.Questions;
 
 [ApiController]
 [Route("[controller]")]

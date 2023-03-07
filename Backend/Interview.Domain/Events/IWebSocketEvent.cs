@@ -1,23 +1,22 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Interview.Backend.Controllers.WebSocket
+namespace Interview.Domain.Events;
+
+public interface IWebSocketEvent
 {
-    public interface IWebSocketEvent
+    Guid RoomId { get; }
+
+    EventType Type { get; }
+
+    string Value { get; }
+
+    string Stringify()
     {
-        Guid RoomId { get; }
-
-        EventType Type { get; }
-
-        string Value { get; }
-
-        string Stringify()
+        return JsonSerializer.Serialize(this, new JsonSerializerOptions
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Converters = { new JsonStringEnumConverter() },
-            });
-        }
+            WriteIndented = true,
+            Converters = { new JsonStringEnumConverter() },
+        });
     }
 }

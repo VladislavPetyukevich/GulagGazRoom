@@ -1,8 +1,17 @@
-namespace Interview.Backend.Controllers.WebSocket
+namespace Interview.Domain.Events;
+
+/// <summary>
+/// Event types.
+/// </summary>
+public enum EventType
 {
-    public enum EventType
-    {
-        Reaction,
-        ChatMessage,
-    }
+    /// <summary>
+    /// The event is triggered during a user reaction
+    /// </summary>
+    Reaction,
+
+    /// <summary>
+    /// The event is triggered when a new message appears in twitch
+    /// </summary>
+    ChatMessage,
 }

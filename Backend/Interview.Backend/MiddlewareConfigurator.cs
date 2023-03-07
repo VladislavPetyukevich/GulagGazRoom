@@ -1,3 +1,4 @@
+using Interview.Backend.WebSocket.Configuration;
 using Interview.DependencyInjection;
 
 namespace Interview.Backend;
@@ -20,7 +21,7 @@ public class MiddlewareConfigurator
         _app.UseWebSockets()
             .UseWebSocketsAuthorization(new WebSocketAuthorizationOptions
             {
-                CookieName = "_communist",
+                CookieName = WebSocketAuthorizationOptions.DefaultCookieName,
                 WebSocketHeaderName = "Authorization",
             });
 

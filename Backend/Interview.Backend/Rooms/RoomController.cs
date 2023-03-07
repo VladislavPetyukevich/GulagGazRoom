@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
-namespace Interview.Backend.Controllers.Rooms;
+namespace Interview.Backend.Rooms;
 
 [ApiController]
 [Route("[controller]")]

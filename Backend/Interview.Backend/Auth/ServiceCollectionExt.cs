@@ -1,3 +1,4 @@
+using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Interview.Backend.Auth;
@@ -11,7 +12,7 @@ public static class ServiceCollectionExt
         self.AddAuthentication(authenticationScheme)
             .AddCookie(authenticationScheme, options =>
             {
-                options.Cookie.Name = "_communist";
+                options.Cookie.Name = WebSocketAuthorizationOptions.DefaultCookieName;
                 options.LoginPath = "/login";
                 options.LogoutPath = "/logout";
                 options.ClaimsIssuer = oAuthTwitchOptions.ClaimsIssuer;

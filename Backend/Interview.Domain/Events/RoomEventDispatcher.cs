@@ -1,51 +1,49 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
-using Interview.Domain.Events;
 
-namespace Interview.Backend.Controllers.WebSocket
+namespace Interview.Domain.Events;
+
+public class RoomEventDispatcher : IRoomEventDispatcher
 {
-    public class RoomEventDispatcher : IRoomEventDispatcher
+    private readonly ConcurrentDictionary<Guid, Channel<IWebSocketEvent>> _queue = new();
+
+    public async Task<IEnumerable<IWebSocketEvent>> ReadAsync(TimeSpan timeout)
     {
-        private readonly ConcurrentDictionary<Guid, Channel<IWebSocketEvent>> _queue = new();
+        using var cts = new CancellationTokenSource(timeout);
 
-        public async Task<IEnumerable<IWebSocketEvent>> ReadAsync(TimeSpan timeout)
+        try
         {
-            using var cts = new CancellationTokenSource(timeout);
+            var list = new List<IWebSocketEvent>();
 
-            try
+            foreach (var (_, value) in _queue)
             {
-                var list = new List<IWebSocketEvent>();
-
-                foreach (var (_, value) in _queue)
-                {
-                    list.Add(await value.Reader.ReadAsync(cts.Token));
-                }
-
-                return list;
+                list.Add(await value.Reader.ReadAsync(cts.Token));
             }
-            catch (TaskCanceledException)
-            {
-                return Enumerable.Empty<IWebSocketEvent>();
-            }
-        }
 
-        public Task WriteAsync(IWebSocketEvent @event, CancellationToken cancellationToken = default)
+            return list;
+        }
+        catch (TaskCanceledException)
         {
-            var channel = GetChannel(@event.RoomId);
-            return channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
+            return Enumerable.Empty<IWebSocketEvent>();
         }
+    }
 
-        private static Channel<T> CreateBoundedChannel<T>(int capacity = 100) => Channel.CreateBounded<T>(
-            new BoundedChannelOptions(capacity)
-            {
-                SingleWriter = false,
-                SingleReader = false,
-                FullMode = BoundedChannelFullMode.DropOldest,
-            });
+    public Task WriteAsync(IWebSocketEvent @event, CancellationToken cancellationToken = default)
+    {
+        var channel = GetChannel(@event.RoomId);
+        return channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
+    }
 
-        private Channel<IWebSocketEvent> GetChannel(Guid roomId)
+    private static Channel<T> CreateBoundedChannel<T>(int capacity = 100) => Channel.CreateBounded<T>(
+        new BoundedChannelOptions(capacity)
         {
-            return _queue.GetOrAdd(roomId, _ => CreateBoundedChannel<IWebSocketEvent>());
-        }
+            SingleWriter = false,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest,
+        });
+
+    private Channel<IWebSocketEvent> GetChannel(Guid roomId)
+    {
+        return _queue.GetOrAdd(roomId, _ => CreateBoundedChannel<IWebSocketEvent>());
     }
 }

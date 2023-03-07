@@ -1,4 +1,3 @@
-using Interview.Backend.Controllers.WebSocket;
 using Interview.Domain.Certificates;
 using Interview.Domain.Events;
 using Interview.Domain.Questions;

@@ -1,14 +1,11 @@
-using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Interview.Backend.Auth;
-using Interview.Domain.Events;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Interview.Backend.Controllers.WebSocket;
+namespace Interview.Backend.WebSocket;
 
 // [AllowAnonymous]
 [ApiController]
