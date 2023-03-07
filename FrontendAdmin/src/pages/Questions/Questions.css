@@ -1,3 +1,17 @@
+.questions-header {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.questions-header .button-new {
+  position: absolute;
+  right: 55px;
+  padding: 5px 30px;
+}
+
 .questions-list {
   padding: 0px;
   list-style-type: none;

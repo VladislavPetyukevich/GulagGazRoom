@@ -1,8 +1,10 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
-import { Question, useQuestionsApi } from './hooks/useQuestionsApi';
+import { pathnames } from '../../constants';
+import { Question, useQuestionsGetApi } from './hooks/useQuestionsGetApi';
 
 import './Questions.css';
 
@@ -22,7 +24,7 @@ export const Questions: FunctionComponent = () => {
   const {
     questionsState,
     loadQuestions,
-  } = useQuestionsApi();
+  } = useQuestionsGetApi();
   const { process: { loading, error }, questions } = questionsState;
 
   useEffect(() => {
@@ -70,8 +72,11 @@ export const Questions: FunctionComponent = () => {
 
   return (
     <MainContentWrapper>
-      <Field>
-        <div>Questions:</div>
+      <Field className="questions-header">
+          <span>Questions:</span>
+          <Link to={pathnames.questionsCreate}>
+            <button className="button-new">+</button>
+          </Link>
       </Field>
       {renderMainContent()}
     </MainContentWrapper>

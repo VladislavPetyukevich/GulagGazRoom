@@ -2,13 +2,14 @@ import React, { ReactNode, FunctionComponent } from 'react';
 import { FieldsBlock } from '../../components/FieldsBlock/FieldsBlock';
 
 interface MainContentWrapperProps {
-  children: ReactNode
+  className?: string;
+  children: ReactNode;
 }
 
 export const MainContentWrapper: FunctionComponent<MainContentWrapperProps> =
-  ({ children }) => {
+  ({ className, children }) => {
     return (
-      <FieldsBlock>
+      <FieldsBlock className={className}>
         {children}
       </FieldsBlock>
     );

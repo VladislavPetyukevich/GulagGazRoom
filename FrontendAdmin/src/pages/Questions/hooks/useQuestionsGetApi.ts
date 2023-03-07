@@ -62,7 +62,7 @@ const questionsReducer = (state: QuestionsState, action: QuestionsAction): Quest
   }
 };
 
-export const useQuestionsApi = () => {
+export const useQuestionsGetApi = () => {
   const [questionsState, dispatch] = useReducer(questionsReducer, initialState);
 
   const loadQuestions = useCallback(async (options: { pageSize: number; pageNumber: number; }) => {
