@@ -67,13 +67,19 @@ export const useQuestionsApi = () => {
 
   const loadQuestions = useCallback(async (options: { pageSize: number; pageNumber: number; }) => {
     dispatch({ name: 'startLoad' });
-    const response = await fetch(`/Question/GetPage?PageSize=${+options.pageSize}&PageNumber=${+options.pageNumber}`);
-    if (!response.ok) {
-      dispatch({ name: 'setError', payload: 'Failed to fetch questions' });
-      return;
+    try {
+      const response = await fetch(`/Question/GetPage?PageSize=${+options.pageSize}&PageNumber=${+options.pageNumber}`);
+      if (!response.ok) {
+        throw new Error('QuestionsApi error');
+      }
+      const responseJson = await response.json();
+      dispatch({ name: 'setQuestions', payload: responseJson });
+    } catch (err: any) {
+      dispatch({
+        name: 'setError',
+        payload: err.message || 'Failed to fetch questions',
+      });
     }
-    const responseJson = await response.json();
-    dispatch({ name: 'setQuestions', payload: responseJson });
   }, []);
 
   return {
