@@ -1,7 +1,9 @@
 import React, { FormEvent, FunctionComponent, useCallback } from 'react';
 import { Field } from '../../components/FieldsBlock/Field';
+import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
+import { pathnames } from '../../constants';
 import { useQuestionsCreateApi } from './hooks/useQuestionsCreateApi';
 
 import './QuestionCreate.css';
@@ -53,9 +55,12 @@ export const QuestionCreate: FunctionComponent = () => {
 
   return (
     <MainContentWrapper className="question-create">
-      <Field>
-        <div>Create question</div>
-      </Field>
+      <HeaderWithLink
+        title="Create question"
+        path={pathnames.questions}
+        linkCaption="<"
+        linkFloat="left"
+      />
       {renderStatus()}
       <form onSubmit={handleSubmit}>
         <Field>
