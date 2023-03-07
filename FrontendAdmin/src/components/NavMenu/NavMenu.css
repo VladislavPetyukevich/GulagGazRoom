@@ -1,0 +1,29 @@
+.nav-menu {
+  font-size: var(--menu-font-size);
+  line-height: var(--menu-line-height);
+}
+.nav-menu nav {
+  display: contents;
+}
+
+.nav-menu .fields-wrap {
+  display: flex;
+  text-decoration: underline;
+}
+
+.nav-menu .field-wrap {
+  display: inline-block;
+  width: 100%;
+}
+
+.nav-menu .active {
+  background-color: var(--shadow);
+}
+
+.nav-menu .field-wrap:first-child {
+  margin-right: 15px;
+}
+
+.nav-menu .field-wrap:last-child {
+  margin-left: 15px;
+}

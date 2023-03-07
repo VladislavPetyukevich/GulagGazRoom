@@ -1,0 +1,50 @@
+:root {
+  --text: #d2deab;
+  --form-bg: #800000;
+  --wrap-bg: #000000;
+  --active: #bf0000;
+  --shadow: #100908;
+  --bg: #400000;
+  --page-bg: #574240;
+  --progress-bg: var(--shadow);
+  --progress-1: var(--active);
+  --progress-2: var(--form-bg);
+  --menu-font-size: 1.1rem;
+  --menu-line-height: calc(var(--menu-font-size) * 1.10);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--page-bg);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+button {
+  background-color: var(--form-bg);
+  border: none;
+  padding: 5px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: var(--active);
+}
+
+a:visited {
+  color: var(--form-bg);
+}
+
+a {
+  color: var(--active);
+}
