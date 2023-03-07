@@ -1,9 +1,13 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
+import { Paginator } from '../../components/Paginator/Paginator';
 import { Question, useQuestionsApi } from './hooks/useQuestionsApi';
 
 import './Questions.css';
+
+const pageSize = 10;
+const initialPageNumber = 1;
 
 const createQuestionItem = (question: Question) => (
   <li key={question.id}>
@@ -14,6 +18,7 @@ const createQuestionItem = (question: Question) => (
 );
 
 export const Questions: FunctionComponent = () => {
+  const [pageNumber, setPageNumber] = useState(initialPageNumber);
   const {
     questionsState,
     loadQuestions,
@@ -21,10 +26,18 @@ export const Questions: FunctionComponent = () => {
   const { process: { loading, error }, questions } = questionsState;
 
   useEffect(() => {
-    loadQuestions({ pageSize: 10, pageNumber: 1 });
-  }, [loadQuestions]);
+    loadQuestions({ pageSize, pageNumber });
+  }, [loadQuestions, pageNumber]);
 
-  const renderMainContent = () => {
+  const handleNextPage = useCallback(() => {
+    setPageNumber(pageNumber + 1);
+  }, [pageNumber]);
+
+  const handlePrevPage = useCallback(() => {
+    setPageNumber(pageNumber - 1);
+  }, [pageNumber]);
+
+  const renderMainContent = useCallback(() => {
     if (error) {
       return (
         <Field>
@@ -40,11 +53,20 @@ export const Questions: FunctionComponent = () => {
       );
     }
     return (
-      <ul className="questions-list">
-        {questions.map(createQuestionItem)}
-      </ul>
+      <>
+        <ul className="questions-list">
+          {questions.map(createQuestionItem)}
+        </ul>
+        <Paginator
+          pageNumber={pageNumber}
+          prevDisabled={pageNumber === initialPageNumber}
+          nextDisabled={questions.length !== pageSize}
+          onPrevClick={handlePrevPage}
+          onNextClick={handleNextPage}
+        />
+      </>
     );
-  };
+  }, [error, loading, pageNumber, questions, handleNextPage, handlePrevPage]);
 
   return (
     <MainContentWrapper>

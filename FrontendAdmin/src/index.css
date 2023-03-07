@@ -41,6 +41,12 @@ button:hover {
   background-color: var(--active);
 }
 
+button:disabled,
+button[disabled] {
+  background-color: var(--bg);
+  color: var(--shadow);
+}
+
 a:visited {
   color: var(--form-bg);
 }
