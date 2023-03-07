@@ -67,7 +67,7 @@ export const useQuestionsApi = () => {
 
   const loadQuestions = useCallback(async (options: { pageSize: number; pageNumber: number; }) => {
     dispatch({ name: 'startLoad' });
-    const response = await fetch(`https://localhost:7078/Question/GetPage?PageSize=${+options.pageSize}&PageNumber=${+options.pageNumber}`);
+    const response = await fetch(`/Question/GetPage?PageSize=${+options.pageSize}&PageNumber=${+options.pageNumber}`);
     if (!response.ok) {
       dispatch({ name: 'setError', payload: 'Failed to fetch questions' });
       return;
