@@ -1,6 +1,7 @@
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket;
+using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,6 +44,6 @@ public class ServiceConfigurator
 
         serviceCollection.AddHostedService<JobWriter>();
         serviceCollection.AddHostedService<EventSenderJob>();
-        serviceCollection.AddSingleton<UserRoomObservable>();
+        serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
     }
 }

@@ -1,8 +1,10 @@
+using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Interview.Backend.Auth;
+using Interview.Backend.WebSocket.UserByRoom;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.WebSocket;
@@ -15,13 +17,13 @@ public class WebSocketController : ControllerBase
     private readonly IRoomRepository _roomRepository;
     private readonly IUserRepository _userRepository;
 
-    private readonly UserRoomObservable _userRoomObservable;
+    private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
 
-    public WebSocketController(IRoomRepository roomRepository, IUserRepository userRepository, UserRoomObservable userRoomObservable)
+    public WebSocketController(IRoomRepository roomRepository, IUserRepository userRepository, UserByRoomEventSubscriber userByRoomEventSubscriber)
     {
         _roomRepository = roomRepository;
         _userRepository = userRepository;
-        _userRoomObservable = userRoomObservable;
+        _userByRoomEventSubscriber = userByRoomEventSubscriber;
     }
 
     [Route("/ws")]
@@ -43,38 +45,64 @@ public class WebSocketController : ControllerBase
 
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
+        var pool = ArrayPool<byte>.Shared;
+        var buffer = pool.Rent(1024 * 4);
+
         try
         {
-            var buffer = new byte[1024 * 4];
-            var receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
+            var receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
             var userMessage = Encoding.ASCII.GetString(buffer, 0, receiveResult.Count);
             var roomRequest = JsonSerializer.Deserialize<RoomSubscribeRequest>(userMessage);
-
-            var currentRoom = await _roomRepository.FindByIdAsync(roomRequest.RoomId);
-            if (currentRoom == null)
+            if (roomRequest == null)
             {
-                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Unknown room", CancellationToken.None);
+                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", CancellationToken.None);
                 return;
             }
 
-            if (!await _roomRepository.HasUserAsync(roomRequest.RoomId, user.Id))
+            var currentRoom = await PrepareRoomAsync(roomRequest, webSocket, user);
+            if (currentRoom == null)
             {
-                var dbUser = await _userRepository.FindByIdAsync(user.Id);
-
-                currentRoom.Users.Add(dbUser);
-
-                await _roomRepository.UpdateAsync(currentRoom);
+                return;
             }
 
-            await _userRoomObservable.SubscribeAsync(currentRoom.Id, webSocket);
+            await _userByRoomEventSubscriber.SubscribeAsync(currentRoom.Id, webSocket);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, CancellationToken.None);
         }
+        finally
+        {
+            pool.Return(buffer);
+        }
+    }
+
+    private async Task<Room?> PrepareRoomAsync(RoomSubscribeRequest roomRequest, System.Net.WebSockets.WebSocket webSocket, User user)
+    {
+        var currentRoom = await _roomRepository.FindByIdAsync(roomRequest.RoomId);
+        if (currentRoom == null)
+        {
+            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Unknown room", CancellationToken.None);
+            return null;
+        }
+
+        if (await _roomRepository.HasUserAsync(roomRequest.RoomId, user.Id))
+        {
+            return currentRoom;
+        }
+
+        var dbUser = await _userRepository.FindByIdAsync(user.Id);
+        if (dbUser == null)
+        {
+            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Unknown user", CancellationToken.None);
+            return null;
+        }
+
+        currentRoom.Users.Add(dbUser);
+        await _roomRepository.UpdateAsync(currentRoom);
+        return currentRoom;
     }
 
     public class RoomSubscribeRequest

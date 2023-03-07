@@ -1,66 +1,83 @@
 using System.Net.WebSockets;
 using System.Text;
+using Interview.Backend.WebSocket.UserByRoom;
 using Interview.Domain.Events;
 
 namespace Interview.Backend.WebSocket;
 
 public class EventSenderJob : BackgroundService
 {
+    private static TimeSpan ReadTimeout => TimeSpan.FromSeconds(30);
+
     private readonly IRoomEventDispatcher _roomEventDispatcher;
+    private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
+    private readonly ILogger<EventSenderJob> _logger;
 
-    private readonly UserRoomObservable _userRoomObservable;
-
-    public EventSenderJob(IRoomEventDispatcher roomEventDispatcher, UserRoomObservable userRoomObservable)
+    public EventSenderJob(IRoomEventDispatcher roomEventDispatcher, UserByRoomEventSubscriber userByRoomEventSubscriber, ILogger<EventSenderJob> logger)
     {
         _roomEventDispatcher = roomEventDispatcher;
-        _userRoomObservable = userRoomObservable;
+        _userByRoomEventSubscriber = userByRoomEventSubscriber;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            foreach (var currentEvent in await _roomEventDispatcher.ReadAsync(TimeSpan.FromSeconds(30)))
+            _logger.LogDebug("Start sending");
+            while (!stoppingToken.IsCancellationRequested)
             {
-                if (!_userRoomObservable.TryGetUsers(currentEvent.RoomId, out var users))
-                {
-                    continue;
-                }
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
 
+                IEnumerable<IWebSocketEvent>? events;
                 try
                 {
-                    foreach (var entry in users)
-                    {
-                        var socket = entry.Key;
-
-                        try
-                        {
-                            if (socket.CloseStatus.HasValue)
-                            {
-                                await socket.CloseAsync(socket.CloseStatus.Value, socket.CloseStatusDescription, stoppingToken);
-                                users.TryRemove(entry);
-                                entry.Value.SetCanceled(stoppingToken);
-                                continue;
-                            }
-
-                            var bytes = Encoding.UTF8.GetBytes(currentEvent.Stringify());
-
-                            await socket.SendAsync(
-                                new ArraySegment<byte>(bytes, 0, bytes.Length),
-                                WebSocketMessageType.Text,
-                                true,
-                                stoppingToken);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                    }
+                    events = await _roomEventDispatcher.ReadAsync(ReadTimeout);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    _logger.LogError(e, "Read events");
+                    await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+                    continue;
                 }
+
+                foreach (var currentEvent in events)
+                {
+                    if (!_userByRoomEventSubscriber.TryGetSubscribers(currentEvent.RoomId, out var subscribers))
+                    {
+                        continue;
+                    }
+
+                    _logger.LogDebug("Start sending {Event}", currentEvent.Stringify());
+                    await HandleSubscribersAsync(stoppingToken, subscribers, currentEvent);
+                }
+            }
+        }
+        finally
+        {
+            _logger.LogDebug("Stop sending");
+        }
+    }
+
+    private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, IWebSocketEvent currentEvent)
+    {
+        foreach (var entry in users)
+        {
+            try
+            {
+                if (entry.WebSocket.CloseStatus.HasValue)
+                {
+                    await entry.WebSocket.CloseAsync(entry.WebSocket.CloseStatus.Value, entry.WebSocket.CloseStatusDescription, stoppingToken);
+                    users.Remove(entry, stoppingToken);
+                    continue;
+                }
+
+                var bytes = Encoding.UTF8.GetBytes(currentEvent.Stringify());
+                await entry.WebSocket.SendAsync(bytes, WebSocketMessageType.Text, true, stoppingToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Send {Event}", currentEvent.Stringify());
             }
         }
     }
