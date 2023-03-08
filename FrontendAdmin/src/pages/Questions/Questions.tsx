@@ -5,7 +5,8 @@ import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { pathnames } from '../../constants';
-import { Question, useQuestionsGetApi } from './hooks/useQuestionsGetApi';
+import { Question } from '../../types/question';
+import { useQuestionsGetApi } from './hooks/useQuestionsGetApi';
 
 import './Questions.css';
 
@@ -50,8 +51,8 @@ export const Questions: FunctionComponent = () => {
     }
     if (loading) {
       return (
-        Array.from({ length: pageSize + 1 }, () => (
-          <Field>
+        Array.from({ length: pageSize + 1 }, (_, index) => (
+          <Field key={index}>
             <Loader />
           </Field>
         ))

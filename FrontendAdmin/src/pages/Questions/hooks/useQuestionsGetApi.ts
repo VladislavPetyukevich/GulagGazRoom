@@ -1,9 +1,5 @@
 import { useCallback, useReducer } from 'react';
-
-export interface Question {
-  id: string;
-  value: string;
-}
+import { Question } from '../../../types/question';
 
 interface QuestionsState {
   process: {
