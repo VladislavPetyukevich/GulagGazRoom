@@ -1,6 +1,7 @@
 import React, { FormEvent, FunctionComponent, useCallback } from 'react';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
+import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { pathnames } from '../../constants';
@@ -39,7 +40,7 @@ export const QuestionCreate: FunctionComponent = () => {
     if (loading) {
       return (
         <Field>
-          <div>Loading...</div>
+          <Loader />
         </Field>
       );
     }

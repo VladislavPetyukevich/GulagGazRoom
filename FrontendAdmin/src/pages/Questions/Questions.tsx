@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
+import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { pathnames } from '../../constants';
@@ -49,9 +50,11 @@ export const Questions: FunctionComponent = () => {
     }
     if (loading) {
       return (
-        <Field>
-          <div>Loading...</div>
-        </Field>
+        Array.from({ length: pageSize + 1 }, () => (
+          <Field>
+            <Loader />
+          </Field>
+        ))
       );
     }
     return (
