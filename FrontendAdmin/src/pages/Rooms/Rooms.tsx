@@ -56,7 +56,6 @@ export const Rooms: FunctionComponent = () => {
     loadRooms,
   } = useRoomsGetApi();
   const { process: { loading, error }, rooms } = roomsState;
-  console.log('rooms: ', rooms);
 
   useEffect(() => {
     loadRooms({ pageSize, pageNumber });
@@ -107,7 +106,7 @@ export const Rooms: FunctionComponent = () => {
     <MainContentWrapper>
       <HeaderWithLink
         title="Rooms:"
-        path={pathnames.questionsCreate}
+        path={pathnames.roomsCreate}
         linkCaption="+"
         linkFloat="right"
       />

@@ -21,6 +21,7 @@ export const Paginator: FunctionComponent<PaginatorProps> = ({
   return (
     <Field className="paginator">
       <button
+        type="button"
         disabled={prevDisabled}
         onClick={onPrevClick}
       >
@@ -28,6 +29,7 @@ export const Paginator: FunctionComponent<PaginatorProps> = ({
       </button>
       <span>Page: {pageNumber}</span>
       <button
+        type="button"
         disabled={nextDisabled}
         onClick={onNextClick}
       >
