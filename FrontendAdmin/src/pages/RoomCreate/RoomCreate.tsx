@@ -31,7 +31,7 @@ export const RoomCreate: FunctionComponent = () => {
     }
     createRoom({
       name: roomName,
-      questions: selectedQuestions,
+      questions: selectedQuestions.map(question => question.id),
       users: [],
     });
   }, [selectedQuestions, createRoom]);

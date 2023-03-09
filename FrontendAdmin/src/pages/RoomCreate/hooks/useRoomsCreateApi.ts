@@ -60,8 +60,8 @@ const roomReducer = (state: RoomState, action: RoomAction): RoomState => {
 
 interface CreateRoomOptions {
   name: string;
-  questions: Omit<Question, 'id'>[];
-  users: User[];
+  questions: Array<Question['id']>;
+  users: Array<User['id']>;
 }
 
 export const useRoomsCreateApi = () => {
