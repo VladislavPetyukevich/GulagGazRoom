@@ -18,6 +18,11 @@ public class MiddlewareConfigurator
             MinimumSameSitePolicy = SameSiteMode.Lax,
         });
 
+        if (_app.Environment.IsDevelopment())
+        {
+            _app.UseCors("All");
+        }
+
         _app.UseAuthentication();
         _app.UseAuthorization();
 
