@@ -28,6 +28,11 @@ public class EfRepository<T> : IRepository<T>
         return Set.FindAsync(id, cancellationToken);
     }
 
+    public Task<List<T>> FindByIdsAsync(ICollection<Guid> id, CancellationToken cancellationToken = default)
+    {
+        return Set.Where(e => id.Contains(e.Id)).ToListAsync(cancellationToken);
+    }
+
     public Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         Set.Update(entity);

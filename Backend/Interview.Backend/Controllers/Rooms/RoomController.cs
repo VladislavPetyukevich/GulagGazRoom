@@ -1,4 +1,5 @@
 using Interview.Backend.Shared;
+using Interview.Domain.Rooms.Service;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
@@ -9,10 +10,12 @@ namespace Interview.Backend.Controllers.Rooms;
 public class RoomController : ControllerBase
 {
     private readonly IRoomRepository _roomRepository;
+    private readonly RoomService _roomService;
 
-    public RoomController(IRoomRepository userRepository)
+    public RoomController(IRoomRepository userRepository, RoomService roomService)
     {
         _roomRepository = userRepository;
+        _roomService = roomService;
     }
 
     [HttpGet(nameof(GetPage))]
@@ -22,8 +25,16 @@ public class RoomController : ControllerBase
     }
 
     [HttpPost(nameof(Create))]
-    public Task Create(Room room)
+    [ProducesResponseType(typeof(Guid), 201)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<IActionResult> Create([FromBody] RoomCreateRequest room)
     {
-        return _roomRepository.CreateAsync(room);
+        var newRoomResult = await _roomService.CreateAsync(room);
+        if (newRoomResult.IsFailure)
+        {
+            return BadRequest(newRoomResult.Error);
+        }
+
+        return Created(string.Empty, newRoomResult.Value.Id);
     }
 }
