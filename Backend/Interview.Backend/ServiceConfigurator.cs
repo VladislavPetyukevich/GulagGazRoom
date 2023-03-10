@@ -25,7 +25,6 @@ public class ServiceConfigurator
                 options.AddPolicy("All", policy =>
                 {
                     policy
-                        .AllowCredentials()
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowAnyOrigin();
