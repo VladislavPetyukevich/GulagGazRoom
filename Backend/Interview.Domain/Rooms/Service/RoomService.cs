@@ -30,14 +30,6 @@ namespace Interview.Domain.Rooms.Service
                 return Result.Failure<Room>("Room name should not be empty");
             }
 
-            var users = await _userRepository.FindByIdsAsync(request.Users, cancellationToken);
-            var notFoundUsers = request.Users.Except(users.Select(e => e.Id));
-            var notFoundUsersMessage = string.Join(", ", notFoundUsers);
-            if (!string.IsNullOrEmpty(notFoundUsersMessage))
-            {
-                return Result.Failure<Room>($"Not found users with id [{notFoundUsersMessage}]");
-            }
-
             var questions = await _questionRepository.FindByIdsAsync(request.Questions, cancellationToken);
             var notFoundQuestions = request.Questions.Except(questions.Select(e => e.Id));
             var notFoundQuestionsMessage = string.Join(", ", notFoundQuestions);
@@ -48,7 +40,6 @@ namespace Interview.Domain.Rooms.Service
 
             var newRoom = new Room(name);
             newRoom.Questions.AddRange(questions);
-            newRoom.Users.AddRange(users);
             await _roomRepository.CreateAsync(newRoom, cancellationToken);
             return newRoom;
         }
