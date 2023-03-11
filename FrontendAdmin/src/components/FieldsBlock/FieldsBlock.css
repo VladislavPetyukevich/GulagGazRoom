@@ -1,0 +1,26 @@
+.fields-block {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+  color: var(--text);
+}
+
+.fields-block .fields-wrap {
+  background-color: var(--form-bg);
+  box-shadow: 4px 4px 4px var(--shadow);
+  margin-right: 40px;
+  margin-left: 40px;
+}
+
+.fields-block .field-wrap {
+  background: var(--wrap-bg);
+  margin: 20px;
+  margin-right: -40px;
+  margin-left: -40px;
+  height: auto;
+  min-height: 30px;
+  box-shadow: 2px 2px 2px var(--shadow);
+  padding: 10px 0px 5px 0px;
+}

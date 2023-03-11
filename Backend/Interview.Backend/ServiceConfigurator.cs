@@ -20,6 +20,20 @@ public class ServiceConfigurator
 
     public void AddServices(IServiceCollection serviceCollection)
     {
+        if (_environment.IsDevelopment())
+        {
+            serviceCollection.AddCors(options =>
+            {
+                options.AddPolicy("All", policy =>
+                {
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowAnyOrigin();
+                });
+            });
+        }
+
         serviceCollection
             .AddControllers()
             .AddJsonOptions(options =>

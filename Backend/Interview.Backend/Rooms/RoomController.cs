@@ -1,19 +1,21 @@
 using Interview.Backend.Shared;
-using Microsoft.AspNetCore.Authorization;
+using Interview.Domain.Rooms.Service;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
-namespace Interview.Backend.Rooms;
+namespace Interview.Backend.Controllers.Rooms;
 
 [ApiController]
 [Route("[controller]")]
 public class RoomController : ControllerBase
 {
     private readonly IRoomRepository _roomRepository;
+    private readonly RoomService _roomService;
 
     public RoomController(IRoomRepository userRepository)
     {
         _roomRepository = userRepository;
+        _roomService = roomService;
     }
 
     [HttpGet(nameof(GetPage))]
@@ -23,25 +25,16 @@ public class RoomController : ControllerBase
     }
 
     [HttpPost(nameof(Create))]
-    public Task Create(Room room)
+    [ProducesResponseType(typeof(Guid), 201)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<IActionResult> Create([FromBody] RoomCreateRequest room)
     {
-        return _roomRepository.CreateAsync(room);
-    }
-
-    [Authorize(Roles = RoleNameConstants.Admin)]
-    [HttpPost(nameof(StartRoom))]
-    public async Task<IActionResult> StartRoom(Guid id)
-    {
-        var room = await _roomRepository.FindByIdAsync(id);
-
-        if (room == null)
+        var newRoomResult = await _roomService.CreateAsync(room);
+        if (newRoomResult.IsFailure)
         {
-            return NotFound($"Not found room by id = \"{id}\"");
+            return BadRequest(newRoomResult.Error);
         }
 
-        // TODO make jobs [reactionSender, chatMessaging]
-
-        // TODO modify state room
-        return Ok();
+        return Created(string.Empty, newRoomResult.Value.Id);
     }
 }

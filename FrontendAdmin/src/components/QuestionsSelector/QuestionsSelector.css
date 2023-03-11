@@ -1,0 +1,8 @@
+.questions-selector {
+  padding: 0px;
+  list-style-type: none;
+}
+
+.questions-selector label {
+  cursor: pointer;
+}

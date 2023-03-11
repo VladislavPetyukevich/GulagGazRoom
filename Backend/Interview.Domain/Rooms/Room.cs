@@ -15,7 +15,7 @@ public class Room : Entity
     {
     }
 
-    public string Name { get; set; }
+    public string Name { get; internal set; }
 
     public List<Question> Questions { get; set; } = new();
 
