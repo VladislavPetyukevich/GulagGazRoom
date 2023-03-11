@@ -1,9 +1,12 @@
+using Interview.Backend.Auth;
 using Interview.Backend.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
 namespace Interview.Backend.Questions;
 
+[Authorize(policy: OAuthTwitchOptions.Policy)]
 [ApiController]
 [Route("[controller]")]
 public class QuestionController : ControllerBase

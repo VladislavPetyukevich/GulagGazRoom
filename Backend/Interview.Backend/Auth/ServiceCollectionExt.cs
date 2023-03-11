@@ -41,7 +41,7 @@ public static class ServiceCollectionExt
 
         self.AddAuthorization(options =>
         {
-            options.AddPolicy("user", policyBuilder =>
+            options.AddPolicy(OAuthTwitchOptions.Policy, policyBuilder =>
             {
                 policyBuilder.AddAuthenticationSchemes(TwitchScheme).RequireAuthenticatedUser();
             });

@@ -4,6 +4,8 @@ public class OAuthTwitchOptions
 {
     public const string OAuthTwitch = "OAuthTwitch";
 
+    public const string Policy = "user";
+
     public OAuthTwitchOptions(IConfiguration configuration)
     {
         configuration.GetSection(OAuthTwitch).Bind(this);

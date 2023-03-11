@@ -1,10 +1,13 @@
+using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
 
-namespace Interview.Backend.Controllers.Rooms;
+namespace Interview.Backend.Rooms;
 
+[Authorize(policy: OAuthTwitchOptions.Policy)]
 [ApiController]
 [Route("[controller]")]
 public class RoomController : ControllerBase

@@ -1,3 +1,4 @@
+using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using X.PagedList;
 
 namespace Interview.Backend.Users;
 
+[Authorize(policy: OAuthTwitchOptions.Policy)]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
@@ -22,14 +24,12 @@ public class UserController : ControllerBase
         return _userRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
-    [Authorize(Roles = RoleNameConstants.User + "," + RoleNameConstants.Admin)]
     [HttpGet(nameof(FindByNickname))]
     public Task<User?> FindByNickname(string nickname)
     {
         return _userRepository.FindByNicknameAsync(nickname);
     }
 
-    [Authorize(policy: "user")]
     [HttpGet(nameof(GetMe))]
     public Task<List<string>> GetMe()
     {

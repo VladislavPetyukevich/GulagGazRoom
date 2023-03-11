@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.WebSocket;
 
-// [AllowAnonymous]
 [ApiController]
 [Route("[controller]")]
 public class WebSocketController : ControllerBase
