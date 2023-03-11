@@ -46,7 +46,8 @@ public class ServiceConfigurator
         serviceCollection.AddSwaggerGen();
 
         var oAuthTwitchOptions = new OAuthTwitchOptions(_configuration);
-        var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), optionsBuilder =>
+        var adminUsers = _configuration.GetSection(nameof(AdminUsers)).Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
+        var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), adminUsers, optionsBuilder =>
         {
             if (_environment.IsDevelopment())
             {

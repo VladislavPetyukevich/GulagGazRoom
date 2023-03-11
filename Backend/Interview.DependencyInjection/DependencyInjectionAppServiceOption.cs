@@ -1,3 +1,4 @@
+using Interview.Domain.Users;
 using Interview.Infrastructure.Chat.TokenProviders;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,10 +8,13 @@ public sealed class DependencyInjectionAppServiceOption
 {
     public Action<DbContextOptionsBuilder> DbConfigurator { get; }
     public TwitchTokenProviderOption TwitchTokenProviderOption { get; }
+    
+    public AdminUsers AdminUsers { get; }
 
-    public DependencyInjectionAppServiceOption(TwitchTokenProviderOption twitchTokenProviderOption, Action<DbContextOptionsBuilder> dbConfigurator)
+    public DependencyInjectionAppServiceOption(TwitchTokenProviderOption twitchTokenProviderOption, AdminUsers adminUsers, Action<DbContextOptionsBuilder> dbConfigurator)
     {
         DbConfigurator = dbConfigurator;
+        AdminUsers = adminUsers;
         TwitchTokenProviderOption = twitchTokenProviderOption;
     }
 }

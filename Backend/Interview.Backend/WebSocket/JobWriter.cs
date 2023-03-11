@@ -16,15 +16,22 @@ public class JobWriter : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var roomIds = await GetRoomIdsAsync();
         var id = 0;
-        var faker = new Faker<CustomEvent>()
-            .RuleFor(e => e.Type, e => e.PickRandom<EventType>())
-            .RuleFor(e => e.Value, e => (++id).ToString())
-            .RuleFor(e => e.RoomId, e => e.PickRandom(roomIds));
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            var roomIds = await GetRoomIdsAsync();
+            if (roomIds.Count == 0)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                continue;
+            }
+
+            var faker = new Faker<CustomEvent>()
+                .RuleFor(e => e.Type, e => e.PickRandom<EventType>())
+                .RuleFor(e => e.Value, e => (++id).ToString())
+                .RuleFor(e => e.RoomId, e => e.PickRandom(roomIds));
+
             var currentEvent = faker.Generate(Random.Shared.Next(1, 3));
             foreach (var customEvent in currentEvent)
             {
