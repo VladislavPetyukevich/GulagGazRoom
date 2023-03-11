@@ -27,6 +27,20 @@ public class RoomController : ControllerBase
         return _roomRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
+    [HttpGet(nameof(GetById))]
+    [ProducesResponseType(typeof(Room), 200)]
+    [ProducesResponseType(typeof(string), 404)]
+    public async Task<IActionResult> GetById([FromQuery] Guid id)
+    {
+        var result = await _roomRepository.FindByIdAsync(id);
+        if (result == null)
+        {
+            return NotFound($"Not found user with id = \'{id}\'");
+        }
+
+        return Ok(result);
+    }
+
     [Authorize(Roles = RoleNameConstants.Admin)]
     [HttpPost(nameof(Create))]
     [ProducesResponseType(typeof(Guid), 201)]
