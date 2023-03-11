@@ -24,6 +24,7 @@ public class QuestionController : ControllerBase
         return _questionRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
+    [Authorize(Roles = RoleNameConstants.Admin)]
     [HttpPost(nameof(Create))]
     public Task Create(Question room)
     {

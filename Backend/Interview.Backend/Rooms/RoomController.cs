@@ -27,6 +27,7 @@ public class RoomController : ControllerBase
         return _roomRepository.GetPage(request.PageNumber, request.PageSize);
     }
 
+    [Authorize(Roles = RoleNameConstants.Admin)]
     [HttpPost(nameof(Create))]
     [ProducesResponseType(typeof(Guid), 201)]
     [ProducesResponseType(typeof(string), 400)]
