@@ -6,19 +6,17 @@ namespace Interview.Backend.WebSocket;
 public class JobWriter : BackgroundService
 {
     private readonly IRoomEventDispatcher _dispatcher;
+    private readonly IServiceProvider _serviceProvider;
 
-    public JobWriter(IRoomEventDispatcher dispatcher)
+    public JobWriter(IRoomEventDispatcher dispatcher, IServiceProvider serviceProvider)
     {
         _dispatcher = dispatcher;
+        _serviceProvider = serviceProvider;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var roomIds = new[]
-        {
-            Guid.Parse("2E87B752-84FD-475C-B7C4-719C72D9B01A"),
-            Guid.Parse("2E87B752-84FD-475C-B7C4-239C72D9B02A"),
-        };
+        var roomIds = await GetRoomIdsAsync();
         var id = 0;
         var faker = new Faker<CustomEvent>()
             .RuleFor(e => e.Type, e => e.PickRandom<EventType>())
@@ -35,6 +33,14 @@ public class JobWriter : BackgroundService
 
             await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(1, 5)), default);
         }
+    }
+
+    private async Task<ICollection<Guid>> GetRoomIdsAsync()
+    {
+        await using var scope = _serviceProvider.CreateAsyncScope();
+        var rep = scope.ServiceProvider.GetRequiredService<IRoomRepository>();
+        var rooms = await rep.GetPage(1, 10);
+        return rooms.Select(e => e.Id).ToList();
     }
 
     public sealed class CustomEvent : IWebSocketEvent

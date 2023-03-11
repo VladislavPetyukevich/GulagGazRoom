@@ -12,7 +12,7 @@ public class RoomController : ControllerBase
     private readonly IRoomRepository _roomRepository;
     private readonly RoomService _roomService;
 
-    public RoomController(IRoomRepository userRepository)
+    public RoomController(IRoomRepository userRepository, RoomService roomService)
     {
         _roomRepository = userRepository;
         _roomService = roomService;
