@@ -49,17 +49,15 @@ public class WebSocketController : ControllerBase
 
         try
         {
-            var receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            var query = HttpContext.Request.Query;
 
-            var userMessage = Encoding.ASCII.GetString(buffer, 0, receiveResult.Count);
-            var roomRequest = JsonSerializer.Deserialize<RoomSubscribeRequest>(userMessage);
-            if (roomRequest == null)
+            if (!query.TryGetValue("roomId", out var roomId))
             {
                 await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", CancellationToken.None);
                 return;
             }
 
-            var currentRoom = await PrepareRoomAsync(roomRequest, webSocket, user);
+            var currentRoom = await PrepareRoomAsync(Guid.Parse(roomId), webSocket, user);
             if (currentRoom == null)
             {
                 return;
@@ -78,16 +76,16 @@ public class WebSocketController : ControllerBase
         }
     }
 
-    private async Task<Room?> PrepareRoomAsync(RoomSubscribeRequest roomRequest, System.Net.WebSockets.WebSocket webSocket, User user)
+    private async Task<Room?> PrepareRoomAsync(Guid roomId, System.Net.WebSockets.WebSocket webSocket, User user)
     {
-        var currentRoom = await _roomRepository.FindByIdAsync(roomRequest.RoomId);
+        var currentRoom = await _roomRepository.FindByIdAsync(roomId);
         if (currentRoom == null)
         {
             await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Unknown room", CancellationToken.None);
             return null;
         }
 
-        if (await _roomRepository.HasUserAsync(roomRequest.RoomId, user.Id))
+        if (await _roomRepository.HasUserAsync(roomId, user.Id))
         {
             return currentRoom;
         }
@@ -102,11 +100,5 @@ public class WebSocketController : ControllerBase
         currentRoom.Users.Add(dbUser);
         await _roomRepository.UpdateAsync(currentRoom);
         return currentRoom;
-    }
-
-    public class RoomSubscribeRequest
-    {
-        [JsonPropertyName("roomId")]
-        public Guid RoomId { get; set; }
     }
 }
