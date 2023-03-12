@@ -12,6 +12,7 @@ public static class ServiceCollectionExt
         self.AddAuthentication(authenticationScheme)
             .AddCookie(authenticationScheme, options =>
             {
+                options.Cookie.HttpOnly = false;
                 options.Cookie.Name = WebSocketAuthorizationOptions.DefaultCookieName;
                 options.LoginPath = "/login";
                 options.LogoutPath = "/logout";
@@ -25,6 +26,18 @@ public static class ServiceCollectionExt
                 options.CallbackPath = oAuthTwitchOptions.CallbackPath;
                 options.ClaimsIssuer = oAuthTwitchOptions.ClaimsIssuer;
                 options.UsePkce = oAuthTwitchOptions.UsePkce;
+                options.Events.OnAccessDenied += context =>
+                {
+                    Console.WriteLine(context);
+
+                    return Task.CompletedTask;
+                };
+                options.Events.OnAccessDenied += context =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                    return Task.CompletedTask;
+                };
                 options.Events.OnTicketReceived += async context =>
                 {
                     var user = context.Principal?.ToUser();
