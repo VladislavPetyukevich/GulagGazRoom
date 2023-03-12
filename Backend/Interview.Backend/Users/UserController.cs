@@ -33,7 +33,12 @@ public class UserController : ControllerBase
     [HttpGet(nameof(GetMe))]
     public Task<List<string>> GetMe()
     {
-        var claims = HttpContext.User.Claims.Select(claim => claim.Value).ToList();
-        return Task.FromResult(claims);
+        if (HttpContext.Request.Query.TryGetValue("redirectUrl", out var redirectUrl))
+        {
+            HttpContext.Response.Redirect(redirectUrl);
+        }
+
+        return Task.FromResult(
+            HttpContext.User.Claims.Select(claim => claim.Value).ToList());
     }
 }
