@@ -12,5 +12,5 @@ public class Question : Entity
     {
     }
 
-    public string Value { get; }
+    public string Value { get; internal set; }
 }

@@ -1,19 +1,16 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
-using Interview.Domain.Users;
 
 namespace Interview.Domain.Rooms.Service
 {
     public sealed class RoomService
     {
         private readonly IRoomRepository _roomRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IQuestionRepository _questionRepository;
 
-        public RoomService(IRoomRepository roomRepository, IUserRepository userRepository, IQuestionRepository questionRepository)
+        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository)
         {
             _roomRepository = roomRepository;
-            _userRepository = userRepository;
             _questionRepository = questionRepository;
         }
 

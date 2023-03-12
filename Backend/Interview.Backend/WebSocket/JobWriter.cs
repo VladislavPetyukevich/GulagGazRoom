@@ -46,7 +46,7 @@ public class JobWriter : BackgroundService
     {
         await using var scope = _serviceProvider.CreateAsyncScope();
         var rep = scope.ServiceProvider.GetRequiredService<IRoomRepository>();
-        var rooms = await rep.GetPage(1, 10);
+        var rooms = await rep.GetPageAsync(1, 10);
         return rooms.Select(e => e.Id).ToList();
     }
 

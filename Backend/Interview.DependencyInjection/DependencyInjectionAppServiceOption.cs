@@ -8,7 +8,7 @@ public sealed class DependencyInjectionAppServiceOption
 {
     public Action<DbContextOptionsBuilder> DbConfigurator { get; }
     public TwitchTokenProviderOption TwitchTokenProviderOption { get; }
-    
+
     public AdminUsers AdminUsers { get; }
 
     public DependencyInjectionAppServiceOption(TwitchTokenProviderOption twitchTokenProviderOption, AdminUsers adminUsers, Action<DbContextOptionsBuilder> dbConfigurator)
