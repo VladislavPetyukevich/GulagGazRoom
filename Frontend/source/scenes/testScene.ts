@@ -4,6 +4,7 @@ import {
   Vector3,
   Fog,
   AmbientLight,
+  Color,
 } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { BasicSceneProps, BasicScene } from '@/core/Scene';
@@ -19,6 +20,14 @@ import { TimeoutsManager } from '@/TimeoutsManager';
 import { EntitiesPool } from './Spawner/EntitiesPool';
 import { PlayerAction, PlayerActionListener, PlayerActionName, playerActions } from '@/PlayerActions';
 import { Stats } from './Stats';
+
+interface LightEffect {
+  color: Color;
+  intensity: number;
+  duration: number;
+}
+
+type LightEffectName = 'flash';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
@@ -41,6 +50,7 @@ export class TestScene extends BasicScene {
   gasCenter: Vector3;
   gasParticlesPool: EntitiesPool;
   actions: Record<PlayerActionName, PlayerActionListener['listener']>;
+  lightEffects: Record<LightEffectName, LightEffect>;
   stats: Stats;
   tvMain?: TV;
   tvChat?: TV;
@@ -62,14 +72,6 @@ export class TestScene extends BasicScene {
         audioListener: this.audioListener
       })
     ) as Player;
-    this.player.setOnHitCallback(() => {
-      this.ambientLight.color.setHex(0xFFFFFF);
-      this.ambientLight.intensity = 22.3;
-      setTimeout(() => {
-        this.ambientLight.color.setHex(this.ambientLightColor);
-        this.ambientLight.intensity = this.ambientLightIntensity;
-      }, 100);
-    });
     this.player.setOnDeathCallback(() => {
       this.ambientLight.color.setHex(0xFF0000);
       setTimeout(() => this.finish(), 400);
@@ -166,6 +168,14 @@ export class TestScene extends BasicScene {
     const gasParticlesCount = 40;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
+    this.lightEffects = {
+      flash: {
+        color: new Color(0xFFFFFF),
+        intensity: 22.3,
+        duration: 100,
+      },
+    };
+
     this.actions = {
       gasEnable: this.onGasEnable,
       gasDisable: this.onGasDisable,
@@ -193,12 +203,21 @@ export class TestScene extends BasicScene {
     );
   }
 
+  createLightEffect(effect: LightEffect) {
+    this.ambientLight.color = effect.color;
+    this.ambientLight.intensity = effect.intensity;
+    setTimeout(() => {
+      this.ambientLight.color.setHex(this.ambientLightColor);
+      this.ambientLight.intensity = this.ambientLightIntensity;
+    }, effect.duration);
+  }
+
   update(delta: number) {
     super.update(delta);
     this.pointLight.position.copy(this.player.mesh.position);
     this.timeoutsManager.updateTimeOut('lightFlash', delta);
     if (this.timeoutsManager.checkIsTimeOutExpired('lightFlash')) {
-      this.player.onHit(0);
+      this.createLightEffect(this.lightEffects.flash);
       if (randomNumbers.getRandom() > 0.5) {
         this.timeoutsManager.initialTimeOuts.lightFlash = randomNumbers.getRandomInRange(1, 30);
       } else {
