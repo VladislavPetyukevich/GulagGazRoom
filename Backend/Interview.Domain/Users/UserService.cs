@@ -15,16 +15,14 @@ public sealed class UserService
         _adminUsers = adminUsers;
     }
 
-    public async Task UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)
     {
         var existingUser = await _userRepository.FindByTwitchIdentityAsync(user.TwitchIdentity, cancellationToken);
         if (existingUser != null)
         {
             existingUser.Nickname = user.Nickname;
-            user.Roles.AddRange(existingUser.Roles);
-            user.Id = existingUser.Id;
             await _userRepository.UpdateAsync(existingUser, cancellationToken);
-            return;
+            return existingUser;
         }
 
         var userRole = await GetUserRoleAsync(user.Nickname, cancellationToken);
@@ -33,8 +31,10 @@ public sealed class UserService
             throw new InvalidOperationException("Not found \"User\" role");
         }
 
-        user.Roles.Add(userRole);
-        await _userRepository.CreateAsync(user, cancellationToken);
+        var insertUser = new User(user.Nickname, user.TwitchIdentity);
+        insertUser.Roles.Add(userRole);
+        await _userRepository.CreateAsync(insertUser, cancellationToken);
+        return insertUser;
     }
 
     private ValueTask<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
