@@ -22,4 +22,7 @@ public class UserRepository : EfRepository<User>, IUserRepository
         return Set.Include(e => e.Roles)
             .FirstOrDefaultAsync(user => user.TwitchIdentity == twitchIdentity, cancellationToken);
     }
+
+    protected override IQueryable<User> ApplyIncludes(DbSet<User> set)
+        => set.Include(e => e.Roles);
 }

@@ -1,7 +1,8 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
-using Interview.Domain.Rooms.Service.Response;
+using Interview.Domain.Rooms.Service.Records.Request;
+using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -55,5 +56,18 @@ public class RoomController : ControllerBase
         }
 
         return Created(string.Empty, newRoomResult.Value.Id);
+    }
+
+    [Authorize(Roles = RoleNameConstants.Admin)]
+    [HttpPatch]
+    [ProducesResponseType(typeof(Guid), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<IActionResult> PatchUpdate([FromQuery] Guid? id, [FromBody] RoomPatchUpdateRequest room)
+    {
+        var updatedRoomResult = await _roomService.PatchUpdate(id, room);
+
+        return updatedRoomResult.IsFailure
+            ? BadRequest(updatedRoomResult.Error)
+            : Ok(updatedRoomResult);
     }
 }

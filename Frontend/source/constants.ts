@@ -6,6 +6,11 @@ import wallDecal3TextureFile from '@/assets/wallDecal3.png';
 import floorTextureFile from '@/assets/floor.png';
 import gasTextureFile from '@/assets/smoke.png';
 import damage from './assets/damage.mp3';
+import buzz from './assets/buzz.mp3';
+import lightFlick1 from './assets/lightFlick1.mp3';
+import lightFlick2 from './assets/lightFlick2.mp3';
+import lightFlick3 from './assets/lightFlick3.mp3';
+import lightFlick4 from './assets/lightFlick4.mp3';
 
 export const PI_2 = Math.PI / 2;
 
@@ -60,4 +65,9 @@ export const gameTextures = {
 
 export const gameSounds = {
   damage,
+  buzz,
+  lightFlick1,
+  lightFlick2,
+  lightFlick3,
+  lightFlick4,
 };

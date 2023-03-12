@@ -1,4 +1,4 @@
-namespace Interview.Domain.Rooms.Service
+namespace Interview.Domain.Rooms.Service.Records.Request
 {
     public sealed class RoomCreateRequest
     {

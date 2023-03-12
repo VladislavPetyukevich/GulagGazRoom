@@ -4,6 +4,7 @@ import {
   Vector3,
   Fog,
   AmbientLight,
+  Audio,
 } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { BasicSceneProps, BasicScene } from '@/core/Scene';
@@ -19,13 +20,22 @@ import { TimeoutsManager } from '@/TimeoutsManager';
 import { EntitiesPool } from './Spawner/EntitiesPool';
 import { PlayerAction, PlayerActionListener, PlayerActionName, playerActions } from '@/PlayerActions';
 import { Stats } from './Stats';
+import { audioStore } from '@/core/loaders';
+
+interface LightEffect {
+  colorHex: number;
+  intensity: number;
+  duration: number;
+}
+
+type LightEffectName = 'flick';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
 }
 
 type TimeoutNames =
-  'lightFlash';
+  'lightFlick';
 
 export class TestScene extends BasicScene {
   pointLight: PointLight;
@@ -41,15 +51,18 @@ export class TestScene extends BasicScene {
   gasCenter: Vector3;
   gasParticlesPool: EntitiesPool;
   actions: Record<PlayerActionName, PlayerActionListener['listener']>;
+  lightEffects: Record<LightEffectName, LightEffect>;
+  lightFlickAudios: Audio[];
   stats: Stats;
   tvMain?: TV;
   tvChat?: TV;
   tvStats?: TV;
+  tvStatsAnimationInProgress: boolean;
 
   constructor(props: TestSceneProps) {
     super(props);
     const timeoutValues = {
-      lightFlash: randomNumbers.getRandomInRange(1, 2),
+      lightFlick: randomNumbers.getRandomInRange(1, 2),
     };
     this.timeoutsManager = new TimeoutsManager(timeoutValues);
 
@@ -62,14 +75,6 @@ export class TestScene extends BasicScene {
         audioListener: this.audioListener
       })
     ) as Player;
-    this.player.setOnHitCallback(() => {
-      this.ambientLight.color.setHex(0xFFFFFF);
-      this.ambientLight.intensity = 22.3;
-      setTimeout(() => {
-        this.ambientLight.color.setHex(this.ambientLightColor);
-        this.ambientLight.intensity = this.ambientLightIntensity;
-      }, 100);
-    });
     this.player.setOnDeathCallback(() => {
       this.ambientLight.color.setHex(0xFF0000);
       setTimeout(() => this.finish(), 400);
@@ -152,6 +157,7 @@ export class TestScene extends BasicScene {
       this.scene.add(object);
       this.updateStatsTv();
     });
+    this.tvStatsAnimationInProgress = false;
 
     this.player.mesh.position.set(31.0, 1.5, 52.0);
     this.camera.rotation.set(0.0, 0.21, 0.0);
@@ -166,6 +172,20 @@ export class TestScene extends BasicScene {
     const gasParticlesCount = 40;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
+    this.lightEffects = {
+      flick: {
+        colorHex: 0xFFFFFF,
+        intensity: 70.0,
+        duration: 100,
+      },
+    };
+    this.lightFlickAudios = [];
+    for (let i = 4; i--;) {
+      this.lightFlickAudios.push(
+        this.createLightFlickAudio(`lightFlick${i}`)
+      );
+    }
+
     this.actions = {
       gasEnable: this.onGasEnable,
       gasDisable: this.onGasDisable,
@@ -175,6 +195,8 @@ export class TestScene extends BasicScene {
       chatMessage: this.onChatMessage,
     };
     this.addActionListeners();
+
+    this.startBuzzSound();
   }
 
   getInitialPlayerPositon() {
@@ -186,6 +208,23 @@ export class TestScene extends BasicScene {
     );
   }
 
+  startBuzzSound() {
+    const buzzSound = new Audio(this.audioListener);
+    const buzzSoundBuffer = audioStore.getSound('buzz');
+    buzzSound.setBuffer(buzzSoundBuffer);
+    buzzSound.setLoop(true);
+    buzzSound.setVolume(0.4);
+    buzzSound.play();
+  }
+
+  createLightFlickAudio(soundName: string) {
+    const audio = new Audio(this.audioListener);
+    const audioBuffer = audioStore.getSound(soundName);
+    audio.setBuffer(audioBuffer);
+    audio.setVolume(0.5);
+    return audio;
+  }
+
   getCenterPosition(position: Vector2, size: Vector2) {
     return new Vector2(
       position.x + size.x / 2,
@@ -193,18 +232,41 @@ export class TestScene extends BasicScene {
     );
   }
 
+  createLightEffect(effect: LightEffect) {
+    this.ambientLight.color.setHex(effect.colorHex);
+    this.ambientLight.intensity = effect.intensity;
+    setTimeout(() => {
+      this.ambientLight.color.setHex(this.ambientLightColor);
+      this.ambientLight.intensity = this.ambientLightIntensity;
+    }, effect.duration);
+  }
+
+  playRandomLightFlickSound() {
+    const flickAudioIndex = randomNumbers.getRandomInRange(0, this.lightFlickAudios.length - 1);
+    const flickAudio = this.lightFlickAudios[flickAudioIndex];
+    if (flickAudio.isPlaying) {
+      flickAudio.stop();
+    }
+    flickAudio.play();
+  }
+
+  lightFlick() {
+    this.createLightEffect(this.lightEffects.flick);
+    this.playRandomLightFlickSound();
+  }
+
   update(delta: number) {
     super.update(delta);
     this.pointLight.position.copy(this.player.mesh.position);
-    this.timeoutsManager.updateTimeOut('lightFlash', delta);
-    if (this.timeoutsManager.checkIsTimeOutExpired('lightFlash')) {
-      this.player.onHit(0);
+    this.timeoutsManager.updateTimeOut('lightFlick', delta);
+    if (this.timeoutsManager.checkIsTimeOutExpired('lightFlick')) {
+      this.lightFlick();
       if (randomNumbers.getRandom() > 0.5) {
-        this.timeoutsManager.initialTimeOuts.lightFlash = randomNumbers.getRandomInRange(1, 30);
+        this.timeoutsManager.initialTimeOuts.lightFlick = randomNumbers.getRandomInRange(5, 30);
       } else {
-        this.timeoutsManager.initialTimeOuts.lightFlash = randomNumbers.getRandomInRange(1, 2);
+        this.timeoutsManager.initialTimeOuts.lightFlick = randomNumbers.getRandomInRange(5, 10);
       }
-      this.timeoutsManager.updateExpiredTimeOut('lightFlash');
+      this.timeoutsManager.updateExpiredTimeOut('lightFlick');
     }
   }
 
@@ -226,14 +288,38 @@ export class TestScene extends BasicScene {
     this.tvMain?.printText(action.payload);
   }
 
+  startTvStatsAnimation(actionSymbol: string) {
+    if (this.tvStatsAnimationInProgress) {
+      return;
+    }
+
+    this.tvStatsAnimationInProgress = true;
+    const variant1 = `${actionSymbol} ${actionSymbol}\n`;
+    const variant2 = ` ${actionSymbol} \n`;
+    let line1 = '';
+    let line2 = '';
+    for (let i = 5; i--;) {
+      line1 += (i % 2 === 0) ? variant1 : variant2;
+      line2 += (i % 2 === 0) ? variant2 : variant1;
+    }
+    this.tvStats?.printText(line1);
+    setTimeout(() => {
+      this.tvStats?.printText(line2);
+    }, 300);
+    setTimeout(() => {
+      this.updateStatsTv();
+      this.tvStatsAnimationInProgress = false;
+    }, 600);
+  }
+
   onLike = () => {
     this.stats.increaseCount('like');
-    this.updateStatsTv();
+    this.startTvStatsAnimation('👍');
   }
 
   onDislike = () => {
     this.stats.increaseCount('dislike');
-    this.updateStatsTv();
+    this.startTvStatsAnimation('👎');
   }
 
   onChatMessage = (action: PlayerAction) => {

@@ -32,7 +32,7 @@ public class UserServiceTest
 
         _mockRoleRepository.Setup(repository =>
                 repository.FindByIdAsync(RoleName.User.Id, default))
-            .Returns(() => ValueTask.FromResult<Role>(null));
+            .Returns(() => Task.FromResult<Role>(null));
 
         var throwsAsync = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await _userService.UpsertByTwitchIdentityAsync(user));

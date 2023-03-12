@@ -19,7 +19,7 @@ public abstract class AbstractRepositoryTest<T, TRepository>
 
     protected AbstractRepositoryTest()
     {
-        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options);
+        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options, new TestSystemClock());
 
         _databaseSet = new Mock<DbSet<T>>();
 
@@ -50,24 +50,6 @@ public abstract class AbstractRepositoryTest<T, TRepository>
 
         _databaseSet.Verify(databaseSet => databaseSet.Add(entity), Times.Once);
         _databaseContext.Verify(databaseContext => databaseContext.SaveChangesAsync(operationToken), Times.Once);
-    }
-
-    [Fact(DisplayName = "Searching for an entity by id")]
-    public async Task FindByIdEntityTest()
-    {
-        var roleEntity = GetInstance();
-
-        var operationToken = new CancellationToken();
-
-        _databaseSet.Setup(databaseSet => databaseSet.FindAsync(_defaultGuid, operationToken))
-            .Returns(() => new ValueTask<T?>(roleEntity));
-
-        var foundRole = await _repository.FindByIdAsync(_defaultGuid, operationToken);
-
-        _databaseSet.Verify(databaseSet =>
-            databaseSet.FindAsync(_defaultGuid, operationToken), Times.Once);
-
-        roleEntity.Should().BeEquivalentTo(foundRole);
     }
 
     [Fact(DisplayName = "Updating an entity by entity object")]
