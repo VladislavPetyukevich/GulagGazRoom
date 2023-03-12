@@ -1,4 +1,5 @@
 using Interview.Domain.Rooms;
+using Interview.Domain.Rooms.Service.Records.Response.FindById;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -30,18 +31,34 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 Id = e.Id,
                 Name = e.Name,
                 Questions = e.Questions.Select(question =>
-                        new RoomQuestionPageDetail
-                        {
-                            Id = question.Id,
-                            Value = question.Value,
-                        }).ToList(),
+                    new RoomQuestionPageDetail { Id = question.Id, Value = question.Value, }).ToList(),
                 Users = e.Users.Select(usr =>
-                        new RoomUserPageDetail
-                        {
-                            Id = usr.Id,
-                            Nickname = usr.Nickname,
-                        }).ToList(),
+                    new RoomUserPageDetail { Id = usr.Id, Nickname = usr.Nickname, }).ToList(),
             })
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+    }
+
+    public async Task<RoomFoundItem?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        var foundRoom = await ApplyIncludes(Set)
+            .Include(e => e.Users)
+            .Include(e => e.Questions)
+            .FirstOrDefaultAsync(room => room.Id == roomId, cancellationToken: cancellationToken);
+
+        if (foundRoom == null)
+        {
+            return null;
+        }
+
+        return new RoomFoundItem
+        {
+            Id = foundRoom.Id,
+            Name = foundRoom.Name,
+            Questions =
+                foundRoom.Questions.Select(question =>
+                    new RoomQuestionFoundItem { Id = question.Id, Value = question.Value, }).ToList(),
+            Users = foundRoom.Users
+                .Select(user => new RoomUserFoundItem { Id = user.Id, Nickname = user.Nickname, }).ToList(),
+        };
     }
 }

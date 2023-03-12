@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.Rooms.Service.Records.Response.FindById;
 
 namespace Interview.Domain.Rooms.Service
 {
@@ -74,6 +75,18 @@ namespace Interview.Domain.Rooms.Service
             await _roomRepository.UpdateAsync(foundRoom);
 
             return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
+        }
+
+        public async Task<Result<RoomFoundItem>> FindById(Guid? id, CancellationToken cancellationToken = default)
+        {
+            if (id == null)
+            {
+                return Result.Failure<RoomFoundItem>($"Room id should not be null [{nameof(id)}]");
+            }
+
+            var foundRoom = await _roomRepository.GetByIdAsync((Guid)id, cancellationToken);
+
+            return foundRoom ?? Result.Failure<RoomFoundItem>($"Not found room with id [{id}]");
         }
     }
 }
