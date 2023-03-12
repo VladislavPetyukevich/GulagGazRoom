@@ -5,19 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Test.Integrations;
 
-public partial class UserServiceTest : IClassFixture<AppDbContextFixture>
+public class UserServiceTest
 {
-    private readonly AppDbContextFixture _contextFixture;
-
-    public UserServiceTest(AppDbContextFixture appDbContext)
-    {
-        _contextFixture = appDbContext;
-    }
-
-    // [Fact]
+    [Fact]
     public async Task UpsertUsersWhenUserExistsInDatabase()
     {
-        var appDbContext = _contextFixture.Context;
+        await using var appDbContext = new TestAppDbContextFactory().Create();
 
         var entity = new User("Ivan", "ivan@yandex.ru", "1");
 
@@ -25,7 +18,7 @@ public partial class UserServiceTest : IClassFixture<AppDbContextFixture>
 
         await appDbContext.SaveChangesAsync();
 
-        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext));
+        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
         var user = new User("Dima", "dima@yandex.ru", "1");
 
@@ -36,14 +29,14 @@ public partial class UserServiceTest : IClassFixture<AppDbContextFixture>
         user.Should().BeEquivalentTo(savedUser);
     }
 
-    // [Fact]
+    [Fact]
     public async Task UpsertUsersWhenUserNotExistsInDatabase()
     {
-        var appDbContext = _contextFixture.Context;
+        await using var appDbContext = new TestAppDbContextFactory().Create();
 
         appDbContext.Users.Count().Should().Be(0);
 
-        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext));
+        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
         var user = new User("Dima", "dima@yandex.ru", "1");
 

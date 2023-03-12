@@ -18,7 +18,7 @@ public class UserServiceTest
         _mockUserRepository = new Mock<IUserRepository>();
         _mockRoleRepository = new Mock<IRoleRepository>();
 
-        _userService = new UserService(_mockUserRepository.Object, _mockRoleRepository.Object);
+        _userService = new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, new AdminUsers());
     }
 
     [Fact]

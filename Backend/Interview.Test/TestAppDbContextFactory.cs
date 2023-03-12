@@ -1,15 +1,12 @@
-using Interview.Infrastructure.Database;
+﻿using Interview.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Test
 {
-    public class AppDbContextFixture : IDisposable
+    public class TestAppDbContextFactory
     {
-
-        public AppDbContext Context { get; }
-
-        public AppDbContextFixture()
+        public AppDbContext Create()
         {
             var sqliteConnection = new SqliteConnection("Data Source=:memory:");
             sqliteConnection.Open();
@@ -18,15 +15,9 @@ namespace Interview.Test
                 sqliteConnection
             );
 
-            Context = new AppDbContext(option.Options);
-
-            Context.Database.EnsureCreated();
+            var context = new AppDbContext(option.Options);
+            context.Database.EnsureCreated();
+            return context;
         }
-
-        public void Dispose()
-        {
-            Context.Dispose();
-        }
-
     }
 }
