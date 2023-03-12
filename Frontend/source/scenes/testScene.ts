@@ -4,36 +4,25 @@ import {
   Vector3,
   Fog,
   AmbientLight,
-  MeshPhongMaterial,
-  RepeatWrapping,
-  Group,
 } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { BasicSceneProps, BasicScene } from '@/core/Scene';
 import { PLAYER } from '@/constants';
 import { Player } from '@/Entities/Player/Player';
+import { Gas } from '@/Entities/Gas/Gas';
+import { TV } from '@/Entities/TV/TV';
 import { Room, RoomSpawner } from './Spawner/RoomSpawner';
 import { CellCoordinates } from './CellCoordinates';
 import { randomNumbers } from '@/RandomNumbers';
 import HomePakTV from '@/assets/HomePakTV.fbx';
-import { TextCanvas } from '@/TextCanvas';
 import { TimeoutsManager } from '@/TimeoutsManager';
+import { EntitiesPool } from './Spawner/EntitiesPool';
+import { PlayerAction, PlayerActionListener, PlayerActionName, playerActions } from '@/PlayerActions';
+import { Stats } from './Stats';
 
 export interface TestSceneProps extends BasicSceneProps {
   onFinish: Function;
 }
-
-let tvQuestionMaterial: MeshPhongMaterial;
-let tvChatMaterial: MeshPhongMaterial;
-let tvRandomMaterial: MeshPhongMaterial;
-
-let chatText: TextCanvas;
-
-const enum TvText {
-  Question,
-  Chat,
-  Random,
-};
 
 type TimeoutNames =
   'lightFlash';
@@ -49,6 +38,13 @@ export class TestScene extends BasicScene {
   roomSpawner: RoomSpawner;
   timeoutsManager: TimeoutsManager<TimeoutNames>;
   onFinish: Function;
+  gasCenter: Vector3;
+  gasParticlesPool: EntitiesPool;
+  actions: Record<PlayerActionName, PlayerActionListener['listener']>;
+  stats: Stats;
+  tvMain?: TV;
+  tvChat?: TV;
+  tvStats?: TV;
 
   constructor(props: TestSceneProps) {
     super(props);
@@ -114,25 +110,47 @@ export class TestScene extends BasicScene {
 
     this.scene.fog = new Fog(0x202020, 0.15, 150);
 
+    this.stats = new Stats();
+
     const loader = new FBXLoader();
     loader.load(HomePakTV, (object) => {
-      const tvMain = this.createTV(object, TvText.Question);
-      tvMain.position.set(30, 0.8, 44);
-      this.scene.add(tvMain);
+      this.tvMain = this.entitiesContainer.add(new TV({
+        model: object,
+        position: new Vector3(30, 0.8, 44),
+        rotationY: 0,
+        screenSpinSpeed: 0.2,
+        screenSpinAxis: 'y',
+      })) as TV;
+      this.scene.add(object);
+      this.tvMain.printText(
+        '💀\nЧем контекст выполнения\nотличается от\nлексического окружения?'
+      );
     });
 
     loader.load(HomePakTV, (object) => {
-      const tvBack = this.createTV(object, TvText.Chat);
-      tvBack.position.set(24, 0.8, 45);
-      tvBack.rotateY(0.436332);
-      this.scene.add(tvBack);
+      this.tvChat = this.entitiesContainer.add(new TV({
+        model: object,
+        position: new Vector3(24, 0.8, 45),
+        rotationY: 0.436332,
+        screenSpinSpeed: -8.0,
+        screenSpinAxis: 'y',
+      })) as TV;
+      this.scene.add(object);
+      this.tvChat.printText(
+        'izede:\nЗа этим стоит лаборатория'
+      );
     });
 
     loader.load(HomePakTV, (object) => {
-      const tvBackUp = this.createTV(object.clone(), TvText.Random);
-      tvBackUp.position.set(24, 3.07, 45);
-      tvBackUp.rotateY(0.436332);
-      this.scene.add(tvBackUp);
+      this.tvStats = this.entitiesContainer.add(new TV({
+        model: object,
+        position: new Vector3(24, 3.07, 45),
+        rotationY: 0.436332,
+        screenSpinSpeed: -0.1,
+        screenSpinAxis: 'x',
+      })) as TV;
+      this.scene.add(object);
+      this.updateStatsTv();
     });
 
     this.player.mesh.position.set(31.0, 1.5, 52.0);
@@ -143,54 +161,20 @@ export class TestScene extends BasicScene {
       new Vector2(this.roomSpawner.cellCoordinates.size * 15, this.roomSpawner.cellCoordinates.size),
       true
     );
+
+    this.gasCenter = new Vector3(30.55, 1.0, 50.0);
+    const gasParticlesCount = 40;
+    this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
+
+    this.actions = {
+      gasEnable: this.onGasEnable,
+      gasDisable: this.onGasDisable,
+      newQuestion: this.onQuestion,
+      like: this.onLike,
+      dislike: this.onDislike,
+    };
+    this.addActionListeners();
   }
-
-  createTV = (object: Group, text: TvText) => {
-    const question = new TextCanvas({
-      size: { width: 256 * 2, height: 32 * 5 },
-      prefix: '💀',
-      textAlign: 'center',
-    });
-    const scale = 30;
-    object.scale.set(scale, scale, scale);
-
-    const screenMaterial: MeshPhongMaterial = (object.children[0].children as any)[0].children[0].material;
-
-    screenMaterial.map = question.texture;
-
-    screenMaterial.map.wrapS = screenMaterial.map.wrapT = RepeatWrapping;
-    screenMaterial.map.repeat.x = 9;
-    screenMaterial.map.repeat.y = 10;
-    screenMaterial.map.offset.set(0.8, 0.5);
-    screenMaterial.map.center.set(0.1, 0);
-    question.clear();
-    switch (text) {
-      case TvText.Question:
-        question.print(`💀`, 1);
-        question.print(`Чем контекст выполнения`, 2);
-        question.print(`отличается`, 3);
-        question.print(`от лексического окружения?`, 4);
-        tvQuestionMaterial = screenMaterial;
-        break;
-      case TvText.Chat:
-        question.print(`izede:`, 1);
-        question.print(`За этим стоит лаборатория`, 2);
-        tvChatMaterial = screenMaterial;
-        chatText = question;
-        break;
-      case TvText.Random:
-        question.print(`666`, 1);
-        question.print(`😍`, 2);
-        question.print(`777`, 3);
-        question.print(`😈`, 4);
-        tvRandomMaterial = screenMaterial;
-        break;
-      default:
-        break;
-    }
-
-    return object;
-  };
 
   getInitialPlayerPositon() {
     const roomCenterCell = this.getCenterPosition(this.currentRoom.cellPosition, this.roomSpawner.roomSize);
@@ -211,15 +195,6 @@ export class TestScene extends BasicScene {
   update(delta: number) {
     super.update(delta);
     this.pointLight.position.copy(this.player.mesh.position);
-    if (tvQuestionMaterial && tvQuestionMaterial.map) {
-      tvQuestionMaterial.map.offset.y -= delta * 0.2;
-    }
-    if (tvChatMaterial && tvChatMaterial.map) {
-      tvChatMaterial.map.offset.y += delta * 8;
-    }
-    if (tvRandomMaterial && tvRandomMaterial.map) {
-      tvRandomMaterial.map.offset.x += delta * 0.1;
-    }
     this.timeoutsManager.updateTimeOut('lightFlash', delta);
     if (this.timeoutsManager.checkIsTimeOutExpired('lightFlash')) {
       this.player.onHit(0);
@@ -232,7 +207,75 @@ export class TestScene extends BasicScene {
     }
   }
 
+  onGasEnable = () => {
+    this.disableEnableGas(true);
+  }
+
+  onGasDisable = () => {
+    this.disableEnableGas(false);
+  }
+
+  disableEnableGas(isEnable: boolean) {
+    this.gasParticlesPool.entities.forEach(
+      gasParticle => (gasParticle as Gas).disableEnableGas(isEnable)
+    );
+  }
+
+  onQuestion = (action: PlayerAction) => {
+    this.tvMain?.printText(action.payload);
+  }
+
+  onLike = () => {
+    this.stats.increaseCount('like');
+    this.updateStatsTv();
+  }
+
+  onDislike = () => {
+    this.stats.increaseCount('dislike');
+    this.updateStatsTv();
+  }
+
+  updateStatsTv() {
+    this.tvStats?.printText(
+      this.stats.toString()
+    );
+  }
+
+  createGasParticle = () => {
+    const gasPosition = this.gasCenter.clone();
+    gasPosition.add(new Vector3(
+      randomNumbers.getRandomFloatInRange(-2, 1),
+      randomNumbers.getRandomFloatInRange(-0.5, 0.5),
+      randomNumbers.getRandomFloatInRange(-1, 0.5),
+    ));
+    const gas = new Gas({
+      position: gasPosition,
+      player: this.player,
+    });
+    gas.disableImmediately();
+    return this.entitiesContainer.add(gas);
+  };
+
   finish() {
+    this.removeActionListeners();
     this.onFinish();
+  }
+
+  addActionListeners() {
+    Object.keys(this.actions).forEach(actionName =>
+      playerActions.addActionListener(
+        actionName as PlayerActionName,
+        this.actions[actionName as PlayerActionName]
+      )
+    );
+  }
+
+  removeActionListeners() {
+    Object.keys(this.actions).forEach(actionName =>
+      playerActions.removeActionListener(
+        actionName as PlayerActionName,
+        this.actions[actionName as PlayerActionName]
+      )
+    );
   }
 }

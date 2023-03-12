@@ -1,3 +1,4 @@
+using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Interview.Backend.Auth;
@@ -7,10 +8,11 @@ public static class ServiceCollectionExt
     public static void AddAppAuth(this IServiceCollection self, OAuthTwitchOptions oAuthTwitchOptions)
     {
         const string TwitchScheme = "twitch";
-        self.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        var authenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        self.AddAuthentication(authenticationScheme)
+            .AddCookie(authenticationScheme, options =>
             {
-                options.Cookie.Name = "_communist";
+                options.Cookie.Name = WebSocketAuthorizationOptions.DefaultCookieName;
                 options.LoginPath = "/login";
                 options.LogoutPath = "/logout";
                 options.ClaimsIssuer = oAuthTwitchOptions.ClaimsIssuer;
@@ -33,13 +35,13 @@ public static class ServiceCollectionExt
 
                     var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
                     await userService.UpsertByTwitchIdentityAsync(user);
-                    context.Principal!.EnrichRoles(user);
+                    context.Principal!.EnrichRolesWithId(user);
                 };
             });
 
         self.AddAuthorization(options =>
         {
-            options.AddPolicy("user", policyBuilder =>
+            options.AddPolicy(OAuthTwitchOptions.Policy, policyBuilder =>
             {
                 policyBuilder.AddAuthenticationSchemes(TwitchScheme).RequireAuthenticatedUser();
             });

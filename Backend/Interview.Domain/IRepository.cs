@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using NSpecifications;
 using X.PagedList;
 
@@ -11,11 +10,13 @@ public interface IRepository<T>
 
     ValueTask<T?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<List<T>> FindByIdsAsync(ICollection<Guid> id, CancellationToken cancellationToken = default);
+
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
-    Task<IPagedList<T>> GetPage(ISpecification<T> specification, int pageNumber, int pageSize);
+    Task<IPagedList<T>> GetPageAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
-    Task<IPagedList<T>> GetPage(int pageNumber, int pageSize);
+    Task<IPagedList<T>> GetPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 }

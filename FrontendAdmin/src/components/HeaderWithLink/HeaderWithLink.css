@@ -1,0 +1,20 @@
+.header-with-link {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.header-with-link .button-link {
+  position: absolute;
+  padding: 5px 30px;
+}
+
+.header-with-link .button-link.float-right {
+  right: 55px;
+}
+
+.header-with-link .button-link.float-left {
+  left: 55px;
+}

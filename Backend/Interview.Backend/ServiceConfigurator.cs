@@ -1,5 +1,7 @@
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
+using Interview.Backend.WebSocket;
+using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,20 @@ public class ServiceConfigurator
 
     public void AddServices(IServiceCollection serviceCollection)
     {
+        if (_environment.IsDevelopment())
+        {
+            serviceCollection.AddCors(options =>
+            {
+                options.AddPolicy("All", policy =>
+                {
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowAnyOrigin();
+                });
+            });
+        }
+
         serviceCollection
             .AddControllers()
             .AddJsonOptions(options =>
@@ -30,7 +46,8 @@ public class ServiceConfigurator
         serviceCollection.AddSwaggerGen();
 
         var oAuthTwitchOptions = new OAuthTwitchOptions(_configuration);
-        var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), optionsBuilder =>
+        var adminUsers = _configuration.GetSection(nameof(AdminUsers)).Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
+        var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), adminUsers, optionsBuilder =>
         {
             if (_environment.IsDevelopment())
             {
@@ -39,5 +56,9 @@ public class ServiceConfigurator
         });
         serviceCollection.AddAppServices(serviceOption);
         serviceCollection.AddAppAuth(oAuthTwitchOptions);
+
+        serviceCollection.AddHostedService<JobWriter>();
+        serviceCollection.AddHostedService<EventSenderJob>();
+        serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
     }
 }

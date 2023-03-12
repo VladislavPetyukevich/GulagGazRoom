@@ -76,12 +76,8 @@ export default class ThreeShooter {
     this.composer.setSize(width, height);
   };
 
-  onPlayerActionStart(actionName: PlayerActionName) {
-    playerActions.startAction(actionName);
-  }
-
-  onPlayerActionEnd(actionName: PlayerActionName) {
-    playerActions.endAction(actionName);
+  onPlayerActionStart(actionName: PlayerActionName, payload?: string) {
+    playerActions.startAction(actionName, payload);
   }
 
   loadTextures(gameProps: any) {

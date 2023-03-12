@@ -1,0 +1,8 @@
+.App {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.App h1 {
+  color: var(--warp-bg);
+}

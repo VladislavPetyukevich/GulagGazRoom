@@ -2,7 +2,6 @@ import { Sprite, CanvasTexture, SpriteMaterial } from 'three';
 
 interface TextCanvasProps {
   size: ImageSize;
-  prefix: string;
   textAlign?: TextCanvas['textAlign'];
 }
 
@@ -13,17 +12,17 @@ interface ImageSize {
 
 export class TextCanvas {
   fontSize: number;
-  prefix: string;
   textAlign: CanvasRenderingContext2D['textAlign'];
   sprite: Sprite;
   texture: CanvasTexture;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   textX: number;
+  maxLineLength: number;
 
   constructor(props: TextCanvasProps) {
     this.fontSize = 28;
-    this.prefix = props.prefix;
+    this.maxLineLength = 28;
     this.textAlign = props.textAlign || 'left';
     this.canvas = this.initCanvas(props.size);
     this.context = this.initContext();
@@ -35,6 +34,39 @@ export class TextCanvas {
 
   clear() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  printAll(text: string) {
+    const lines = text.split('\n').map((textPart) => this.wordWrap(textPart));
+    const flatLines = lines.reduce((acc, curVal) => {
+      return acc.concat(curVal)
+    }, []);
+    flatLines.forEach(
+      (line, lineIndex) => this.print(line, lineIndex + 1)
+    );
+  }
+
+  wordWrap(text: string) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+  
+    words.forEach((word) => {
+      if ((currentLine + word).length <= this.maxLineLength) {
+        currentLine += word + ' ';
+      } else {
+        if (currentLine !== '') {
+          lines.push(currentLine.trim());
+        }
+        currentLine = word + ' ';
+      }
+    });
+
+    if (currentLine.length > 0) {
+      lines.push(currentLine.trim());
+    }
+
+    return lines;
   }
 
   print(text: string, line: number) {

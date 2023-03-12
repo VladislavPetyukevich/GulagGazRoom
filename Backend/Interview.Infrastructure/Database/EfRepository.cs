@@ -28,6 +28,11 @@ public class EfRepository<T> : IRepository<T>
         return Set.FindAsync(id, cancellationToken);
     }
 
+    public Task<List<T>> FindByIdsAsync(ICollection<Guid> id, CancellationToken cancellationToken = default)
+    {
+        return Set.Where(e => id.Contains(e.Id)).ToListAsync(cancellationToken);
+    }
+
     public Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         Set.Update(entity);
@@ -40,16 +45,13 @@ public class EfRepository<T> : IRepository<T>
         return Db.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<IPagedList<T>> GetPage(ISpecification<T> specification, int pageNumber, int pageSize)
+    public Task<IPagedList<T>> GetPageAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        return Set
-            .OrderBy(entity => entity.Id)
-            .Where(specification.Expression)
-            .ToPagedListAsync(pageNumber, pageSize);
+        return Set.OrderBy(entity => entity.Id).Where(specification.Expression).ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
-    public Task<IPagedList<T>> GetPage(int pageNumber, int pageSize)
+    public Task<IPagedList<T>> GetPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        return Set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize);
+        return Set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

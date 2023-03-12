@@ -1,8 +1,13 @@
-export type PlayerActionName = 'none';
+export type PlayerActionName =
+  'gasEnable' |
+  'gasDisable' |
+  'like' |
+  'dislike' |
+  'newQuestion';
 
 export interface PlayerAction {
   name: PlayerActionName;
-  isEnded: boolean;
+  payload: string;
 }
 
 export interface PlayerActionListener {
@@ -44,30 +49,10 @@ class PlayerActions {
     this.listeners.splice(listenerIndex, 1);
   }
 
-  startAction(actionName: PlayerActionName) {
-    this.handleAction(actionName, false);
-  }
-
-  endAction(actionName: PlayerActionName) {
-    this.handleAction(actionName, true);
-  }
-
-  addCameraMovement(movementX: number) {
-    this.cameraMovementX += movementX;
-  }
-
-  getCameraMovement() {
-    return Number(this.cameraMovementX);
-  }
-
-  resetCameraMovement() {
-    this.cameraMovementX = 0;
-  }
-
-  handleAction(actionName: PlayerActionName, isEnded: boolean) {
+  startAction(actionName: PlayerActionName, payload?: string) {
     this.listeners.forEach(listener => {
       if (listener.name === actionName) {
-        listener.listener({ name: actionName, isEnded: isEnded });
+        listener.listener({ name: actionName, payload: payload || '' });
       }
     });
   }

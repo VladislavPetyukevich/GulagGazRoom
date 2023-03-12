@@ -1,6 +1,8 @@
 using Interview.Domain.Certificates;
+using Interview.Domain.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
+using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Certificates.Pdf;
@@ -9,7 +11,6 @@ using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Interview.DependencyInjection;
@@ -24,8 +25,13 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
+        self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
 
+        self.AddSingleton(option.AdminUsers);
+
+        // Services
         self.AddScoped<UserService>();
+        self.AddScoped<RoomService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);
         self.AddSingleton<ITwitchTokenProvider, TwitchTokenProvider>();

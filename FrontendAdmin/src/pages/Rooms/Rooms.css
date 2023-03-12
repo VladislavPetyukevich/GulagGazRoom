@@ -1,0 +1,8 @@
+.rooms-list {
+  padding: 0px;
+  list-style-type: none;
+}
+
+.rooms-list .room-users {
+  font-size: 0.75rem;
+}

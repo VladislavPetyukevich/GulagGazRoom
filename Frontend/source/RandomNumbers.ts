@@ -34,6 +34,10 @@ export class RandomNumbers {
     return Math.floor(this.getRandom() * (max - min + 1)) + min;
   }
 
+  getRandomFloatInRange(min: number, max: number) {
+    return this.getRandom() * (max - min + 1) + min;
+  }
+
   private RNGNextFloat() {
     this.state = (this.a * this.state + this.c) % this.m;
     return this.state / (this.m - 1);
