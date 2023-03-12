@@ -12,7 +12,7 @@ public class UserServiceTest
     {
         await using var appDbContext = new TestAppDbContextFactory().Create();
 
-        var entity = new User("Ivan", "ivan@yandex.ru", "1");
+        var entity = new User("Ivan", "1");
 
         appDbContext.Users.Add(entity);
 
@@ -20,7 +20,7 @@ public class UserServiceTest
 
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
-        var user = new User("Dima", "dima@yandex.ru", "1");
+        var user = new User("Dima", "1");
 
         await userService.UpsertByTwitchIdentityAsync(user);
 
@@ -38,7 +38,7 @@ public class UserServiceTest
 
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
-        var user = new User("Dima", "dima@yandex.ru", "1");
+        var user = new User("Dima", "1");
 
         await userService.UpsertByTwitchIdentityAsync(user);
 

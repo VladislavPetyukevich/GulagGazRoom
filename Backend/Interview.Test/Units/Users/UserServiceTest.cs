@@ -24,7 +24,7 @@ public class UserServiceTest
     [Fact]
     public async Task UpsertUsersWhenUserNotExistsInDatabaseAndRoleNotFound()
     {
-        var user = new User("Dima", "dima@yandex.ru", "1");
+        var user = new User("Dima", "1");
 
         _mockUserRepository.Setup(repository =>
                 repository.FindByTwitchIdentityAsync(user.TwitchIdentity, default))

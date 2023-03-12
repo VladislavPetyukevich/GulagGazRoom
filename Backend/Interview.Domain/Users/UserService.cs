@@ -21,7 +21,6 @@ public sealed class UserService
         if (existingUser != null)
         {
             existingUser.Nickname = user.Nickname;
-            existingUser.Email = user.Email;
             user.Roles.AddRange(existingUser.Roles);
             user.Id = existingUser.Id;
             await _userRepository.UpdateAsync(existingUser, cancellationToken);
