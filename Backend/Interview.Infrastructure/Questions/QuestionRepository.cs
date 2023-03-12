@@ -9,4 +9,11 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
         : base(db)
     {
     }
+
+    public async Task<Question> CreateAsync(QuestionCreateRequest request, CancellationToken cancellationToken = default)
+    {
+        var result = new Question(request.Value);
+        await CreateAsync(result, cancellationToken);
+        return result;
+    }
 }

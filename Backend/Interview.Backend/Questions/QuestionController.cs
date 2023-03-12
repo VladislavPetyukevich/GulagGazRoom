@@ -26,8 +26,8 @@ public class QuestionController : ControllerBase
 
     [Authorize(Roles = RoleNameConstants.Admin)]
     [HttpPost(nameof(Create))]
-    public Task Create(Question room)
+    public Task<Question> Create(QuestionCreateRequest request)
     {
-        return _questionRepository.CreateAsync(room);
+        return _questionRepository.CreateAsync(request);
     }
 }
