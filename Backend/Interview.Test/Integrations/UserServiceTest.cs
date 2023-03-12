@@ -10,7 +10,8 @@ public class UserServiceTest
     [Fact(DisplayName = "'UpsertByTwitchIdentityAsync' when there is already such a user in the database")]
     public async Task UpsertUsersWhenUserExistsInDatabase()
     {
-        await using var appDbContext = new TestAppDbContextFactory().Create();
+        var clock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(clock);
         var entity = new User("Ivan", "1");
         appDbContext.Users.Add(entity);
         await appDbContext.SaveChangesAsync();
@@ -19,14 +20,17 @@ public class UserServiceTest
         var user = new User("Dima", "1");
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
 
-        var savedUser = await appDbContext.Users.SingleAsync();
-        upsertUser.Should().BeEquivalentTo(savedUser);
+        var expectedUser = new User(entity.Id, user.Nickname, user.TwitchIdentity);
+        expectedUser.UpdateCreateDate(clock.UtcNow.DateTime);
+        expectedUser.Roles.AddRange(entity.Roles);
+        upsertUser.Should().BeEquivalentTo(expectedUser);
     }
 
     [Fact(DisplayName = "'UpsertByTwitchIdentityAsync' when there is no such user in the database")]
     public async Task UpsertUsersWhenUserNotExistsInDatabase()
     {
-        await using var appDbContext = new TestAppDbContextFactory().Create();
+        var clock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(clock);
         appDbContext.Users.Count().Should().Be(0);
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
         var user = new User("Dima", "1");
@@ -40,7 +44,8 @@ public class UserServiceTest
     [Fact(DisplayName = "Inserting a user if there are no roles in the database")]
     public async Task UpsertUsersWhenDbNotContainRoles()
     {
-        await using var appDbContext = new TestAppDbContextFactory().Create();
+        var clock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(clock);
         appDbContext.Roles.RemoveRange(appDbContext.Roles);
         await appDbContext.SaveChangesAsync();
         appDbContext.Users.Count().Should().Be(0);

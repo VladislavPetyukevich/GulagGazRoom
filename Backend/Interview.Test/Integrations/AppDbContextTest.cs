@@ -8,7 +8,7 @@ namespace Interview.Test.Integrations;
 
 public class AppDbContextTest
 {
-    [Fact]
+    [Fact(DisplayName = "AppDbContext should update the update date and the entity creation date when saving")]
     public async Task DbContext_Should_Update_Create_And_Update_Dates()
     {
         var clock = new TestSystemClock();
@@ -16,18 +16,18 @@ public class AppDbContextTest
 
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
-        var user = new User("Dima", "dima@yandex.ru", "1");
+        var user = new User("Dima", "1");
         user.UpdateCreateDate(clock.UtcNow.DateTime);
-        await userService.UpsertByTwitchIdentityAsync(user);
+        var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
 
-        user.Id.Should().NotBe(Guid.Empty);
+        upsertUser.Id.Should().NotBe(Guid.Empty);
 
-        var savedUser = new User(user.Id, "Dima", "dima@yandex.ru", "1");
+        var savedUser = new User(upsertUser.Id, "Dima", "1");
         savedUser.UpdateCreateDate(clock.UtcNow.DateTime);
         var role = new Role(RoleName.User);
         role.UpdateCreateDate(clock.UtcNow.DateTime);
         savedUser.Roles.Add(role);
 
-        user.Should().BeEquivalentTo(savedUser);
+        upsertUser.Should().BeEquivalentTo(savedUser);
     }
 }
