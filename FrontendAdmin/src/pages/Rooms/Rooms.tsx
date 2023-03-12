@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
@@ -39,9 +40,9 @@ const fakeUsers = [
 const createRoomItem = (room: Room) => (
   <li key={room.id}>
     <Field>
-      <div>
+      <Link to={`${pathnames.rooms}/${room.id}`}>
         {room.name}
-      </div>
+      </Link>
       <div className="room-users">
         {fakeUsers.map(user => user.nickname).join(', ')}
       </div>
