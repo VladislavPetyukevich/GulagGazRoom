@@ -12,6 +12,7 @@ using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Internal;
 
 namespace Interview.DependencyInjection;
 
@@ -26,7 +27,7 @@ public static class ServiceCollectionExt
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
         self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
-
+        self.AddSingleton<ISystemClock, SystemClock>();
         self.AddSingleton(option.AdminUsers);
 
         // Services

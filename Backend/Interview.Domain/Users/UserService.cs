@@ -38,7 +38,7 @@ public sealed class UserService
         await _userRepository.CreateAsync(user, cancellationToken);
     }
 
-    private ValueTask<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
+    private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
     {
         var roleName = _adminUsers.IsAdmin(nickname) ? RoleName.Admin : RoleName.User;
         return _roleRepository.FindByIdAsync(roleName.Id, cancellationToken);

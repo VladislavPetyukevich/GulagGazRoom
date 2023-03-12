@@ -1,12 +1,13 @@
 using Interview.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Internal;
 
 namespace Interview.Test
 {
     public class TestAppDbContextFactory
     {
-        public AppDbContext Create()
+        public AppDbContext Create(ISystemClock clock)
         {
             var sqliteConnection = new SqliteConnection("Data Source=:memory:");
             sqliteConnection.Open();
@@ -15,7 +16,7 @@ namespace Interview.Test
                 sqliteConnection
             );
 
-            var context = new AppDbContext(option.Options);
+            var context = new AppDbContext(option.Options, clock);
             context.Database.EnsureCreated();
             return context;
         }

@@ -4,11 +4,17 @@ namespace Interview.Domain.Users;
 
 public class User : Entity
 {
-    public User(string nickname, string email, string twitchIdentity)
+    public User(Guid id, string nickname, string email, string twitchIdentity)
+        : base(id)
     {
         Nickname = nickname;
         Email = email;
         TwitchIdentity = twitchIdentity;
+    }
+
+    public User(string nickname, string email, string twitchIdentity)
+        : this(Guid.Empty, nickname, email, twitchIdentity)
+    {
     }
 
     private User()

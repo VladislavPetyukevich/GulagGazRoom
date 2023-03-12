@@ -10,5 +10,8 @@ public class RoomTypeConfiguration : EntityTypeConfigurationBase<Room>
         builder.Property(room => room.Name).IsRequired().HasMaxLength(70);
         builder.HasMany(room => room.Users).WithMany();
         builder.HasMany(room => room.Questions).WithMany();
+        builder.HasMany(room => room.Reactions)
+            .WithOne(e => e.Room)
+            .HasForeignKey(e => e.RoomId);
     }
 }

@@ -10,7 +10,8 @@ public class UserServiceTest
     [Fact]
     public async Task UpsertUsersWhenUserExistsInDatabase()
     {
-        await using var appDbContext = new TestAppDbContextFactory().Create();
+        var testSystemClock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
 
         var entity = new User("Ivan", "ivan@yandex.ru", "1");
 
@@ -21,7 +22,7 @@ public class UserServiceTest
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
         var user = new User("Dima", "dima@yandex.ru", "1");
-
+        user.UpdateCreateDate(testSystemClock.UtcNow.Date);
         await userService.UpsertByTwitchIdentityAsync(user);
 
         var savedUser = await appDbContext.Users.SingleAsync();
@@ -32,13 +33,15 @@ public class UserServiceTest
     [Fact]
     public async Task UpsertUsersWhenUserNotExistsInDatabase()
     {
-        await using var appDbContext = new TestAppDbContextFactory().Create();
+        var testSystemClock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
 
         appDbContext.Users.Count().Should().Be(0);
 
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
 
         var user = new User("Dima", "dima@yandex.ru", "1");
+        user.UpdateCreateDate(testSystemClock.UtcNow.Date);
 
         await userService.UpsertByTwitchIdentityAsync(user);
 
