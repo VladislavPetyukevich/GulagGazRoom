@@ -7,14 +7,14 @@ namespace Interview.Test.Integrations
     public class QuestionServiceTest
     {
         private const string DefaultQuestionValue = "TEST_QUESTION";
-        
+
         [Fact(DisplayName = "Searching question by id")]
         public async Task FindByIdSuccessful()
         {
             var testSystemClock = new TestSystemClock();
             await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
 
-            var question = new Question( value: DefaultQuestionValue );
+            var question = new Question(value: DefaultQuestionValue);
 
             appDbContext.Questions.Add(question);
 
@@ -29,7 +29,7 @@ namespace Interview.Test.Integrations
 
             foundQuestion.Value?.Value.Should().BeEquivalentTo(question.Value);
         }
-        
+
         [Fact(DisplayName = "Searching question by id when question not found")]
         public async Task FindByIdWhenQuestionNotExists()
         {
@@ -42,7 +42,7 @@ namespace Interview.Test.Integrations
             var foundQuestion = await questionService.FindById(Guid.NewGuid());
 
             Assert.True(foundQuestion.IsFailure);
-            
+
             Assert.NotNull(foundQuestion.Error);
         }
     }

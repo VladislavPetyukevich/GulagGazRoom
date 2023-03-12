@@ -23,14 +23,14 @@ namespace Interview.Test.Units.Questions
 
             _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
                 .ReturnsAsync((Question?)null);
-            
+
             var resultQuestion = await _questionService.FindById(questionGuid);
-            
+
             Assert.True(resultQuestion.IsFailure);
-            
+
             Assert.NotNull(resultQuestion.Error);
         }
-        
+
         [Fact(DisplayName = "Searching question by id when question exists")]
         public async Task FindByIdWhenEntityFound()
         {
@@ -39,13 +39,13 @@ namespace Interview.Test.Units.Questions
             var questionStub = new Question("value");
             _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
                 .ReturnsAsync(questionStub);
-            
+
             var resultQuestion = await _questionService.FindById(questionGuid);
-            
+
             Assert.True(resultQuestion.IsSuccess);
 
             var questionItem = resultQuestion.Value;
-            
+
             Assert.Equal(questionStub.Value, questionItem.Value);
         }
     }
