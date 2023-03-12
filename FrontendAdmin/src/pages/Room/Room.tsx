@@ -7,6 +7,7 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { useCommunist } from './hooks/useCommunist';
 import { useRoomGetApi } from './hooks/useRoomGetApi';
 
+import './Room.css';
 
 export const Room: FunctionComponent = () => {
   let { id } = useParams();
@@ -53,12 +54,20 @@ export const Room: FunctionComponent = () => {
         <Field>
           <div>{questions}</div>
         </Field>
+        <Field className="interviewee-frame-wrapper">
+          <iframe
+            title="interviewee-client-frame"
+            className="interviewee-frame"
+            src={`http://localhost:8080/?roomId=${room?.id}`}
+          >
+          </iframe>
+        </Field>
       </>
     );
   }, [loading, error, room]);
 
   return (
-    <MainContentWrapper>
+    <MainContentWrapper className="room-page">
       <Field>
         <div>Room</div>
         <div>readyState: {readyState}</div>
