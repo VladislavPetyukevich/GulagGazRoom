@@ -20,11 +20,12 @@ public static class ServiceCollectionExt
 {
     public static IServiceCollection AddAppServices(this IServiceCollection self, DependencyInjectionAppServiceOption option)
     {
+        self.AddDbContextPool<AppDbContext>(option.DbConfigurator);
+
         self.AddScoped<IUserRepository, UserRepository>();
         self.AddScoped<IRoomRepository, RoomRepository>();
         self.AddScoped<IQuestionRepository, QuestionRepository>();
         self.AddScoped<IRoleRepository, RoleRepository>();
-        self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
         self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
         self.AddSingleton<ISystemClock, SystemClock>();

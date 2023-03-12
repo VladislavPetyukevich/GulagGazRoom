@@ -19,7 +19,7 @@ public abstract class AbstractRepositoryTest<T, TRepository>
 
     protected AbstractRepositoryTest()
     {
-        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options, new TestSystemClock());
+        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options);
 
         _databaseSet = new Mock<DbSet<T>>();
 
@@ -36,7 +36,9 @@ public abstract class AbstractRepositoryTest<T, TRepository>
 
         _databaseContext.Setup(context => context.Set<T>()).Returns(_databaseSet.Object);
 
-        _repository = GetRepository(_databaseContext.Object);
+        var obj = _databaseContext.Object;
+        obj.SystemClock = new TestSystemClock();
+        _repository = GetRepository(obj);
     }
 
     [Fact(DisplayName = "Creating an entity")]

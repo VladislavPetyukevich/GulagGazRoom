@@ -16,7 +16,10 @@ namespace Interview.Test
                 sqliteConnection
             );
 
-            var context = new AppDbContext(option.Options, clock);
+            var context = new AppDbContext(option.Options)
+            {
+                SystemClock = clock
+            };
             context.Database.EnsureCreated();
             return context;
         }
