@@ -14,7 +14,7 @@ public class UserRepositoryTest : AbstractRepositoryTest<User, UserRepository>
 
     protected override User GetInstance()
     {
-        return new User("NICKNAME", "TEST_EMAIL", "1");
+        return new User("NICKNAME", "1");
     }
 
 }

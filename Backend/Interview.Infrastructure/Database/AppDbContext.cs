@@ -12,12 +12,11 @@ namespace Interview.Infrastructure.Database;
 
 public class AppDbContext : DbContext
 {
-    private readonly ISystemClock _systemClock;
+    public ISystemClock SystemClock { get; set; } = new SystemClock();
 
-    public AppDbContext(DbContextOptions options, ISystemClock systemClock)
+    public AppDbContext(DbContextOptions options)
         : base(options)
     {
-        _systemClock = systemClock;
     }
 
     public DbSet<User> Users { get; private set; } = null!;
@@ -51,13 +50,13 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly, type => type != typeof(RoleTypeConfiguration));
-        modelBuilder.ApplyConfiguration(new RoleTypeConfiguration(_systemClock));
+        modelBuilder.ApplyConfiguration(new RoleTypeConfiguration(SystemClock));
     }
 
     private void BeforeSaveChanges()
     {
-        ModifyFieldByState(entity => entity.UpdateCreateDate(_systemClock.UtcNow.DateTime), EntityState.Added);
-        ModifyFieldByState(entity => entity.UpdateUpdateDate(_systemClock.UtcNow.DateTime), EntityState.Modified);
+        ModifyFieldByState(entity => entity.UpdateCreateDate(SystemClock.UtcNow.DateTime), EntityState.Added);
+        ModifyFieldByState(entity => entity.UpdateUpdateDate(SystemClock.UtcNow.DateTime), EntityState.Modified);
     }
 
     private void ModifyFieldByState(Action<Entity> action, EntityState entityState)
