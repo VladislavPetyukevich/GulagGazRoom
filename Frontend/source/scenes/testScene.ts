@@ -172,6 +172,7 @@ export class TestScene extends BasicScene {
       newQuestion: this.onQuestion,
       like: this.onLike,
       dislike: this.onDislike,
+      chatMessage: this.onChatMessage,
     };
     this.addActionListeners();
   }
@@ -234,6 +235,10 @@ export class TestScene extends BasicScene {
     this.stats.increaseCount('dislike');
     this.updateStatsTv();
   }
+
+  onChatMessage = (action: PlayerAction) => {
+    this.tvChat?.printText(action.payload);
+  };
 
   updateStatsTv() {
     this.tvStats?.printText(
