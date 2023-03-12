@@ -1,5 +1,5 @@
 using Interview.Domain.Rooms;
-using Interview.Domain.Rooms.Service.Response;
+using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;

@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
+using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
-using Interview.Domain.Rooms.Service.Response;
 
 namespace Interview.Domain.Rooms.Service
 {

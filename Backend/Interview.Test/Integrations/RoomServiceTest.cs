@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
-using Interview.Domain.Rooms.Service.Response;
+using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.Rooms;
 

@@ -1,7 +1,7 @@
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
-using Interview.Domain.Rooms.Service.Response;
+using Interview.Domain.Rooms.Service.Records.Request;
 using Moq;
 
 namespace Interview.Test.Units.Rooms
