@@ -14,11 +14,11 @@ public class UserServiceTest
         var entity = new User("Ivan", "1");
         appDbContext.Users.Add(entity);
         await appDbContext.SaveChangesAsync();
-        
+
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
         var user = new User("Dima", "1");
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
-        
+
         var savedUser = await appDbContext.Users.SingleAsync();
         upsertUser.Should().BeEquivalentTo(savedUser);
     }
@@ -48,7 +48,7 @@ public class UserServiceTest
         var user = new User("Dima", "1");
 
         var error = await Assert.ThrowsAsync<InvalidOperationException>(async () => await userService.UpsertByTwitchIdentityAsync(user));
-        
+
         error.Message.Should().NotBeNull().And.NotBeEmpty();
     }
 }
