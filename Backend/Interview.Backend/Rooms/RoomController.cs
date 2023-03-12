@@ -1,6 +1,7 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
+using Interview.Domain.Rooms.Service.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -22,9 +23,9 @@ public class RoomController : ControllerBase
     }
 
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<Room>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<RoomPageDetail>> GetPage([FromQuery] PageRequest request)
     {
-        return _roomRepository.GetPage(request.PageNumber, request.PageSize);
+        return _roomRepository.GetDetailedPageAsync(request.PageNumber, request.PageSize);
     }
 
     [HttpGet(nameof(GetById))]

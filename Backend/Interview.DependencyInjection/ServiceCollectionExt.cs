@@ -26,7 +26,7 @@ public static class ServiceCollectionExt
         self.AddDbContext<AppDbContext>(option.DbConfigurator);
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
         self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
-        
+
         self.AddSingleton(option.AdminUsers);
 
         // Services
