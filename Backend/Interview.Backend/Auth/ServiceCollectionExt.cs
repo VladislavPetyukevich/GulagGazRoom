@@ -34,8 +34,8 @@ public static class ServiceCollectionExt
                     }
 
                     var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
-                    await userService.UpsertByTwitchIdentityAsync(user);
-                    context.Principal!.EnrichRolesWithId(user);
+                    var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
+                    context.Principal!.EnrichRolesWithId(upsertUser);
                 };
             });
 
