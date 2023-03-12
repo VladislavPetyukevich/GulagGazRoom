@@ -55,6 +55,7 @@ export class TestScene extends BasicScene {
   tvMain?: TV;
   tvChat?: TV;
   tvStats?: TV;
+  tvStatsAnimationInProgress: boolean;
 
   constructor(props: TestSceneProps) {
     super(props);
@@ -154,6 +155,7 @@ export class TestScene extends BasicScene {
       this.scene.add(object);
       this.updateStatsTv();
     });
+    this.tvStatsAnimationInProgress = false;
 
     this.player.mesh.position.set(31.0, 1.5, 52.0);
     this.camera.rotation.set(0.0, 0.21, 0.0);
@@ -245,14 +247,38 @@ export class TestScene extends BasicScene {
     this.tvMain?.printText(action.payload);
   }
 
+  startTvStatsAnimation(actionSymbol: string) {
+    if (this.tvStatsAnimationInProgress) {
+      return;
+    }
+
+    this.tvStatsAnimationInProgress = true;
+    const variant1 = `${actionSymbol} ${actionSymbol}\n`;
+    const variant2 = ` ${actionSymbol} \n`;
+    let line1 = '';
+    let line2 = '';
+    for (let i = 5; i--;) {
+      line1 += (i % 2 === 0) ? variant1 : variant2;
+      line2 += (i % 2 === 0) ? variant2 : variant1;
+    }
+    this.tvStats?.printText(line1);
+    setTimeout(() => {
+      this.tvStats?.printText(line2);
+    }, 300);
+    setTimeout(() => {
+      this.updateStatsTv();
+      this.tvStatsAnimationInProgress = false;
+    }, 600);
+  }
+
   onLike = () => {
     this.stats.increaseCount('like');
-    this.updateStatsTv();
+    this.startTvStatsAnimation('👍');
   }
 
   onDislike = () => {
     this.stats.increaseCount('dislike');
-    this.updateStatsTv();
+    this.startTvStatsAnimation('👎');
   }
 
   onChatMessage = (action: PlayerAction) => {
