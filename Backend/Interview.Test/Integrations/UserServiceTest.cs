@@ -7,7 +7,7 @@ namespace Interview.Test.Integrations;
 
 public class UserServiceTest
 {
-    [Fact]
+    [Fact(DisplayName = "'UpsertByTwitchIdentityAsync' when there is already such a user in the database")]
     public async Task UpsertUsersWhenUserExistsInDatabase()
     {
         await using var appDbContext = new TestAppDbContextFactory().Create();
@@ -23,7 +23,7 @@ public class UserServiceTest
         upsertUser.Should().BeEquivalentTo(savedUser);
     }
 
-    [Fact]
+    [Fact(DisplayName = "'UpsertByTwitchIdentityAsync' when there is no such user in the database")]
     public async Task UpsertUsersWhenUserNotExistsInDatabase()
     {
         await using var appDbContext = new TestAppDbContextFactory().Create();
@@ -37,7 +37,7 @@ public class UserServiceTest
         upsertUser.Should().BeEquivalentTo(savedUser);
     }
 
-    [Fact]
+    [Fact(DisplayName = "Inserting a user if there are no roles in the database")]
     public async Task UpsertUsersWhenDbNotContainRoles()
     {
         await using var appDbContext = new TestAppDbContextFactory().Create();
