@@ -1,4 +1,4 @@
-﻿using Interview.Infrastructure.Database;
+using Interview.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
