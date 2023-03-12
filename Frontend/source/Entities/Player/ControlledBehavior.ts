@@ -30,7 +30,6 @@ export class ControlledBehavior implements Behavior {
   sinTable: SinTable;
   bobTimeout: number;
   maxBobTimeout: number;
-  walkSound: Audio;
 
   constructor(props: ControlledBehaviorProps) {
     this.sinTable = new SinTable({
@@ -51,9 +50,6 @@ export class ControlledBehavior implements Behavior {
     this.damageSound.setBuffer(damageSoundBuffer);
     this.damageSound.isPlaying = false;
     this.damageSound.setVolume(0.6);
-    this.walkSound = new Audio(props.audioListener);
-    this.walkSound.isPlaying = false;
-    this.walkSound.setVolume(0.2);
   }
 
   onHit() {
@@ -65,7 +61,6 @@ export class ControlledBehavior implements Behavior {
 
   onDeath() {
     this.damageSound.stop();
-    this.walkSound.stop();
   }
 
   updateBob(delta: number) {
