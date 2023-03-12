@@ -16,7 +16,7 @@ public interface IRepository<T>
 
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
-    Task<IPagedList<T>> GetPage(ISpecification<T> specification, int pageNumber, int pageSize);
+    Task<IPagedList<T>> GetPageAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
-    Task<IPagedList<T>> GetPage(int pageNumber, int pageSize);
+    Task<IPagedList<T>> GetPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 }

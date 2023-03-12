@@ -1,21 +1,16 @@
-using System.Net;
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
-using Interview.Domain.Users;
-using X.PagedList;
 
 namespace Interview.Domain.Rooms.Service
 {
     public sealed class RoomService
     {
         private readonly IRoomRepository _roomRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IQuestionRepository _questionRepository;
 
-        public RoomService(IRoomRepository roomRepository, IUserRepository userRepository, IQuestionRepository questionRepository)
+        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository)
         {
             _roomRepository = roomRepository;
-            _userRepository = userRepository;
             _questionRepository = questionRepository;
         }
 
@@ -44,25 +39,6 @@ namespace Interview.Domain.Rooms.Service
             newRoom.Questions.AddRange(questions);
             await _roomRepository.CreateAsync(newRoom, cancellationToken);
             return newRoom;
-        }
-
-        public async Task<IPagedList<RoomPageItem>> GetPage(int pageNumber, int pageSize)
-        {
-            var page = await _roomRepository.GetPage(pageNumber, pageSize);
-
-            var rooms = page.Select((room, _) => new RoomPageItem
-            {
-                Id = room.Id,
-                Name = room.Name,
-                Questions = room.Questions
-                    .Select(question => new RoomQuestionPageItem { Id = question.Id, Value = question.Value })
-                    .ToList(),
-                Users = room.Users
-                    .Select(user => new RoomUserPageItem { Id = user.Id, Nickname = user.Nickname })
-                    .ToList(),
-            }).ToList();
-
-            return new PagedList<RoomPageItem>(page, rooms);
         }
     }
 }
