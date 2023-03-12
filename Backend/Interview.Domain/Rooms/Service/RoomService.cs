@@ -1,5 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
+using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.Rooms.Service.Response;
 
 namespace Interview.Domain.Rooms.Service
 {
@@ -39,6 +41,39 @@ namespace Interview.Domain.Rooms.Service
             newRoom.Questions.AddRange(questions);
             await _roomRepository.CreateAsync(newRoom, cancellationToken);
             return newRoom;
+        }
+
+        public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request)
+        {
+            if (id == null)
+            {
+                return Result.Failure<RoomItem>($"Room id should not be null [{nameof(id)}]");
+            }
+
+            if (request == null)
+            {
+                return Result.Failure<RoomItem>($"Room update request should not be null [{nameof(request)}]");
+            }
+
+            var name = request.Name?.Trim();
+
+            if (string.IsNullOrEmpty(name))
+            {
+                return Result.Failure<RoomItem>("Room name should not be empty");
+            }
+
+            var foundRoom = await _roomRepository.FindByIdAsync((Guid)id);
+
+            if (foundRoom == null)
+            {
+                return Result.Failure<RoomItem>($"Not found room with id [{id}]");
+            }
+
+            foundRoom.Name = name;
+
+            await _roomRepository.UpdateAsync(foundRoom);
+
+            return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
         }
     }
 }

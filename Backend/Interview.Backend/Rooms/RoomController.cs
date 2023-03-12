@@ -56,4 +56,17 @@ public class RoomController : ControllerBase
 
         return Created(string.Empty, newRoomResult.Value.Id);
     }
+
+    [Authorize(Roles = RoleNameConstants.Admin)]
+    [HttpPatch]
+    [ProducesResponseType(typeof(Guid), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<IActionResult> PatchUpdate([FromQuery] Guid? id, [FromBody] RoomPatchUpdateRequest room)
+    {
+        var updatedRoomResult = await _roomService.PatchUpdate(id, room);
+
+        return updatedRoomResult.IsFailure
+            ? BadRequest(updatedRoomResult.Error)
+            : Ok(updatedRoomResult);
+    }
 }
