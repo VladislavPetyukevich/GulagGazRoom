@@ -3,7 +3,8 @@ export type PlayerActionName =
   'gasDisable' |
   'like' |
   'dislike' |
-  'newQuestion';
+  'newQuestion' |
+  'chatMessage';
 
 export interface PlayerAction {
   name: PlayerActionName;
