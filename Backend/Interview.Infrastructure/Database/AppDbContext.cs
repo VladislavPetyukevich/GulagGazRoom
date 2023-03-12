@@ -4,19 +4,20 @@ using Interview.Domain.Reactions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
+using Interview.Infrastructure.Database.Configurations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Internal;
 
 namespace Interview.Infrastructure.Database;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions options)
+    private readonly ISystemClock _systemClock;
+
+    public AppDbContext(DbContextOptions options, ISystemClock systemClock)
         : base(options)
     {
-    }
-
-    private AppDbContext()
-    {
+        _systemClock = systemClock;
     }
 
     public DbSet<User> Users { get; private set; } = null!;
@@ -49,21 +50,14 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly, type => type != typeof(RoleTypeConfiguration));
+        modelBuilder.ApplyConfiguration(new RoleTypeConfiguration(_systemClock));
     }
-
-    private static void UpdateCreateDate(Entity entity)
-    {
-        entity.CreateDate = DateTime.UtcNow;
-        entity.UpdateDate = DateTime.UtcNow;
-    }
-
-    private static void ModifiedUpdateDate(Entity entity) => entity.UpdateDate = DateTime.UtcNow;
 
     private void BeforeSaveChanges()
     {
-        ModifyFieldByState(UpdateCreateDate, EntityState.Added);
-        ModifyFieldByState(ModifiedUpdateDate, EntityState.Modified);
+        ModifyFieldByState(entity => entity.UpdateCreateDate(_systemClock.UtcNow.DateTime), EntityState.Added);
+        ModifyFieldByState(entity => entity.UpdateUpdateDate(_systemClock.UtcNow.DateTime), EntityState.Modified);
     }
 
     private void ModifyFieldByState(Action<Entity> action, EntityState entityState)
