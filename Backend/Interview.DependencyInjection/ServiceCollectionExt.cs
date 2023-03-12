@@ -32,6 +32,7 @@ public static class ServiceCollectionExt
         // Services
         self.AddScoped<UserService>();
         self.AddScoped<RoomService>();
+        self.AddScoped<QuestionService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);
         self.AddSingleton<ITwitchTokenProvider, TwitchTokenProvider>();

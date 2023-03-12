@@ -12,10 +12,12 @@ namespace Interview.Backend.Questions;
 public class QuestionController : ControllerBase
 {
     private readonly IQuestionRepository _questionRepository;
+    private readonly QuestionService _questionService;
 
-    public QuestionController(IQuestionRepository questionRepository)
+    public QuestionController(IQuestionRepository questionRepository, QuestionService questionService)
     {
         _questionRepository = questionRepository;
+        _questionService = questionService;
     }
 
     [HttpGet(nameof(GetPage))]
@@ -28,6 +30,21 @@ public class QuestionController : ControllerBase
     [HttpPost(nameof(Create))]
     public Task<Question> Create(QuestionCreateRequest request)
     {
-        return _questionRepository.CreateAsync(request);
+        return _questionService.CreateAsync(request);
+    }
+
+    [Authorize(Roles = RoleNameConstants.Admin)]
+    [HttpPut(nameof(Update))]
+    [ProducesResponseType(typeof(Question), 200)]
+    [ProducesResponseType(typeof(string), 404)]
+    public async Task<IActionResult> Update(QuestionEditRequest request)
+    {
+        var result = await _questionService.UpdateAsync(request);
+        if (result == null)
+        {
+            return NotFound($"Not found question with id = \"{request.Id}\"");
+        }
+
+        return Ok(result);
     }
 }
