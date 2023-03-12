@@ -1,4 +1,4 @@
-using Interview.Domain.Rooms.Service.Response;
+using Interview.Domain.Rooms.Service.Records.Response.Page;
 using X.PagedList;
 
 namespace Interview.Domain.Rooms;

@@ -1,4 +1,4 @@
-namespace Interview.Domain.Rooms.Service.Response
+namespace Interview.Domain.Rooms.Service.Records.Response.Page
 {
     public class RoomPageDetail
     {
