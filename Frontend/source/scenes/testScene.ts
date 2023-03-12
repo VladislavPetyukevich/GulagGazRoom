@@ -4,7 +4,6 @@ import {
   Vector3,
   Fog,
   AmbientLight,
-  Color,
   Audio,
 } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
@@ -24,7 +23,7 @@ import { Stats } from './Stats';
 import { audioStore } from '@/core/loaders';
 
 interface LightEffect {
-  color: Color;
+  colorHex: number;
   intensity: number;
   duration: number;
 }
@@ -175,8 +174,8 @@ export class TestScene extends BasicScene {
 
     this.lightEffects = {
       flick: {
-        color: new Color(0xFFFFFF),
-        intensity: 42.3,
+        colorHex: 0xFFFFFF,
+        intensity: 70.0,
         duration: 100,
       },
     };
@@ -234,7 +233,7 @@ export class TestScene extends BasicScene {
   }
 
   createLightEffect(effect: LightEffect) {
-    this.ambientLight.color = effect.color;
+    this.ambientLight.color.setHex(effect.colorHex);
     this.ambientLight.intensity = effect.intensity;
     setTimeout(() => {
       this.ambientLight.color.setHex(this.ambientLightColor);
