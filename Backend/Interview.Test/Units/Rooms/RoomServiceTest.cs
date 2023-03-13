@@ -2,6 +2,7 @@ using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
+using Interview.Domain.Users;
 using Moq;
 
 namespace Interview.Test.Units.Rooms
@@ -12,14 +13,17 @@ namespace Interview.Test.Units.Rooms
 
         private readonly Mock<IQuestionRepository> _questionRepository;
 
+        private readonly Mock<IUserRepository> _userRepository;
+
         private readonly RoomService _roomService;
 
         public RoomServiceTest()
         {
             _roomRepository = new Mock<IRoomRepository>();
             _questionRepository = new Mock<IQuestionRepository>();
+            _userRepository = new Mock<IUserRepository>();
 
-            _roomService = new RoomService(_roomRepository.Object, _questionRepository.Object);
+            _roomService = new RoomService(_roomRepository.Object, _questionRepository.Object, _userRepository.Object);
         }
 
         [Fact(DisplayName = "Patch update of room when request name is null")]

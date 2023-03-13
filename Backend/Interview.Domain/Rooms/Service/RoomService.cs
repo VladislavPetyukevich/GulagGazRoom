@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.Users;
 
 namespace Interview.Domain.Rooms.Service
 {
@@ -9,11 +10,13 @@ namespace Interview.Domain.Rooms.Service
     {
         private readonly IRoomRepository _roomRepository;
         private readonly IQuestionRepository _questionRepository;
+        private readonly IUserRepository _userRepository;
 
-        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository)
+        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository, IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
             _questionRepository = questionRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<Result<Room>> CreateAsync(RoomCreateRequest request, CancellationToken cancellationToken = default)
@@ -30,16 +33,29 @@ namespace Interview.Domain.Rooms.Service
             }
 
             var questions = await _questionRepository.FindByIdsAsync(request.Questions, cancellationToken);
-            var notFoundQuestions = request.Questions.Except(questions.Select(e => e.Id));
-            var notFoundQuestionsMessage = string.Join(", ", notFoundQuestions);
-            if (!string.IsNullOrEmpty(notFoundQuestionsMessage))
+
+            var questionsNotFound = FindNotFoundEntityIds(request.Questions, questions);
+
+            if (!string.IsNullOrEmpty(questionsNotFound))
             {
-                return Result.Failure<Room>($"Not found questions with id [{notFoundQuestionsMessage}]");
+                return Result.Failure<Room>($"Not found questions with id [{questionsNotFound}]");
+            }
+
+            var users = await _userRepository.FindByIdsAsync(request.Users, cancellationToken);
+
+            var usersNotFound = FindNotFoundEntityIds(request.Users, users);
+
+            if (!string.IsNullOrEmpty(usersNotFound))
+            {
+                return Result.Failure<Room>($"Not found users with id [{usersNotFound}]");
             }
 
             var newRoom = new Room(name);
             newRoom.Questions.AddRange(questions);
+            newRoom.Users.AddRange(users);
+
             await _roomRepository.CreateAsync(newRoom, cancellationToken);
+
             return newRoom;
         }
 
@@ -74,6 +90,14 @@ namespace Interview.Domain.Rooms.Service
             await _roomRepository.UpdateAsync(foundRoom);
 
             return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
+        }
+
+        private static string FindNotFoundEntityIds<T>(HashSet<Guid> guids, List<T> collection)
+            where T : Entity
+        {
+            var notFoundEntityIds = guids.Except(collection.Select(entity => entity.Id));
+
+            return string.Join(", ", notFoundEntityIds);
         }
     }
 }

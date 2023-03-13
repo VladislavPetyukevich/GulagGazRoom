@@ -4,6 +4,7 @@ using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.Rooms;
+using Interview.Infrastructure.Users;
 
 namespace Interview.Test.Integrations
 {
@@ -24,7 +25,7 @@ namespace Interview.Test.Integrations
             await appDbContext.SaveChangesAsync();
 
             var roomRepository = new RoomRepository(appDbContext);
-            var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext));
+            var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext));
 
             var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "New_Value_Name_Room" };
 
