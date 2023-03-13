@@ -1,6 +1,6 @@
 namespace Interview.Domain.Rooms.Service.Records.Response.Page
 {
-    public class RoomUserPageDetail
+    public class RoomUserDetail
     {
         public Guid Id { get; set; }
 

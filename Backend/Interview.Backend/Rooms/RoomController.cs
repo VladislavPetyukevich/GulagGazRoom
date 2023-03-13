@@ -1,9 +1,7 @@
-using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
-using Interview.Domain.Rooms.Service.Records.Response.FindById;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +22,9 @@ public class RoomController : ControllerBase
         _roomService = roomService;
     }
 
+    [Authorize(policy: OAuthTwitchOptions.Policy)]
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<RoomPageDetail>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<RoomDetail>> GetPage([FromQuery] PageRequest request)
     {
         return _roomRepository.GetDetailedPageAsync(request.PageNumber, request.PageSize);
     }
@@ -36,14 +35,14 @@ public class RoomController : ControllerBase
     [ProducesResponseType(typeof(string), 404)]
     public async Task<IActionResult> GetById([FromQuery] Guid id)
     {
-        var foundRoom = await _roomService.FindById(id);
-
-        if (foundRoom.IsFailure)
+        var room = await _roomRepository.GetByIdAsync(id);
+        var notFoundMessage = room?.GetNotFoundMessage("room", id);
+        if (!string.IsNullOrEmpty(notFoundMessage))
         {
-            return NotFound($"Not found user with id = \'{id}\'");
+            return NotFound(notFoundMessage);
         }
 
-        return Ok(foundRoom.Value);
+        return Ok(room);
     }
 
     [Authorize(Roles = RoleNameConstants.Admin)]
