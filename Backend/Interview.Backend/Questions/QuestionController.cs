@@ -1,5 +1,7 @@
+using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.Shared;
+using Interview.Domain.Questions.Records.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -46,5 +48,18 @@ public class QuestionController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    [Authorize(policy: OAuthTwitchOptions.Policy)]
+    [HttpGet(nameof(GetById))]
+    [ProducesResponseType(typeof(Question), 200)]
+    [ProducesResponseType(typeof(string), 404)]
+    public async Task<IActionResult> GetById([FromQuery] Guid id)
+    {
+        var questionItemResult = await _questionService.FindById(id);
+
+        return questionItemResult.IsFailure
+            ? NotFound(questionItemResult.Error)
+            : Ok(questionItemResult.Value);
     }
 }
