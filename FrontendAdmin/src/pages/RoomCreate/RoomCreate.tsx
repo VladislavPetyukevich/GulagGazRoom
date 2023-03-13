@@ -5,8 +5,10 @@ import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { QuestionsSelector } from '../../components/QuestionsSelector/QuestionsSelector';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
+import { UsersSelector } from '../../components/UsersSelector/UsersSelector';
 import { pathnames } from '../../constants';
 import { Question } from '../../types/question';
+import { User } from '../../types/user';
 import { useRoomsCreateApi } from './hooks/useRoomsCreateApi';
 
 import './RoomCreate.css';
@@ -17,6 +19,7 @@ export const RoomCreate: FunctionComponent = () => {
   const { roomState, createRoom } = useRoomsCreateApi();
   const { process: { loading, error }, success } = roomState;
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,9 +35,9 @@ export const RoomCreate: FunctionComponent = () => {
     createRoom({
       name: roomName,
       questions: selectedQuestions.map(question => question.id),
-      users: [],
+      users: selectedUsers.map(user => user.id),
     });
-  }, [selectedQuestions, createRoom]);
+  }, [selectedQuestions, selectedUsers, createRoom]);
 
   const handleQuestionSelect = useCallback((question: Question) => {
     setSelectedQuestions([...selectedQuestions, question]);
@@ -46,6 +49,17 @@ export const RoomCreate: FunctionComponent = () => {
     );
     setSelectedQuestions(newSelectedQuestions);
   }, [selectedQuestions]);
+
+  const handleUserSelect = useCallback((user: User) => {
+    setSelectedUsers([...selectedUsers, user]);
+  }, [selectedUsers]);
+
+  const handleUserUnSelect = useCallback((user: User) => {
+    const newSelectedUsers = selectedUsers.filter(
+      usr => usr.id !== user.id
+    );
+    setSelectedUsers(newSelectedUsers);
+  }, [selectedUsers]);
 
   const renderStatus = useCallback(() => {
     if (error) {
@@ -88,13 +102,22 @@ export const RoomCreate: FunctionComponent = () => {
         </Field>
         <Field>
           <div>Questions:</div>
-          <div className="questions-selected">
+          <div className="items-selected">
             Selected: {selectedQuestions.map(question => question.value).join(', ')}
           </div>
           <QuestionsSelector
             selected={selectedQuestions}
             onSelect={handleQuestionSelect}
             onUnselect={handleQuestionUnSelect}
+          />
+          <div>Users:</div>
+          <div className="items-selected">
+            Selected: {selectedUsers.map(user => user.nickname).join(', ')}
+          </div>
+          <UsersSelector
+            selected={selectedUsers}
+            onSelect={handleUserSelect}
+            onUnselect={handleUserUnSelect}
           />
         </Field>
         <SubmitField caption="Create" />
