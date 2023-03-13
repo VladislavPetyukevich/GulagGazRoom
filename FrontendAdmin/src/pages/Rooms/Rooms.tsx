@@ -14,29 +14,6 @@ import './Rooms.css';
 const pageSize = 10;
 const initialPageNumber = 1;
 
-const fakeUsers = [
-  {
-    nickname: "radomChel",
-    email: "string",
-    twitchIdentity: "string"
-  },
-  {
-    nickname: "vladislavpetyukevich",
-    email: "string",
-    twitchIdentity: "string"
-  },
-  {
-    nickname: "blowin",
-    email: "string",
-    twitchIdentity: "string"
-  },
-  {
-    nickname: "developerdevpav",
-    email: "string",
-    twitchIdentity: "string"
-  }
-];
-
 const createRoomItem = (room: Room) => (
   <li key={room.id}>
     <Field>
@@ -44,7 +21,7 @@ const createRoomItem = (room: Room) => (
         {room.name}
       </Link>
       <div className="room-users">
-        {fakeUsers.map(user => user.nickname).join(', ')}
+        {room.users.map(user => user.nickname).join(', ')}
       </div>
     </Field>
   </li>
