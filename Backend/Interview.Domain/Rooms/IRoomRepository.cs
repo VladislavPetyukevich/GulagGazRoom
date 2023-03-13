@@ -7,5 +7,7 @@ public interface IRoomRepository : IRepository<Room>
 {
     Task<bool> HasUserAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default);
 
-    Task<IPagedList<RoomPageDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+    Task<IPagedList<RoomDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+
+    public Task<RoomDetail?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default);
 }

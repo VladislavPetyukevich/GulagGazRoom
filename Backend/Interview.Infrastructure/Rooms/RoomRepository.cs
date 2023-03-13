@@ -19,29 +19,32 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .AnyAsync(e => e.Id == roomId && e.Users.Any(user => user.Id == userId), cancellationToken);
     }
 
-    public Task<IPagedList<RoomPageDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public Task<IPagedList<RoomDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return GetRoomDetailQueryable()
+            .OrderBy(e => e.Id)
+            .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+    }
+
+    public Task<RoomDetail?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        return GetRoomDetailQueryable()
+            .FirstOrDefaultAsync(room => room.Id == roomId, cancellationToken: cancellationToken);
+    }
+
+    private IQueryable<RoomDetail> GetRoomDetailQueryable()
     {
         return Set
             .Include(e => e.Users)
             .Include(e => e.Questions)
-            .OrderBy(e => e.Id)
-            .Select(e => new RoomPageDetail
+            .Select(e => new RoomDetail
             {
                 Id = e.Id,
                 Name = e.Name,
                 Questions = e.Questions.Select(question =>
-                        new RoomQuestionPageDetail
-                        {
-                            Id = question.Id,
-                            Value = question.Value,
-                        }).ToList(),
+                    new RoomQuestionDetail { Id = question.Id, Value = question.Value, }).ToList(),
                 Users = e.Users.Select(usr =>
-                        new RoomUserPageDetail
-                        {
-                            Id = usr.Id,
-                            Nickname = usr.Nickname,
-                        }).ToList(),
-            })
-            .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+                    new RoomUserDetail { Id = usr.Id, Nickname = usr.Nickname, }).ToList(),
+            });
     }
 }

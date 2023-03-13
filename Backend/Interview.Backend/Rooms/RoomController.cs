@@ -9,7 +9,6 @@ using X.PagedList;
 
 namespace Interview.Backend.Rooms;
 
-[Authorize(policy: OAuthTwitchOptions.Policy)]
 [ApiController]
 [Route("[controller]")]
 public class RoomController : ControllerBase
@@ -23,24 +22,27 @@ public class RoomController : ControllerBase
         _roomService = roomService;
     }
 
+    [Authorize(policy: OAuthTwitchOptions.Policy)]
     [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<RoomPageDetail>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<RoomDetail>> GetPage([FromQuery] PageRequest request)
     {
         return _roomRepository.GetDetailedPageAsync(request.PageNumber, request.PageSize);
     }
 
+    [Authorize(policy: OAuthTwitchOptions.Policy)]
     [HttpGet(nameof(GetById))]
     [ProducesResponseType(typeof(Room), 200)]
     [ProducesResponseType(typeof(string), 404)]
     public async Task<IActionResult> GetById([FromQuery] Guid id)
     {
-        var result = await _roomRepository.FindByIdAsync(id);
-        if (result == null)
+        var room = await _roomRepository.GetByIdAsync(id);
+        var notFoundMessage = room?.GetNotFoundMessage("room", id);
+        if (!string.IsNullOrEmpty(notFoundMessage))
         {
-            return NotFound($"Not found user with id = \'{id}\'");
+            return NotFound(notFoundMessage);
         }
 
-        return Ok(result);
+        return Ok(room);
     }
 
     [Authorize(Roles = RoleNameConstants.Admin)]
@@ -68,6 +70,6 @@ public class RoomController : ControllerBase
 
         return updatedRoomResult.IsFailure
             ? BadRequest(updatedRoomResult.Error)
-            : Ok(updatedRoomResult);
+            : Ok(updatedRoomResult.Value);
     }
 }
