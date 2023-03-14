@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
 using Interview.Domain.RoomParticipants;
+using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Users;
@@ -14,7 +15,8 @@ namespace Interview.Domain.Rooms.Service
         private readonly IQuestionRepository _questionRepository;
         private readonly IUserRepository _userRepository;
 
-        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository, IUserRepository userRepository)
+        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository,
+            IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
             _questionRepository = questionRepository;
@@ -54,18 +56,22 @@ namespace Interview.Domain.Rooms.Service
                 return Result.Failure<Room>($"Not found users with id [{usersNotFound}]");
             }
 
-            var newRoom = new Room(name);
-            newRoom.Questions.AddRange(questions);
+            var room = new Room(name);
+
+            var roomQuestions = questions.Select(question =>
+                new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
+
+            room.Questions.AddRange(roomQuestions);
 
             var participants = users
-                .Select(user => new RoomParticipant(user, newRoom, RoomParticipantType.Viewer))
+                .Select(user => new RoomParticipant(user, room, RoomParticipantType.Viewer))
                 .ToList();
 
-            newRoom.Participants.AddRange(participants);
+            room.Participants.AddRange(participants);
 
-            await _roomRepository.CreateAsync(newRoom, cancellationToken);
+            await _roomRepository.CreateAsync(room, cancellationToken);
 
-            return newRoom;
+            return room;
         }
 
         public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request)
