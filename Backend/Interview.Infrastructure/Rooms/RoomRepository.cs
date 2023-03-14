@@ -15,8 +15,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
 
     public Task<bool> HasUserAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)
     {
-        return Set.Include(e => e.Users)
-            .AnyAsync(e => e.Id == roomId && e.Users.Any(user => user.Id == userId), cancellationToken);
+        return Set
+            .Include(room => room.Participants)
+            .AnyAsync(room => room.Id == roomId && room.Participants.Any(participant => participant.User.Id == userId), cancellationToken);
     }
 
     public Task<IPagedList<RoomDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -33,12 +34,13 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
     }
 
     protected override IQueryable<Room> ApplyIncludes(DbSet<Room> set)
-        => Set.Include(e => e.Users).Include(e => e.Questions);
+        => Set.Include(e => e.Participants)
+            .Include(e => e.Questions);
 
     private IQueryable<RoomDetail> GetRoomDetailQueryable()
     {
         return Set
-            .Include(e => e.Users)
+            .Include(e => e.Participants)
             .Include(e => e.Questions)
             .Select(e => new RoomDetail
             {
@@ -46,8 +48,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 Name = e.Name,
                 Questions = e.Questions.Select(question =>
                     new RoomQuestionDetail { Id = question.Id, Value = question.Value, }).ToList(),
-                Users = e.Users.Select(usr =>
-                    new RoomUserDetail { Id = usr.Id, Nickname = usr.Nickname, }).ToList(),
+                Users = e.Participants.Select(participant =>
+                        new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, })
+                    .ToList(),
             });
     }
 }

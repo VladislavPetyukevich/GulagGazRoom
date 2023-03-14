@@ -3,6 +3,7 @@ using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
 using Interview.Domain.Rooms;
+using Interview.Domain.RoomUsers;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Database.Configurations;
@@ -29,6 +30,8 @@ public class AppDbContext : DbContext
     public DbSet<Role> Roles { get; private set; } = null!;
 
     public DbSet<Reaction> Reactions { get; private set; } = null!;
+
+    public DbSet<RoomParticipant> RoomParticipants { get; private set; } = null!;
 
     public override int SaveChanges()
     {

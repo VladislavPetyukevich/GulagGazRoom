@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket.UserByRoom;
+using Interview.Domain.RoomUsers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.WebSocket;
@@ -44,24 +45,24 @@ public class WebSocketController : ControllerBase
 
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
-        var pool = ArrayPool<byte>.Shared;
-        var buffer = pool.Rent(1024 * 4);
-
         try
         {
-            var receiveResult = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-            var userMessage = Encoding.ASCII.GetString(buffer, 0, receiveResult.Count);
-            var roomRequest = JsonSerializer.Deserialize<RoomSubscribeRequest>(userMessage);
-            if (roomRequest == null)
+            if (!HttpContext.Request.Query.TryGetValue("roomId", out var roomIdentityString))
             {
                 await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", CancellationToken.None);
                 return;
             }
 
-            var currentRoom = await PrepareRoomAsync(roomRequest, webSocket, user);
+            if (!Guid.TryParse(roomIdentityString, out var roomIdentity))
+            {
+                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", CancellationToken.None);
+                return;
+            }
+
+            var currentRoom = await PrepareRoomAsync(roomIdentity, webSocket, user);
             if (currentRoom == null)
             {
+                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", CancellationToken.None);
                 return;
             }
 
@@ -72,22 +73,18 @@ public class WebSocketController : ControllerBase
             Console.WriteLine(e);
             await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, CancellationToken.None);
         }
-        finally
-        {
-            pool.Return(buffer);
-        }
     }
 
-    private async Task<Room?> PrepareRoomAsync(RoomSubscribeRequest roomRequest, System.Net.WebSockets.WebSocket webSocket, User user)
+    private async Task<Room?> PrepareRoomAsync(Guid roomIdentity, System.Net.WebSockets.WebSocket webSocket, User user)
     {
-        var currentRoom = await _roomRepository.FindByIdAsync(roomRequest.RoomId);
+        var currentRoom = await _roomRepository.FindByIdAsync(roomIdentity);
         if (currentRoom == null)
         {
             await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Unknown room", CancellationToken.None);
             return null;
         }
 
-        if (await _roomRepository.HasUserAsync(roomRequest.RoomId, user.Id))
+        if (await _roomRepository.HasUserAsync(roomIdentity, user.Id))
         {
             return currentRoom;
         }
@@ -99,14 +96,10 @@ public class WebSocketController : ControllerBase
             return null;
         }
 
-        currentRoom.Users.Add(dbUser);
+        var roomParticipant = new RoomParticipant(dbUser, currentRoom, RoomParticipantType.Viewer);
+
+        currentRoom.Participants.Add(roomParticipant);
         await _roomRepository.UpdateAsync(currentRoom);
         return currentRoom;
-    }
-
-    public class RoomSubscribeRequest
-    {
-        [JsonPropertyName("roomId")]
-        public Guid RoomId { get; set; }
     }
 }

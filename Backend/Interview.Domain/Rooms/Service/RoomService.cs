@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.RoomUsers;
 using Interview.Domain.Users;
 using Entity = Interview.Domain.Repository.Entity;
 
@@ -13,14 +14,16 @@ namespace Interview.Domain.Rooms.Service
         private readonly IQuestionRepository _questionRepository;
         private readonly IUserRepository _userRepository;
 
-        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository, IUserRepository userRepository)
+        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository,
+            IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
             _questionRepository = questionRepository;
             _userRepository = userRepository;
         }
 
-        public async Task<Result<Room>> CreateAsync(RoomCreateRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<Room>> CreateAsync(RoomCreateRequest request,
+            CancellationToken cancellationToken = default)
         {
             if (request == null)
             {
@@ -53,7 +56,9 @@ namespace Interview.Domain.Rooms.Service
 
             var newRoom = new Room(name);
             newRoom.Questions.AddRange(questions);
-            newRoom.Users.AddRange(users);
+
+            newRoom.Participants.AddRange(
+                users.Select(user => new RoomParticipant(user, newRoom, RoomParticipantType.Viewer)));
 
             await _roomRepository.CreateAsync(newRoom, cancellationToken);
 

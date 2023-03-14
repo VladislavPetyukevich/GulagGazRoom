@@ -3,12 +3,15 @@ using Interview.Domain.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
+using Interview.Domain.RoomUsers;
+using Interview.Domain.RoomUsers.Service;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Chat.TokenProviders;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.RoomParticipants;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +29,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoomRepository, RoomRepository>();
         self.AddScoped<IQuestionRepository, QuestionRepository>();
         self.AddScoped<IRoleRepository, RoleRepository>();
+        self.AddScoped<IRoomParticipantRepository, RoomParticipantRepository>();
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
         self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
         self.AddSingleton<ISystemClock, SystemClock>();
@@ -35,6 +39,7 @@ public static class ServiceCollectionExt
         self.AddScoped<UserService>();
         self.AddScoped<RoomService>();
         self.AddScoped<QuestionService>();
+        self.AddScoped<RoomParticipantService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);
         self.AddSingleton<ITwitchTokenProvider, TwitchTokenProvider>();
