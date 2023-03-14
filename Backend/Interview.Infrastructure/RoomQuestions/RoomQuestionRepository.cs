@@ -6,7 +6,7 @@ namespace Interview.Infrastructure.RoomQuestions;
 
 public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionRepository
 {
-    public RoomQuestionRepository(AppDbContext db) 
+    public RoomQuestionRepository(AppDbContext db)
         : base(db)
     {
     }

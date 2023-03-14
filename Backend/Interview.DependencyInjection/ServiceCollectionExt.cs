@@ -36,7 +36,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoomParticipantRepository, RoomParticipantRepository>();
         self.AddScoped<IRoomQuestionRepository, RoomQuestionRepository>();
         self.AddScoped<IRoomQuestionReactionRepository, RoomQuestionReactionRepository>();
-        
+
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();
         self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
         self.AddSingleton<ISystemClock, SystemClock>();
