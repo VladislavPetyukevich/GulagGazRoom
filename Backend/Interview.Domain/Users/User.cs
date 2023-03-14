@@ -1,3 +1,4 @@
+using Interview.Domain.Repository;
 using Interview.Domain.Users.Roles;
 
 namespace Interview.Domain.Users;

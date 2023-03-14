@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Interview.Domain;
+using Interview.Domain.Repository;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Moq;

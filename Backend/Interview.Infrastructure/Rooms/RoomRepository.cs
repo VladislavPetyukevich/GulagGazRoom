@@ -32,6 +32,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .FirstOrDefaultAsync(room => room.Id == roomId, cancellationToken: cancellationToken);
     }
 
+    protected override IQueryable<Room> ApplyIncludes(DbSet<Room> set)
+        => Set.Include(e => e.Users).Include(e => e.Questions);
+
     private IQueryable<RoomDetail> GetRoomDetailQueryable()
     {
         return Set

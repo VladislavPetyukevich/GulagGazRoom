@@ -1,3 +1,5 @@
+using Interview.Domain.Repository;
+
 namespace Interview.Domain.Users;
 
 public interface IUserRepository : IRepository<User>

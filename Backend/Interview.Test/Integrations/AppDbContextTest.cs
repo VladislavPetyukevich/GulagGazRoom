@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
+using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 
