@@ -22,7 +22,8 @@ namespace Interview.Domain.Rooms.Service
             _userRepository = userRepository;
         }
 
-        public async Task<Result<Room>> CreateAsync(RoomCreateRequest request,
+        public async Task<Result<Room>> CreateAsync(
+            RoomCreateRequest request,
             CancellationToken cancellationToken = default)
         {
             if (request == null)

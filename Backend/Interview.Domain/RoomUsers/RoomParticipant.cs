@@ -6,13 +6,15 @@ namespace Interview.Domain.RoomUsers;
 
 public class RoomParticipant : Entity
 {
-    private RoomParticipant() {}
-
     public RoomParticipant(User user, Room room, RoomParticipantType type)
     {
         User = user;
         Room = room;
         Type = type;
+    }
+
+    private RoomParticipant()
+    {
     }
 
     public User User { get; set; } = null!;
