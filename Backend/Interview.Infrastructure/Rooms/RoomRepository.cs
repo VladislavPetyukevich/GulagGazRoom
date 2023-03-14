@@ -17,7 +17,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
     {
         return Set
             .Include(room => room.Participants)
-            .AnyAsync(room => room.Id == roomId && room.Participants.Any(participant => participant.User.Id == userId), cancellationToken);
+            .AnyAsync(
+                room => room.Id == roomId && room.Participants.Any(participant => participant.User.Id == userId),
+                cancellationToken);
     }
 
     public Task<IPagedList<RoomDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -46,8 +48,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             {
                 Id = e.Id,
                 Name = e.Name,
-                Questions = e.Questions.Select(question =>
-                    new RoomQuestionDetail { Id = question.Id, Value = question.Value, }).ToList(),
+                Questions = e.Questions.Select(question => question.Question)
+                    .Select(question => new RoomQuestionDetail { Id = question.Id, Value = question.Value, })
+                    .ToList(),
                 Users = e.Participants.Select(participant =>
                         new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, })
                     .ToList(),
