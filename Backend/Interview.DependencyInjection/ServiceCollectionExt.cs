@@ -1,10 +1,10 @@
 using Interview.Domain.Certificates;
 using Interview.Domain.Events;
 using Interview.Domain.Questions;
+using Interview.Domain.RoomParticipants;
+using Interview.Domain.RoomParticipants.Service;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
-using Interview.Domain.RoomUsers;
-using Interview.Domain.RoomUsers.Service;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Certificates.Pdf;
@@ -44,6 +44,7 @@ public static class ServiceCollectionExt
         self.AddSingleton(option.TwitchTokenProviderOption);
         self.AddSingleton<ITwitchTokenProvider, TwitchTokenProvider>();
         self.Decorate<ITwitchTokenProvider, ReloadableCacheTwitchTokenProvider>();
+
         return self;
     }
 }

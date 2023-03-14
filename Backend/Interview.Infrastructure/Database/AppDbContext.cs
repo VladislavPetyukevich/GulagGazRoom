@@ -1,9 +1,8 @@
-using Interview.Domain;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
+using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms;
-using Interview.Domain.RoomUsers;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Database.Configurations;

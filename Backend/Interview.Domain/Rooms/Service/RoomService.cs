@@ -1,8 +1,8 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
+using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
-using Interview.Domain.RoomUsers;
 using Interview.Domain.Users;
 using Entity = Interview.Domain.Repository.Entity;
 
@@ -57,8 +57,11 @@ namespace Interview.Domain.Rooms.Service
             var newRoom = new Room(name);
             newRoom.Questions.AddRange(questions);
 
-            newRoom.Participants.AddRange(
-                users.Select(user => new RoomParticipant(user, newRoom, RoomParticipantType.Viewer)));
+            var participants = users
+                .Select(user => new RoomParticipant(user, newRoom, RoomParticipantType.Viewer))
+                .ToList();
+
+            newRoom.Participants.AddRange(participants);
 
             await _roomRepository.CreateAsync(newRoom, cancellationToken);
 
@@ -98,7 +101,35 @@ namespace Interview.Domain.Rooms.Service
             return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
         }
 
-        private static string FindNotFoundEntityIds<T>(HashSet<Guid> guids, List<T> collection)
+        public async Task<Result<Room?>> PrepareRoomAsync(Guid roomIdentity, Guid userIdentity)
+        {
+            var currentRoom = await _roomRepository.FindByIdAsync(roomIdentity);
+            if (currentRoom == null)
+            {
+                return Result.Failure<Room?>($"Room not found by id {roomIdentity}");
+            }
+
+            var user = await _userRepository.FindByIdAsync(userIdentity);
+            if (user == null)
+            {
+                return Result.Failure<Room?>($"User not found by id {userIdentity}");
+            }
+
+            if (await _roomRepository.HasUserAsync(roomIdentity, user.Id))
+            {
+                return currentRoom;
+            }
+
+            var participant = new RoomParticipant(user, currentRoom, RoomParticipantType.Viewer);
+
+            currentRoom.Participants.Add(participant);
+
+            await _roomRepository.UpdateAsync(currentRoom);
+
+            return currentRoom;
+        }
+
+        private string FindNotFoundEntityIds<T>(IEnumerable<Guid> guids, IEnumerable<T> collection)
             where T : Entity
         {
             var notFoundEntityIds = guids.Except(collection.Select(entity => entity.Id));

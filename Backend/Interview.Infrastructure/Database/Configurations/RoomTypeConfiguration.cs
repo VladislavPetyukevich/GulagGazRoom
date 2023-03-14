@@ -1,6 +1,4 @@
 using Interview.Domain.Rooms;
-using Interview.Domain.RoomUsers;
-using Interview.Domain.Users;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Interview.Infrastructure.Database.Configurations;

@@ -1,6 +1,6 @@
 using Ardalis.SmartEnum;
 
-namespace Interview.Domain.RoomUsers;
+namespace Interview.Domain.RoomParticipants;
 
 public sealed class RoomParticipantType : SmartEnum<RoomParticipantType>
 {

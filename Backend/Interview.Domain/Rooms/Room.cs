@@ -1,8 +1,6 @@
 using Interview.Domain.Questions;
-using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
-using Interview.Domain.RoomUsers;
-using Interview.Domain.Users;
+using Interview.Domain.RoomParticipants;
 
 namespace Interview.Domain.Rooms;
 

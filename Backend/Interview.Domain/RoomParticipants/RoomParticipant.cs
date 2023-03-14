@@ -2,7 +2,7 @@ using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Entity = Interview.Domain.Repository.Entity;
 
-namespace Interview.Domain.RoomUsers;
+namespace Interview.Domain.RoomParticipants;
 
 public class RoomParticipant : Entity
 {
