@@ -15,7 +15,9 @@ namespace Interview.Domain.Rooms.Service
         private readonly IQuestionRepository _questionRepository;
         private readonly IUserRepository _userRepository;
 
-        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository,
+        public RoomService(
+            IRoomRepository roomRepository,
+            IQuestionRepository questionRepository,
             IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
@@ -32,7 +34,7 @@ namespace Interview.Domain.Rooms.Service
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var name = request.Name?.Trim();
+            var name = request.Name.Trim();
             if (string.IsNullOrEmpty(name))
             {
                 return Result.Failure<Room>("Room name should not be empty");
