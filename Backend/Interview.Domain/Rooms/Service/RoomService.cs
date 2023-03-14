@@ -14,8 +14,7 @@ namespace Interview.Domain.Rooms.Service
         private readonly IQuestionRepository _questionRepository;
         private readonly IUserRepository _userRepository;
 
-        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository,
-            IUserRepository userRepository)
+        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository, IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
             _questionRepository = questionRepository;
