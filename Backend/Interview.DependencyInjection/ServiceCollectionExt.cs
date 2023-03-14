@@ -1,6 +1,7 @@
 using Interview.Domain.Certificates;
 using Interview.Domain.Events;
 using Interview.Domain.Questions;
+using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomParticipants.Service;
 using Interview.Domain.RoomQuestionReactions;
@@ -13,6 +14,7 @@ using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Chat.TokenProviders;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.Reactions;
 using Interview.Infrastructure.RoomParticipants;
 using Interview.Infrastructure.RoomQuestionReactions;
 using Interview.Infrastructure.RoomQuestions;
@@ -35,6 +37,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddScoped<IRoomParticipantRepository, RoomParticipantRepository>();
         self.AddScoped<IRoomQuestionRepository, RoomQuestionRepository>();
+        self.AddScoped<IReactionRepository, ReactionRepository>();
         self.AddScoped<IRoomQuestionReactionRepository, RoomQuestionReactionRepository>();
 
         self.AddSingleton<ICertificateGenerator, PdfCertificateGenerator>();

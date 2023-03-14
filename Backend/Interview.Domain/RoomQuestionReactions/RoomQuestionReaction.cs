@@ -7,6 +7,10 @@ namespace Interview.Domain.RoomQuestionReactions
 {
     public class RoomQuestionReaction : Entity
     {
+        public RoomQuestionReaction()
+        {
+        }
+
         public Reaction Reaction { get; set; }
 
         public RoomQuestion RoomQuestion { get; set; }

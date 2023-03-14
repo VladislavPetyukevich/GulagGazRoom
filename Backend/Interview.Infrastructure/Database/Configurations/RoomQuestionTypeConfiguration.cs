@@ -10,7 +10,7 @@ namespace Interview.Infrastructure.Database.Configurations
         protected override void ConfigureCore(EntityTypeBuilder<RoomQuestion> builder)
         {
             builder.HasOne<Room>(roomQuestion => roomQuestion.Room)
-                .WithMany()
+                .WithMany(room => room.Questions)
                 .IsRequired();
 
             builder.HasOne<Question>(roomQuestion => roomQuestion.Question)

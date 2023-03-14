@@ -6,6 +6,10 @@ namespace Interview.Domain.RoomQuestions
 {
     public class RoomQuestion : Entity
     {
+        public RoomQuestion()
+        {
+        }
+
         public Room Room { get; set; }
 
         public Question Question { get; set; }
