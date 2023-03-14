@@ -1,3 +1,4 @@
+using Interview.Domain.Repository;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using X.PagedList;
 
