@@ -1,3 +1,7 @@
+using CSharpFunctionalExtensions;
+using Interview.Domain.Questions.Records.Response;
+using Interview.Domain.Rooms.Service.Records.Response;
+
 namespace Interview.Domain.Questions
 {
     public class QuestionService
@@ -27,6 +31,15 @@ namespace Interview.Domain.Questions
             entity.Value = request.Value;
             await _questionRepository.UpdateAsync(entity, cancellationToken);
             return entity;
+        }
+
+        public async Task<Result<QuestionItem>> FindById(Guid id, CancellationToken cancellationToken = default)
+        {
+            var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
+
+            return question == null
+                ? Result.Failure<QuestionItem>($"Not found question with id [{id}]")
+                : new QuestionItem { Id = question.Id, Value = question.Value };
         }
     }
 }
