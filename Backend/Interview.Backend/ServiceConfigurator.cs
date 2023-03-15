@@ -56,7 +56,8 @@ public class ServiceConfigurator
         var serviceOption = new DependencyInjectionAppServiceOption(
             new TwitchTokenProviderOption
             {
-                ClientSecret = twitchService.ClientSecret, ClientId = twitchService.ClientId,
+                ClientSecret = twitchService.ClientSecret,
+                ClientId = twitchService.ClientId,
             },
             adminUsers,
             optionsBuilder =>

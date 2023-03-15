@@ -16,7 +16,8 @@ namespace Interview.Infrastructure.Chat
 
             var clientOptions = new ClientOptions
             {
-                MessagesAllowedInPeriod = 750, ThrottlingPeriod = TimeSpan.FromSeconds(30),
+                MessagesAllowedInPeriod = 750,
+                ThrottlingPeriod = TimeSpan.FromSeconds(30),
             };
 
             var customClient = new WebSocketClient(clientOptions);
