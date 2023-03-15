@@ -6,7 +6,7 @@ using X.PagedList;
 
 namespace Interview.Backend.Users;
 
-[Authorize(policy: OAuthTwitchOptions.Policy)]
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
@@ -30,6 +30,7 @@ public class UserController : ControllerBase
         return _userRepository.FindByNicknameAsync(nickname);
     }
 
+    [Authorize(Roles = RoleNameConstants.User)]
     [HttpGet(nameof(GetMe))]
     public Task<List<string>> GetMe()
     {

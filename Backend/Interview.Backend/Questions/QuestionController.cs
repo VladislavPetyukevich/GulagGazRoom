@@ -8,7 +8,7 @@ using X.PagedList;
 
 namespace Interview.Backend.Questions;
 
-[Authorize(policy: OAuthTwitchOptions.Policy)]
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class QuestionController : ControllerBase
@@ -50,7 +50,7 @@ public class QuestionController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(policy: OAuthTwitchOptions.Policy)]
+    [Authorize]
     [HttpGet(nameof(GetById))]
     [ProducesResponseType(typeof(Question), 200)]
     [ProducesResponseType(typeof(string), 404)]
