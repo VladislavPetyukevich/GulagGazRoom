@@ -9,8 +9,5 @@ namespace Interview.Domain.RoomQuestionReactions.Records
 
         [JsonPropertyName(name: "roomId")]
         public Guid RoomId { get; set; }
-
-        [JsonIgnore]
-        public string UserNickname { get; set; }
     }
 }

@@ -12,11 +12,18 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
     {
     }
 
+    public Task<RoomQuestion?> FindFirstByQuestionIdAndRoomId(Guid questionId, Guid roomId, CancellationToken cancellationToken = default)
+    {
+        return Set
+            .FirstOrDefaultAsync(
+                roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.Question.Id == questionId, cancellationToken);
+    }
+
     public Task<RoomQuestion?> FindFirstByRoomAndState(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)
     {
         return ApplyIncludes(Set)
             .FirstOrDefaultAsync(
-                roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.State.Name == roomQuestionState.Name, cancellationToken);
+                roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.State == roomQuestionState, cancellationToken);
     }
 
     public Task<RoomQuestion?> FindFirstQuestionByRoomAndState(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)

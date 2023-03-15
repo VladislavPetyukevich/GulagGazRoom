@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.RoomReactions;
 
-[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class RoomReactionController : ControllerBase
@@ -19,6 +18,7 @@ public class RoomReactionController : ControllerBase
         _roomQuestionReactionService = roomQuestionReactionService;
     }
 
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost]
     [ProducesResponseType(typeof(RoomQuestionReactionDetail), 200)]
     [ProducesResponseType(typeof(string), 400)]
@@ -31,9 +31,7 @@ public class RoomReactionController : ControllerBase
             return BadRequest();
         }
 
-        request.UserNickname = user.Nickname;
-
-        var roomQuestionReaction = await _roomQuestionReactionService.CreateInRoom(request);
+        var roomQuestionReaction = await _roomQuestionReactionService.CreateInRoom(request, user.Nickname);
 
         if (roomQuestionReaction.IsFailure)
         {

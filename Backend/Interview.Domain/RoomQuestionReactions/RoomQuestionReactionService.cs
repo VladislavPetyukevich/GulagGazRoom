@@ -26,14 +26,16 @@ namespace Interview.Domain.RoomQuestionReactions
             _userRepository = userRepository;
         }
 
-        public async Task<Result<RoomQuestionReactionDetail?>> CreateInRoom(RoomQuestionReactionCreateRequest request)
+        public async Task<Result<RoomQuestionReactionDetail?>> CreateInRoom(
+            RoomQuestionReactionCreateRequest request,
+            string userNickname)
         {
-            var user = await _userRepository.FindByNicknameAsync(request.UserNickname);
+            var user = await _userRepository.FindByNicknameAsync(userNickname);
 
             if (user == null)
             {
                 return Result.Failure<RoomQuestionReactionDetail?>(
-                    $"User not found by nickname {request.UserNickname}");
+                    $"User not found by nickname {userNickname}");
             }
 
             var roomQuestion =

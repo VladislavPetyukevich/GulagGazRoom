@@ -45,7 +45,7 @@ public class RoomController : ControllerBase
         return Ok(room);
     }
 
-    [Authorize]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(Create))]
     [ProducesResponseType(typeof(Guid), 201)]
     [ProducesResponseType(typeof(string), 400)]
@@ -60,7 +60,7 @@ public class RoomController : ControllerBase
         return Created(string.Empty, newRoomResult.Value.Id);
     }
 
-    [Authorize]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPatch]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(typeof(string), 400)]

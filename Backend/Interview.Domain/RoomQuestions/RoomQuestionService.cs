@@ -16,7 +16,7 @@ namespace Interview.Domain.RoomQuestions
         public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestion(
             RoomQuestionChangeActiveRequest request)
         {
-            var roomQuestion = await _roomQuestionRepository.FindByIdAsync(request.QuestionId);
+            var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomId(request.QuestionId, request.RoomId, default);
 
             if (roomQuestion == null)
             {

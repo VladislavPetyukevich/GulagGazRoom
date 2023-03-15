@@ -1,9 +1,13 @@
+using Interview.Backend.Auth;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.RoomQuestions
 {
+    [ApiController]
+    [Route("[controller]")]
     public class RoomQuestionController : ControllerBase
     {
         private readonly RoomQuestionService _roomQuestionService;
@@ -13,6 +17,7 @@ namespace Interview.Backend.RoomQuestions
             _roomQuestionService = roomQuestionService;
         }
 
+        [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(ChangeActiveQuestion))]
         [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
         [ProducesResponseType(typeof(string), 400)]
