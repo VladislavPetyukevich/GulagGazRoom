@@ -45,20 +45,34 @@ public class ServiceConfigurator
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
 
-        var oAuthTwitchOptions = new OAuthTwitchOptions(_configuration);
-        var adminUsers = _configuration.GetSection(nameof(AdminUsers)).Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
-        var serviceOption = new DependencyInjectionAppServiceOption(oAuthTwitchOptions.ToTwitchTokenProviderOption(), adminUsers, optionsBuilder =>
-        {
-            if (_environment.IsDevelopment())
+        var oAuthServiceDispatcher = new OAuth2Service(_configuration);
+
+        var adminUsers = _configuration.GetSection(nameof(AdminUsers))
+            .Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
+
+        var twitchService = oAuthServiceDispatcher.GetAuthService("twitch");
+
+        var serviceOption = new DependencyInjectionAppServiceOption(
+            new TwitchTokenProviderOption
             {
-                optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));
-            }
-        });
+                ClientSecret = twitchService.ClientSecret, ClientId = twitchService.ClientId,
+            },
+            adminUsers,
+            optionsBuilder =>
+            {
+                if (_environment.IsDevelopment())
+                {
+                    optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));
+                }
+            });
+
         serviceCollection.AddAppServices(serviceOption);
-        serviceCollection.AddAppAuth(oAuthTwitchOptions);
+
+        serviceCollection.AddAppAuth(twitchService);
 
         serviceCollection.AddHostedService<JobWriter>();
         serviceCollection.AddHostedService<EventSenderJob>();
         serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
+        serviceCollection.AddSingleton(oAuthServiceDispatcher);
     }
 }

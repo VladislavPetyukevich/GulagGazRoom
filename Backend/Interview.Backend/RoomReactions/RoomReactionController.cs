@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.RoomReactions;
 
-[Authorize(policy: OAuthTwitchOptions.Policy)]
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class RoomReactionController : ControllerBase
