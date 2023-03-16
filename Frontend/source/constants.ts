@@ -14,7 +14,7 @@ import lightFlick4 from './assets/lightFlick4.mp3';
 
 export const PI_2 = Math.PI / 2;
 
-export const RANDOM_NUMBERS_COUNT = 100;
+export const RANDOM_NUMBERS_COUNT = 500;
 
 export const enum ENTITY_TYPE {
   PLAYER = 'PLAYER',
