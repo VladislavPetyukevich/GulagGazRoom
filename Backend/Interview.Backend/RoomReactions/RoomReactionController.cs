@@ -31,13 +31,13 @@ public class RoomReactionController : ControllerBase
             return BadRequest();
         }
 
-        var roomQuestionReaction = await _roomQuestionReactionService.CreateInRoomAsync(request, user.Id);
+        var createRoomQuestionReactionResult = await _roomQuestionReactionService.CreateInRoomAsync(request, user.Id);
 
-        if (roomQuestionReaction.IsFailure)
+        if (createRoomQuestionReactionResult.IsFailure)
         {
             return BadRequest();
         }
 
-        return Ok(roomQuestionReaction.Value);
+        return Ok(createRoomQuestionReactionResult.Value);
     }
 }
