@@ -28,7 +28,7 @@ namespace Interview.Backend.RoomQuestions
 
             if (result.IsFailure)
             {
-                return BadRequest();
+                return BadRequest(result.Error);
             }
 
             return Ok(result.Value);
