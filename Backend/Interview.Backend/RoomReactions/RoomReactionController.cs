@@ -28,14 +28,14 @@ public class RoomReactionController : ControllerBase
 
         if (user == null)
         {
-            return BadRequest();
+            return BadRequest("User not found");
         }
 
         var createRoomQuestionReactionResult = await _roomQuestionReactionService.CreateInRoomAsync(request, user.Id);
 
         if (createRoomQuestionReactionResult.IsFailure)
         {
-            return BadRequest();
+            return BadRequest($"Not found active question by room id {request.RoomId}");
         }
 
         return Ok(createRoomQuestionReactionResult.Value);
