@@ -4,6 +4,7 @@ import { ENTITY_TYPE, WALL } from '@/constants';
 import { GasActor } from './GasActor';
 import { GasBehavior } from './GasBehavior';
 import { Player } from '../Player/Player';
+import { randomNumbers } from '@/RandomNumbers';
 
 export interface GasProps {
   position: Vector3;
@@ -32,11 +33,14 @@ export class Gas extends Entity<GasActor, GasBehavior> {
     if (isEnable) {
       this.behavior.enable();
     } else {
-      this.behavior.disable();
+      this.disableSmoothly();
     }
   }
 
-  disableImmediately() {
-    this.behavior.disableImmediately();
+  disableSmoothly() {
+    setTimeout(
+      () => this.behavior.disableImmediately(),
+      randomNumbers.getRandomInRange(500, 1500)
+    );
   }
 }
