@@ -4,10 +4,8 @@ namespace Interview.Domain.RoomQuestionReactions.Records
 {
     public class RoomQuestionReactionCreateRequest
     {
-        [JsonPropertyName(name: "reactionId")]
         public Guid ReactionId { get; set; }
 
-        [JsonPropertyName(name: "roomId")]
         public Guid RoomId { get; set; }
     }
 }
