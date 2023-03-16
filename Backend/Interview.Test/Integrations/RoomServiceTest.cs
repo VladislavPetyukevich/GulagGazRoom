@@ -18,7 +18,7 @@ namespace Interview.Test.Integrations
             var testSystemClock = new TestSystemClock();
             await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
 
-            var savedRoom = new Room(DefaultRoomName);
+            var savedRoom = new Room(DefaultRoomName, DefaultRoomName);
 
             appDbContext.Rooms.Add(savedRoom);
 

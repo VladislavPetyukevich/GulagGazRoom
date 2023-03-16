@@ -58,7 +58,14 @@ namespace Interview.Domain.Rooms.Service
                 return Result.Failure<Room>($"Not found users with id [{usersNotFound}]");
             }
 
-            var room = new Room(name);
+            var twitchChannel = request.TwitchChannel?.Trim();
+
+            if (string.IsNullOrEmpty(twitchChannel))
+            {
+                return Result.Failure<Room>($"Twitch channel should not be empty");
+            }
+
+            var room = new Room(name, twitchChannel);
 
             var roomQuestions = questions.Select(question =>
                 new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
@@ -95,6 +102,13 @@ namespace Interview.Domain.Rooms.Service
                 return Result.Failure<RoomItem>("Room name should not be empty");
             }
 
+            var twitchChannel = request.TwitchChannel?.Trim();
+
+            if (string.IsNullOrEmpty(twitchChannel))
+            {
+                return Result.Failure<RoomItem>("Room twitch channel should not be empty");
+            }
+
             var foundRoom = await _roomRepository.FindByIdAsync((Guid)id);
 
             if (foundRoom == null)
@@ -103,6 +117,7 @@ namespace Interview.Domain.Rooms.Service
             }
 
             foundRoom.Name = name;
+            foundRoom.TwitchChannel = twitchChannel;
 
             await _roomRepository.UpdateAsync(foundRoom);
 
