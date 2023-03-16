@@ -7,19 +7,28 @@ namespace Interview.Backend.Auth
     [Route("oauth")]
     public class AuthController : ControllerBase
     {
-        private readonly OAuth2Service _oAuth2Dispatcher;
+        private readonly OAuthServiceDispatcher _oAuthDispatcher;
 
-        public AuthController(OAuth2Service oAuth2Dispatcher)
+        public AuthController(OAuthServiceDispatcher oAuthDispatcher)
         {
-            _oAuth2Dispatcher = oAuth2Dispatcher;
+            _oAuthDispatcher = oAuthDispatcher;
         }
 
         [HttpGet("/login/{scheme}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(string), 400)]
         public IResult SignIn(string scheme, [FromQuery] string redirectUri)
         {
-            if (!_oAuth2Dispatcher.HasAuthService(scheme))
+            if (!_oAuthDispatcher.HasAuthService(scheme))
             {
                 return Results.BadRequest($"Not found service authorization with id ${scheme}");
+            }
+
+            var authorizationService = _oAuthDispatcher.GetAuthService(scheme);
+
+            if (!authorizationService.AvailableLoginRedirects.Contains(redirectUri))
+            {
+                return Results.BadRequest($"Redirect link {redirectUri} is not available");
             }
 
             var authenticationProperties = new AuthenticationProperties

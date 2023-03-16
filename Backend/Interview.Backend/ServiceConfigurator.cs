@@ -46,7 +46,7 @@ public class ServiceConfigurator
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
 
-        var oAuthServiceDispatcher = new OAuth2Service(_configuration);
+        var oAuthServiceDispatcher = new OAuthServiceDispatcher(_configuration);
 
         var adminUsers = _configuration.GetSection(nameof(AdminUsers))
             .Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");

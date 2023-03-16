@@ -2,13 +2,13 @@ using CSharpFunctionalExtensions;
 
 namespace Interview.Backend.Auth
 {
-    public class OAuth2Service
+    public class OAuthServiceDispatcher
     {
         private readonly IDictionary<string, AuthorizationService> _dictionaryService;
 
-        public OAuth2Service(IConfiguration configuration)
+        public OAuthServiceDispatcher(IConfiguration configuration)
         {
-            var configurationSections = configuration.GetSection(nameof(OAuth2Service))
+            var configurationSections = configuration.GetSection(nameof(OAuthServiceDispatcher))
                 .GetChildren()
                 .ToList();
 
