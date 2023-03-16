@@ -24,7 +24,7 @@ namespace Interview.Backend.RoomQuestions
         public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
             RoomQuestionChangeActiveRequest request)
         {
-            var result = await _roomQuestionService.ChangeActiveQuestion(request);
+            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request);
 
             if (result.IsFailure)
             {

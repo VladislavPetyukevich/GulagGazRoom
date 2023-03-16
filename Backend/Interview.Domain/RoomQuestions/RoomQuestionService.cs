@@ -13,19 +13,17 @@ namespace Interview.Domain.RoomQuestions
             _roomQuestionRepository = roomQuestionRepository;
         }
 
-        public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestion(
+        public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestionAsync(
             RoomQuestionChangeActiveRequest request)
         {
-            var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomId(request.QuestionId, request.RoomId, default);
+            var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(request.QuestionId, request.RoomId, default);
 
             if (roomQuestion == null)
             {
-                return Result.Failure<RoomQuestionDetail?>(
-                    $"Question in room not found by id {request.QuestionId}");
+                return Result.Failure<RoomQuestionDetail?>($"Question in room not found by id {request.QuestionId}");
             }
 
-            var roomQuestionActual =
-                await _roomQuestionRepository.FindFirstByRoomAndState(request.RoomId, RoomQuestionState.Active);
+            var roomQuestionActual = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active);
 
             if (roomQuestionActual != null)
             {
@@ -40,9 +38,7 @@ namespace Interview.Domain.RoomQuestions
 
             return new RoomQuestionDetail
             {
-                RoomId = roomQuestion.Room.Id,
-                QuestionId = roomQuestion.Question.Id,
-                State = roomQuestion.State,
+                RoomId = roomQuestion.Room.Id, QuestionId = roomQuestion.Question.Id, State = roomQuestion.State,
             };
         }
     }

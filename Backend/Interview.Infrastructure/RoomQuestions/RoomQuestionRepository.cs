@@ -12,14 +12,14 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
     {
     }
 
-    public Task<RoomQuestion?> FindFirstByQuestionIdAndRoomId(Guid questionId, Guid roomId, CancellationToken cancellationToken = default)
+    public Task<RoomQuestion?> FindFirstByQuestionIdAndRoomIdAsync(Guid questionId, Guid roomId, CancellationToken cancellationToken = default)
     {
         return Set
             .FirstOrDefaultAsync(
                 roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.Question.Id == questionId, cancellationToken);
     }
 
-    public Task<RoomQuestion?> FindFirstByRoomAndState(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)
+    public Task<RoomQuestion?> FindFirstByRoomAndStateAsync(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)
     {
         return ApplyIncludes(Set)
             .FirstOrDefaultAsync(

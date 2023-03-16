@@ -31,7 +31,7 @@ public class RoomReactionController : ControllerBase
             return BadRequest();
         }
 
-        var roomQuestionReaction = await _roomQuestionReactionService.CreateInRoom(request, user.Nickname);
+        var roomQuestionReaction = await _roomQuestionReactionService.CreateInRoomAsync(request, user.Id);
 
         if (roomQuestionReaction.IsFailure)
         {

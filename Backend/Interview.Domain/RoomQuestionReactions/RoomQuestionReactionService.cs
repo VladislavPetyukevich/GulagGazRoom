@@ -26,20 +26,20 @@ namespace Interview.Domain.RoomQuestionReactions
             _userRepository = userRepository;
         }
 
-        public async Task<Result<RoomQuestionReactionDetail?>> CreateInRoom(
+        public async Task<Result<RoomQuestionReactionDetail?>> CreateInRoomAsync(
             RoomQuestionReactionCreateRequest request,
-            string userNickname)
+            Guid userId)
         {
-            var user = await _userRepository.FindByNicknameAsync(userNickname);
+            var user = await _userRepository.FindByIdAsync(userId);
 
             if (user == null)
             {
                 return Result.Failure<RoomQuestionReactionDetail?>(
-                    $"User not found by nickname {userNickname}");
+                    $"User not found by user id {userId}");
             }
 
             var roomQuestion =
-                await _questionRepository.FindFirstByRoomAndState(request.RoomId, RoomQuestionState.Active);
+                await _questionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active);
 
             if (roomQuestion == null)
             {
@@ -61,9 +61,7 @@ namespace Interview.Domain.RoomQuestionReactions
 
             return new RoomQuestionReactionDetail
             {
-                RoomId = request.RoomId,
-                Question = roomQuestion.Question.Id,
-                Reaction = reaction.Id,
+                RoomId = request.RoomId, Question = roomQuestion.Question.Id, Reaction = reaction.Id,
             };
         }
     }
