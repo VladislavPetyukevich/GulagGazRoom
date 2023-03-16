@@ -52,6 +52,7 @@ export class TestScene extends BasicScene {
   gasParticlesPool: EntitiesPool;
   actions: Record<PlayerActionName, PlayerActionListener['listener']>;
   lightEffects: Record<LightEffectName, LightEffect>;
+  buzzSound: Audio;
   lightFlickAudios: Audio[];
   stats: Stats;
   tvMain?: TV;
@@ -172,6 +173,12 @@ export class TestScene extends BasicScene {
     const gasParticlesCount = 40;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
+    this.buzzSound = new Audio(this.audioListener);
+    const buzzSoundBuffer = audioStore.getSound('buzz');
+    this.buzzSound.setBuffer(buzzSoundBuffer);
+    this.buzzSound.setLoop(true);
+    this.buzzSound.setVolume(0.4);
+
     this.lightEffects = {
       flick: {
         colorHex: 0xFFFFFF,
@@ -195,8 +202,6 @@ export class TestScene extends BasicScene {
       chatMessage: this.onChatMessage,
     };
     this.addActionListeners();
-
-    this.startBuzzSound();
   }
 
   getInitialPlayerPositon() {
@@ -209,12 +214,11 @@ export class TestScene extends BasicScene {
   }
 
   startBuzzSound() {
-    const buzzSound = new Audio(this.audioListener);
-    const buzzSoundBuffer = audioStore.getSound('buzz');
-    buzzSound.setBuffer(buzzSoundBuffer);
-    buzzSound.setLoop(true);
-    buzzSound.setVolume(0.4);
-    buzzSound.play();
+    this.buzzSound.play();
+  }
+
+  stopBuzzSound() {
+    this.buzzSound.stop();
   }
 
   createLightFlickAudio(soundName: string) {

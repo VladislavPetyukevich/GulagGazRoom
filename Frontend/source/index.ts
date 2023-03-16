@@ -87,6 +87,13 @@ export default class ThreeShooter {
         this.changeScene(this.loadedScene);
       }
     }
+    if (this.currScene instanceof TestScene) {
+      if (this.enabled) {
+        this.currScene.startBuzzSound();
+      } else {
+        this.currScene.stopBuzzSound();
+      }
+    }
   }
 
   loadTextures(gameProps: any) {
