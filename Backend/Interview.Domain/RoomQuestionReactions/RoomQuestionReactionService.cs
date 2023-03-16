@@ -61,7 +61,9 @@ namespace Interview.Domain.RoomQuestionReactions
 
             return new RoomQuestionReactionDetail
             {
-                RoomId = request.RoomId, Question = roomQuestion.Question.Id, Reaction = reaction.Id,
+                RoomId = request.RoomId,
+                Question = roomQuestion.Question.Id,
+                Reaction = reaction.Id,
             };
         }
     }
