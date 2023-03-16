@@ -32,9 +32,5 @@ export class GasActor implements Actor {
   }
 
   update() {
-    const playerMesh = this.player.mesh;
-    this.mesh.rotation.y = Math.atan2(
-      (playerMesh.position.x - this.mesh.position.x), (playerMesh.position.z - this.mesh.position.z)
-    );
   }
 }
