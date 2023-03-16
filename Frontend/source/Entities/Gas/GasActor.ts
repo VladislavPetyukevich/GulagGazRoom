@@ -20,7 +20,7 @@ export class GasActor implements Actor {
     const material = new MeshLambertMaterial({
       map: smokeFile,
       transparent: true,
-      opacity: 0.25,
+      opacity: 0.75,
     });
     material.transparent = true;
     const materials: MeshLambertMaterial[] = [];
