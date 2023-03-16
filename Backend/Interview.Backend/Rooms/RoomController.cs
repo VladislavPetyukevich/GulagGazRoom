@@ -22,14 +22,14 @@ public class RoomController : ControllerBase
         _roomService = roomService;
     }
 
-    [Authorize(policy: OAuthTwitchOptions.Policy)]
+    [Authorize]
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<RoomDetail>> GetPage([FromQuery] PageRequest request)
     {
         return _roomRepository.GetDetailedPageAsync(request.PageNumber, request.PageSize);
     }
 
-    [Authorize(policy: OAuthTwitchOptions.Policy)]
+    [Authorize]
     [HttpGet(nameof(GetById))]
     [ProducesResponseType(typeof(Room), 200)]
     [ProducesResponseType(typeof(string), 404)]
@@ -45,7 +45,7 @@ public class RoomController : ControllerBase
         return Ok(room);
     }
 
-    [Authorize(Roles = RoleNameConstants.Admin)]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(Create))]
     [ProducesResponseType(typeof(Guid), 201)]
     [ProducesResponseType(typeof(string), 400)]
@@ -60,7 +60,7 @@ public class RoomController : ControllerBase
         return Created(string.Empty, newRoomResult.Value.Id);
     }
 
-    [Authorize(Roles = RoleNameConstants.Admin)]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPatch]
     [ProducesResponseType(typeof(Guid), 200)]
     [ProducesResponseType(typeof(string), 400)]

@@ -1,7 +1,9 @@
-using Interview.Domain;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
+using Interview.Domain.RoomParticipants;
+using Interview.Domain.RoomQuestionReactions;
+using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
@@ -29,6 +31,12 @@ public class AppDbContext : DbContext
     public DbSet<Role> Roles { get; private set; } = null!;
 
     public DbSet<Reaction> Reactions { get; private set; } = null!;
+
+    public DbSet<RoomParticipant> RoomParticipants { get; private set; } = null!;
+
+    public DbSet<RoomQuestion> RoomQuestions { get; private set; } = null!;
+
+    public DbSet<RoomQuestionReaction> RoomQuestionReactions { get; private set; } = null!;
 
     public override int SaveChanges()
     {

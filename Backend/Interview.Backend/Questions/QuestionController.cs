@@ -8,7 +8,6 @@ using X.PagedList;
 
 namespace Interview.Backend.Questions;
 
-[Authorize(policy: OAuthTwitchOptions.Policy)]
 [ApiController]
 [Route("[controller]")]
 public class QuestionController : ControllerBase
@@ -22,20 +21,21 @@ public class QuestionController : ControllerBase
         _questionService = questionService;
     }
 
+    [Authorize]
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<Question>> GetPage([FromQuery] PageRequest request)
     {
         return _questionRepository.GetPageAsync(request.PageNumber, request.PageSize);
     }
 
-    [Authorize(Roles = RoleNameConstants.Admin)]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(Create))]
     public Task<Question> Create(QuestionCreateRequest request)
     {
         return _questionService.CreateAsync(request);
     }
 
-    [Authorize(Roles = RoleNameConstants.Admin)]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPut(nameof(Update))]
     [ProducesResponseType(typeof(Question), 200)]
     [ProducesResponseType(typeof(string), 404)]
@@ -50,7 +50,7 @@ public class QuestionController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(policy: OAuthTwitchOptions.Policy)]
+    [Authorize]
     [HttpGet(nameof(GetById))]
     [ProducesResponseType(typeof(Question), 200)]
     [ProducesResponseType(typeof(string), 404)]

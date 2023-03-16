@@ -7,14 +7,12 @@ public static class ClaimsPrincipalExt
     public static void EnrichRolesWithId(this ClaimsPrincipal self, User user)
     {
         var newRoles = user.Roles.Select(e => new Claim(ClaimTypes.Role, e.Name.Name));
-        var claimIdentity = new ClaimsIdentity(newRoles);
-        self.AddIdentity(claimIdentity);
 
-        var idIdentity = new Claim(ClaimTypes.UserData, user.Id.ToString("N"));
-        self.AddIdentity(new ClaimsIdentity(new[]
-        {
-            idIdentity,
-        }));
+        var claimIdentity = new ClaimsIdentity(newRoles);
+
+        claimIdentity.AddClaim(new Claim(ClaimTypes.UserData, user.Id.ToString()));
+
+        self.AddIdentity(claimIdentity);
     }
 
     public static User? ToUser(this ClaimsPrincipal self)

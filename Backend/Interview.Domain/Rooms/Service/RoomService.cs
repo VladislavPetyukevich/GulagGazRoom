@@ -1,5 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
+using Interview.Domain.RoomParticipants;
+using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Users;
@@ -13,21 +15,26 @@ namespace Interview.Domain.Rooms.Service
         private readonly IQuestionRepository _questionRepository;
         private readonly IUserRepository _userRepository;
 
-        public RoomService(IRoomRepository roomRepository, IQuestionRepository questionRepository, IUserRepository userRepository)
+        public RoomService(
+            IRoomRepository roomRepository,
+            IQuestionRepository questionRepository,
+            IUserRepository userRepository)
         {
             _roomRepository = roomRepository;
             _questionRepository = questionRepository;
             _userRepository = userRepository;
         }
 
-        public async Task<Result<Room>> CreateAsync(RoomCreateRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<Room>> CreateAsync(
+            RoomCreateRequest request,
+            CancellationToken cancellationToken = default)
         {
             if (request == null)
             {
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var name = request.Name?.Trim();
+            var name = request.Name.Trim();
             if (string.IsNullOrEmpty(name))
             {
                 return Result.Failure<Room>("Room name should not be empty");
@@ -51,13 +58,22 @@ namespace Interview.Domain.Rooms.Service
                 return Result.Failure<Room>($"Not found users with id [{usersNotFound}]");
             }
 
-            var newRoom = new Room(name);
-            newRoom.Questions.AddRange(questions);
-            newRoom.Users.AddRange(users);
+            var room = new Room(name);
 
-            await _roomRepository.CreateAsync(newRoom, cancellationToken);
+            var roomQuestions = questions.Select(question =>
+                new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
 
-            return newRoom;
+            room.Questions.AddRange(roomQuestions);
+
+            var participants = users
+                .Select(user => new RoomParticipant(user, room, RoomParticipantType.Viewer))
+                .ToList();
+
+            room.Participants.AddRange(participants);
+
+            await _roomRepository.CreateAsync(room, cancellationToken);
+
+            return room;
         }
 
         public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request)
@@ -93,7 +109,35 @@ namespace Interview.Domain.Rooms.Service
             return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
         }
 
-        private static string FindNotFoundEntityIds<T>(HashSet<Guid> guids, List<T> collection)
+        public async Task<Result<Room?>> PrepareRoomAsync(Guid roomIdentity, Guid userIdentity)
+        {
+            var currentRoom = await _roomRepository.FindByIdAsync(roomIdentity);
+            if (currentRoom == null)
+            {
+                return Result.Failure<Room?>($"Room not found by id {roomIdentity}");
+            }
+
+            var user = await _userRepository.FindByIdAsync(userIdentity);
+            if (user == null)
+            {
+                return Result.Failure<Room?>($"User not found by id {userIdentity}");
+            }
+
+            if (await _roomRepository.HasUserAsync(roomIdentity, user.Id))
+            {
+                return currentRoom;
+            }
+
+            var participant = new RoomParticipant(user, currentRoom, RoomParticipantType.Viewer);
+
+            currentRoom.Participants.Add(participant);
+
+            await _roomRepository.UpdateAsync(currentRoom);
+
+            return currentRoom;
+        }
+
+        private string FindNotFoundEntityIds<T>(IEnumerable<Guid> guids, IEnumerable<T> collection)
             where T : Entity
         {
             var notFoundEntityIds = guids.Except(collection.Select(entity => entity.Id));

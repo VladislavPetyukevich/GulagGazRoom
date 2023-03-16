@@ -6,7 +6,6 @@ using X.PagedList;
 
 namespace Interview.Backend.Users;
 
-[Authorize(policy: OAuthTwitchOptions.Policy)]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
@@ -18,22 +17,24 @@ public class UserController : ControllerBase
         _userRepository = userRepository;
     }
 
+    [Authorize]
     [HttpGet(nameof(GetPage))]
     public Task<IPagedList<User>> GetPage([FromQuery] PageRequest request)
     {
         return _userRepository.GetPageAsync(request.PageNumber, request.PageSize);
     }
 
+    [Authorize]
     [HttpGet(nameof(FindByNickname))]
     public Task<User?> FindByNickname(string nickname)
     {
         return _userRepository.FindByNicknameAsync(nickname);
     }
 
+    [Authorize]
     [HttpGet(nameof(GetMe))]
-    public Task<List<string>> GetMe()
+    public Task<User?> GetMe()
     {
-        var claims = HttpContext.User.Claims.Select(claim => claim.Value).ToList();
-        return Task.FromResult(claims);
+        return Task.FromResult(HttpContext.User.ToUser());
     }
 }
