@@ -169,8 +169,8 @@ export class TestScene extends BasicScene {
       true
     );
 
-    this.gasCenter = new Vector3(30.55, 1.0, 50.0);
-    const gasParticlesCount = 40;
+    this.gasCenter = new Vector3(30.55, -2.0, 50.0);
+    const gasParticlesCount = 160;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
     this.buzzSound = new Audio(this.audioListener);
@@ -340,14 +340,14 @@ export class TestScene extends BasicScene {
     const gasPosition = this.gasCenter.clone();
     gasPosition.add(new Vector3(
       randomNumbers.getRandomFloatInRange(-2, 1),
-      randomNumbers.getRandomFloatInRange(-0.5, 0.5),
+      randomNumbers.getRandomFloatInRange(-5, 0),
       randomNumbers.getRandomFloatInRange(-1, 0.5),
     ));
     const gas = new Gas({
       position: gasPosition,
       player: this.player,
+      maxY: 5,
     });
-    gas.disableImmediately();
     return this.entitiesContainer.add(gas);
   };
 

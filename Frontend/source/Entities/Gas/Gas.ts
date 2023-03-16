@@ -7,6 +7,7 @@ import { Player } from '../Player/Player';
 
 export interface GasProps {
   position: Vector3;
+  maxY: number;
   player: Player;
 }
 
@@ -17,7 +18,8 @@ export class Gas extends Entity<GasActor, GasBehavior> {
       player: props.player,
     });
     const behavior = new GasBehavior({
-      actor
+      actor,
+      maxY: props.maxY,
     });
     super(
       ENTITY_TYPE.GAS,

@@ -3,34 +3,36 @@ import { GasActor } from './GasActor';
 
 interface GasBehaviorProps {
   actor: GasActor;
+  maxY: number;
 }
 
 export class GasBehavior implements Behavior {
   actor: GasActor;
   originalY: number;
-  disabledY: number;
-  targetY: number;
+  maxY: number;
+  enabled: boolean;
   moveSpeed: number;
 
   constructor(props: GasBehaviorProps) {
     this.actor = props.actor;
+    this.maxY = props.maxY;
     this.originalY = this.actor.mesh.position.y;
-    this.disabledY = -1;
-    this.targetY = this.originalY;
+    this.enabled = false;
     this.moveSpeed = 0.2;
+    // this.moveSpeed = 0.5;
   }
 
   enable() {
-    this.targetY = this.originalY;
+    this.enabled = true;
   }
 
   disable() {
-    this.targetY = this.disabledY;
+    this.enabled = false;
   }
 
   disableImmediately() {
     this.disable();
-    this.actor.mesh.position.y = this.targetY;
+    this.actor.mesh.position.y = this.originalY;
   }
 
   clamp(value: number, min: number, max: number) {
@@ -39,14 +41,19 @@ export class GasBehavior implements Behavior {
 
   update(delta: number) {
     this.actor.mesh.rotateZ(delta * 0.12);
-    if (this.actor.mesh.position.y !== this.targetY) {
-      const direction = this.targetY - this.actor.mesh.position.y < 0 ? -1 : 1;
-      this.actor.mesh.position.y += direction * delta * this.moveSpeed;
+    if (
+      this.enabled ||
+      this.actor.mesh.position.y !== this.originalY
+    ) {
+      this.actor.mesh.position.y += delta * this.moveSpeed;
       this.actor.mesh.position.y = this.clamp(
         this.actor.mesh.position.y,
-        this.disabledY,
-        this.originalY
+        this.originalY,
+        this.maxY
       );
+      if (this.actor.mesh.position.y === this.maxY) {
+        this.actor.mesh.position.y = this.originalY;
+      }
     }
   }
 }
