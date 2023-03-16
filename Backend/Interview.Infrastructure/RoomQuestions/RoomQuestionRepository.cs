@@ -14,7 +14,7 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
 
     public Task<RoomQuestion?> FindFirstByQuestionIdAndRoomIdAsync(Guid questionId, Guid roomId, CancellationToken cancellationToken = default)
     {
-        return Set
+        return ApplyIncludes(Set)
             .FirstOrDefaultAsync(
                 roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.Question.Id == questionId, cancellationToken);
     }

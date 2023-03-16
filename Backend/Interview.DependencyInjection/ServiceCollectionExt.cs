@@ -63,7 +63,7 @@ public static class ServiceCollectionExt
 
         self.AddSingleton(twitchCatListener);
         */
-
+        
         return self;
     }
 }

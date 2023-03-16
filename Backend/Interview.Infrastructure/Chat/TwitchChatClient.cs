@@ -52,6 +52,7 @@ namespace Interview.Infrastructure.Chat
 
         private void ClientOnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
+            // TODO read message
             if (e.ChatMessage.Message.Contains("он"))
             {
                 _client.SendMessage(e.ChatMessage.Channel, $"@{e.ChatMessage.Username}, дай бог здаровъя тебе");

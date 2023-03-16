@@ -23,6 +23,11 @@ namespace Interview.Domain.RoomQuestions
                 return Result.Failure<RoomQuestionDetail?>($"Question in room not found by id {request.QuestionId}");
             }
 
+            if (roomQuestion.State == RoomQuestionState.Active)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Question already has active state");
+            }
+
             var roomQuestionActual = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active);
 
             if (roomQuestionActual != null)
