@@ -7,17 +7,20 @@ namespace Interview.Domain.Rooms;
 
 public class Room : Entity
 {
-    public Room(string name)
+    public Room(string name, string twitchChannel)
     {
         Name = name;
+        TwitchChannel = twitchChannel;
     }
 
     private Room()
-        : this(string.Empty)
+        : this(string.Empty, string.Empty)
     {
     }
 
     public string Name { get; internal set; }
+
+    public string TwitchChannel { get; internal set; }
 
     public List<RoomQuestion> Questions { get; set; } = new();
 
