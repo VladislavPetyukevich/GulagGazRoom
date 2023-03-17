@@ -97,10 +97,7 @@ namespace Interview.Domain.RoomQuestions
 
             return new RoomQuestionDetail
             {
-                Id = newRoomQuestion.Id,
-                QuestionId = question.Id,
-                RoomId = room.Id,
-                State = newRoomQuestion.State,
+                Id = newRoomQuestion.Id, QuestionId = question.Id, RoomId = room.Id, State = newRoomQuestion.State,
             };
         }
 
@@ -114,8 +111,7 @@ namespace Interview.Domain.RoomQuestions
             }
 
             var roomQuestion =
-                await _roomQuestionRepository.FindFirstByRoomAndStateAsync(roomId, RoomQuestionState.Active,
-                    cancellationToken);
+                await _roomQuestionRepository.FindFirstByRoomAndStateAsync(roomId, RoomQuestionState.Active, cancellationToken);
 
             if (roomQuestion == null)
             {
