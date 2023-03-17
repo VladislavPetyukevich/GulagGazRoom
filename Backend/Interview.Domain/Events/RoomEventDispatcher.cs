@@ -34,6 +34,25 @@ public class RoomEventDispatcher : IRoomEventDispatcher
         return channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
     }
 
+    public Task DropEventsAsync(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        if (!_queue.TryRemove(roomId, out var channel))
+        {
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            channel.Writer.TryComplete();
+        }
+        catch
+        {
+            // ignore
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static Channel<T> CreateBoundedChannel<T>(int capacity = 100) => Channel.CreateBounded<T>(
         new BoundedChannelOptions(capacity)
         {

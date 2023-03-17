@@ -1,5 +1,7 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
 
 namespace Interview.Domain.Events;
 
@@ -17,6 +19,7 @@ public interface IWebSocketEvent
         {
             WriteIndented = true,
             Converters = { new JsonStringEnumConverter() },
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         });
     }
 }

@@ -83,7 +83,7 @@ namespace Interview.Domain.Rooms.Service
             return room;
         }
 
-        public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request)
+        public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request, CancellationToken cancellationToken = default)
         {
             if (id == null)
             {
@@ -109,7 +109,7 @@ namespace Interview.Domain.Rooms.Service
                 return Result.Failure<RoomItem>("Room twitch channel should not be empty");
             }
 
-            var foundRoom = await _roomRepository.FindByIdAsync((Guid)id);
+            var foundRoom = await _roomRepository.FindByIdAsync((Guid)id, cancellationToken);
 
             if (foundRoom == null)
             {
@@ -119,26 +119,26 @@ namespace Interview.Domain.Rooms.Service
             foundRoom.Name = name;
             foundRoom.TwitchChannel = twitchChannel;
 
-            await _roomRepository.UpdateAsync(foundRoom);
+            await _roomRepository.UpdateAsync(foundRoom, cancellationToken);
 
             return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
         }
 
-        public async Task<Result<Room?>> PrepareRoomAsync(Guid roomIdentity, Guid userIdentity)
+        public async Task<Result<Room?>> PrepareRoomAsync(Guid roomIdentity, Guid userIdentity, CancellationToken cancellationToken = default)
         {
-            var currentRoom = await _roomRepository.FindByIdAsync(roomIdentity);
+            var currentRoom = await _roomRepository.FindByIdAsync(roomIdentity, cancellationToken);
             if (currentRoom == null)
             {
                 return Result.Failure<Room?>($"Room not found by id {roomIdentity}");
             }
 
-            var user = await _userRepository.FindByIdAsync(userIdentity);
+            var user = await _userRepository.FindByIdAsync(userIdentity, cancellationToken);
             if (user == null)
             {
                 return Result.Failure<Room?>($"User not found by id {userIdentity}");
             }
 
-            if (await _roomRepository.HasUserAsync(roomIdentity, user.Id))
+            if (await _roomRepository.HasUserAsync(roomIdentity, user.Id, cancellationToken))
             {
                 return currentRoom;
             }
@@ -147,7 +147,7 @@ namespace Interview.Domain.Rooms.Service
 
             currentRoom.Participants.Add(participant);
 
-            await _roomRepository.UpdateAsync(currentRoom);
+            await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
 
             return currentRoom;
         }

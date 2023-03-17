@@ -59,15 +59,30 @@ public class EventSenderJob : BackgroundService
         }
     }
 
+    private static bool ShouldCloseWebSocket(UserSubscriber entry)
+    {
+        return entry.WebSocket.State is WebSocketState.Aborted or WebSocketState.Closed or WebSocketState.CloseReceived or WebSocketState.CloseSent ||
+               entry.WebSocket.CloseStatus.HasValue;
+    }
+
     private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, IWebSocketEvent currentEvent)
     {
         foreach (var entry in users)
         {
             try
             {
-                if (entry.WebSocket.CloseStatus.HasValue)
+                if (ShouldCloseWebSocket(entry))
                 {
-                    await entry.WebSocket.CloseAsync(entry.WebSocket.CloseStatus.Value, entry.WebSocket.CloseStatusDescription, stoppingToken);
+                    try
+                    {
+                        var status = entry.WebSocket.CloseStatus ?? WebSocketCloseStatus.NormalClosure;
+                        await entry.WebSocket.CloseAsync(status, entry.WebSocket.CloseStatusDescription, stoppingToken);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+
                     users.Remove(entry, stoppingToken);
                     continue;
                 }

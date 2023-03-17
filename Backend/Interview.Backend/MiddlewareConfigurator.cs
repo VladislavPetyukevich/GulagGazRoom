@@ -1,5 +1,4 @@
 using Interview.Backend.WebSocket.Configuration;
-using Interview.DependencyInjection;
 
 namespace Interview.Backend;
 

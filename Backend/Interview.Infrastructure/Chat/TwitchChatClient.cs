@@ -1,3 +1,4 @@
+using Interview.Domain.Events;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
@@ -6,57 +7,51 @@ using TwitchLib.Communication.Models;
 
 namespace Interview.Infrastructure.Chat
 {
-    public class TwitchChatClient
+    public class TwitchChatClient : IDisposable
     {
+        private readonly Guid _roomId;
+        private readonly IRoomEventDispatcher _eventDispatcher;
         private readonly TwitchClient _client;
 
-        public TwitchChatClient(string username, string accessToken, string channelChat)
+        public TwitchChatClient(Guid roomId, IRoomEventDispatcher eventDispatcher)
         {
-            var credentials = new ConnectionCredentials(username, accessToken);
-
+            _roomId = roomId;
+            _eventDispatcher = eventDispatcher;
             var clientOptions = new ClientOptions
             {
                 MessagesAllowedInPeriod = 750,
                 ThrottlingPeriod = TimeSpan.FromSeconds(30),
             };
-
             var customClient = new WebSocketClient(clientOptions);
-
             _client = new TwitchClient(customClient);
-
-            _client.Initialize(credentials, channelChat);
-
-            _client.OnLog += ClientOnLog;
-            _client.OnJoinedChannel += ClientOnJoinedChannel;
             _client.OnMessageReceived += ClientOnMessageReceived;
-            _client.OnConnected += ClientOnConnected;
+        }
 
+        public void Connect(string username, string accessToken, string channelChat)
+        {
+            var credentials = new ConnectionCredentials(username, accessToken);
+            _client.Initialize(credentials, channelChat);
             _client.Connect();
         }
 
-        private void ClientOnLog(object sender, OnLogArgs e)
+        public void Dispose()
         {
-            Console.WriteLine($"{e.DateTime.ToString()}: {e.BotUsername} - {e.Data}");
-        }
-
-        private void ClientOnConnected(object sender, OnConnectedArgs e)
-        {
-            Console.WriteLine($"Connected to {e.AutoJoinChannel}");
-        }
-
-        private void ClientOnJoinedChannel(object sender, OnJoinedChannelArgs e)
-        {
-            Console.WriteLine("Hey guys! I am a bot connected via TwitchLib!");
-            _client.SendMessage(e.Channel, "Hey guys!");
-        }
-
-        private void ClientOnMessageReceived(object sender, OnMessageReceivedArgs e)
-        {
-            // TODO read message
-            if (e.ChatMessage.Message.Contains("он"))
+            _client.OnMessageReceived -= ClientOnMessageReceived;
+            try
             {
-                _client.SendMessage(e.ChatMessage.Channel, $"@{e.ChatMessage.Username}, дай бог здаровъя тебе");
+                _client.Disconnect();
             }
+            catch
+            {
+                // ignore
+            }
+
+            _eventDispatcher.DropEventsAsync(_roomId).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        private void ClientOnMessageReceived(object? sender, OnMessageReceivedArgs e)
+        {
+            _eventDispatcher.WriteAsync(new WebSocketEvent(_roomId, EventType.ChatMessage, e.ChatMessage.Message));
         }
     }
 }
