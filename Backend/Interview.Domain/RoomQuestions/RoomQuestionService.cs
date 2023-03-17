@@ -64,7 +64,9 @@ namespace Interview.Domain.RoomQuestions
             };
         }
 
-        public async Task<Result<RoomQuestionDetail?>> Create(RoomQuestionCreateRequest request)
+        public async Task<Result<RoomQuestionDetail?>> CreateAsync(
+            RoomQuestionCreateRequest request,
+            CancellationToken cancellationToken = default)
         {
             var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(
                 request.QuestionId, request.RoomId, default);
@@ -75,14 +77,14 @@ namespace Interview.Domain.RoomQuestions
                     $"The room {request.RoomId} with question {request.QuestionId} already exists");
             }
 
-            var room = await _roomRepository.FindByIdAsync(request.RoomId);
+            var room = await _roomRepository.FindByIdAsync(request.RoomId, cancellationToken);
 
             if (room == null)
             {
                 return Result.Failure<RoomQuestionDetail?>($"Room with id {request.RoomId} not found");
             }
 
-            var question = await _questionRepository.FindByIdAsync(request.QuestionId);
+            var question = await _questionRepository.FindByIdAsync(request.QuestionId, cancellationToken);
 
             if (question == null)
             {
@@ -91,7 +93,7 @@ namespace Interview.Domain.RoomQuestions
 
             var newRoomQuestion = new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open };
 
-            await _roomQuestionRepository.CreateAsync(newRoomQuestion);
+            await _roomQuestionRepository.CreateAsync(newRoomQuestion, cancellationToken);
 
             return new RoomQuestionDetail
             {
@@ -99,6 +101,32 @@ namespace Interview.Domain.RoomQuestions
                 QuestionId = question.Id,
                 RoomId = room.Id,
                 State = newRoomQuestion.State,
+            };
+        }
+
+        public async Task<Result<RoomQuestionDetail?>> GetActiveAsync(Guid roomId, CancellationToken cancellationToken)
+        {
+            var roomHasAnyQuestion = await _roomRepository.HasAnyQuestion(roomId, cancellationToken);
+
+            if (!roomHasAnyQuestion)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Room hasn't questions");
+            }
+
+            var roomQuestion =
+                await _roomQuestionRepository.FindFirstByRoomAndStateAsync(roomId, RoomQuestionState.Active, cancellationToken);
+
+            if (roomQuestion == null)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Room hasn't active question");
+            }
+
+            return new RoomQuestionDetail
+            {
+                Id = roomQuestion.Id,
+                QuestionId = roomQuestion.Question.Id,
+                RoomId = roomQuestion.Room.Id,
+                State = roomQuestion.State,
             };
         }
     }

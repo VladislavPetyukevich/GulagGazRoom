@@ -2,6 +2,7 @@ using Interview.Backend.Auth;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
+using Interview.Domain.RoomQuestions.Records.Response.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ namespace Interview.Backend.RoomQuestions
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(ChangeActiveQuestion))]
-        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
+        [ProducesResponseType(typeof(RoomQuestionDetail), 200)]
         [ProducesResponseType(typeof(string), 400)]
         public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
             RoomQuestionChangeActiveRequest request)
@@ -37,12 +38,28 @@ namespace Interview.Backend.RoomQuestions
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(Create))]
-        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
+        [ProducesResponseType(typeof(RoomQuestionDetail), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> Create(
+        public async Task<ActionResult<RoomQuestionCreateRequest?>> Create(
             RoomQuestionCreateRequest request)
         {
-            var result = await _roomQuestionService.Create(request);
+            var result = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
+
+        [Authorize(policy: GulagSecurePolicy.User)]
+        [HttpGet(nameof(GetActive))]
+        [ProducesResponseType(typeof(RoomQuestionDetail), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<ActionResult<RoomQuestionDetail?>> GetActive([FromQuery] Guid room)
+        {
+            var result = await _roomQuestionService.GetActiveAsync(room, HttpContext.RequestAborted);
 
             if (result.IsFailure)
             {

@@ -35,6 +35,13 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .FirstOrDefaultAsync(room => room.Id == roomId, cancellationToken: cancellationToken);
     }
 
+    public Task<bool> HasAnyQuestion(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        return Set
+            .Include(room => room.Questions)
+            .AnyAsync(predicate: room => room.Id == roomId && room.Questions.Count != 0, cancellationToken);
+    }
+
     protected override IQueryable<Room> ApplyIncludes(DbSet<Room> set)
         => Set.Include(e => e.Participants)
             .Include(e => e.Questions);
