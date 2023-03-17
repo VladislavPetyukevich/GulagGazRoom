@@ -14,6 +14,7 @@ import { useRoomsCreateApi } from './hooks/useRoomsCreateApi';
 import './RoomCreate.css';
 
 const nameFieldName = 'roomName';
+const twitchChannelFieldName = 'roomTwitchChannel';
 
 export const RoomCreate: FunctionComponent = () => {
   const { roomState, createRoom } = useRoomsCreateApi();
@@ -32,8 +33,16 @@ export const RoomCreate: FunctionComponent = () => {
     if (typeof roomName !== 'string') {
       throw new Error('qestionText field type error');
     }
+    const roomTwitchChannel = data.get(twitchChannelFieldName);
+    if (!roomTwitchChannel) {
+      return;
+    }
+    if (typeof roomTwitchChannel !== 'string') {
+      throw new Error('roomTwitchChannel field type error');
+    }
     createRoom({
       name: roomName,
+      twitchChannel: roomTwitchChannel,
       questions: selectedQuestions.map(question => question.id),
       users: selectedUsers.map(user => user.id),
     });
@@ -99,6 +108,10 @@ export const RoomCreate: FunctionComponent = () => {
         <Field>
           <label htmlFor="roomName">Name:</label>
           <input id="roomName" name={nameFieldName} type="text" required />
+        </Field>
+        <Field>
+          <label htmlFor="twitchChannel">Twitch channel name:</label>
+          <input id="twitchChannel" name={twitchChannelFieldName} type="text" required />
         </Field>
         <Field>
           <div>Questions:</div>
