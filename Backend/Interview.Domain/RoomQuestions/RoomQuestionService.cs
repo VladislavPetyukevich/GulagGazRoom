@@ -102,16 +102,16 @@ namespace Interview.Domain.RoomQuestions
             };
         }
 
-        public async Task<Result<RoomQuestionDetail?>> GetActive(Guid roomId)
+        public async Task<Result<RoomQuestionDetail?>> GetActiveAsync(Guid roomId, CancellationToken cancellationToken)
         {
-            var roomHasAnyQuestion = await _roomRepository.HasAnyQuestion(roomId);
+            var roomHasAnyQuestion = await _roomRepository.HasAnyQuestion(roomId, cancellationToken);
 
             if (!roomHasAnyQuestion)
             {
                 return Result.Failure<RoomQuestionDetail?>($"Room hasn't questions");
             }
 
-            var roomQuestion = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(roomId, RoomQuestionState.Active);
+            var roomQuestion = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(roomId, RoomQuestionState.Active, cancellationToken);
 
             if (roomQuestion == null)
             {

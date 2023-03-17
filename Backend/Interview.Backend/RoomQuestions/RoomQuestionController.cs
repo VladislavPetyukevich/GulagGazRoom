@@ -59,7 +59,7 @@ namespace Interview.Backend.RoomQuestions
         [ProducesResponseType(typeof(string), 400)]
         public async Task<ActionResult<RoomQuestionDetail?>> GetActive([FromQuery] Guid room)
         {
-            var result = await _roomQuestionService.GetActive(room);
+            var result = await _roomQuestionService.GetActiveAsync(room, HttpContext.RequestAborted);
 
             if (result.IsFailure)
             {

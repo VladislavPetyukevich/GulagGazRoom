@@ -12,5 +12,5 @@ public interface IRoomRepository : IRepository<Room>
 
     public Task<RoomDetail?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default);
 
-    public Task<bool> HasAnyQuestion(Guid roomId);
+    public Task<bool> HasAnyQuestion(Guid roomId, CancellationToken cancellationToken = default);
 }
