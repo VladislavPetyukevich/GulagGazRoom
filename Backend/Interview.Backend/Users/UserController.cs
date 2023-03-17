@@ -40,9 +40,12 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet(nameof(GetMe))]
+    [ProducesResponseType(typeof(UserClaim), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<ActionResult<UserClaim?>> GetMe()
     {
-        var userClaimResult = await _userClaimService.ParseClaims(HttpContext.User.Claims);
+        var userClaimResult =
+            await _userClaimService.ParseClaimsAsync(HttpContext.User.Claims, HttpContext.RequestAborted);
 
         if (userClaimResult.IsFailure)
         {

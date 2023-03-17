@@ -6,9 +6,15 @@ namespace Interview.Backend.Auth
 {
     public class UserClaimService
     {
-        private const string UserId = "USER_ID";
-
-        public Task<Result<UserClaim?>> ParseClaims(IEnumerable<Claim> claims)
+        /// <summary>
+        /// Parse claims to user object of type <see cref="UserClaim"/>.
+        /// </summary>
+        /// <param name="claims">List with claim is a statement about an entity by an Issuer.</param>
+        /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+        /// <returns><see cref="Task{TResult}"/> with the result of user data or an error message.</returns>
+        public Task<Result<UserClaim?>> ParseClaimsAsync(
+            IEnumerable<Claim> claims,
+            CancellationToken cancellationToken = default)
         {
             var claimList = claims.ToList();
 
@@ -23,7 +29,7 @@ namespace Interview.Backend.Auth
                 return Task.FromResult(Result.Failure<UserClaim?>($"Not found users fields"));
             }
 
-            var id = claimList.FirstOrDefault(e => e.Type == UserId);
+            var id = claimList.FirstOrDefault(e => e.Type == UserClaimConstants.UserId);
 
             if (id == null)
             {
@@ -44,7 +50,8 @@ namespace Interview.Backend.Auth
                     .Select(claim => claim.Value)
                     .ToList(),
                 TwitchIdentity = externalId.Value,
-            });
+            })
+                .WaitAsync(cancellationToken);
         }
     }
 }
