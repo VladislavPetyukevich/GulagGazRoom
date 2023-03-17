@@ -28,9 +28,8 @@ namespace Interview.Domain.RoomQuestions
         public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestionAsync(
             RoomQuestionChangeActiveRequest request)
         {
-            var roomQuestion =
-                await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(request.QuestionId, request.RoomId,
-                    default);
+            var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(
+                request.QuestionId, request.RoomId, default);
 
             if (roomQuestion == null)
             {
@@ -58,7 +57,10 @@ namespace Interview.Domain.RoomQuestions
 
             return new RoomQuestionDetail
             {
-                RoomId = roomQuestion.Room.Id, QuestionId = roomQuestion.Question.Id, State = roomQuestion.State,
+                Id = roomQuestion.Id,
+                RoomId = roomQuestion.Room.Id,
+                QuestionId = roomQuestion.Question.Id,
+                State = roomQuestion.State,
             };
         }
 
@@ -93,7 +95,10 @@ namespace Interview.Domain.RoomQuestions
 
             return new RoomQuestionDetail
             {
-                Id = newRoomQuestion.Id, QuestionId = question.Id, RoomId = room.Id, State = newRoomQuestion.State,
+                Id = newRoomQuestion.Id,
+                QuestionId = question.Id,
+                RoomId = room.Id,
+                State = newRoomQuestion.State,
             };
         }
     }
