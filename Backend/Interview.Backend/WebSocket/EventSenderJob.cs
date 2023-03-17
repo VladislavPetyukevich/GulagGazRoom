@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.Domain.Events;
+using Interview.Domain.Events.Events;
 
 namespace Interview.Backend.WebSocket;
 

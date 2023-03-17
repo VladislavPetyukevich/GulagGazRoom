@@ -1,6 +1,6 @@
 using CSharpFunctionalExtensions;
+using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
-using Interview.Domain.RoomQuestions.Records.Response.Response;
 
 namespace Interview.Domain.RoomQuestions
 {

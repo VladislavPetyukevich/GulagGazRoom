@@ -1,3 +1,4 @@
+using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
@@ -17,9 +18,12 @@ public class AppDbContext : DbContext
 {
     public ISystemClock SystemClock { get; set; } = new SystemClock();
 
-    public AppDbContext(DbContextOptions options)
+    public IChangeEntityProcessor[] ChangeEntityProcessors { get; set; }
+
+    public AppDbContext(DbContextOptions options, IEnumerable<IChangeEntityProcessor>? processors)
         : base(options)
     {
+        ChangeEntityProcessors = processors?.ToArray() ?? Array.Empty<IChangeEntityProcessor>();
     }
 
     public DbSet<User> Users { get; private set; } = null!;
@@ -40,46 +44,93 @@ public class AppDbContext : DbContext
 
     public override int SaveChanges()
     {
-        BeforeSaveChanges();
-        return base.SaveChanges();
+        using (new SaveCookie(this, CancellationToken.None))
+        {
+            return base.SaveChanges();
+        }
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        BeforeSaveChanges();
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        BeforeSaveChanges();
-        return base.SaveChangesAsync(cancellationToken);
+        await using (new SaveCookie(this, cancellationToken))
+        {
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly, type => type != typeof(RoleTypeConfiguration));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly, type => type != typeof(RoleTypeConfiguration) && type != typeof(ReactionConfiguration));
         modelBuilder.ApplyConfiguration(new RoleTypeConfiguration(SystemClock));
+        modelBuilder.ApplyConfiguration(new ReactionConfiguration(SystemClock));
     }
 
-    private void BeforeSaveChanges()
+    private readonly struct SaveCookie : IDisposable, IAsyncDisposable
     {
-        ModifyFieldByState(entity => entity.UpdateCreateDate(SystemClock.UtcNow.DateTime), EntityState.Added);
-        ModifyFieldByState(entity => entity.UpdateUpdateDate(SystemClock.UtcNow.DateTime), EntityState.Modified);
-    }
+        private readonly AppDbContext _db;
+        private readonly CancellationToken _cancellationToken;
+        private readonly List<Entity>? _addedEntities;
+        private readonly List<Entity>? _modifiedEntities;
 
-    private void ModifyFieldByState(Action<Entity> action, EntityState entityState)
-    {
-        foreach (var entityEntry in ChangeTracker.Entries())
+        public SaveCookie(AppDbContext db, CancellationToken cancellationToken)
         {
-            if (entityEntry.State != entityState)
+            _db = db;
+            _cancellationToken = cancellationToken;
+            foreach (var entity in FilterByState(EntityState.Added))
             {
-                continue;
+                entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
             }
 
-            if (entityEntry.Entity is Entity entity)
+            foreach (var entity in FilterByState(EntityState.Modified))
             {
-                action(entity);
+                entity.UpdateUpdateDate(db.SystemClock.UtcNow.DateTime);
+            }
+
+            if (db.ChangeEntityProcessors.Length > 0)
+            {
+                _addedEntities = FilterByState(EntityState.Added).ToList();
+                _modifiedEntities = FilterByState(EntityState.Modified).ToList();
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
+            {
+                return;
+            }
+
+            foreach (var processor in _db.ChangeEntityProcessors)
+            {
+                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
+            {
+                return;
+            }
+
+            foreach (var processor in _db.ChangeEntityProcessors)
+            {
+                await processor.ProcessAddedAsync(_addedEntities, _cancellationToken);
+                await processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);
+            }
+        }
+
+        private IEnumerable<Entity> FilterByState(EntityState entityState)
+        {
+            foreach (var entityEntry in _db.ChangeTracker.Entries<Entity>())
+            {
+                if (entityEntry.State != entityState)
+                {
+                    continue;
+                }
+
+                yield return entityEntry.Entity;
             }
         }
     }

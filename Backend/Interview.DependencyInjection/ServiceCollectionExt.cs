@@ -1,5 +1,6 @@
 using Interview.Domain.Certificates;
 using Interview.Domain.Events;
+using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
@@ -19,6 +20,7 @@ using Interview.Infrastructure.RoomQuestionReactions;
 using Interview.Infrastructure.RoomQuestions;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 
@@ -28,6 +30,10 @@ public static class ServiceCollectionExt
 {
     public static IServiceCollection AddAppServices(this IServiceCollection self, DependencyInjectionAppServiceOption option)
     {
+        self.AddSingleton<Func<AppDbContext>>(provider => () => ActivatorUtilities.CreateInstance<AppDbContext>(provider));
+#pragma warning disable EF1001
+        self.AddSingleton<IDbContextPool<AppDbContext>, AppDbContextPool<AppDbContext>>();
+#pragma warning restore EF1001
         self.AddDbContextPool<AppDbContext>(option.DbConfigurator);
 
         self.AddScoped<IUserRepository, UserRepository>();
@@ -43,6 +49,8 @@ public static class ServiceCollectionExt
         self.AddSingleton<IRoomEventDispatcher, RoomEventDispatcher>();
         self.AddSingleton<ISystemClock, SystemClock>();
         self.AddSingleton(option.AdminUsers);
+
+        self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
 
         // Services
         self.AddScoped<UserService>();

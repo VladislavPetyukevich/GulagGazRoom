@@ -1,11 +1,14 @@
+using System.Text.Json.Serialization;
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
+using Interview.Backend.RoomReactions;
 using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Infrastructure.Chat;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Interview.Backend;
 
@@ -41,6 +44,7 @@ public class ServiceConfigurator
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoleName, int>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

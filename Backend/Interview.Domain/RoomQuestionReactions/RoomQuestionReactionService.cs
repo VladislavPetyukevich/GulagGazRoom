@@ -26,6 +26,41 @@ namespace Interview.Domain.RoomQuestionReactions
             _userRepository = userRepository;
         }
 
+        public async Task<Result> SendReactionAsync(
+            RoomQuestionSendReactionRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            var roomQuestion = await _questionRepository.FindFirstByQuestionIdAndRoomIdAsync(request.QuestionId, request.RoomId, default);
+
+            if (roomQuestion == null)
+            {
+                return Result.Failure($"Question in room not found by id {request.QuestionId}");
+            }
+
+            var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
+            if (user == null)
+            {
+                throw new InvalidOperationException($"Not found User by id {request.UserId}");
+            }
+
+            var reactionType = ReactionType.List.Single(e => e.EventType == request.Type);
+            var reaction = await _reactionRepository.FindByReactionTypeAsync(reactionType, cancellationToken);
+
+            if (reaction == null)
+            {
+                return Result.Failure($"Reaction not found by event type {request.Type}");
+            }
+
+            await _roomQuestionReactionRepository.CreateAsync(
+                new RoomQuestionReaction
+                {
+                    Reaction = reaction,
+                    Sender = user,
+                    RoomQuestion = roomQuestion,
+                }, cancellationToken);
+            return Result.Success();
+        }
+
         public async Task<Result<RoomQuestionReactionDetail?>> CreateInRoomAsync(
             RoomQuestionReactionCreateRequest request,
             Guid userId)

@@ -3,15 +3,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
-namespace Interview.Domain.Events;
+namespace Interview.Domain.Events.Events;
 
 public interface IWebSocketEvent
 {
     Guid RoomId { get; }
 
     EventType Type { get; }
-
-    string Value { get; }
 
     string Stringify()
     {
@@ -22,4 +20,9 @@ public interface IWebSocketEvent
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         });
     }
+}
+
+public interface IWebSocketEvent<T> : IWebSocketEvent
+{
+    T Value { get; }
 }

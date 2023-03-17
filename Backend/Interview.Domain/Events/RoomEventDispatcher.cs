@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using Interview.Domain.Events.Events;
 
 namespace Interview.Domain.Events;
 

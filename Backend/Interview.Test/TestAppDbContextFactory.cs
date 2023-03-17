@@ -1,3 +1,4 @@
+using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ namespace Interview.Test
                 sqliteConnection
             );
 
-            var context = new AppDbContext(option.Options)
+            var context = new AppDbContext(option.Options, Array.Empty<IChangeEntityProcessor>())
             {
                 SystemClock = clock
             };
