@@ -79,6 +79,7 @@ public class ServiceConfigurator
 
         serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
         serviceCollection.AddSingleton(oAuthServiceDispatcher);
+        serviceCollection.AddSingleton<UserClaimService>();
 
         serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
     }

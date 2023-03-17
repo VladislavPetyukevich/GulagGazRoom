@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using Interview.Domain.Users.Roles;
 
 namespace Interview.Domain.Users;
@@ -13,6 +14,18 @@ public sealed class UserService
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _adminUsers = adminUsers;
+    }
+
+    public async Task<Result<User?>> GetByIdentityAsync(Guid userIdentity, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.FindByIdAsync(userIdentity, cancellationToken);
+
+        if (user == null)
+        {
+            return Result.Failure<User?>($"User not found by identity {userIdentity}");
+        }
+
+        return user;
     }
 
     public async Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)
