@@ -15,13 +15,13 @@ namespace Interview.Domain.Reactions
             _reactionRepository = reactionRepository;
         }
 
-        public async Task<IPagedList<ReactionDetail>> GetPageAsync(int pageNumber, int pageSize)
+        public async Task<IPagedList<ReactionDetail>> GetPageAsync(
+            int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _reactionRepository.GetPageDetailedAsync(
-                new Mapper<Reaction, ReactionDetail>(
-                    reaction => new ReactionDetail { Id = reaction.Id, Type = reaction.Type, }),
-                pageNumber,
-                pageSize);
+            var mapper = new Mapper<Reaction, ReactionDetail>(
+                reaction => new ReactionDetail { Id = reaction.Id, Type = reaction.Type, });
+
+            return await _reactionRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
         }
     }
 }
