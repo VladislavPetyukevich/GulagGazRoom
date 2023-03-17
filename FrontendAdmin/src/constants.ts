@@ -5,4 +5,5 @@ export const pathnames = {
   room: '/rooms/:id',
   questions: '/questions',
   questionsCreate: '/questions/create',
+  session: '/session',
 };

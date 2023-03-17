@@ -18,12 +18,18 @@
 
 .nav-menu .active {
   background-color: var(--shadow);
+  z-index: 1;
 }
 
 .nav-menu .field-wrap:first-child {
-  margin-right: 15px;
+  margin-left: -40px;
+}
+
+.nav-menu .field-wrap {
+  margin-right: 0px;
+  margin-left: 0px;
 }
 
 .nav-menu .field-wrap:last-child {
-  margin-left: 15px;
+  margin-right: -40px;
 }

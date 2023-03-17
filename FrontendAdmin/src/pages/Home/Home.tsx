@@ -7,6 +7,7 @@ export const Home: FunctionComponent = () => {
     <MainContentWrapper>
       <Field>
         <div>Home</div>
+        <a href="http://localhost:5043/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
       </Field>
     </MainContentWrapper>
   );
