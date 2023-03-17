@@ -101,5 +101,30 @@ namespace Interview.Domain.RoomQuestions
                 State = newRoomQuestion.State,
             };
         }
+
+        public async Task<Result<RoomQuestionDetail?>> GetActive(Guid roomId)
+        {
+            var roomHasAnyQuestion = await _roomRepository.HasAnyQuestion(roomId);
+
+            if (!roomHasAnyQuestion)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Room hasn't questions");
+            }
+
+            var roomQuestion = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(roomId, RoomQuestionState.Active);
+
+            if (roomQuestion == null)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Room hasn't active question");
+            }
+
+            return new RoomQuestionDetail
+            {
+                Id = roomQuestion.Id,
+                QuestionId = roomQuestion.Question.Id,
+                RoomId = roomQuestion.Room.Id,
+                State = roomQuestion.State,
+            };
+        }
     }
 }
