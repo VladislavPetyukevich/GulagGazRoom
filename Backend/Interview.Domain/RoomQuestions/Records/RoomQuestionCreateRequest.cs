@@ -1,6 +1,6 @@
 namespace Interview.Domain.RoomQuestions.Records
 {
-    public class RoomQuestionChangeActiveRequest
+    public class RoomQuestionCreateRequest
     {
         public Guid RoomId { get; set; }
 
