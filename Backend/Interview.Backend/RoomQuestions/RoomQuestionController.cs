@@ -21,12 +21,12 @@ namespace Interview.Backend.RoomQuestions
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(ChangeActiveQuestion))]
-        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
+        [ProducesResponseType(typeof(RoomQuestionDetail), 200)]
         [ProducesResponseType(typeof(string), 400)]
         public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
             RoomQuestionChangeActiveRequest request)
         {
-            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request);
+            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted);
 
             if (result.IsFailure)
             {
@@ -38,12 +38,12 @@ namespace Interview.Backend.RoomQuestions
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(Create))]
-        [ProducesResponseType(typeof(RoomQuestionCreateRequest), 200)]
+        [ProducesResponseType(typeof(RoomQuestionDetail), 200)]
         [ProducesResponseType(typeof(string), 400)]
         public async Task<ActionResult<RoomQuestionCreateRequest?>> Create(
             RoomQuestionCreateRequest request)
         {
-            var result = await _roomQuestionService.Create(request);
+            var result = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
 
             if (result.IsFailure)
             {
