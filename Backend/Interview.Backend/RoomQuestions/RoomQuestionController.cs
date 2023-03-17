@@ -1,5 +1,6 @@
 using Interview.Backend.Auth;
 using Interview.Domain.RoomQuestions;
+using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,24 @@ namespace Interview.Backend.RoomQuestions
         public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
             RoomQuestionChangeActiveRequest request)
         {
-            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request);
+            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
+
+        [Authorize(policy: GulagSecurePolicy.Manager)]
+        [HttpPost(nameof(Create))]
+        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> Create(
+            RoomQuestionCreateRequest request)
+        {
+            var result = await _roomQuestionService.Create(request);
 
             if (result.IsFailure)
             {
