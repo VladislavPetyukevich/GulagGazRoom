@@ -26,10 +26,10 @@ namespace Interview.Domain.RoomQuestions
         }
 
         public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestionAsync(
-            RoomQuestionChangeActiveRequest request)
+            RoomQuestionChangeActiveRequest request, CancellationToken cancellationToken = default)
         {
             var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(
-                request.QuestionId, request.RoomId, default);
+                request.QuestionId, request.RoomId, cancellationToken);
 
             if (roomQuestion == null)
             {
@@ -42,18 +42,18 @@ namespace Interview.Domain.RoomQuestions
             }
 
             var roomQuestionActual =
-                await _roomQuestionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active);
+                await _roomQuestionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active, cancellationToken);
 
             if (roomQuestionActual != null)
             {
                 roomQuestionActual.State = RoomQuestionState.Closed;
 
-                await _roomQuestionRepository.UpdateAsync(roomQuestionActual);
+                await _roomQuestionRepository.UpdateAsync(roomQuestionActual, cancellationToken);
             }
 
             roomQuestion.State = RoomQuestionState.Active;
 
-            await _roomQuestionRepository.UpdateAsync(roomQuestion);
+            await _roomQuestionRepository.UpdateAsync(roomQuestion, cancellationToken);
 
             return new RoomQuestionDetail
             {
