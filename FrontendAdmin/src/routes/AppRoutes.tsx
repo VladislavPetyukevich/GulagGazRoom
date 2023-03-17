@@ -9,16 +9,63 @@ import { NotFound } from '../pages/NotFound/NotFound';
 import { RoomCreate } from '../pages/RoomCreate/RoomCreate';
 import { Room } from '../pages/Room/Room';
 import { Session } from '../pages/Session/Session';
+import { ProtectedRoute } from './ProtectedRoute';
+import { User } from '../types/user';
 
-export const AppRoutes: FunctionComponent = () => (
-  <Routes>
-    <Route path={pathnames.home} element={<Home />} />
-    <Route path={pathnames.roomsCreate} element={<RoomCreate />} />
-    <Route path={pathnames.room} element={<Room />} />
-    <Route path={pathnames.rooms} element={<Rooms />} />
-    <Route path={pathnames.questionsCreate} element={<QuestionCreate />} />
-    <Route path={pathnames.questions} element={<Questions />} />
-    <Route path={pathnames.session} element={<Session />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
+interface AppRoutesProps {
+  user: User | null;
+}
+
+export const AppRoutes: FunctionComponent<AppRoutesProps> = ({
+  user,
+}) => {
+  const authenticated = !!user;
+  return (
+    <Routes>
+      <Route path={pathnames.home} element={<Home />} />
+      <Route path={pathnames.roomsCreate}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <RoomCreate />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.room}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <Room />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.rooms}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <Rooms />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.questionsCreate}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <QuestionCreate />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.questions}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <Questions />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.session}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <Session />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};

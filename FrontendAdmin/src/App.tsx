@@ -16,6 +16,7 @@ export const App: FunctionComponent = () => {
   const communist = getCommunist();
   const { getMeState, loadMe } = useGetMeApi();
   const { process: { loading, error }, user } = getMeState;
+  const userWillLoad = communist && !user;
 
   useEffect(() => {
     if (communist) {
@@ -29,7 +30,7 @@ export const App: FunctionComponent = () => {
   }, [deleteCommunist]);
 
   const renderMainContent = useCallback(() => {
-    if (loading) {
+    if (loading || userWillLoad) {
       return (
         <MainContentWrapper>
           <Field>
@@ -50,9 +51,9 @@ export const App: FunctionComponent = () => {
       );
     }
     return (
-      <AppRoutes />
+      <AppRoutes user={user} />
     );
-  }, [loading, error, handlePageReset]);
+  }, [loading, userWillLoad, error, user, handlePageReset]);
 
   return (
     <BrowserRouter>
