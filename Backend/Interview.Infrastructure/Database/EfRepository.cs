@@ -76,6 +76,9 @@ public abstract class EfRepository<T> : IRepository<T>
         return Db.SaveChangesAsync(cancellationToken);
     }
 
+    public Task<bool> IsExistsWithIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        Set.AnyAsync(entity => entity.Id == id, cancellationToken);
+
     public Task<IPagedList<T>> GetPageAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         return Set

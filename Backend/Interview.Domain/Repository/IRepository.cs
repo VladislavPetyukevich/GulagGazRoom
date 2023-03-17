@@ -28,6 +28,8 @@ public interface IRepository<T>
 
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
+    Task<bool> IsExistsWithIdAsync(Guid id, CancellationToken cancellationToken = default);
+
     Task<IPagedList<T>> GetPageAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
     Task<IPagedList<T>> GetPageDetailedAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
