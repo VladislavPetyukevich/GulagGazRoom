@@ -1,5 +1,5 @@
 using Interview.Domain.Users;
-using Interview.Infrastructure.Chat.TokenProviders;
+using Interview.Infrastructure.Chat;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.DependencyInjection;
