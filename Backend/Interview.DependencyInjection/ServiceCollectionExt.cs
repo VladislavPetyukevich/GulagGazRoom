@@ -11,8 +11,6 @@ using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Certificates.Pdf;
-using Interview.Infrastructure.Chat;
-using Interview.Infrastructure.Chat.TokenProviders;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.Reactions;
@@ -55,14 +53,6 @@ public static class ServiceCollectionExt
         self.AddScoped<RoomQuestionReactionService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);
-        self.AddSingleton<ITwitchTokenProvider, TwitchTokenProvider>();
-        self.Decorate<ITwitchTokenProvider, ReloadableCacheTwitchTokenProvider>();
-
-        /*
-        var twitchCatListener = new TwitchChatClient();
-
-        self.AddSingleton(twitchCatListener);
-        */
 
         return self;
     }

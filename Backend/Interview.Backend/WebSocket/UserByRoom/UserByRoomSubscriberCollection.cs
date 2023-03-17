@@ -7,18 +7,30 @@ namespace Interview.Backend.WebSocket.UserByRoom
     {
         private readonly ConcurrentDictionary<System.Net.WebSockets.WebSocket, TaskCompletionSource<object>> _users = new();
 
-        public Task AddAsync(System.Net.WebSockets.WebSocket webSocket)
+        public async Task AddAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken cancellationToken = default)
         {
             var cst = new TaskCompletionSource<object>();
             _users.TryAdd(webSocket, cst);
-            return cst.Task;
+            await using (cancellationToken.Register(() => cst.TrySetCanceled()))
+            {
+                await cst.Task;
+            }
         }
 
         public void Remove(UserSubscriber subscriber, CancellationToken stoppingToken)
         {
-            if (_users.TryRemove(subscriber.WebSocket, out var tcs))
+            if (!_users.TryRemove(subscriber.WebSocket, out var tcs))
+            {
+                return;
+            }
+
+            try
             {
                 tcs.SetCanceled(stoppingToken);
+            }
+            catch
+            {
+                // ignore
             }
         }
 

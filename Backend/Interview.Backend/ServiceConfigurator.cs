@@ -1,6 +1,7 @@
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket;
+using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Infrastructure.Chat;
@@ -72,9 +73,13 @@ public class ServiceConfigurator
 
         serviceCollection.AddAppAuth(twitchService);
 
-        serviceCollection.AddHostedService<JobWriter>();
         serviceCollection.AddHostedService<EventSenderJob>();
+        serviceCollection.AddHostedService<WebSocketConnectListenJob>();
+        serviceCollection.AddSingleton<WebSocketConnectListenerSource>();
+
         serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
         serviceCollection.AddSingleton(oAuthServiceDispatcher);
+
+        serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
     }
 }
