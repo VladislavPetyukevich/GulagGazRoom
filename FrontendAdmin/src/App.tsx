@@ -12,7 +12,7 @@ import { useCommunist } from './hooks/useCommunist';
 import './App.css';
 
 export const App: FunctionComponent = () => {
-  const { getCommunist, deleteCommunist } = useCommunist();
+  const { getCommunist, resetCommunist } = useCommunist();
   const communist = getCommunist();
   const { getMeState, loadMe } = useGetMeApi();
   const { process: { loading, error }, user } = getMeState;
@@ -25,9 +25,8 @@ export const App: FunctionComponent = () => {
   }, [communist, loadMe]);
 
   const handlePageReset = useCallback(() => {
-    deleteCommunist();
-    window.location.reload();
-  }, [deleteCommunist]);
+    resetCommunist();
+  }, [resetCommunist]);
 
   const renderMainContent = useCallback(() => {
     if (loading || userWillLoad) {

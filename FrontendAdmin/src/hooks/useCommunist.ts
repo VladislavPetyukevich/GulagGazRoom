@@ -23,8 +23,14 @@ export const useCommunist = () => {
     document.cookie = `${cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
   }, []);
 
+  const resetCommunist = useCallback(() => {
+    deleteCommunist();
+    window.location.reload();
+  }, [deleteCommunist]);
+
   return {
     getCommunist,
     deleteCommunist,
+    resetCommunist,
   }
 };

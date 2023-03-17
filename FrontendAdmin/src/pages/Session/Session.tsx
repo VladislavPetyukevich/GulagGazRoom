@@ -6,12 +6,11 @@ import { useCommunist } from '../../hooks/useCommunist';
 
 export const Session: FunctionComponent = () => {
   const auth = useContext(AuthContext);
-  const { deleteCommunist } = useCommunist();
+  const { resetCommunist } = useCommunist();
 
   const handleLogOut = useCallback(() => {
-    deleteCommunist();
-    window.location.reload();
-  }, [deleteCommunist]);
+    resetCommunist();
+  }, [resetCommunist]);
 
   const renderAuth = useCallback(() => {
     if (!auth) {
