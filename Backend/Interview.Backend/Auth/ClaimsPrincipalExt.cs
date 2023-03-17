@@ -4,8 +4,6 @@ namespace Interview.Backend.Auth;
 
 public static class ClaimsPrincipalExt
 {
-    private const string UserId = "USER_ID";
-
     public static void EnrichRolesWithId(this ClaimsPrincipal self, User user)
     {
         var newRoles = user.Roles.Select(e => new Claim(ClaimTypes.Role, e.Name.Name));
