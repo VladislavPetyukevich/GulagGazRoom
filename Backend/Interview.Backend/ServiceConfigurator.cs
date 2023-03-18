@@ -67,9 +67,19 @@ public class ServiceConfigurator
             adminUsers,
             optionsBuilder =>
             {
+                var connectionString = _configuration.GetConnectionString("database");
                 if (_environment.IsDevelopment())
                 {
-                    optionsBuilder.UseSqlite(_configuration.GetConnectionString("sqlite"));
+                    optionsBuilder.UseSqlite(connectionString);
+                }
+                else if (_environment.IsPreProduction())
+                {
+                    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+                    optionsBuilder.UseNpgsql(connectionString);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unknown environment");
                 }
             });
 
