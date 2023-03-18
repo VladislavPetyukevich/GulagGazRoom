@@ -18,8 +18,7 @@ export class GasBehavior implements Behavior {
     this.maxY = props.maxY;
     this.originalY = this.actor.mesh.position.y;
     this.enabled = false;
-    this.moveSpeed = 0.2;
-    // this.moveSpeed = 0.5;
+    this.moveSpeed = 0.5;
   }
 
   enable() {
