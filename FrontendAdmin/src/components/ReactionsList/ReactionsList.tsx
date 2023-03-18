@@ -1,6 +1,11 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { Reaction } from '../../types/reaction';
 
+const reactionNameReplaces: Record<string, string> = {
+  Like: '👍',
+  Dislike: '👎',
+}
+
 interface ReactionsListProps {
   reactions: Reaction[];
   onClick: (reaction: Reaction) => void;
@@ -21,7 +26,7 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
           key={reaction.id}
           onClick={handleReactionClick(reaction)}
         >
-          {reaction.type.name}
+          {reactionNameReplaces[reaction.type.name] || reaction.type.name}
         </button>
       ))}
     </div>
