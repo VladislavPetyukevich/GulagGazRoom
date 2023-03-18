@@ -21,14 +21,24 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
 
   return (
     <div>
-      {reactions.map(reaction => (
-        <button
-          key={reaction.id}
-          onClick={handleReactionClick(reaction)}
-        >
-          {reactionNameReplaces[reaction.type.name] || reaction.type.name}
-        </button>
-      ))}
+      {reactions
+        .sort((reaction1, reaction2) => {
+          if (reaction1.type.name > reaction2.type.name) {
+            return -1;
+          }
+          if (reaction1.type.name < reaction2.type.name) {
+            return 1;
+          }
+          return 0;
+        })
+        .map(reaction => (
+          <button
+            key={reaction.id}
+            onClick={handleReactionClick(reaction)}
+          >
+            {reactionNameReplaces[reaction.type.name] || reaction.type.name}
+          </button>
+        ))}
     </div>
   );
 };
