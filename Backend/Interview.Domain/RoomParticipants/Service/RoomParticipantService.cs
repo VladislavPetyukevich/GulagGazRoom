@@ -27,6 +27,11 @@ public class RoomParticipantService
         RoomParticipantChangeStatusRequest request,
         CancellationToken cancellationToken = default)
     {
+        if (!RoomParticipantType.TryFromName(request.UserType, out var participantType))
+        {
+            return Result.Failure<RoomParticipantDetail?>($"Type user not valid");
+        }
+
         var participant = await _roomParticipantRepository.FindByRoomIdAndUserId(request.RoomId, request.UserId, cancellationToken);
 
         if (participant == null)
@@ -34,7 +39,7 @@ public class RoomParticipantService
             return Result.Failure<RoomParticipantDetail?>($"The user not found in the room");
         }
 
-        participant.Type = request.UserType;
+        participant.Type = participantType;
 
         await _roomParticipantRepository.UpdateAsync(participant, cancellationToken);
 
