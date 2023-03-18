@@ -8,6 +8,6 @@ namespace Interview.Domain.RoomParticipants.Records
 
         public Guid UserId { get; set; }
 
-        public RoomParticipantType UserType { get; set; }
+        public string UserType { get; set; }
     }
 }
