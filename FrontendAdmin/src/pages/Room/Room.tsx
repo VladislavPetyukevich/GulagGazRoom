@@ -126,7 +126,7 @@ export const Room: FunctionComponent = () => {
           <iframe
             title="interviewee-client-frame"
             className="interviewee-frame"
-            src={`http://localhost:8080/?roomId=${room?.id}&noPointerLock=1`}
+            src={`http://localhost:8080/?roomId=${room?.id}&noPointerLock=1&fov=115`}
           >
           </iframe>
         </Field>

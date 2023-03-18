@@ -76,6 +76,7 @@
       throw new Error('roomId not found in url params');
     }
     const noPointerLock = !!urlParams.get('noPointerLock');
+    const paramsFov = parseInt(urlParams.get('fov'));
 
     function checkAuthorization() {
       return new Promise((resolve, reject) => {
@@ -242,7 +243,11 @@
         audioVolume.value = settings.audioVolume;
         updateAudioVolume(settings.audioVolume);
         fov.value = settings.fov;
-        updateFov(settings.fov);
+        if (isNaN(paramsFov)) {
+          updateFov(settings.fov);
+        } else {
+          threeShooter.updateFov(paramsFov);
+        }
       } catch {
         console.error('Falied to load game settings');
       }
