@@ -57,9 +57,7 @@ public static class ServiceCollectionExt
             });
             options.AddPolicy(GulagSecurePolicy.User, policyBuilder =>
             {
-                policyBuilder
-                    .RequireRole(RoleNameConstants.User)
-                    .RequireAuthenticatedUser();
+                policyBuilder.RequireAuthenticatedUser();
             });
         });
     }
