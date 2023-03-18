@@ -14,6 +14,12 @@ public class MiddlewareConfigurator
 
     public void AddMiddlewares()
     {
+        var logger = _app.Services.GetRequiredService<ILogger<MiddlewareConfigurator>>();
+        _app.Use((context, func) =>
+        {
+            logger.LogInformation("New request {Path}", context.Request.Path);
+            return func();
+        });
         _app.UseHttpsRedirection();
 
         _app.UseCookiePolicy(new CookiePolicyOptions
