@@ -138,7 +138,7 @@ export class TestScene extends BasicScene {
         model: object,
         position: new Vector3(24, 0.8, 45),
         rotationY: 0.436332,
-        screenSpinSpeed: -8.0,
+        screenSpinSpeed: -2.0,
         screenSpinAxis: 'y',
       })) as TV;
       this.scene.add(object);
