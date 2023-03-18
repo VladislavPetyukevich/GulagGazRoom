@@ -19,6 +19,16 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "preProd (http)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5043",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "PreProduction"
+      }
+    },
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
