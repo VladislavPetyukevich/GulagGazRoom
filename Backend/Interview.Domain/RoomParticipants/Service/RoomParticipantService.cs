@@ -49,7 +49,7 @@ public class RoomParticipantService
             Id = participant.Id,
             RoomId = participant.Room.Id,
             UserId = participant.User.Id,
-            UserType = participant.Type,
+            UserType = participant.Type.Name,
         };
     }
 
@@ -100,7 +100,7 @@ public class RoomParticipantService
             Id = roomParticipant.Id,
             RoomId = roomParticipant.Room.Id,
             UserId = roomParticipant.User.Id,
-            UserType = roomParticipant.Type,
+            UserType = roomParticipant.Type.Name,
         };
     }
 }
