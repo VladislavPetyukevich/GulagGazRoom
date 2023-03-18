@@ -1,4 +1,4 @@
-﻿namespace Interview.Backend
+namespace Interview.Backend
 {
     public static class HostEnvironmentExt
     {
