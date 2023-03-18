@@ -16,7 +16,7 @@ export const App: FunctionComponent = () => {
   const communist = getCommunist();
   const { getMeState, loadMe } = useGetMeApi();
   const { process: { loading, error }, user } = getMeState;
-  const userWillLoad = communist && !user;
+  const userWillLoad = communist && !user && !error;
 
   useEffect(() => {
     if (communist) {
