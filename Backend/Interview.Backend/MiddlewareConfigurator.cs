@@ -32,12 +32,8 @@ public class MiddlewareConfigurator
         _app.UseAuthentication();
         _app.UseAuthorization();
 
-        // Configure the HTTP request pipeline.
-        if (_app.Environment.IsDevelopment())
-        {
-            _app.UseSwagger();
-            _app.UseSwaggerUI();
-        }
+        _app.UseSwagger();
+        _app.UseSwaggerUI();
 
         _app.MapControllers();
     }
