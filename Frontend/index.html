@@ -122,7 +122,8 @@
         console.log('dataParsed: ', dataParsed);
         switch (dataParsed.Type) {
           case 'ChatMessage':
-            threeShooter.onPlayerActionStart('chatMessage', dataParsed.Value);
+            const message = `${dataParsed.Value.Nickname}:\n${dataParsed.Value.Message}`;
+            threeShooter.onPlayerActionStart('chatMessage', message);
             break;
           case 'ReactionLike':
             threeShooter.onPlayerActionStart('like');
