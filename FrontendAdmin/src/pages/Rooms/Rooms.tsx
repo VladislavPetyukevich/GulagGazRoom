@@ -1,13 +1,14 @@
 import React, { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { pathnames } from '../../constants';
+import { useApiMethod } from '../../hooks/useApiMethod';
 import { Room } from '../../types/room';
-import { useRoomsGetApi } from './hooks/useRoomsGetApi';
 
 import './Rooms.css';
 
@@ -29,15 +30,15 @@ const createRoomItem = (room: Room) => (
 
 export const Rooms: FunctionComponent = () => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const {
-    roomsState,
-    loadRooms,
-  } = useRoomsGetApi();
-  const { process: { loading, error }, rooms } = roomsState;
+  const { apiMethodState, fetchData } = useApiMethod<Room[]>();
+  const { process: { loading, error }, data: rooms } = apiMethodState;
 
   useEffect(() => {
-    loadRooms({ pageSize, pageNumber });
-  }, [loadRooms, pageNumber]);
+    fetchData(roomsApiDeclaration.getPage({
+      PageSize: pageSize,
+      PageNumber: pageNumber,
+    }));
+  }, [fetchData, pageNumber]);
 
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);
@@ -55,7 +56,7 @@ export const Rooms: FunctionComponent = () => {
         </Field>
       );
     }
-    if (loading) {
+    if (loading || !rooms) {
       return (
         Array.from({ length: pageSize + 1 }, (_, index) => (
           <Field key={index}>

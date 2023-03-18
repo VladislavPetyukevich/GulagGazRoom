@@ -1,4 +1,5 @@
 import React, { FormEvent, FunctionComponent, useCallback, useState } from 'react';
+import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
@@ -7,9 +8,9 @@ import { QuestionsSelector } from '../../components/QuestionsSelector/QuestionsS
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { UsersSelector } from '../../components/UsersSelector/UsersSelector';
 import { pathnames } from '../../constants';
+import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { User } from '../../types/user';
-import { useRoomsCreateApi } from './hooks/useRoomsCreateApi';
 
 import './RoomCreate.css';
 
@@ -17,8 +18,8 @@ const nameFieldName = 'roomName';
 const twitchChannelFieldName = 'roomTwitchChannel';
 
 export const RoomCreate: FunctionComponent = () => {
-  const { roomState, createRoom } = useRoomsCreateApi();
-  const { process: { loading, error }, success } = roomState;
+  const { apiMethodState, fetchData } = useApiMethod<string>();
+  const { process: { loading, error }, data: createdRoomId } = apiMethodState;
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
@@ -40,13 +41,13 @@ export const RoomCreate: FunctionComponent = () => {
     if (typeof roomTwitchChannel !== 'string') {
       throw new Error('roomTwitchChannel field type error');
     }
-    createRoom({
+    fetchData(roomsApiDeclaration.create({
       name: roomName,
       twitchChannel: roomTwitchChannel,
       questions: selectedQuestions.map(question => question.id),
       users: selectedUsers.map(user => user.id),
-    });
-  }, [selectedQuestions, selectedUsers, createRoom]);
+    }));
+  }, [selectedQuestions, selectedUsers, fetchData]);
 
   const handleQuestionSelect = useCallback((question: Question) => {
     setSelectedQuestions([...selectedQuestions, question]);
@@ -85,7 +86,7 @@ export const RoomCreate: FunctionComponent = () => {
         </Field>
       );
     }
-    if (success) {
+    if (createdRoomId) {
       return (
         <Field>
           <div>Room created successfully</div>
@@ -93,7 +94,7 @@ export const RoomCreate: FunctionComponent = () => {
       );
     }
     return <></>;
-  }, [error, loading, success]);
+  }, [error, loading, createdRoomId]);
 
   return (
     <MainContentWrapper className="question-create">

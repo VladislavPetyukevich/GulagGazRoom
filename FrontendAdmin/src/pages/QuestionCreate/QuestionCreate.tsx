@@ -1,19 +1,24 @@
 import React, { FormEvent, FunctionComponent, useCallback } from 'react';
+import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { pathnames } from '../../constants';
-import { useQuestionsCreateApi } from './hooks/useQuestionsCreateApi';
+import { useApiMethod } from '../../hooks/useApiMethod';
+import { Question } from '../../types/question';
 
 import './QuestionCreate.css';
 
 const valueFieldName = 'qestionText';
 
 export const QuestionCreate: FunctionComponent = () => {
-  const { questionState, createQuestion } = useQuestionsCreateApi();
-  const { process: { loading, error }, success } = questionState;
+  const {
+    apiMethodState: questionState,
+    fetchData: fetchCreateQuestion,
+  } = useApiMethod<Question['id']>();
+  const { process: { loading, error }, data: createdQuestionId } = questionState;
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,8 +31,10 @@ export const QuestionCreate: FunctionComponent = () => {
     if (typeof qestionText !== 'string') {
       throw new Error('qestionText field type error');
     }
-    createQuestion({ value: qestionText });
-  }, [createQuestion]);
+    fetchCreateQuestion(questionsApiDeclaration.create({
+      value: qestionText,
+    }));
+  }, [fetchCreateQuestion]);
 
   const renderStatus = useCallback(() => {
     if (error) {
@@ -44,7 +51,7 @@ export const QuestionCreate: FunctionComponent = () => {
         </Field>
       );
     }
-    if (success) {
+    if (createdQuestionId) {
       return (
         <Field>
           <div>Question created successfully</div>
@@ -52,7 +59,7 @@ export const QuestionCreate: FunctionComponent = () => {
       );
     }
     return <></>;
-  }, [error, loading, success]);
+  }, [error, loading, createdQuestionId]);
 
   return (
     <MainContentWrapper className="question-create">

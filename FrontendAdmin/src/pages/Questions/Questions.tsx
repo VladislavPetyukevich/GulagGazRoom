@@ -1,13 +1,13 @@
 import React, { ChangeEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { pathnames } from '../../constants';
+import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
-import { useQuestionsGetApi } from './hooks/useQuestionsGetApi';
-import { useQuestionsUpdateApi } from './hooks/useQuestionsUpdateApi';
 
 import './Questions.css';
 
@@ -16,30 +16,30 @@ const initialPageNumber = 1;
 
 export const Questions: FunctionComponent = () => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const {
-    questionsState,
-    loadQuestions,
-  } = useQuestionsGetApi();
-  const { process: { loading, error }, questions } = questionsState;
-  const {
-    questionState: updatingQuestionState,
-    updateQuestion,
-  } = useQuestionsUpdateApi();
+  const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[]>();
+  const { process: { loading, error }, data: questions } = questionsState;
+  const { apiMethodState: updatingQuestionState, fetchData: fetchUpdateQuestion } = useApiMethod<Question['id']>();
   const {
     process: { loading: updatingLoading, error: updatingError },
-    success: updatingSuccess,
+    data: updatedQuestionId,
   } = updatingQuestionState;
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
 
   useEffect(() => {
-    loadQuestions({ pageSize, pageNumber });
-  }, [loadQuestions, pageNumber]);
+    fetchQuestios(questionsApiDeclaration.getPage({
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    }));
+  }, [fetchQuestios, pageNumber]);
 
   useEffect(() => {
-    if (updatingSuccess) {
-      loadQuestions({ pageSize, pageNumber });
+    if (updatedQuestionId) {
+      fetchQuestios(questionsApiDeclaration.getPage({
+        PageNumber: pageNumber,
+        PageSize: pageSize,
+      }));
     }
-  }, [updatingSuccess, pageNumber, loadQuestions]);
+  }, [updatedQuestionId, pageNumber, fetchQuestios]);
 
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);
@@ -69,9 +69,12 @@ export const Questions: FunctionComponent = () => {
       console.error('handleEditingQuestionSubmit without editingQuestion');
       return;
     }
-    updateQuestion(editingQuestion);
+    fetchUpdateQuestion(questionsApiDeclaration.update({
+      id: editingQuestion.id,
+      value: editingQuestion.value,
+    }));
     setEditingQuestion(null);
-  }, [editingQuestion, updateQuestion]);
+  }, [editingQuestion, fetchUpdateQuestion]);
 
   const createQuestionItem = useCallback((question: Question) => (
     <li key={question.id}>
@@ -124,7 +127,7 @@ export const Questions: FunctionComponent = () => {
         </Field>
       );
     }
-    if (loading || updatingLoading) {
+    if (loading || updatingLoading || !questions) {
       return (
         Array.from({ length: pageSize + 1 }, (_, index) => (
           <Field key={index}>

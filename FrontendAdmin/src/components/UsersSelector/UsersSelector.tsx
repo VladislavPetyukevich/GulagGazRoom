@@ -1,7 +1,8 @@
 import React, { ChangeEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Loader } from '../Loader/Loader';
 import { Paginator } from '../Paginator/Paginator';
-import { useUsersGetApi } from './hooks/useUsersGetApi';
+import { useApiMethod } from '../../hooks/useApiMethod';
+import { usersApiDeclaration } from '../../apiDeclarations';
 import { User } from '../../types/user';
 
 import './UsersSelector.css';
@@ -22,17 +23,24 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
 }) => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
   const {
-    usersState,
-    loadUsers,
-  } = useUsersGetApi();
-  const { process: { loading, error }, users } = usersState;
+    apiMethodState: usersState,
+    fetchData: fetchUsers,
+  } = useApiMethod<User[]>();
+  const { process: { loading, error }, data: users } = usersState;
 
   useEffect(() => {
-    loadUsers({ pageSize, pageNumber });
-  }, [loadUsers, pageNumber]);
+    fetchUsers(usersApiDeclaration.getPage({
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    }));
+  }, [fetchUsers, pageNumber]);
 
   const handleCheckboxChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;
+    if (!users) {
+      console.warn('No users found');
+      return;
+    }
     const userItem = users.find(
       user => user.id === value
     );
@@ -72,7 +80,7 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
       <div>Error: {error}</div>
     );
   }
-  if (loading) {
+  if (loading || !users) {
     return (
       <>
         {Array.from({ length: pageSize + 1 }, (_, index) => (

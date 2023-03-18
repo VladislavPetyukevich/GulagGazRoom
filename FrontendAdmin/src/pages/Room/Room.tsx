@@ -1,11 +1,13 @@
 import React, { FunctionComponent, useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
+import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
+import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
-import { useRoomGetApi } from './hooks/useRoomGetApi';
+import { Room as RoomType } from '../../types/room';
 
 import './Room.css';
 
@@ -18,16 +20,15 @@ export const Room: FunctionComponent = () => {
     [id, communist]
   );
   const { lastMessage, readyState } = useWebSocket(socketUrl);
-  const { roomState, loadRoom } = useRoomGetApi();
-  const { process: { loading, error }, room } = roomState;
+  const { apiMethodState, fetchData } = useApiMethod<RoomType>();
+  const { process: { loading, error }, data: room } = apiMethodState;
 
   useEffect(() => {
-    console.log('id: ', id);
     if (!id) {
       throw new Error('Room id not found');
     }
-    loadRoom({ roomId: id });
-  }, [id, loadRoom]);
+    fetchData(roomsApiDeclaration.getById(id));
+  }, [id, fetchData]);
 
   const renderRoomContent = useCallback(() => {
     if (error) {
