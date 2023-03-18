@@ -75,6 +75,7 @@
       alert('Некорректная ссылка на комнату');
       throw new Error('roomId not found in url params');
     }
+    const noPointerLock = !!urlParams.get('noPointerLock');
 
     function checkAuthorization() {
       return new Promise((resolve, reject) => {
@@ -182,7 +183,12 @@
     });
 
     instructions.addEventListener('click', function (event) {
-      renderContainer.requestPointerLock();
+      if (noPointerLock) {
+        setBlockerVisibility(false);
+        threeShooter.setEnabled(true);
+      } else {
+        renderContainer.requestPointerLock();
+      }
     });
 
     settings.addEventListener('click', function(event) {
