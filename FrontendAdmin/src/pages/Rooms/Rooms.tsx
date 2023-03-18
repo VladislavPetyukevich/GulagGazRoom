@@ -24,6 +24,9 @@ const createRoomItem = (room: Room) => (
       <div className="room-users">
         {room.users.map(user => user.nickname).join(', ')}
       </div>
+      <Link to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}>
+        Edit Participants
+      </Link>
     </Field>
   </li>
 );

@@ -9,6 +9,7 @@ import { NotFound } from '../pages/NotFound/NotFound';
 import { RoomCreate } from '../pages/RoomCreate/RoomCreate';
 import { Room } from '../pages/Room/Room';
 import { Session } from '../pages/Session/Session';
+import { RoomParticipants } from '../pages/RoomParticipants/RoomParticipants';
 import { ProtectedRoute } from './ProtectedRoute';
 import { User } from '../types/user';
 
@@ -27,6 +28,13 @@ export const AppRoutes: FunctionComponent<AppRoutesProps> = ({
         element={
           <ProtectedRoute allowed={authenticated}>
             <RoomCreate />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.roomsParticipants}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <RoomParticipants />
           </ProtectedRoute>
         }
       />

@@ -1,4 +1,4 @@
-import { ApiContractGet, ApiContractPost, ApiContractPut } from './types/apiContracts';
+import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
 import { Question } from './types/question';
 import { Reaction } from './types/reaction';
 import { Room } from './types/room';
@@ -85,6 +85,18 @@ export const roomReactionApiDeclaration = {
   send: (body: { reactionId: Reaction['id'], roomId: Room['id'] }): ApiContractPost => ({
     method: 'POST',
     baseUrl: '/RoomReaction',
+    body,
+  }),
+};
+
+export const roomParticipantApiDeclaration = {
+  changeParticipantStatus: (body: {
+    userId: Reaction['id'];
+    roomId: Room['id'];
+    userType: string;
+  }): ApiContractPatch => ({
+    method: 'PATCH',
+    baseUrl: '/ChangeParticipantStatus',
     body,
   }),
 };

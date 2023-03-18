@@ -16,4 +16,10 @@ export interface ApiContractPut {
   body: any;
 }
 
-export type ApiContract = ApiContractGet | ApiContractPost | ApiContractPut;
+export interface ApiContractPatch {
+  method: 'PATCH';
+  baseUrl: string;
+  body: any;
+}
+
+export type ApiContract = ApiContractGet | ApiContractPost | ApiContractPut | ApiContractPatch;
