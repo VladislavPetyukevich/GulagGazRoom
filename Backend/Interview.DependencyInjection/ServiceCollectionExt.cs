@@ -51,6 +51,7 @@ public static class ServiceCollectionExt
         self.AddSingleton(option.AdminUsers);
 
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
+        self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
 
         // Services
         self.AddScoped<UserService>();

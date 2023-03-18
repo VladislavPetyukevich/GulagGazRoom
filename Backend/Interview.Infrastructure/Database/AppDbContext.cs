@@ -10,6 +10,7 @@ using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Database.Configurations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Internal;
 
 namespace Interview.Infrastructure.Database;
@@ -70,7 +71,7 @@ public class AppDbContext : DbContext
         private readonly AppDbContext _db;
         private readonly CancellationToken _cancellationToken;
         private readonly List<Entity>? _addedEntities;
-        private readonly List<Entity>? _modifiedEntities;
+        private readonly List<(Entity Original, Entity Current)>? _modifiedEntities;
 
         public SaveCookie(AppDbContext db, CancellationToken cancellationToken)
         {
@@ -89,7 +90,14 @@ public class AppDbContext : DbContext
             if (db.ChangeEntityProcessors.Length > 0)
             {
                 _addedEntities = FilterByState(EntityState.Added).ToList();
-                _modifiedEntities = FilterByState(EntityState.Modified).ToList();
+
+                _modifiedEntities = FilterEntryByState(EntityState.Modified)
+                    .Select(e =>
+                    {
+                        var original = (Entity)e.OriginalValues.ToObject();
+                        return (original, e.Entity);
+                    })
+                    .ToList();
             }
         }
 
@@ -123,6 +131,11 @@ public class AppDbContext : DbContext
 
         private IEnumerable<Entity> FilterByState(EntityState entityState)
         {
+            return FilterEntryByState(entityState).Select(e => e.Entity);
+        }
+
+        private IEnumerable<EntityEntry<Entity>> FilterEntryByState(EntityState entityState)
+        {
             foreach (var entityEntry in _db.ChangeTracker.Entries<Entity>())
             {
                 if (entityEntry.State != entityState)
@@ -130,7 +143,7 @@ public class AppDbContext : DbContext
                     continue;
                 }
 
-                yield return entityEntry.Entity;
+                yield return entityEntry;
             }
         }
     }

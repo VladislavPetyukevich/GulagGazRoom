@@ -5,6 +5,8 @@ namespace Interview.Test.Integrations
 {
     public class EmptyRoomEventDispatcher : IRoomEventDispatcher
     {
+        public IEnumerable<Guid> ActiveRooms => Enumerable.Empty<Guid>();
+
         public Task<IEnumerable<IRoomEvent>> ReadAsync(TimeSpan timeSpan)
         {
             return Task.FromResult(Enumerable.Empty<IRoomEvent>());

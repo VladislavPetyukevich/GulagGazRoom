@@ -8,6 +8,8 @@ public class RoomEventDispatcher : IRoomEventDispatcher
 {
     private readonly ConcurrentDictionary<Guid, Channel<IRoomEvent>> _queue = new();
 
+    public IEnumerable<Guid> ActiveRooms => _queue.Keys;
+
     public async Task<IEnumerable<IRoomEvent>> ReadAsync(TimeSpan timeout)
     {
         using var cts = new CancellationTokenSource(timeout);

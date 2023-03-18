@@ -34,4 +34,9 @@ public enum EventType
     /// The event is triggered when the admin turns off the gas in the room
     /// </summary>
     GasOff,
+
+    /// <summary>
+    /// The event is triggered when question is changed
+    /// </summary>
+    ChangeQuestion,
 }

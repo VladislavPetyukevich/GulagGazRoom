@@ -29,7 +29,7 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
         }
     }
 
-    public ValueTask ProcessModifiedAsync(IReadOnlyCollection<Entity> entities, CancellationToken cancellationToken = default)
+    public ValueTask ProcessModifiedAsync(IReadOnlyCollection<(Entity Original, Entity Current)> entities, CancellationToken cancellationToken = default)
     {
         return ValueTask.CompletedTask;
     }
@@ -38,7 +38,7 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
     {
         return new RoomEvent<RoomEventUserPayload>(
             entity.RoomQuestion.Room.Id,
-            EventType.ReactionLike,
+            type,
             new RoomEventUserPayload(entity.Sender.Id));
     }
 }
