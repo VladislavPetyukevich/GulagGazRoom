@@ -1,5 +1,6 @@
 import { ApiContractGet, ApiContractPost, ApiContractPut } from './types/apiContracts';
 import { Question } from './types/question';
+import { Reaction } from './types/reaction';
 import { Room } from './types/room';
 import { User } from './types/user';
 
@@ -56,5 +57,21 @@ export const usersApiDeclaration = {
     method: 'GET',
     baseUrl: '/User/GetPage',
     urlParams: pagination,
+  }),
+};
+
+export const reactionsApiDeclaration = {
+  getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/Reaction/GetPage',
+    urlParams: pagination,
+  }),
+};
+
+export const roomReactionApiDeclaration = {
+  send: (body: { reactionId: Reaction['id'], roomId: Room['id'] }): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/RoomReaction',
+    body,
   }),
 };
