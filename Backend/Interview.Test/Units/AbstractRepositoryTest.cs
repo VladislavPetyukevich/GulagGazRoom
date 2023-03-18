@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Interview.Domain;
+using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Repository;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ public abstract class AbstractRepositoryTest<T, TRepository>
 
     protected AbstractRepositoryTest()
     {
-        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options);
+        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options, Enumerable.Empty<IChangeEntityProcessor>());
 
         _databaseSet = new Mock<DbSet<T>>();
 

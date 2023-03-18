@@ -2,6 +2,7 @@ using Interview.Backend.Auth;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestionReactions.Records;
 using Interview.Domain.RoomQuestionReactions.Records.Response;
+using Interview.Domain.RoomQuestions.Records;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,5 +40,27 @@ public class RoomReactionController : ControllerBase
         }
 
         return Ok(createRoomQuestionReactionResult.Value);
+    }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPost(nameof(SendReaction))]
+    [ProducesResponseType(typeof(string), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<ActionResult<string?>> SendReaction(RoomQuestionSendReactionApiRequest request)
+    {
+        var user = User.ToUser();
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var sendRequest = request.ToDomainRequest(user.Id);
+        var result = await _roomQuestionReactionService.SendReactionAsync(sendRequest, HttpContext.RequestAborted);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok();
     }
 }

@@ -1,19 +1,22 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using Interview.Domain.Events.Events;
 
 namespace Interview.Domain.Events;
 
 public class RoomEventDispatcher : IRoomEventDispatcher
 {
-    private readonly ConcurrentDictionary<Guid, Channel<IWebSocketEvent>> _queue = new();
+    private readonly ConcurrentDictionary<Guid, Channel<IRoomEvent>> _queue = new();
 
-    public async Task<IEnumerable<IWebSocketEvent>> ReadAsync(TimeSpan timeout)
+    public IEnumerable<Guid> ActiveRooms => _queue.Keys;
+
+    public async Task<IEnumerable<IRoomEvent>> ReadAsync(TimeSpan timeout)
     {
         using var cts = new CancellationTokenSource(timeout);
 
         try
         {
-            var list = new List<IWebSocketEvent>();
+            var list = new List<IRoomEvent>();
 
             foreach (var (_, value) in _queue)
             {
@@ -24,11 +27,11 @@ public class RoomEventDispatcher : IRoomEventDispatcher
         }
         catch (TaskCanceledException)
         {
-            return Enumerable.Empty<IWebSocketEvent>();
+            return Enumerable.Empty<IRoomEvent>();
         }
     }
 
-    public Task WriteAsync(IWebSocketEvent @event, CancellationToken cancellationToken = default)
+    public Task WriteAsync(IRoomEvent @event, CancellationToken cancellationToken = default)
     {
         var channel = GetChannel(@event.RoomId);
         return channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
@@ -61,8 +64,8 @@ public class RoomEventDispatcher : IRoomEventDispatcher
             FullMode = BoundedChannelFullMode.DropOldest,
         });
 
-    private Channel<IWebSocketEvent> GetChannel(Guid roomId)
+    private Channel<IRoomEvent> GetChannel(Guid roomId)
     {
-        return _queue.GetOrAdd(roomId, _ => CreateBoundedChannel<IWebSocketEvent>());
+        return _queue.GetOrAdd(roomId, _ => CreateBoundedChannel<IRoomEvent>());
     }
 }

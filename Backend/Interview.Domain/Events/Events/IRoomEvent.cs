@@ -3,23 +3,26 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
-namespace Interview.Domain.Events;
+namespace Interview.Domain.Events.Events;
 
-public interface IWebSocketEvent
+public interface IRoomEvent
 {
     Guid RoomId { get; }
 
     EventType Type { get; }
 
-    string Value { get; }
-
     string Stringify()
     {
-        return JsonSerializer.Serialize(this, new JsonSerializerOptions
+        return JsonSerializer.Serialize(this, GetType(), new JsonSerializerOptions
         {
             WriteIndented = true,
             Converters = { new JsonStringEnumConverter() },
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         });
     }
+}
+
+public interface IRoomEvent<out T> : IRoomEvent
+{
+    T Value { get; }
 }

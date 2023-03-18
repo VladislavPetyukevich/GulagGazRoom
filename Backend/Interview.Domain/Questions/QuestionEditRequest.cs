@@ -1,9 +1,8 @@
-namespace Interview.Domain.Questions
-{
-    public sealed class QuestionEditRequest
-    {
-        public Guid Id { get; set; }
+namespace Interview.Domain.Questions;
 
-        public string Value { get; set; } = string.Empty;
-    }
+public sealed class QuestionEditRequest
+{
+    public Guid Id { get; set; }
+
+    public string Value { get; set; } = string.Empty;
 }

@@ -1,8 +1,7 @@
 using Interview.Domain.Repository;
 
-namespace Interview.Domain.RoomQuestionReactions
+namespace Interview.Domain.RoomQuestionReactions;
+
+public interface IRoomQuestionReactionRepository : IRepository<RoomQuestionReaction>
 {
-    public interface IRoomQuestionReactionRepository : IRepository<RoomQuestionReaction>
-    {
-    }
 }

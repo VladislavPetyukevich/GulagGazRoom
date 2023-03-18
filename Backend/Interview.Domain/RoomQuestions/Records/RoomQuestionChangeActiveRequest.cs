@@ -1,9 +1,8 @@
-namespace Interview.Domain.RoomQuestions.Records
-{
-    public class RoomQuestionChangeActiveRequest
-    {
-        public Guid RoomId { get; set; }
+namespace Interview.Domain.RoomQuestions.Records;
 
-        public Guid QuestionId { get; set; }
-    }
+public class RoomQuestionChangeActiveRequest
+{
+    public Guid RoomId { get; set; }
+
+    public Guid QuestionId { get; set; }
 }

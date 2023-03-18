@@ -1,3 +1,4 @@
+using Interview.Domain.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
@@ -5,63 +6,59 @@ using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Users;
 using Moq;
 
-namespace Interview.Test.Units.Rooms
+namespace Interview.Test.Units.Rooms;
+
+public class RoomServiceTest
 {
-    public class RoomServiceTest
+    private readonly Mock<IRoomRepository> _roomRepository;
+
+    private readonly RoomService _roomService;
+
+    public RoomServiceTest()
     {
-        private readonly Mock<IRoomRepository> _roomRepository;
+        _roomRepository = new Mock<IRoomRepository>();
+        var questionRepository = new Mock<IQuestionRepository>();
+        var userRepository = new Mock<IUserRepository>();
+        var eventDispatcher = new Mock<IRoomEventDispatcher>();
 
-        private readonly Mock<IQuestionRepository> _questionRepository;
+        _roomService = new RoomService(_roomRepository.Object, questionRepository.Object, userRepository.Object, eventDispatcher.Object);
+    }
 
-        private readonly Mock<IUserRepository> _userRepository;
+    [Fact(DisplayName = "Patch update of room when request name is null")]
+    public async void PatchUpdateRoomWhenRequestNameIsNull()
+    {
+        var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = null };
 
-        private readonly RoomService _roomService;
+        var roomPatchUpdate =
+            await _roomService.PatchUpdate(Guid.NewGuid(), roomPatchUpdateRequest);
 
-        public RoomServiceTest()
-        {
-            _roomRepository = new Mock<IRoomRepository>();
-            _questionRepository = new Mock<IQuestionRepository>();
-            _userRepository = new Mock<IUserRepository>();
+        Assert.True(roomPatchUpdate.IsFailure);
+        Assert.Equal("Room name should not be empty", roomPatchUpdate.Error);
+    }
 
-            _roomService = new RoomService(_roomRepository.Object, _questionRepository.Object, _userRepository.Object);
-        }
+    [Fact(DisplayName = "Patch update of room when room not found")]
+    public async void PatchUpdateRoomWhenRoomNotFound()
+    {
+        var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "new_value_name_room", TwitchChannel = "TwitchCH" };
+        var roomId = Guid.NewGuid();
 
-        [Fact(DisplayName = "Patch update of room when request name is null")]
-        public async void PatchUpdateRoomWhenRequestNameIsNull()
-        {
-            var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = null };
+        _roomRepository.Setup(repository => repository.FindByIdAsync(roomId, default))
+            .ReturnsAsync((Room?)null);
 
-            var roomPatchUpdate =
-                await _roomService.PatchUpdate(Guid.NewGuid(), roomPatchUpdateRequest);
+        var roomPatchUpdate = await _roomService.PatchUpdate(roomId, roomPatchUpdateRequest);
 
-            Assert.True(roomPatchUpdate.IsFailure);
-            Assert.Equal("Room name should not be empty", roomPatchUpdate.Error);
-        }
+        Assert.True(roomPatchUpdate.IsFailure);
+        Assert.Equal($"Not found room with id [{roomId}]", roomPatchUpdate.Error);
+    }
 
-        [Fact(DisplayName = "Patch update of room when room not found")]
-        public async void PatchUpdateRoomWhenRoomNotFound()
-        {
-            var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "new_value_name_room" };
-            var roomId = Guid.NewGuid();
+    [Fact(DisplayName = "Patch update of room when room id is null")]
+    public async void PatchUpdateRoomWhenRoomIdIsNull()
+    {
+        var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "new_value_name_room", TwitchChannel = "TestCH" };
 
-            _roomRepository.Setup(repository => repository.FindByIdAsync(roomId, default))
-                .ReturnsAsync((Room?)null);
+        var roomPatchUpdate = await _roomService.PatchUpdate(null, roomPatchUpdateRequest);
 
-            var roomPatchUpdate = await _roomService.PatchUpdate(roomId, roomPatchUpdateRequest);
-
-            Assert.True(roomPatchUpdate.IsFailure);
-            Assert.Equal($"Not found room with id [{roomId}]", roomPatchUpdate.Error);
-        }
-
-        [Fact(DisplayName = "Patch update of room when room id is null")]
-        public async void PatchUpdateRoomWhenRoomIdIsNull()
-        {
-            var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "new_value_name_room" };
-
-            var roomPatchUpdate = await _roomService.PatchUpdate(null, roomPatchUpdateRequest);
-
-            Assert.True(roomPatchUpdate.IsFailure);
-            Assert.Equal("Room id should not be null [id]", roomPatchUpdate.Error);
-        }
+        Assert.True(roomPatchUpdate.IsFailure);
+        Assert.Equal("Room id should not be null [id]", roomPatchUpdate.Error);
     }
 }

@@ -2,51 +2,50 @@ using Interview.Domain.Questions;
 using Interview.Infrastructure.Questions;
 using Moq;
 
-namespace Interview.Test.Units.Questions
+namespace Interview.Test.Units.Questions;
+
+public class QuestionServiceTest
 {
-    public class QuestionServiceTest
+    private readonly Mock<IQuestionRepository> _questionRepository;
+    private readonly QuestionService _questionService;
+
+    public QuestionServiceTest()
     {
-        private readonly Mock<IQuestionRepository> _questionRepository;
-        private readonly QuestionService _questionService;
+        _questionRepository = new Mock<IQuestionRepository>();
 
-        public QuestionServiceTest()
-        {
-            _questionRepository = new Mock<IQuestionRepository>();
+        _questionService = new QuestionService(_questionRepository.Object);
+    }
 
-            _questionService = new QuestionService(_questionRepository.Object);
-        }
+    [Fact(DisplayName = "Searching question by id when question not found")]
+    public async Task FindByIdWhenEntityNotFound()
+    {
+        var questionGuid = Guid.Empty;
 
-        [Fact(DisplayName = "Searching question by id when question not found")]
-        public async Task FindByIdWhenEntityNotFound()
-        {
-            var questionGuid = Guid.Empty;
+        _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
+            .ReturnsAsync((Question?)null);
 
-            _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
-                .ReturnsAsync((Question?)null);
+        var resultQuestion = await _questionService.FindById(questionGuid);
 
-            var resultQuestion = await _questionService.FindById(questionGuid);
+        Assert.True(resultQuestion.IsFailure);
 
-            Assert.True(resultQuestion.IsFailure);
+        Assert.NotNull(resultQuestion.Error);
+    }
 
-            Assert.NotNull(resultQuestion.Error);
-        }
+    [Fact(DisplayName = "Searching question by id when question exists")]
+    public async Task FindByIdWhenEntityFound()
+    {
+        var questionGuid = Guid.Empty;
 
-        [Fact(DisplayName = "Searching question by id when question exists")]
-        public async Task FindByIdWhenEntityFound()
-        {
-            var questionGuid = Guid.Empty;
+        var questionStub = new Question("value");
+        _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
+            .ReturnsAsync(questionStub);
 
-            var questionStub = new Question("value");
-            _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
-                .ReturnsAsync(questionStub);
+        var resultQuestion = await _questionService.FindById(questionGuid);
 
-            var resultQuestion = await _questionService.FindById(questionGuid);
+        Assert.True(resultQuestion.IsSuccess);
 
-            Assert.True(resultQuestion.IsSuccess);
+        var questionItem = resultQuestion.Value;
 
-            var questionItem = resultQuestion.Value;
-
-            Assert.Equal(questionStub.Value, questionItem.Value);
-        }
+        Assert.Equal(questionStub.Value, questionItem.Value);
     }
 }
