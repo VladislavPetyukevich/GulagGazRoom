@@ -1,4 +1,5 @@
 using Interview.Backend.WebSocket.Configuration;
+using Microsoft.AspNetCore.CookiePolicy;
 
 namespace Interview.Backend;
 
@@ -15,7 +16,11 @@ public class MiddlewareConfigurator
     {
         _app.UseHttpsRedirection();
 
-        _app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax, });
+        _app.UseCookiePolicy(new CookiePolicyOptions
+        {
+            MinimumSameSitePolicy = SameSiteMode.Lax,
+            HttpOnly = HttpOnlyPolicy.None,
+        });
 
         _app.UseWebSockets()
             .UseWebSocketsAuthorization(new WebSocketAuthorizationOptions
