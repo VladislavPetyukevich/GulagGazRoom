@@ -8,4 +8,4 @@ RUN mkdir -p /home/html/
 
 EXPOSE 8088
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx-debug", "-g", "daemon off;"]

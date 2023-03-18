@@ -1,11 +1,12 @@
 version: "3.8"
 
 services:
-  
   backend:
     container_name: "csharp"
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "80:5043"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=PreProduction

@@ -9,24 +9,25 @@ services:
       - database-drive:/var/lib/postgresql/data
     networks:
       - local.network
-
-  backend:
-    extends:
-      file: backend/backend.yml
-      service: backend
-    volumes:
-      - backend-drive:/app/
-    depends_on:
-      - postgres
-    networks:
-      - local.network
-
+      
   nginx:
     extends:
       file: nginx/nginx.yml
       service: nginx
+    volumes:
+      - nginx-volume:/app/
     depends_on:
-      - backend
+      - postgres
+    networks:
+      - local.network
+      
+  backend:
+    extends:
+      file: backend/backend.yml
+      service: backend
+    depends_on:
+      - postgres
+    restart: always
     networks:
       - local.network
 
@@ -37,3 +38,4 @@ networks:
 volumes:
   backend-drive:
   database-drive:
+  nginx-volume:

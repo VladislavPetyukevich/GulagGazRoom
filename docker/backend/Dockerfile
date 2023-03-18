@@ -1,14 +1,23 @@
 FROM alpine/git as clone
 
+ARG GIT_BRANCH
+ARG GIT_REPOSITORY
+
 WORKDIR /app
 
-RUN git clone https://github.com/VladislavPetyukevich/GulagGazRoom.git
+RUN git clone --branch main https://github.com/VladislavPetyukevich/GulagGazRoom.git
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 WORKDIR /app
 
 # Copy everything
 COPY --from=clone /app/GulagGazRoom/Backend .
+
+COPY pre-production.json /app/Interview.Backend/
+COPY dev.json /app/Interview.Backend/
+
+RUN cp -rf /app/Interview.Backend/dev.json /app/Interview.Backend/appsettings.Development.json
+RUN cp -rf /app/Interview.Backend/pre-production.json /app/Interview.Backend/appsettings.PreProduction.json 
 
 RUN dotnet restore
 
@@ -19,9 +28,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
 
 COPY --from=build-env /app/out .
-#
-#COPY wait.sh /WorkDirectory/wait.sh
-#RUN chmod +x /WorkDirectory/wait.sh
 
 EXPOSE 5043
 
