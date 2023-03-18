@@ -97,7 +97,46 @@
         console.log('Authorization ok');
       })
       .catch(() => {
-        console.log('catch');
+        instructions.style.visibility = 'hidden';
+        authenticationEl.style.visibility = 'visible';
+      });
+
+    function connectWebSocket(onmessage) {
+      return new Promise((resolve, reject) => {
+        const socketUrl = `ws://localhost:5043/ws?Authorization=${communist}&roomId=${roomId}`;
+        const webSocket = new WebSocket(socketUrl);
+        webSocket.onmessage = onmessage;
+        webSocket.onopen = () => resolve();
+        webSocket.onclose = (event) => {
+          alert('webSocket connection closed');
+          reject('webSocket connection closed');
+        };
+      });
+    }
+
+    function onWebSocketMessage(event) {
+      try {
+        const dataParsed = JSON.parse(event.data);
+        console.log('dataParsed: ', dataParsed);
+        switch (dataParsed.Type) {
+          case 'ChatMessage':
+            threeShooter.onPlayerActionStart('chatMessage', dataParsed.Value);
+            break;
+          case 'Reaction':
+            const actionName = Math.random() > 0.5 ? 'like' : 'dislike';
+            threeShooter.onPlayerActionStart(actionName, dataParsed.Value);
+            break;
+          default:
+            break;
+        }
+      } catch {
+        console.error('Failed to parse WebSocket message: ', event);
+      }
+    };
+
+    connectWebSocket(onWebSocketMessage)
+      .then(() => console.log('websocket connected'))
+      .catch(() => {
         instructions.style.visibility = 'hidden';
         authenticationEl.style.visibility = 'visible';
       });
@@ -133,33 +172,6 @@
       renderHeight: rendererSize.height,
       onLoad: onLoad
     });
-
-    const socketUrl = `ws://localhost:5043/ws?Authorization=${communist}&roomId=${roomId}`;
-    const webSocket = new WebSocket(socketUrl);
-    let webSocketConnected = false;
-    webSocket.onopen = () => webSocketConnected = true;
-    webSocket.onclose = (event) => {
-      alert('webSocket connection closed');
-      console.log('onclose: ', event);
-    }
-    webSocket.onmessage = (event) => {
-      try {
-        const dataParsed = JSON.parse(event.data);
-        switch (dataParsed.Type) {
-          case 'ChatMessage':
-            threeShooter.onPlayerActionStart('chatMessage', dataParsed.Value);
-            break;
-          case 'Reaction':
-            const actionName = Math.random() > 0.5 ? 'like' : 'dislike';
-            threeShooter.onPlayerActionStart(actionName, dataParsed.Value);
-            break;
-          default:
-            break;
-        }
-      } catch {
-        console.error('Failed to parse WebSocket message: ', event);
-      }
-    };
 
     window.addEventListener('resize', () => {
       var newRendererSize = getRendererSize();
