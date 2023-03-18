@@ -42,7 +42,7 @@ namespace Interview.Backend.RoomQuestions
         public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> Create(
             RoomQuestionCreateRequest request)
         {
-            var result = await _roomQuestionService.Create(request);
+            var result = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
 
             if (result.IsFailure)
             {

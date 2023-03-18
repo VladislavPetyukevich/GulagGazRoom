@@ -17,10 +17,10 @@ namespace Interview.Backend.RoomParticipants
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPatch(nameof(ChangeParticipantStatus))]
-        [ProducesResponseType(typeof(RoomParticipantChangeStatusRequest), 200)]
+        [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
         [ProducesResponseType(typeof(string), 404)]
         public async Task<ActionResult<RoomParticipantDetail?>> ChangeParticipantStatus(
-            RoomParticipantChangeStatusRequest request)
+            [FromBody] RoomParticipantChangeStatusRequest request)
         {
             var participantResult =
                 await _roomParticipantService.ChangeParticipantStatusAsync(request, HttpContext.RequestAborted);
