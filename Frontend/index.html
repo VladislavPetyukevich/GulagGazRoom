@@ -11,7 +11,11 @@
 
 <body>
   <div id="blocker">
-    <div id="instructions">
+    <div id="authentication" class="blocker-content">
+      <div>Authentication</div>
+      <a href="http://localhost:5043/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
+    </div>
+    <div id="instructions" class="blocker-content">
       <div style="font-size:40px; color: red;">WARNING</div>
       <div>This app contains fast flashing images</div>
       <br />
@@ -38,12 +42,65 @@
   <script type="text/javascript">
     var blocker = document.getElementById('blocker');
     var instructions = document.getElementById('instructions');
+    var authenticationEl = document.getElementById('authentication');
     var renderContainer = document.getElementById('render-container');
     var settings = document.getElementById('settings');
     var audioVolume = document.getElementById('audio-volume');
     var audioVolumeValue = document.getElementById('audio-volume-value');
     var fov = document.getElementById('fov');
     var fovValue = document.getElementById('fov-value');
+
+    function getCommunist() {
+      const cookieName = '_communist';
+      const name = cookieName + "=";
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const ca = decodedCookie.split(';');
+      for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return '';
+    }
+    const communist = getCommunist();
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const roomId = urlParams.get('roomId');
+    if (!roomId) {
+      alert('Некорректная ссылка на комнату');
+      throw new Error('roomId not found in url params');
+    }
+
+    function checkAuthorization() {
+      return new Promise((resolve, reject) => {
+        if (!communist) {
+          return reject('Not authenticated');
+        }
+        fetch('/api/User/GetMe')
+          .then((response) => {
+            if (response.ok) {
+              return resolve();
+            }
+            return reject('Not authenticated')
+          })
+          .catch(() => reject('Not authenticated'));
+      });
+    }
+
+    checkAuthorization()
+      .then(() => {
+        console.log('Authorization ok');
+      })
+      .catch(() => {
+        console.log('catch');
+        instructions.style.visibility = 'hidden';
+        authenticationEl.style.visibility = 'visible';
+      });
 
     function updateAudioVolumeValue(value) {
       var valueNode = document.createTextNode(value.toFixed(1));
@@ -77,34 +134,6 @@
       onLoad: onLoad
     });
 
-    function getCommunist() {
-      const cookieName = '_communist';
-      const name = cookieName + "=";
-      const decodedCookie = decodeURIComponent(document.cookie);
-      const ca = decodedCookie.split(';');
-      for(let i = 0; i <ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-          c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-          return c.substring(name.length, c.length);
-        }
-      }
-      return '';
-    }
-
-    const communist = getCommunist();
-    if (!communist) {
-      throw new Error('No Authorization');
-    }
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const roomId = urlParams.get('roomId');
-    if (!roomId) {
-      alert('Некорректная ссылка на комнату');
-      throw new Error('roomId not found in url params');
-    }
     const socketUrl = `ws://localhost:5043/ws?Authorization=${communist}&roomId=${roomId}`;
     const webSocket = new WebSocket(socketUrl);
     let webSocketConnected = false;

@@ -86,7 +86,13 @@ const developmentConfig = {
       directory: PATHS.public,
     },
     port: 8080,
-    hot: true
+    hot: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5043',
+        pathRewrite: { '^/api': '' },
+      },
+    },
   },
   optimization: {
     moduleIds: 'named',
