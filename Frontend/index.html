@@ -130,6 +130,12 @@
           case 'ReactionDislike':
             threeShooter.onPlayerActionStart('dislike');
             break;
+          case 'GasOn':
+            threeShooter.onPlayerActionStart('gasEnable');
+            break;
+          case 'GasOff':
+            threeShooter.onPlayerActionStart('gasDisable');
+            break;
           default:
             break;
         }
