@@ -32,6 +32,11 @@ export const roomsApiDeclaration = {
     baseUrl: '/Room/Create',
     body,
   }),
+  sendGasEvent: (body: { roomId: Room['id'], type: 'GasOn' | 'GasOff'; }): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/Room/SendGasEvent',
+    body,
+  }),
 };
 
 export const questionsApiDeclaration = {

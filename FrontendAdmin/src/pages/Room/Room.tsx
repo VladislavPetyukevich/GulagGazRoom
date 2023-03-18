@@ -16,6 +16,30 @@ import './Room.css';
 const reactionsPageSize = 30;
 const reactionsPageNumber = 1;
 
+interface GasReaction extends Reaction {
+  type: {
+    eventType: 'GasOn' | 'GasOff';
+    name: string;
+    value: number;
+  }
+}
+
+const gasReactions: GasReaction[] = [{
+  id: 'gasReactionOnId',
+  type: {
+    eventType: 'GasOn',
+    name: 'GasOn 🤿',
+    value: 0,
+  }
+}, {
+  id: 'gasReactionOffId',
+  type: {
+    eventType: 'GasOff',
+    name: 'GasOff 👌',
+    value: 0,
+  }
+}];
+
 export const Room: FunctionComponent = () => {
   let { id } = useParams();
   const { getCommunist } = useCommunist();
@@ -45,6 +69,14 @@ export const Room: FunctionComponent = () => {
     process: { loading: loadingRoomReaction, error: errorRoomReaction },
   } = apiRoomReactionState;
 
+  const {
+    apiMethodState: apiSendGasState,
+    fetchData: sendRoomGas,
+  } = useApiMethod<unknown>({ noParseResponse: true });
+  const {
+    process: { loading: loadingRoomGas, error: errorRoomGas },
+  } = apiSendGasState;
+
   useEffect(() => {
     if (!id) {
       throw new Error('Room id not found');
@@ -66,8 +98,19 @@ export const Room: FunctionComponent = () => {
     sendRoomReaction(roomReactionApiDeclaration.send({
       reactionId: reaction.id,
       roomId: room.id,
-    }))
+    }));
   }, [room, sendRoomReaction]);
+
+  const handleGasReactionClick = useCallback((reaction: Reaction) => {
+    console.log('reaction: ', reaction);
+    if (!room) {
+      throw new Error('Error sending reaction. Room not found.');
+    }
+    sendRoomGas(roomsApiDeclaration.sendGasEvent({
+      roomId: room.id,
+      type: (reaction as GasReaction).type.eventType,
+    }));
+  }, [room, sendRoomGas]);
 
   const renderReactionsField = useCallback(() => {
     return (
@@ -77,15 +120,24 @@ export const Room: FunctionComponent = () => {
           reactions={reactions || []}
           onClick={handleReactionClick}
         />
+        <ReactionsList
+          reactions={gasReactions}
+          onClick={handleGasReactionClick}
+        />
         {loadingRoomReaction && <div>Sending reaction...</div>}
         {errorRoomReaction && <div>Error sending reaction</div>}
+        {loadingRoomGas && <div>Sending gas event...</div>}
+        {errorRoomGas && <div>Error sending gas event</div>}
       </Field>
     );
   }, [
     loadingRoomReaction,
+    loadingRoomGas,
     errorRoomReaction,
+    errorRoomGas,
     reactions,
     handleReactionClick,
+    handleGasReactionClick,
   ]);
 
   const renderRoomContent = useCallback(() => {

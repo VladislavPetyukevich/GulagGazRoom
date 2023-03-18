@@ -86,7 +86,7 @@ const createFetchRequestInit = (apiContract: ApiContract) => {
   };
 };
 
-export const useApiMethod = <ResponseData>() => {
+export const useApiMethod = <ResponseData>(options?: { noParseResponse?: boolean }) => {
   const [apiMethodState, dispatch] = useReducer(apiMethodReducer, initialState);
   const navidate = useNavigate();
   const { deleteCommunist } = useCommunist();
@@ -106,15 +106,18 @@ export const useApiMethod = <ResponseData>() => {
       if (!response.ok) {
         throw new Error(`${apiContract.method} ${apiContract.baseUrl} ${response.status}`);
       }
-      const responseJson = await response.json();
-      dispatch({ name: 'setData', payload: responseJson });
+      const responseData =
+        options?.noParseResponse ?
+        response :
+        await response.json();
+      dispatch({ name: 'setData', payload: responseData });
     } catch (err: any) {
       dispatch({
         name: 'setError',
         payload: err.message || `Failed to fetch ${apiContract.method} ${apiContract.baseUrl}`,
       });
     }
-  }, [deleteCommunist, navidate]);
+  }, [options?.noParseResponse, deleteCommunist, navidate]);
 
   return {
     apiMethodState: apiMethodState as ApiMethodState<ResponseData>,
