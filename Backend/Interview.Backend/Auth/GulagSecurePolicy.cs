@@ -1,8 +1,7 @@
-namespace Interview.Backend.Auth
+namespace Interview.Backend.Auth;
+
+public abstract record GulagSecurePolicy
 {
-    public abstract record GulagSecurePolicy
-    {
-        public const string Manager = "manager";
-        public const string User = "user";
-    }
+    public const string Manager = "manager";
+    public const string User = "user";
 }

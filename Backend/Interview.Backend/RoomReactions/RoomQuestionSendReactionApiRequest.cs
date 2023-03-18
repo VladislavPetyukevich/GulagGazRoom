@@ -12,7 +12,7 @@ public class RoomQuestionSendReactionApiRequest
 
     public AvailableEventType Type { get; set; }
 
-    public RoomQuestionSendReactionRequest ToRoomQuestionSendReactionRequest(Guid userId)
+    public RoomQuestionSendReactionRequest ToDomainRequest(Guid userId)
     {
         return new RoomQuestionSendReactionRequest(userId, RoomId, QuestionId, (EventType)Type);
     }

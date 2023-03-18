@@ -5,7 +5,7 @@ using System.Text.Unicode;
 
 namespace Interview.Domain.Events.Events;
 
-public interface IWebSocketEvent
+public interface IRoomEvent
 {
     Guid RoomId { get; }
 
@@ -13,7 +13,7 @@ public interface IWebSocketEvent
 
     string Stringify()
     {
-        return JsonSerializer.Serialize(this, new JsonSerializerOptions
+        return JsonSerializer.Serialize(this, GetType(), new JsonSerializerOptions
         {
             WriteIndented = true,
             Converters = { new JsonStringEnumConverter() },
@@ -22,7 +22,7 @@ public interface IWebSocketEvent
     }
 }
 
-public interface IWebSocketEvent<T> : IWebSocketEvent
+public interface IRoomEvent<out T> : IRoomEvent
 {
     T Value { get; }
 }

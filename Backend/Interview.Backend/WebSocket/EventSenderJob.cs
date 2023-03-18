@@ -30,14 +30,18 @@ public class EventSenderJob : BackgroundService
             {
                 await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
 
-                IEnumerable<IWebSocketEvent>? events;
+                IEnumerable<IRoomEvent>? events;
                 try
                 {
                     events = await _roomEventDispatcher.ReadAsync(ReadTimeout);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Read events");
+                    if (e is not OperationCanceledException)
+                    {
+                        _logger.LogError(e, "Read events");
+                    }
+
                     await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
                     continue;
                 }
@@ -66,7 +70,7 @@ public class EventSenderJob : BackgroundService
                entry.WebSocket.CloseStatus.HasValue;
     }
 
-    private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, IWebSocketEvent currentEvent)
+    private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, IRoomEvent currentEvent)
     {
         foreach (var entry in users)
         {

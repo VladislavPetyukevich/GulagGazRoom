@@ -46,8 +46,7 @@ public class RoomReactionController : ControllerBase
     [HttpPost(nameof(SendReaction))]
     [ProducesResponseType(typeof(string), 200)]
     [ProducesResponseType(typeof(string), 400)]
-    public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> SendReaction(
-        RoomQuestionSendReactionApiRequest request)
+    public async Task<ActionResult<string?>> SendReaction(RoomQuestionSendReactionApiRequest request)
     {
         var user = User.ToUser();
         if (user == null)
@@ -55,7 +54,7 @@ public class RoomReactionController : ControllerBase
             return Unauthorized();
         }
 
-        var sendRequest = request.ToRoomQuestionSendReactionRequest(user.Id);
+        var sendRequest = request.ToDomainRequest(user.Id);
         var result = await _roomQuestionReactionService.SendReactionAsync(sendRequest, HttpContext.RequestAborted);
         if (result.IsFailure)
         {

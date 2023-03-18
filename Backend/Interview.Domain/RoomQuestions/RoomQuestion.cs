@@ -2,18 +2,17 @@ using Interview.Domain.Questions;
 using Interview.Domain.Repository;
 using Interview.Domain.Rooms;
 
-namespace Interview.Domain.RoomQuestions
+namespace Interview.Domain.RoomQuestions;
+
+public class RoomQuestion : Entity
 {
-    public class RoomQuestion : Entity
+    public RoomQuestion()
     {
-        public RoomQuestion()
-        {
-        }
-
-        public Room Room { get; set; }
-
-        public Question Question { get; set; }
-
-        public RoomQuestionState State { get; set; }
     }
+
+    public Room Room { get; set; }
+
+    public Question Question { get; set; }
+
+    public RoomQuestionState State { get; set; }
 }

@@ -6,36 +6,35 @@ using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
 
-namespace Interview.Test.Integrations
+namespace Interview.Test.Integrations;
+
+public class RoomServiceTest
 {
-    public class RoomServiceTest
+    private const string DefaultRoomName = "Test_Room";
+
+    [Fact(DisplayName = "Patch update room with request name not null")]
+    public async Task PatchUpdateRoomWithRequestNameIsNotNull()
     {
-        private const string DefaultRoomName = "Test_Room";
+        var testSystemClock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
 
-        [Fact(DisplayName = "Patch update room with request name not null")]
-        public async Task PatchUpdateRoomWithRequestNameIsNotNull()
-        {
-            var testSystemClock = new TestSystemClock();
-            await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
+        var savedRoom = new Room(DefaultRoomName, DefaultRoomName);
 
-            var savedRoom = new Room(DefaultRoomName, DefaultRoomName);
+        appDbContext.Rooms.Add(savedRoom);
 
-            appDbContext.Rooms.Add(savedRoom);
+        await appDbContext.SaveChangesAsync();
 
-            await appDbContext.SaveChangesAsync();
+        var roomRepository = new RoomRepository(appDbContext);
+        var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher());
 
-            var roomRepository = new RoomRepository(appDbContext);
-            var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext));
+        var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
-            var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "New_Value_Name_Room" };
+        var patchUpdate = await roomService.PatchUpdate(savedRoom.Id, roomPatchUpdateRequest);
 
-            var patchUpdate = await roomService.PatchUpdate(savedRoom.Id, roomPatchUpdateRequest);
+        Assert.True(patchUpdate.IsSuccess);
 
-            Assert.True(patchUpdate.IsSuccess);
+        var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
 
-            var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
-
-            foundedRoom?.Name.Should().BeEquivalentTo(roomPatchUpdateRequest.Name);
-        }
+        foundedRoom?.Name.Should().BeEquivalentTo(roomPatchUpdateRequest.Name);
     }
 }

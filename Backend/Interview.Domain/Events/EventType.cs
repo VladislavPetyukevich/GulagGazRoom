@@ -24,4 +24,14 @@ public enum EventType
     /// The event is triggered when a new message appears in twitch
     /// </summary>
     ChatMessage,
+
+    /// <summary>
+    /// The event is triggered when the admin turns on the gas in the room
+    /// </summary>
+    GasOn,
+
+    /// <summary>
+    /// The event is triggered when the admin turns off the gas in the room
+    /// </summary>
+    GasOff,
 }

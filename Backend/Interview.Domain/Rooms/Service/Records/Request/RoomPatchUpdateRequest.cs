@@ -1,9 +1,8 @@
-namespace Interview.Domain.Rooms.Service.Records.Request
-{
-    public class RoomPatchUpdateRequest
-    {
-        public string? Name { get; set; }
+namespace Interview.Domain.Rooms.Service.Records.Request;
 
-        public string? TwitchChannel { get; set; }
-    }
+public class RoomPatchUpdateRequest
+{
+    public string? Name { get; set; }
+
+    public string? TwitchChannel { get; set; }
 }

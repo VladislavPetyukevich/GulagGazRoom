@@ -1,11 +1,10 @@
 using Interview.Domain.Repository;
 
-namespace Interview.Domain.Events.ChangeEntityProcessors
-{
-    public interface IChangeEntityProcessor
-    {
-        ValueTask ProcessAddedAsync(IReadOnlyCollection<Entity> entity, CancellationToken cancellationToken);
+namespace Interview.Domain.Events.ChangeEntityProcessors;
 
-        ValueTask ProcessModifiedAsync(IReadOnlyCollection<Entity> entity, CancellationToken cancellationToken);
-    }
+public interface IChangeEntityProcessor
+{
+    ValueTask ProcessAddedAsync(IReadOnlyCollection<Entity> entity, CancellationToken cancellationToken);
+
+    ValueTask ProcessModifiedAsync(IReadOnlyCollection<Entity> entity, CancellationToken cancellationToken);
 }

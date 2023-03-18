@@ -72,4 +72,26 @@ public class RoomController : ControllerBase
             ? BadRequest(updatedRoomResult.Error)
             : Ok(updatedRoomResult.Value);
     }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPost(nameof(SendGasEvent))]
+    [ProducesResponseType(typeof(string), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<ActionResult<string?>> SendGasEvent(SendGasRoomEventApiRequest request)
+    {
+        var user = User.ToUser();
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var sendRequest = request.ToDomainRequest(user.Id);
+        var result = await _roomService.SendGasEventAsync(sendRequest, HttpContext.RequestAborted);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok();
+    }
 }

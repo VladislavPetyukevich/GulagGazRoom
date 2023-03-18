@@ -4,34 +4,33 @@ using Interview.Domain.RoomQuestions.Records;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Interview.Backend.RoomQuestions
+namespace Interview.Backend.RoomQuestions;
+
+[ApiController]
+[Route("[controller]")]
+public class RoomQuestionController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class RoomQuestionController : ControllerBase
+    private readonly RoomQuestionService _roomQuestionService;
+
+    public RoomQuestionController(RoomQuestionService roomQuestionService)
     {
-        private readonly RoomQuestionService _roomQuestionService;
+        _roomQuestionService = roomQuestionService;
+    }
 
-        public RoomQuestionController(RoomQuestionService roomQuestionService)
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPost(nameof(ChangeActiveQuestion))]
+    [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
+        RoomQuestionChangeActiveRequest request)
+    {
+        var result = await _roomQuestionService.ChangeActiveQuestionAsync(request);
+
+        if (result.IsFailure)
         {
-            _roomQuestionService = roomQuestionService;
+            return BadRequest(result.Error);
         }
 
-        [Authorize(policy: GulagSecurePolicy.Manager)]
-        [HttpPost(nameof(ChangeActiveQuestion))]
-        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
-            RoomQuestionChangeActiveRequest request)
-        {
-            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request);
-
-            if (result.IsFailure)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
-        }
+        return Ok(result.Value);
     }
 }
