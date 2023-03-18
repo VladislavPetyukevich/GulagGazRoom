@@ -27,9 +27,9 @@ public class WebSocketAuthorizationMiddleware
             return _next(context);
         }
 
-        var headers = context.Request.Headers;
+        var query = context.Request.Query;
 
-        if (!headers.TryGetValue(_options.WebSocketHeaderName, out var value))
+        if (!query.TryGetValue(_options.WebSocketQueryName, out var value))
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             return Task.CompletedTask;

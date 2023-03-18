@@ -6,5 +6,5 @@ public class WebSocketAuthorizationOptions
 
     public string CookieName { get; set; } = string.Empty;
 
-    public string WebSocketHeaderName { get; set; } = string.Empty;
+    public string WebSocketQueryName { get; set; } = string.Empty;
 }
