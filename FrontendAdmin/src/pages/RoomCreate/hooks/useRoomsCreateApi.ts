@@ -60,6 +60,7 @@ const roomReducer = (state: RoomState, action: RoomAction): RoomState => {
 
 interface CreateRoomOptions {
   name: string;
+  twitchChannel: string;
   questions: Array<Question['id']>;
   users: Array<User['id']>;
 }
@@ -68,7 +69,7 @@ export const useRoomsCreateApi = () => {
   const [roomState, dispatch] = useReducer(roomReducer, initialState);
 
   const createRoom = useCallback(async (options: CreateRoomOptions) => {
-    const { name, questions, users } = options;
+    const { name, twitchChannel, questions, users } = options;
     dispatch({ name: 'startCreating' });
     try {
       const response = await fetch(
@@ -78,7 +79,7 @@ export const useRoomsCreateApi = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ name, questions, users }),
+          body: JSON.stringify({ name, twitchChannel, questions, users }),
         }
       );
       if (!response.ok) {

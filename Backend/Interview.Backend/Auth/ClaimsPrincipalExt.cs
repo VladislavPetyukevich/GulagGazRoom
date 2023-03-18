@@ -10,7 +10,7 @@ public static class ClaimsPrincipalExt
 
         var claimIdentity = new ClaimsIdentity(newRoles);
 
-        claimIdentity.AddClaim(new Claim(ClaimTypes.UserData, user.Id.ToString()));
+        claimIdentity.AddClaim(new Claim(UserClaimConstants.UserId, user.Id.ToString()));
 
         self.AddIdentity(claimIdentity);
     }
@@ -24,7 +24,8 @@ public static class ClaimsPrincipalExt
             return null;
         }
 
-        var id = self.Claims.FirstOrDefault(e => e.Type == ClaimTypes.UserData);
+        var id = self.Claims.FirstOrDefault(e => e.Type == UserClaimConstants.UserId);
+
         var user = new User(nickname.Value, twitchId.Value);
         if (id != null && Guid.TryParse(id.Value, out var typedId))
         {

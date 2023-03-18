@@ -4,14 +4,15 @@ import useWebSocket from 'react-use-websocket';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
-import { useCommunist } from './hooks/useCommunist';
+import { useCommunist } from '../../hooks/useCommunist';
 import { useRoomGetApi } from './hooks/useRoomGetApi';
 
 import './Room.css';
 
 export const Room: FunctionComponent = () => {
   let { id } = useParams();
-  const communist = useCommunist();
+  const { getCommunist } = useCommunist();
+  const communist = getCommunist();
   const socketUrl = useMemo(
     () => `ws://localhost:5043/ws?Authorization=${communist}&roomId=${id}`,
     [id, communist]

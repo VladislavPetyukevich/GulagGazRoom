@@ -1,51 +1,105 @@
 using CSharpFunctionalExtensions;
+using Interview.Domain.Questions;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
+using Interview.Domain.RoomQuestions.Records.Response.Response;
+using Interview.Domain.Rooms;
 
-namespace Interview.Domain.RoomQuestions;
-
-public class RoomQuestionService
+namespace Interview.Domain.RoomQuestions
 {
-    private readonly IRoomQuestionRepository _roomQuestionRepository;
-
-    public RoomQuestionService(IRoomQuestionRepository roomQuestionRepository)
+    public class RoomQuestionService
     {
-        _roomQuestionRepository = roomQuestionRepository;
-    }
+        private readonly IRoomQuestionRepository _roomQuestionRepository;
 
-    public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestionAsync(
-        RoomQuestionChangeActiveRequest request)
-    {
-        var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(request.QuestionId, request.RoomId, default);
+        private readonly IQuestionRepository _questionRepository;
 
-        if (roomQuestion == null)
+        private readonly IRoomRepository _roomRepository;
+
+        public RoomQuestionService(
+            IRoomQuestionRepository roomQuestionRepository,
+            IRoomRepository roomRepository,
+            IQuestionRepository questionRepository)
         {
-            return Result.Failure<RoomQuestionDetail?>($"Question in room not found by id {request.QuestionId}");
+            _roomQuestionRepository = roomQuestionRepository;
+            _roomRepository = roomRepository;
+            _questionRepository = questionRepository;
         }
 
-        if (roomQuestion.State == RoomQuestionState.Active)
+        public async Task<Result<RoomQuestionDetail?>> ChangeActiveQuestionAsync(
+            RoomQuestionChangeActiveRequest request, CancellationToken cancellationToken = default)
         {
-            return Result.Failure<RoomQuestionDetail?>($"Question already has active state");
+            var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(
+                request.QuestionId, request.RoomId, cancellationToken);
+
+            if (roomQuestion == null)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Question in room not found by id {request.QuestionId}");
+            }
+
+            if (roomQuestion.State == RoomQuestionState.Active)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Question already has active state");
+            }
+
+            var roomQuestionActual =
+                await _roomQuestionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active, cancellationToken);
+
+            if (roomQuestionActual != null)
+            {
+                roomQuestionActual.State = RoomQuestionState.Closed;
+
+                await _roomQuestionRepository.UpdateAsync(roomQuestionActual, cancellationToken);
+            }
+
+            roomQuestion.State = RoomQuestionState.Active;
+
+            await _roomQuestionRepository.UpdateAsync(roomQuestion, cancellationToken);
+
+            return new RoomQuestionDetail
+            {
+                Id = roomQuestion.Id,
+                RoomId = roomQuestion.Room.Id,
+                QuestionId = roomQuestion.Question.Id,
+                State = roomQuestion.State,
+            };
         }
 
-        var roomQuestionActual = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(request.RoomId, RoomQuestionState.Active);
-
-        if (roomQuestionActual != null)
+        public async Task<Result<RoomQuestionDetail?>> Create(RoomQuestionCreateRequest request)
         {
-            roomQuestionActual.State = RoomQuestionState.Closed;
+            var roomQuestion = await _roomQuestionRepository.FindFirstByQuestionIdAndRoomIdAsync(
+                request.QuestionId, request.RoomId, default);
 
-            await _roomQuestionRepository.UpdateAsync(roomQuestionActual);
+            if (roomQuestion != null)
+            {
+                return Result.Failure<RoomQuestionDetail?>(
+                    $"The room {request.RoomId} with question {request.QuestionId} already exists");
+            }
+
+            var room = await _roomRepository.FindByIdAsync(request.RoomId);
+
+            if (room == null)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Room with id {request.RoomId} not found");
+            }
+
+            var question = await _questionRepository.FindByIdAsync(request.QuestionId);
+
+            if (question == null)
+            {
+                return Result.Failure<RoomQuestionDetail?>($"Question with id {request.QuestionId} not found");
+            }
+
+            var newRoomQuestion = new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open };
+
+            await _roomQuestionRepository.CreateAsync(newRoomQuestion);
+
+            return new RoomQuestionDetail
+            {
+                Id = newRoomQuestion.Id,
+                QuestionId = question.Id,
+                RoomId = room.Id,
+                State = newRoomQuestion.State,
+            };
         }
-
-        roomQuestion.State = RoomQuestionState.Active;
-
-        await _roomQuestionRepository.UpdateAsync(roomQuestion);
-
-        return new RoomQuestionDetail
-        {
-            RoomId = roomQuestion.Room.Id,
-            QuestionId = roomQuestion.Question.Id,
-            State = roomQuestion.State,
-        };
     }
 }

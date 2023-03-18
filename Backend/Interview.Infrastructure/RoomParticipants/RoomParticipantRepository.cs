@@ -11,10 +11,18 @@ public class RoomParticipantRepository : EfRepository<RoomParticipant>, IRoomPar
     {
     }
 
-    public Task<bool> FindByRoomIdAndUserId(Guid roomId, Guid userId) =>
+    public Task<RoomParticipant?> FindByRoomIdAndUserId(
+        Guid roomId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        return ApplyIncludes(Set)
+            .Where(participant => participant.Room.Id == roomId && participant.User.Id == userId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public Task<bool> IsExistsByRoomIdAndUserIdAsync(Guid roomId, Guid userId) =>
         ApplyIncludes(Set).AnyAsync(participant => participant.Room.Id == roomId && participant.User.Id == userId);
 
     protected override IQueryable<RoomParticipant> ApplyIncludes(DbSet<RoomParticipant> set) => set
-            .Include(participant => participant.Room)
-            .Include(participant => participant.User);
+        .Include(participant => participant.Room)
+        .Include(participant => participant.User);
 }

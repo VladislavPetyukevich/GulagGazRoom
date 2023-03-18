@@ -1,6 +1,6 @@
 export interface User {
   id: string;
   nickname: string;
-  email: string;
   twitchIdentity: string;
+  roles: string[];
 }

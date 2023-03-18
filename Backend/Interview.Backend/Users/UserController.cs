@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -12,9 +13,15 @@ public class UserController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
 
-    public UserController(IUserRepository userRepository)
+    private readonly UserService _userService;
+
+    private readonly UserClaimService _userClaimService;
+
+    public UserController(IUserRepository userRepository, UserService userService, UserClaimService userClaimService)
     {
         _userRepository = userRepository;
+        _userService = userService;
+        _userClaimService = userClaimService;
     }
 
     [Authorize]
@@ -33,8 +40,18 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet(nameof(GetMe))]
-    public Task<User?> GetMe()
+    [ProducesResponseType(typeof(UserClaim), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    public async Task<ActionResult<UserClaim?>> GetMe()
     {
-        return Task.FromResult(HttpContext.User.ToUser());
+        var userClaimResult =
+            await _userClaimService.ParseClaimsAsync(HttpContext.User.Claims, HttpContext.RequestAborted);
+
+        if (userClaimResult.IsFailure)
+        {
+            return BadRequest(userClaimResult.Error);
+        }
+
+        return Ok(userClaimResult.Value);
     }
 }
