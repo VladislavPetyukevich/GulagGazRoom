@@ -1,13 +1,15 @@
 import React, { FunctionComponent, useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
-import { reactionsApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
+import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
 
@@ -77,6 +79,14 @@ export const Room: FunctionComponent = () => {
     process: { loading: loadingRoomGas, error: errorRoomGas },
   } = apiSendGasState;
 
+  const {
+    apiMethodState: apiSendActiveQuestionState,
+    fetchData: sendRoomActiveQuestion,
+  } = useApiMethod<unknown>();
+  const {
+    process: { loading: loadingRoomActiveQuestion, error: errorRoomActiveQuestion },
+  } = apiSendActiveQuestionState;
+
   useEffect(() => {
     if (!id) {
       throw new Error('Room id not found');
@@ -102,7 +112,6 @@ export const Room: FunctionComponent = () => {
   }, [room, sendRoomReaction]);
 
   const handleGasReactionClick = useCallback((reaction: Reaction) => {
-    console.log('reaction: ', reaction);
     if (!room) {
       throw new Error('Error sending reaction. Room not found.');
     }
@@ -111,6 +120,16 @@ export const Room: FunctionComponent = () => {
       type: (reaction as GasReaction).type.eventType,
     }));
   }, [room, sendRoomGas]);
+
+  const handleQuestionSelect = useCallback((question: Question) => {
+    if (!room) {
+      throw new Error('Error sending reaction. Room not found.');
+    }
+    sendRoomActiveQuestion(roomQuestionApiDeclaration.changeActiveQuestion({
+      roomId: room.id,
+      questionId: question.id,
+    }));
+  }, [room, sendRoomActiveQuestion]);
 
   const renderReactionsField = useCallback(() => {
     return (
@@ -162,16 +181,19 @@ export const Room: FunctionComponent = () => {
         </Field>
       );
     }
-    const questions = (room?.questions && room.questions.length > 0) ?
-      room.questions.map(question => question.value).join(', ') :
-      'No questions';
     return (
       <>
         <Field>
           <div>{room?.name}</div>
         </Field>
         <Field>
-          <div>{questions}</div>
+          <ActiveQuestionSelector
+            questions={room?.questions || []}
+            selectButtonLabel="Set active question"
+            onSelect={handleQuestionSelect}
+          />
+          {loadingRoomActiveQuestion && <div>Sending active question...</div>}
+          {errorRoomActiveQuestion && <div>Error sending active question...</div>}
         </Field>
         {renderReactionsField()}
         <Field className="interviewee-frame-wrapper">
@@ -187,10 +209,13 @@ export const Room: FunctionComponent = () => {
   }, [
     loading,
     loadingReactions,
+    loadingRoomActiveQuestion,
     error,
     errorReactions,
+    errorRoomActiveQuestion,
     room,
     renderReactionsField,
+    handleQuestionSelect,
   ]);
 
   return (

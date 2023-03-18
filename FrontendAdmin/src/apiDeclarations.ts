@@ -39,6 +39,14 @@ export const roomsApiDeclaration = {
   }),
 };
 
+export const roomQuestionApiDeclaration = {
+  changeActiveQuestion: (body: { roomId: Room['id'], questionId: Question['id']; }): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/RoomQuestion/ChangeActiveQuestion',
+    body,
+  }),
+};
+
 export const questionsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
