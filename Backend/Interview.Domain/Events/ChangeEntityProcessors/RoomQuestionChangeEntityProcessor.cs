@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Events.Events;
+using Interview.Domain.Events.Events;
 using Interview.Domain.Repository;
 using Interview.Domain.RoomQuestions;
 
