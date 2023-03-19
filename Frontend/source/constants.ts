@@ -11,6 +11,8 @@ import lightFlick1 from './assets/lightFlick1.mp3';
 import lightFlick2 from './assets/lightFlick2.mp3';
 import lightFlick3 from './assets/lightFlick3.mp3';
 import lightFlick4 from './assets/lightFlick4.mp3';
+import like from './assets/like.mp3';
+import dislike from './assets/dislike.mp3';
 
 export const PI_2 = Math.PI / 2;
 
@@ -70,4 +72,6 @@ export const gameSounds = {
   lightFlick2,
   lightFlick3,
   lightFlick4,
+  like,
+  dislike,
 };

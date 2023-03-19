@@ -54,6 +54,8 @@ export class TestScene extends BasicScene {
   lightEffects: Record<LightEffectName, LightEffect>;
   buzzSound: Audio;
   lightFlickAudios: Audio[];
+  likeAudio: Audio;
+  dislikeAudio: Audio;
   stats: Stats;
   tvMain?: TV;
   tvChat?: TV;
@@ -193,6 +195,14 @@ export class TestScene extends BasicScene {
       );
     }
 
+    this.likeAudio = new Audio(this.audioListener);
+    this.likeAudio.setBuffer(audioStore.getSound('like'));
+    this.likeAudio.setVolume(1.0);
+
+    this.dislikeAudio = new Audio(this.audioListener);
+    this.dislikeAudio.setBuffer(audioStore.getSound('dislike'));
+    this.dislikeAudio.setVolume(0.3);
+
     this.actions = {
       gasEnable: this.onGasEnable,
       gasDisable: this.onGasDisable,
@@ -236,6 +246,13 @@ export class TestScene extends BasicScene {
     );
   }
 
+  playAudio(audio: Audio) {
+    if (audio.isPlaying) {
+      audio.stop();
+    }
+    audio.play();
+  }
+
   createLightEffect(effect: LightEffect) {
     this.ambientLight.color.setHex(effect.colorHex);
     this.ambientLight.intensity = effect.intensity;
@@ -248,10 +265,7 @@ export class TestScene extends BasicScene {
   playRandomLightFlickSound() {
     const flickAudioIndex = randomNumbers.getRandomInRange(0, this.lightFlickAudios.length - 1);
     const flickAudio = this.lightFlickAudios[flickAudioIndex];
-    if (flickAudio.isPlaying) {
-      flickAudio.stop();
-    }
-    flickAudio.play();
+    this.playAudio(flickAudio);
   }
 
   lightFlick() {
@@ -317,11 +331,13 @@ export class TestScene extends BasicScene {
   }
 
   onLike = () => {
+    this.playAudio(this.likeAudio);
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
   }
 
   onDislike = () => {
+    this.playAudio(this.dislikeAudio);
     this.stats.increaseCount('dislike');
     this.startTvStatsAnimation('👎');
   }
