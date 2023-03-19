@@ -1,3 +1,4 @@
+using Interview.Domain.Connections;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Repository;
@@ -7,10 +8,12 @@ namespace Interview.Domain.Events.ChangeEntityProcessors;
 public class QuestionChangeEntityProcessor : IChangeEntityProcessor
 {
     private readonly IRoomEventDispatcher _eventDispatcher;
+    private readonly IConnectUserSource _connectUserSource;
 
-    public QuestionChangeEntityProcessor(IRoomEventDispatcher eventDispatcher)
+    public QuestionChangeEntityProcessor(IRoomEventDispatcher eventDispatcher, IConnectUserSource connectUserSource)
     {
         _eventDispatcher = eventDispatcher;
+        _connectUserSource = connectUserSource;
     }
 
     public ValueTask ProcessAddedAsync(IReadOnlyCollection<Entity> entities, CancellationToken cancellationToken = default)
@@ -27,7 +30,7 @@ public class QuestionChangeEntityProcessor : IChangeEntityProcessor
                 continue;
             }
 
-            foreach (var roomId in _eventDispatcher.ActiveRooms)
+            foreach (var roomId in _connectUserSource.ActiveRooms)
             {
                 await _eventDispatcher.WriteAsync(CreateEvent(current, original, roomId), cancellationToken);
             }

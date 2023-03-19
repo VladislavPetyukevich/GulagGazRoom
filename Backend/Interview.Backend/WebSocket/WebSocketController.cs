@@ -3,6 +3,8 @@ using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
+using Interview.Domain;
+using Interview.Domain.Connections;
 using Interview.Domain.Rooms.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,12 +16,12 @@ public class WebSocketController : ControllerBase
 {
     private readonly RoomService _roomService;
     private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
-    private readonly WebSocketConnectListenerSource _webSocketConnectListenerSource;
+    private readonly IConnectUserSource _connectUserSource;
 
-    public WebSocketController(UserByRoomEventSubscriber userByRoomEventSubscriber, RoomService roomService, WebSocketConnectListenerSource webSocketConnectListenerSource)
+    public WebSocketController(UserByRoomEventSubscriber userByRoomEventSubscriber, RoomService roomService, IConnectUserSource connectUserSource)
     {
         _roomService = roomService;
-        _webSocketConnectListenerSource = webSocketConnectListenerSource;
+        _connectUserSource = connectUserSource;
         _userByRoomEventSubscriber = userByRoomEventSubscriber;
     }
 
@@ -67,7 +69,7 @@ public class WebSocketController : ControllerBase
             }
 
             var task = _userByRoomEventSubscriber.SubscribeAsync(dbRoom.Id, webSocket, ct);
-            _webSocketConnectListenerSource.Connect(dbRoom.Id, user.Id, dbRoom.TwitchChannel);
+            _connectUserSource.Connect(dbRoom.Id, user.Id, dbRoom.TwitchChannel);
             connectionDetail = (dbRoom.Id, user.Id, dbRoom.TwitchChannel);
             await task;
             try
@@ -88,7 +90,7 @@ public class WebSocketController : ControllerBase
             if (connectionDetail.HasValue)
             {
                 var (roomId, userId, twitchChannel) = connectionDetail.Value;
-                _webSocketConnectListenerSource.Disconnect(roomId, userId, twitchChannel);
+                _connectUserSource.Disconnect(roomId, userId, twitchChannel);
             }
         }
     }

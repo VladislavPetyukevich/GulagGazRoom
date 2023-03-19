@@ -7,8 +7,7 @@ namespace Interview.Domain.Events;
 public class RoomEventDispatcher : IRoomEventDispatcher
 {
     private readonly ConcurrentDictionary<Guid, Channel<IRoomEvent>> _queue = new();
-
-    public IEnumerable<Guid> ActiveRooms => _queue.Keys;
+    private readonly SemaphoreSlim _semaphore = new(1);
 
     public async Task<IEnumerable<IRoomEvent>> ReadAsync(TimeSpan timeout)
     {
@@ -31,10 +30,11 @@ public class RoomEventDispatcher : IRoomEventDispatcher
         }
     }
 
-    public Task WriteAsync(IRoomEvent @event, CancellationToken cancellationToken = default)
+    public async Task WriteAsync(IRoomEvent @event, CancellationToken cancellationToken = default)
     {
         var channel = GetChannel(@event.RoomId);
-        return channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
+        await channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
+        _semaphore.Release();
     }
 
     public Task DropEventsAsync(Guid roomId, CancellationToken cancellationToken = default)
@@ -44,6 +44,7 @@ public class RoomEventDispatcher : IRoomEventDispatcher
             return Task.CompletedTask;
         }
 
+        _semaphore.Release();
         try
         {
             channel.Writer.TryComplete();
@@ -54,6 +55,11 @@ public class RoomEventDispatcher : IRoomEventDispatcher
         }
 
         return Task.CompletedTask;
+    }
+
+    public Task WaitAsync(CancellationToken cancellationToken = default)
+    {
+        return _semaphore.WaitAsync(cancellationToken);
     }
 
     private static Channel<T> CreateBoundedChannel<T>(int capacity = 100) => Channel.CreateBounded<T>(

@@ -28,8 +28,6 @@ public class EventSenderJob : BackgroundService
             _logger.LogDebug("Start sending");
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
-
                 IEnumerable<IRoomEvent>? events;
                 try
                 {
@@ -56,6 +54,10 @@ public class EventSenderJob : BackgroundService
                     _logger.LogDebug("Start sending {Event}", currentEvent.Stringify());
                     await HandleSubscribersAsync(stoppingToken, subscribers, currentEvent);
                 }
+
+                _logger.LogDebug("Before wait async");
+                await _roomEventDispatcher.WaitAsync(stoppingToken);
+                _logger.LogDebug("After wait async");
             }
         }
         finally

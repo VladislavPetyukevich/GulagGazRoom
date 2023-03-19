@@ -6,6 +6,8 @@ using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
+using Interview.Domain;
+using Interview.Domain.Connections;
 using Interview.Infrastructure.Chat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -89,7 +91,6 @@ public class ServiceConfigurator
 
         serviceCollection.AddHostedService<EventSenderJob>();
         serviceCollection.AddHostedService<WebSocketConnectListenJob>();
-        serviceCollection.AddSingleton<WebSocketConnectListenerSource>();
 
         serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
         serviceCollection.AddSingleton(oAuthServiceDispatcher);

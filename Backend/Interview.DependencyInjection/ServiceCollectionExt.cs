@@ -1,4 +1,5 @@
 using Interview.Domain.Certificates;
+using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Questions;
@@ -53,6 +54,8 @@ public static class ServiceCollectionExt
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
 
+        self.AddSingleton<IConnectUserSource, ConnectUserSource>();
+
         // Services
         self.AddScoped<UserService>();
         self.AddScoped<RoomService>();
@@ -63,7 +66,6 @@ public static class ServiceCollectionExt
         self.AddScoped<ReactionService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);
-
         return self;
     }
 }
