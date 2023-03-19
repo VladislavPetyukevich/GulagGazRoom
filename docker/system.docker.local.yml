@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres:
+  pgsql:
     extends:
       file: database/postgres.yml
       service: postgres
@@ -17,7 +17,7 @@ services:
     volumes:
       - nginx-volume:/app/
     depends_on:
-      - postgres
+      - pgsql
     networks:
       - local.network
       
@@ -26,7 +26,7 @@ services:
       file: backend/backend.yml
       service: backend
     depends_on:
-      - postgres
+      - pgsql
     restart: always
     networks:
       - local.network
