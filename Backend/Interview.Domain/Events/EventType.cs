@@ -39,4 +39,14 @@ public enum EventType
     /// The event is triggered when question is changed
     /// </summary>
     ChangeQuestion,
+
+    /// <summary>
+    /// The event is triggered when room question state is changed
+    /// </summary>
+    ChangeRoomQuestionState,
+
+    /// <summary>
+    /// The event is triggered when room question is created
+    /// </summary>
+    AddRoomQuestion,
 }

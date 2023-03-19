@@ -52,6 +52,7 @@ public static class ServiceCollectionExt
 
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
+        self.AddSingleton<IChangeEntityProcessor, RoomQuestionChangeEntityProcessor>();
 
         // Services
         self.AddScoped<UserService>();
