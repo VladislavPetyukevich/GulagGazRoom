@@ -123,6 +123,12 @@ export const Room: FunctionComponent = () => {
     }));
   }, [room, sendRoomActiveQuestion]);
 
+  const handleCopyRoomLink = useCallback(() => {
+    navigator.clipboard.writeText(
+      `http://localhost:8080/?roomId=${id}`
+    );
+  }, [id]);
+
   const renderReactionsField = useCallback(() => {
     return (
       <Field>
@@ -180,6 +186,9 @@ export const Room: FunctionComponent = () => {
           <div>{Captions.Room}: {room?.name}</div>
         </Field>
         <Field>
+          <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
+        </Field>
+        <Field>
           <ActiveQuestionSelector
             questions={room?.questions || []}
             selectButtonLabel={Captions.SetActiveQuestion}
@@ -209,6 +218,7 @@ export const Room: FunctionComponent = () => {
     room,
     renderReactionsField,
     handleQuestionSelect,
+    handleCopyRoomLink,
   ]);
 
   return (
