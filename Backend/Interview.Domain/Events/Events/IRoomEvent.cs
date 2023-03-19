@@ -2,6 +2,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
+using Ardalis.SmartEnum.SystemTextJson;
+using Interview.Domain.RoomQuestions;
 
 namespace Interview.Domain.Events.Events;
 
@@ -16,7 +18,11 @@ public interface IRoomEvent
         return JsonSerializer.Serialize(this, GetType(), new JsonSerializerOptions
         {
             WriteIndented = true,
-            Converters = { new JsonStringEnumConverter() },
+            Converters =
+            {
+                new JsonStringEnumConverter(),
+                new SmartEnumNameConverter<RoomQuestionState, int>(),
+            },
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         });
     }

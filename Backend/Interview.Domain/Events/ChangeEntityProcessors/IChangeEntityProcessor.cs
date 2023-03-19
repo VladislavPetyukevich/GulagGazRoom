@@ -4,7 +4,7 @@ namespace Interview.Domain.Events.ChangeEntityProcessors;
 
 public interface IChangeEntityProcessor
 {
-    ValueTask ProcessAddedAsync(IReadOnlyCollection<Entity> entity, CancellationToken cancellationToken);
+    ValueTask ProcessAddedAsync(IReadOnlyCollection<Entity> entities, CancellationToken cancellationToken);
 
-    ValueTask ProcessModifiedAsync(IReadOnlyCollection<(Entity Original, Entity Current)> entity, CancellationToken cancellationToken);
+    ValueTask ProcessModifiedAsync(IReadOnlyCollection<(Entity Original, Entity Current)> entities, CancellationToken cancellationToken);
 }
