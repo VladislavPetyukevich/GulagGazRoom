@@ -1,6 +1,5 @@
-import React, { FunctionComponent, useCallback, useEffect, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useWebSocket from 'react-use-websocket';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
 import { Field } from '../../components/FieldsBlock/Field';
@@ -8,7 +7,6 @@ import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { useCommunist } from '../../hooks/useCommunist';
 import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
@@ -44,13 +42,6 @@ const gasReactions: GasReaction[] = [{
 
 export const Room: FunctionComponent = () => {
   let { id } = useParams();
-  const { getCommunist } = useCommunist();
-  const communist = getCommunist();
-  const socketUrl = useMemo(
-    () => `ws://localhost:5043/ws?Authorization=${communist}&roomId=${id}`,
-    [id, communist]
-  );
-  const { lastMessage, readyState } = useWebSocket(socketUrl);
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
 
@@ -139,6 +130,7 @@ export const Room: FunctionComponent = () => {
           reactions={reactions || []}
           onClick={handleReactionClick}
         />
+        <div>Gas:</div>
         <ReactionsList
           reactions={gasReactions}
           onClick={handleGasReactionClick}
@@ -184,7 +176,7 @@ export const Room: FunctionComponent = () => {
     return (
       <>
         <Field>
-          <div>{room?.name}</div>
+          <div>Room: {room?.name}</div>
         </Field>
         <Field>
           <ActiveQuestionSelector
@@ -220,11 +212,6 @@ export const Room: FunctionComponent = () => {
 
   return (
     <MainContentWrapper className="room-page">
-      <Field>
-        <div>Room</div>
-        <div>readyState: {readyState}</div>
-        <div>lastMessage: {lastMessage?.data}</div>
-      </Field>
       {renderRoomContent()}
     </MainContentWrapper>
   );
