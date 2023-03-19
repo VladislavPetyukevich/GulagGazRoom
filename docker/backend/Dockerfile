@@ -29,6 +29,6 @@ WORKDIR /app
 
 COPY --from=build-env /app/out .
 
-EXPOSE 5043
+EXPOSE 5053
 
 ENTRYPOINT ["dotnet", "Interview.Backend.dll"]
