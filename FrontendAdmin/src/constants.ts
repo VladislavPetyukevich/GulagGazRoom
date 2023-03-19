@@ -42,4 +42,5 @@ export const enum Captions {
   GasOn = 'Газ ВКЛ',
   GasOff = 'Газ ВЫКЛ',
   CopyRoomLink = 'Скопировать ссылку на комнату',
+  LoggedInAs = 'Представился как',
 };

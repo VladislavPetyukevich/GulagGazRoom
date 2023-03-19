@@ -24,7 +24,7 @@ export const Session: FunctionComponent = () => {
     return (
       <>
         <Field>
-          <div>Logged in as:</div>
+          <div>{Captions.LoggedInAs}:</div>
         </Field>
         <Field>
           <div>nickname: {auth.nickname}</div>
