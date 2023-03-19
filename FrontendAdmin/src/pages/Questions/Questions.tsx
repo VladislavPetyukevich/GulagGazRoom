@@ -5,7 +5,7 @@ import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
-import { pathnames } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 
@@ -165,7 +165,7 @@ export const Questions: FunctionComponent = () => {
   return (
     <MainContentWrapper>
       <HeaderWithLink
-        title="Questions:"
+        title={`${Captions.QuestionsPageName}:`}
         path={pathnames.questionsCreate}
         linkCaption="+"
         linkFloat="right"

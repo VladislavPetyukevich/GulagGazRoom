@@ -5,6 +5,7 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
+import { Captions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Room } from '../../types/room';
 
@@ -84,12 +85,12 @@ export const RoomParticipants: FunctionComponent = () => {
             ))}
           </select>
           <select name={userTypeFieldName}>
-            <option value="Viewer">Viewer</option>
-            <option value="Expert">Expert</option>
-            <option value="Examinee">Examinee</option>
+            <option value="Viewer">{Captions.Viewer}</option>
+            <option value="Expert">{Captions.Expert}</option>
+            <option value="Examinee">{Captions.Examinee}</option>
           </select>
         </Field>
-        <SubmitField caption="Save" />
+        <SubmitField caption={Captions.Save} />
         {changeParticipantStatusLoading && (
           <Field><div>Changing participant status...</div></Field>
         )}

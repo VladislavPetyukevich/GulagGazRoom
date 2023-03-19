@@ -1,4 +1,5 @@
 import React, { FunctionComponent, MouseEventHandler } from 'react';
+import { Captions } from '../../constants';
 import { Field } from '../FieldsBlock/Field';
 
 import './Paginator.css';
@@ -27,7 +28,7 @@ export const Paginator: FunctionComponent<PaginatorProps> = ({
       >
         &#60;
       </button>
-      <span>Page: {pageNumber}</span>
+      <span>{Captions.Page}: {pageNumber}</span>
       <button
         type="button"
         disabled={nextDisabled}

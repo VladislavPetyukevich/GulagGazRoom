@@ -1,14 +1,13 @@
-import React, { FunctionComponent, useCallback, useEffect, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useWebSocket from 'react-use-websocket';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
+import { Captions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { useCommunist } from '../../hooks/useCommunist';
 import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
@@ -30,27 +29,20 @@ const gasReactions: GasReaction[] = [{
   id: 'gasReactionOnId',
   type: {
     eventType: 'GasOn',
-    name: 'GasOn 🤿',
+    name: `${Captions.GasOn} 🤿`,
     value: 0,
   }
 }, {
   id: 'gasReactionOffId',
   type: {
     eventType: 'GasOff',
-    name: 'GasOff 👌',
+    name: `${Captions.GasOff} 👌`,
     value: 0,
   }
 }];
 
 export const Room: FunctionComponent = () => {
   let { id } = useParams();
-  const { getCommunist } = useCommunist();
-  const communist = getCommunist();
-  const socketUrl = useMemo(
-    () => `ws://localhost:5043/ws?Authorization=${communist}&roomId=${id}`,
-    [id, communist]
-  );
-  const { lastMessage, readyState } = useWebSocket(socketUrl);
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
 
@@ -131,22 +123,29 @@ export const Room: FunctionComponent = () => {
     }));
   }, [room, sendRoomActiveQuestion]);
 
+  const handleCopyRoomLink = useCallback(() => {
+    navigator.clipboard.writeText(
+      `http://localhost:8080/?roomId=${id}`
+    );
+  }, [id]);
+
   const renderReactionsField = useCallback(() => {
     return (
       <Field>
-        <div>Reactions:</div>
+        <div>{Captions.Reactions}:</div>
         <ReactionsList
           reactions={reactions || []}
           onClick={handleReactionClick}
         />
+        <div>{Captions.Gas}:</div>
         <ReactionsList
           reactions={gasReactions}
           onClick={handleGasReactionClick}
         />
-        {loadingRoomReaction && <div>Sending reaction...</div>}
-        {errorRoomReaction && <div>Error sending reaction</div>}
-        {loadingRoomGas && <div>Sending gas event...</div>}
-        {errorRoomGas && <div>Error sending gas event</div>}
+        {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
+        {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
+        {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
+        {errorRoomGas && <div>{Captions.ErrorSendingGasEvent}</div>}
       </Field>
     );
   }, [
@@ -163,14 +162,14 @@ export const Room: FunctionComponent = () => {
     if (error) {
       return (
         <Field>
-          <div>Error: {error}</div>
+          <div>{Captions.Error}: {error}</div>
         </Field>
       );
     }
     if (errorReactions) {
       return (
         <Field>
-          <div>Reactions loading error: {errorReactions}</div>
+          <div>{Captions.ReactionsLoadingError}: {errorReactions}</div>
         </Field>
       );
     }
@@ -184,16 +183,19 @@ export const Room: FunctionComponent = () => {
     return (
       <>
         <Field>
-          <div>{room?.name}</div>
+          <div>{Captions.Room}: {room?.name}</div>
+        </Field>
+        <Field>
+          <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
         </Field>
         <Field>
           <ActiveQuestionSelector
             questions={room?.questions || []}
-            selectButtonLabel="Set active question"
+            selectButtonLabel={Captions.SetActiveQuestion}
             onSelect={handleQuestionSelect}
           />
-          {loadingRoomActiveQuestion && <div>Sending active question...</div>}
-          {errorRoomActiveQuestion && <div>Error sending active question...</div>}
+          {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
+          {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
         </Field>
         {renderReactionsField()}
         <Field className="interviewee-frame-wrapper">
@@ -216,15 +218,11 @@ export const Room: FunctionComponent = () => {
     room,
     renderReactionsField,
     handleQuestionSelect,
+    handleCopyRoomLink,
   ]);
 
   return (
     <MainContentWrapper className="room-page">
-      <Field>
-        <div>Room</div>
-        <div>readyState: {readyState}</div>
-        <div>lastMessage: {lastMessage?.data}</div>
-      </Field>
       {renderRoomContent()}
     </MainContentWrapper>
   );

@@ -33,7 +33,7 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
   return (
     <div>
       <select
-        size={10}
+        size={8}
         onChange={handleSelectChange}
       >
         {questions.map(question => (

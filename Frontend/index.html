@@ -137,6 +137,22 @@
           case 'GasOff':
             threeShooter.onPlayerActionStart('gasDisable');
             break;
+          case 'ChangeRoomQuestionState':
+            if (dataParsed.Value.NewState !== 'Active') {
+              break;
+            }
+            const questionId = dataParsed.Value.QuestionId;
+            fetch(`/api/Question/GetById?id=${questionId}`)
+              .then((response) => {
+                if (!response.ok) {
+                  return alert('Get new question error');
+                }
+                response.json().then(json => {
+                  threeShooter.onPlayerActionStart('newQuestion', json.value);
+                });
+              })
+              .catch(() => alert('Get new question error'));
+            break;
           default:
             break;
         }

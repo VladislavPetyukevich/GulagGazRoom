@@ -6,7 +6,7 @@ import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
-import { pathnames } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Room } from '../../types/room';
 
@@ -15,21 +15,23 @@ import './Rooms.css';
 const pageSize = 10;
 const initialPageNumber = 1;
 
-const createRoomItem = (room: Room) => (
-  <li key={room.id}>
-    <Field>
-      <Link to={`${pathnames.rooms}/${room.id}`}>
-        {room.name}
-      </Link>
-      <div className="room-users">
-        {room.users.map(user => user.nickname).join(', ')}
-      </div>
-      <Link to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}>
-        Edit Participants
-      </Link>
-    </Field>
-  </li>
-);
+const createRoomItem = (room: Room) => {
+  return (
+    <li key={room.id}>
+      <Field>
+        <Link to={`${pathnames.rooms}/${room.id}`}>
+          {room.name}
+        </Link>
+        <div className="room-users">
+          {room.users.map(user => user.nickname).join(', ')}
+        </div>
+        <Link to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}>
+          {Captions.EditParticipants}
+        </Link>
+      </Field>
+    </li>
+  );
+};
 
 export const Rooms: FunctionComponent = () => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
@@ -87,7 +89,7 @@ export const Rooms: FunctionComponent = () => {
   return (
     <MainContentWrapper>
       <HeaderWithLink
-        title="Rooms:"
+        title={`${Captions.RoomsPageName}:`}
         path={pathnames.roomsCreate}
         linkCaption="+"
         linkFloat="right"

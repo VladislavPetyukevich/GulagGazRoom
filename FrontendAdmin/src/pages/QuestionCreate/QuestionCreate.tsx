@@ -5,7 +5,7 @@ import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
-import { pathnames } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 
@@ -40,7 +40,7 @@ export const QuestionCreate: FunctionComponent = () => {
     if (error) {
       return (
         <Field>
-          <div>Error: {error}</div>
+          <div>{Captions.Error}: {error}</div>
         </Field>
       );
     }
@@ -54,7 +54,7 @@ export const QuestionCreate: FunctionComponent = () => {
     if (createdQuestionId) {
       return (
         <Field>
-          <div>Question created successfully</div>
+          <div>{Captions.QuestionCreatedSuccessfully}</div>
         </Field>
       );
     }
@@ -64,7 +64,7 @@ export const QuestionCreate: FunctionComponent = () => {
   return (
     <MainContentWrapper className="question-create">
       <HeaderWithLink
-        title="Create question"
+        title={Captions.CreateQuestion}
         path={pathnames.questions}
         linkCaption="<"
         linkFloat="left"
@@ -72,10 +72,10 @@ export const QuestionCreate: FunctionComponent = () => {
       {renderStatus()}
       <form onSubmit={handleSubmit}>
         <Field>
-          <label htmlFor="qestionText">Question text:</label>
+          <label htmlFor="qestionText">{Captions.QuestionText}:</label>
           <input id="qestionText" name={valueFieldName} type="text" />
         </Field>
-        <SubmitField caption="Create" />
+        <SubmitField caption={Captions.Create} />
       </form>
     </MainContentWrapper>
   );

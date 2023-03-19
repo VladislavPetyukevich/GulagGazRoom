@@ -3,6 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { useCommunist } from '../../hooks/useCommunist';
+import { Captions } from '../../constants';
 
 export const Session: FunctionComponent = () => {
   const auth = useContext(AuthContext);
@@ -23,7 +24,7 @@ export const Session: FunctionComponent = () => {
     return (
       <>
         <Field>
-          <div>Logged in as:</div>
+          <div>{Captions.LoggedInAs}:</div>
         </Field>
         <Field>
           <div>nickname: {auth.nickname}</div>
@@ -32,7 +33,7 @@ export const Session: FunctionComponent = () => {
           <div>roles: {JSON.stringify(auth.roles)}</div>
         </Field>
         <Field>
-          <button onClick={handleLogOut}>Log out🚪</button>
+          <button onClick={handleLogOut}>{Captions.LogOut}🚪</button>
         </Field>
       </>
     );
