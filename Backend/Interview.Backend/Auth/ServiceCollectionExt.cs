@@ -47,6 +47,7 @@ public static class ServiceCollectionExt
                     var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
                     context.Principal!.EnrichRolesWithId(upsertUser);
                 };
+                options.Scope.Clear();
             });
 
         self.AddAuthorization(options =>
