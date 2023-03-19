@@ -187,7 +187,7 @@ export class TestScene extends BasicScene {
       },
     };
     this.lightFlickAudios = [];
-    for (let i = 4; i--;) {
+    for (let i = 1; i <= 4; i++) {
       this.lightFlickAudios.push(
         this.createLightFlickAudio(`lightFlick${i}`)
       );
