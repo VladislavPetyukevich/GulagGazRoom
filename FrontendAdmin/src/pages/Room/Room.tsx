@@ -6,6 +6,7 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
+import { Captions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
@@ -28,14 +29,14 @@ const gasReactions: GasReaction[] = [{
   id: 'gasReactionOnId',
   type: {
     eventType: 'GasOn',
-    name: 'GasOn 🤿',
+    name: `${Captions.GasOn} 🤿`,
     value: 0,
   }
 }, {
   id: 'gasReactionOffId',
   type: {
     eventType: 'GasOff',
-    name: 'GasOff 👌',
+    name: `${Captions.GasOff} 👌`,
     value: 0,
   }
 }];
@@ -125,20 +126,20 @@ export const Room: FunctionComponent = () => {
   const renderReactionsField = useCallback(() => {
     return (
       <Field>
-        <div>Reactions:</div>
+        <div>{Captions.Reactions}:</div>
         <ReactionsList
           reactions={reactions || []}
           onClick={handleReactionClick}
         />
-        <div>Gas:</div>
+        <div>{Captions.Gas}:</div>
         <ReactionsList
           reactions={gasReactions}
           onClick={handleGasReactionClick}
         />
-        {loadingRoomReaction && <div>Sending reaction...</div>}
-        {errorRoomReaction && <div>Error sending reaction</div>}
-        {loadingRoomGas && <div>Sending gas event...</div>}
-        {errorRoomGas && <div>Error sending gas event</div>}
+        {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
+        {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
+        {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
+        {errorRoomGas && <div>{Captions.ErrorSendingGasEvent}</div>}
       </Field>
     );
   }, [
@@ -155,14 +156,14 @@ export const Room: FunctionComponent = () => {
     if (error) {
       return (
         <Field>
-          <div>Error: {error}</div>
+          <div>{Captions.Error}: {error}</div>
         </Field>
       );
     }
     if (errorReactions) {
       return (
         <Field>
-          <div>Reactions loading error: {errorReactions}</div>
+          <div>{Captions.ReactionsLoadingError}: {errorReactions}</div>
         </Field>
       );
     }
@@ -176,16 +177,16 @@ export const Room: FunctionComponent = () => {
     return (
       <>
         <Field>
-          <div>Room: {room?.name}</div>
+          <div>{Captions.Room}: {room?.name}</div>
         </Field>
         <Field>
           <ActiveQuestionSelector
             questions={room?.questions || []}
-            selectButtonLabel="Set active question"
+            selectButtonLabel={Captions.SetActiveQuestion}
             onSelect={handleQuestionSelect}
           />
-          {loadingRoomActiveQuestion && <div>Sending active question...</div>}
-          {errorRoomActiveQuestion && <div>Error sending active question...</div>}
+          {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
+          {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
         </Field>
         {renderReactionsField()}
         <Field className="interviewee-frame-wrapper">

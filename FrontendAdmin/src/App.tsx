@@ -10,6 +10,7 @@ import { Field } from './components/FieldsBlock/Field';
 import { useCommunist } from './hooks/useCommunist';
 
 import './App.css';
+import { Captions } from './constants';
 
 export const App: FunctionComponent = () => {
   const { getCommunist, resetCommunist } = useCommunist();
@@ -59,7 +60,7 @@ export const App: FunctionComponent = () => {
       <AuthContext.Provider value={user}>
         <div className="App">
           <header>
-            <h1>GULAG ADMIN</h1>
+            <h1>{Captions.AppName}</h1>
             <NavMenu />
           </header>
           {renderMainContent()}
