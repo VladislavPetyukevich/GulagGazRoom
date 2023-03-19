@@ -13,6 +13,8 @@ import lightFlick3 from './assets/lightFlick3.mp3';
 import lightFlick4 from './assets/lightFlick4.mp3';
 import like from './assets/like.mp3';
 import dislike from './assets/dislike.mp3';
+import gazBeat1 from './assets/gazBeat1.mp3';
+import gazBeat2 from './assets/gazBeat2.mp3';
 
 export const PI_2 = Math.PI / 2;
 
@@ -74,4 +76,6 @@ export const gameSounds = {
   lightFlick4,
   like,
   dislike,
+  gazBeat1,
+  gazBeat2,
 };
