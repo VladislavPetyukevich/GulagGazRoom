@@ -2,11 +2,16 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Questions;
+using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
+using Interview.Domain.RoomQuestionReactions;
+using Interview.Domain.RoomQuestionReactions.Mappers;
+using Interview.Domain.RoomQuestionReactions.Specifications;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms.Service.Records;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Interview.Domain.Users;
 using Entity = Interview.Domain.Repository.Entity;
 
@@ -18,17 +23,20 @@ public sealed class RoomService
     private readonly IQuestionRepository _questionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
+    private readonly IRoomQuestionReactionRepository _roomQuestionReactionRepository;
 
     public RoomService(
         IRoomRepository roomRepository,
         IQuestionRepository questionRepository,
         IUserRepository userRepository,
-        IRoomEventDispatcher roomEventDispatcher)
+        IRoomEventDispatcher roomEventDispatcher,
+        IRoomQuestionReactionRepository roomQuestionReactionRepository)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
         _userRepository = userRepository;
         _roomEventDispatcher = roomEventDispatcher;
+        _roomQuestionReactionRepository = roomQuestionReactionRepository;
     }
 
     public async Task<Result<Room>> CreateAsync(
@@ -174,6 +182,21 @@ public sealed class RoomService
 
         await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);
         return Result.Success();
+    }
+
+    public async Task<RoomState?> GetRoomStateAsync(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, RoomState.Mapper, cancellationToken);
+        if (roomState == null)
+        {
+            return null;
+        }
+
+        var spec = new RoomReactionsSpecification(roomId);
+        var reactions = await _roomQuestionReactionRepository.FindDetailed(spec, ReactionTypeOnlyMapper.Instance, cancellationToken);
+        roomState.DislikeCount = reactions.Count(e => e == ReactionType.Dislike);
+        roomState.LikeCount = reactions.Count(e => e == ReactionType.Like);
+        return roomState;
     }
 
     private string FindNotFoundEntityIds<T>(IEnumerable<Guid> guids, IEnumerable<T> collection)

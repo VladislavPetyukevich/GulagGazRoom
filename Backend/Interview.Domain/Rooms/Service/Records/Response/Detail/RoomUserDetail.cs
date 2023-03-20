@@ -1,4 +1,4 @@
-namespace Interview.Domain.Rooms.Service.Records.Response.Page;
+namespace Interview.Domain.Rooms.Service.Records.Response.Detail;
 
 public class RoomUserDetail
 {

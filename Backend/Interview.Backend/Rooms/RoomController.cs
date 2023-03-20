@@ -2,7 +2,9 @@ using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
-using Interview.Domain.Rooms.Service.Records.Response.Page;
+using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.Rooms.Service.Records.Response.Detail;
+using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -36,6 +38,22 @@ public class RoomController : ControllerBase
     public async Task<IActionResult> GetById([FromQuery] Guid id)
     {
         var room = await _roomRepository.GetByIdAsync(id);
+        var notFoundMessage = room?.GetNotFoundMessage("room", id);
+        if (!string.IsNullOrEmpty(notFoundMessage))
+        {
+            return NotFound(notFoundMessage);
+        }
+
+        return Ok(room);
+    }
+
+    [Authorize]
+    [HttpGet(nameof(GetRoomState))]
+    [ProducesResponseType(typeof(RoomState), 200)]
+    [ProducesResponseType(typeof(string), 404)]
+    public async Task<IActionResult> GetRoomState([FromQuery] Guid id)
+    {
+        var room = await _roomService.GetRoomStateAsync(id);
         var notFoundMessage = room?.GetNotFoundMessage("room", id);
         if (!string.IsNullOrEmpty(notFoundMessage))
         {

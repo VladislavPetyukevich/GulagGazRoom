@@ -2,7 +2,6 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
-using Interview.Domain.RoomQuestions.Records.Response.Response;
 using Interview.Domain.Rooms;
 
 namespace Interview.Domain.RoomQuestions
