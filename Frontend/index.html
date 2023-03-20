@@ -49,6 +49,14 @@
     var audioVolumeValue = document.getElementById('audio-volume-value');
     var fov = document.getElementById('fov');
     var fovValue = document.getElementById('fov-value');
+    var REACT_APP_BACKEND_URL = <%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>;
+    if (!REACT_APP_BACKEND_URL) {
+      throw new Error('REACT_APP_BACKEND_URL are not defined');
+    }
+    var REACT_APP_WS_URL = <%= htmlWebpackPlugin.options.REACT_APP_WS_URL %>;
+    if (!REACT_APP_WS_URL) {
+      throw new Error('REACT_APP_WS_URL are not defined');
+    }
 
     function getCommunist() {
       const cookieName = '_communist';
@@ -83,7 +91,7 @@
         if (!communist) {
           return reject('Not authenticated');
         }
-        fetch('/api/User/GetMe')
+        fetch(`${REACT_APP_BACKEND_URL}/User/GetMe`)
           .then((response) => {
             if (response.ok) {
               return resolve();
@@ -105,7 +113,7 @@
 
     function connectWebSocket(onmessage) {
       return new Promise((resolve, reject) => {
-        const socketUrl = `ws://localhost:5043/ws?Authorization=${communist}&roomId=${roomId}`;
+        const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${roomId}`;
         const webSocket = new WebSocket(socketUrl);
         webSocket.onmessage = onmessage;
         webSocket.onopen = () => resolve();
@@ -142,7 +150,7 @@
               break;
             }
             const questionId = dataParsed.Value.QuestionId;
-            fetch(`/api/Question/GetById?id=${questionId}`)
+            fetch(`${REACT_APP_BACKEND_URL}/api/Question/GetById?id=${questionId}`)
               .then((response) => {
                 if (!response.ok) {
                   return alert('Get new question error');

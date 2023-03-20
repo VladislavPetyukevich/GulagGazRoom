@@ -11,72 +11,75 @@ const PATHS = {
   build: path.join(__dirname, 'build'),
 };
 
-const common = {
-  entry: {
-    main: PATHS.source + '/index.ts'
-  },
-  output: {
-    path: PATHS.build,
-    filename: '[name].[contenthash].js',
-    clean: true,
-    library: {
-      type: 'umd',
-      name: 'ThreeShooter',
+const createCommonConfig = (envVariables = {}) => {
+  return {
+    entry: {
+      main: PATHS.source + '/index.ts'
     },
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'source'),
-    },
-    extensions: ['.js', '.ts'],
-  },
-  devtool: 'source-map',
-  module: {
-    rules: [
-      { enforce: "pre", test: /\.js$/, use: ["source-map-loader"] },
-      {
-        test: /\.(js|ts)$/,
-        exclude: /node_modules/,
-        use: 'ts-loader'
+    output: {
+      path: PATHS.build,
+      filename: '[name].[contenthash].js',
+      clean: true,
+      library: {
+        type: 'umd',
+        name: 'ThreeShooter',
       },
-      {
-        test: /\.(gif|png|jpe?g|svg|mp3)$/i,
-        use: [
-          'file-loader',
-          {
-            loader: 'image-webpack-loader',
-            options: {
-              bypassOnDebug: true,
-              disable: true,
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'source'),
+      },
+      extensions: ['.js', '.ts'],
+    },
+    devtool: 'source-map',
+    module: {
+      rules: [
+        { enforce: "pre", test: /\.js$/, use: ["source-map-loader"] },
+        {
+          test: /\.(js|ts)$/,
+          exclude: /node_modules/,
+          use: 'ts-loader'
+        },
+        {
+          test: /\.(gif|png|jpe?g|svg|mp3)$/i,
+          use: [
+            'file-loader',
+            {
+              loader: 'image-webpack-loader',
+              options: {
+                bypassOnDebug: true,
+                disable: true,
+              },
             },
-          },
-        ],
-      },
-      {
-        test: /\.(json|dae|fbx)$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 8192
+          ],
+        },
+        {
+          test: /\.(json|dae|fbx)$/,
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 8192
+              }
             }
-          }
-        ]
-      },
-      {
-        test: /\.(glsl)$/i,
-        use: 'raw-loader'
-      }
-    ]
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      hash: true,
-      inject: false,
-      template: PATHS.root + '/index.html',
-      filename: './index.html',
-    }),
-  ],
+          ]
+        },
+        {
+          test: /\.(glsl)$/i,
+          use: 'raw-loader'
+        }
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        hash: true,
+        inject: false,
+        template: PATHS.root + '/index.html',
+        filename: './index.html',
+        ...envVariables,
+      }),
+    ],
+  };
 };
 
 const developmentConfig = {
@@ -98,7 +101,6 @@ const developmentConfig = {
     moduleIds: 'named',
   },
   plugins: [
-    ...common.plugins,
     new webpack.NoEmitOnErrorsPlugin(),
   ],
 };
@@ -114,7 +116,6 @@ const productionConfig = {
     })],
   },
   plugins: [
-    ...common.plugins,
     new CopyPlugin({
       patterns: [
         { from: PATHS.public, to: PATHS.build },
@@ -123,18 +124,34 @@ const productionConfig = {
   ],
 }
 
+const createEnvVariables = (obj = {}) => ({
+  REACT_APP_BACKEND_URL: JSON.stringify(obj['REACT_APP_BACKEND_URL']),
+  REACT_APP_WS_URL: JSON.stringify(obj['REACT_APP_WS_URL']),
+});
+
+const createConfig = (envVariables = {}, extension = {}) => {
+  const commonConfig = createCommonConfig(envVariables);
+  return {
+    ...commonConfig,
+    ...extension,
+    plugins: [
+      ...commonConfig.plugins,
+      ...extension.plugins,
+    ],
+  };
+};
+
 module.exports = function (env) {
   if (env.development) {
-    return Object.assign(
-      {},
-      common,
+    const dotenvDev = require('dotenv').config({ path: './.env.development' }).parsed;
+    return createConfig(
+      createEnvVariables(dotenvDev),
       developmentConfig
     );
   }
   if (!env.development) {
-    return Object.assign(
-      {},
-      common,
+    return createConfig(
+      createEnvVariables(process.env),
       productionConfig
     );
   }
