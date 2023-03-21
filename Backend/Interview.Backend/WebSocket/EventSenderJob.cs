@@ -3,6 +3,7 @@ using System.Text;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
+using Interview.Domain.Events.Events.Serializers;
 
 namespace Interview.Backend.WebSocket;
 
@@ -13,12 +14,14 @@ public class EventSenderJob : BackgroundService
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
     private readonly ILogger<EventSenderJob> _logger;
+    private readonly IRoomEventSerializer _roomEventSerializer;
 
-    public EventSenderJob(IRoomEventDispatcher roomEventDispatcher, UserByRoomEventSubscriber userByRoomEventSubscriber, ILogger<EventSenderJob> logger)
+    public EventSenderJob(IRoomEventDispatcher roomEventDispatcher, UserByRoomEventSubscriber userByRoomEventSubscriber, ILogger<EventSenderJob> logger, IRoomEventSerializer roomEventSerializer)
     {
         _roomEventDispatcher = roomEventDispatcher;
         _userByRoomEventSubscriber = userByRoomEventSubscriber;
         _logger = logger;
+        _roomEventSerializer = roomEventSerializer;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,8 +54,9 @@ public class EventSenderJob : BackgroundService
                         continue;
                     }
 
-                    _logger.LogDebug("Start sending {Event}", currentEvent.Stringify());
-                    await HandleSubscribersAsync(stoppingToken, subscribers, currentEvent);
+                    var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
+                    _logger.LogDebug("Start sending {Event}", eventAsString);
+                    await HandleSubscribersAsync(stoppingToken, subscribers, eventAsString);
                 }
 
                 _logger.LogDebug("Before wait async");
@@ -72,9 +76,9 @@ public class EventSenderJob : BackgroundService
                entry.WebSocket.CloseStatus.HasValue;
     }
 
-    private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, IRoomEvent currentEvent)
+    private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, string eventAsStr)
     {
-        foreach (var entry in users)
+        await Parallel.ForEachAsync(users, stoppingToken, async (entry, token) =>
         {
             try
             {
@@ -83,24 +87,24 @@ public class EventSenderJob : BackgroundService
                     try
                     {
                         var status = entry.WebSocket.CloseStatus ?? WebSocketCloseStatus.NormalClosure;
-                        await entry.WebSocket.CloseAsync(status, entry.WebSocket.CloseStatusDescription, stoppingToken);
+                        await entry.WebSocket.CloseAsync(status, entry.WebSocket.CloseStatusDescription, token);
                     }
                     catch
                     {
                         // ignored
                     }
 
-                    users.Remove(entry, stoppingToken);
-                    continue;
+                    users.Remove(entry, token);
+                    return;
                 }
 
-                var bytes = Encoding.UTF8.GetBytes(currentEvent.Stringify());
-                await entry.WebSocket.SendAsync(bytes, WebSocketMessageType.Text, true, stoppingToken);
+                var bytes = Encoding.UTF8.GetBytes(eventAsStr);
+                await entry.WebSocket.SendAsync(bytes, WebSocketMessageType.Text, true, token);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Send {Event}", currentEvent.Stringify());
+                _logger.LogError(e, "Send {Event}", eventAsStr);
             }
-        }
+        });
     }
 }
