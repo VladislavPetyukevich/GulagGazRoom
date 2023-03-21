@@ -8,6 +8,7 @@ using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Domain;
 using Interview.Domain.Connections;
+using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -46,6 +47,7 @@ public class ServiceConfigurator
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoleName, int>());
+                options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoomQuestionState, int>());
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 

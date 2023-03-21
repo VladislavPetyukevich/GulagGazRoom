@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.RoomParticipants.Records;
 using Interview.Domain.RoomParticipants.Records.Request;
+using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 

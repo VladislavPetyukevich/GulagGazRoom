@@ -1,4 +1,4 @@
-namespace Interview.Domain.RoomParticipants.Records
+namespace Interview.Domain.RoomParticipants.Records.Request
 {
     public class RoomParticipantChangeStatusRequest
     {
