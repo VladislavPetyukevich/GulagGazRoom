@@ -63,9 +63,15 @@ public class TwitchChatClient : IDisposable
 
     private void ClientOnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
-        var payload = new EventPayload(e.ChatMessage.Message, e.ChatMessage.Username);
+        var message = e.ChatMessage.Message ?? string.Empty;
+        var payload = new EventPayload(message, e.ChatMessage.Username);
         var @event = new RoomEvent<EventPayload>(_roomId, EventType.ChatMessage, payload);
         _eventDispatcher.WriteAsync(@event, _cancellationTokenSource.Token);
+
+        if (message.Contains("он"))
+        {
+            _client.SendMessage(e.ChatMessage.Channel, $"@{e.ChatMessage.Username}, дай бог здаровъя тебе");
+        }
     }
 
     public sealed class EventPayload
