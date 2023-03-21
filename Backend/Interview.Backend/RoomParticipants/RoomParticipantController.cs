@@ -1,6 +1,7 @@
 using Interview.Backend.Auth;
 using Interview.Domain.RoomParticipants.Records;
 using Interview.Domain.RoomParticipants.Records.Request;
+using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.RoomParticipants.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

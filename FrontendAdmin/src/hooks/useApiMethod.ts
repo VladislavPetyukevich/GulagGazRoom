@@ -1,5 +1,6 @@
 import { useCallback, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { REACT_APP_BACKEND_URL } from '../config';
 import { pathnames } from '../constants';
 import { ApiContract } from '../types/apiContracts';
 import { useCommunist } from './useCommunist';
@@ -68,9 +69,9 @@ const createFetchUrl = (apiContract: ApiContract) => {
       Object.entries(apiContract.urlParams)
       .map(([paramName, paramValue]) => `${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}`)
       .join('&');
-    return `${apiContract.baseUrl}?${params}`;
+    return `${REACT_APP_BACKEND_URL}${apiContract.baseUrl}?${params}`;
   }
-  return apiContract.baseUrl;
+  return `${REACT_APP_BACKEND_URL}${apiContract.baseUrl}`;
 };
 
 const createFetchRequestInit = (apiContract: ApiContract) => {

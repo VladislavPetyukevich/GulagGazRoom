@@ -1,5 +1,5 @@
 using Interview.Domain.Repository;
-using Interview.Domain.Rooms.Service.Records.Response.Page;
+using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using X.PagedList;
 
 namespace Interview.Domain.Rooms;
@@ -10,5 +10,5 @@ public interface IRoomRepository : IRepository<Room>
 
     Task<IPagedList<RoomDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
-    public Task<RoomDetail?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default);
+    Task<RoomDetail?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default);
 }

@@ -24,6 +24,26 @@ public abstract class EfRepository<T> : IRepository<T>
         return Db.SaveChangesAsync(cancellationToken);
     }
 
+    public Task<List<T>> Find(ISpecification<T> specification, CancellationToken cancellationToken = default)
+    {
+        return Set.Where(specification.Expression).ToListAsync(cancellationToken);
+    }
+
+    public Task<List<TRes>> Find<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
+    {
+        return Set.Where(specification.Expression).Select(mapper.Expression).ToListAsync(cancellationToken);
+    }
+
+    public Task<List<T>> FindDetailed(ISpecification<T> specification, CancellationToken cancellationToken = default)
+    {
+        return ApplyIncludes(Set).Where(specification.Expression).ToListAsync(cancellationToken);
+    }
+
+    public Task<List<TRes>> FindDetailed<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
+    {
+        return ApplyIncludes(Set).Where(specification.Expression).Select(mapper.Expression).ToListAsync(cancellationToken);
+    }
+
     public Task<T?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return Set.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
