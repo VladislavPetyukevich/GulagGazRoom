@@ -6,6 +6,7 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
+import { REACT_APP_INTERVIEW_FRONTEND_URL } from '../../config';
 import { Captions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
@@ -125,7 +126,7 @@ export const Room: FunctionComponent = () => {
 
   const handleCopyRoomLink = useCallback(() => {
     navigator.clipboard.writeText(
-      `http://localhost:8080/?roomId=${id}`
+      `${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${id}`
     );
   }, [id]);
 
@@ -205,7 +206,7 @@ export const Room: FunctionComponent = () => {
           <iframe
             title="interviewee-client-frame"
             className="interviewee-frame"
-            src={`http://localhost:8080/?roomId=${room?.id}&noPointerLock=1&fov=115`}
+            src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&noPointerLock=1&fov=115`}
           >
           </iframe>
         </Field>
