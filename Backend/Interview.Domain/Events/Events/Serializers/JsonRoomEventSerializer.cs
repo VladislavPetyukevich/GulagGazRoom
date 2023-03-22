@@ -11,7 +11,8 @@ namespace Interview.Domain.Events.Events.Serializers
     {
         private readonly JsonSerializerOptions _options = new()
         {
-            WriteIndented = true,
+            WriteIndented = false,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             Converters =
             {
                 new JsonStringEnumConverter(),
@@ -20,9 +21,9 @@ namespace Interview.Domain.Events.Events.Serializers
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         };
 
-        public string SerializeAsString(IRoomEvent @event)
+        public string SerializeAsString(IRoomEvent? @event)
         {
-            return JsonSerializer.Serialize(@event, @event.GetType(), _options);
+            return @event is null ? "{}" : JsonSerializer.Serialize(@event, @event.GetType(), _options);
         }
     }
 }
