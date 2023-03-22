@@ -32,7 +32,7 @@ export const Terms: FunctionComponent = () => {
         {interpolateAll(
           term.description,
           [/\[NAME\]/g, /\[NAME URL\]/g],
-          ['ГУЛАГ ГАЗ РУМ', termsUrl],
+          [Captions.AppName, termsUrl],
         )}
       </p>
     </Fragment>

@@ -11,7 +11,7 @@ export const pathnames = {
 };
 
 export const enum Captions {
-  AppName = 'ГУЛАГ АДМИН',
+  AppName = 'ГУЛАГ ГАЗ РУМ',
   WelcomeMessage = 'Салют',
   HomePageName = 'Проходная',
   RoomsPageName = 'Комнаты',
