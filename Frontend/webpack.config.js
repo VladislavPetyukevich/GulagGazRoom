@@ -125,8 +125,8 @@ const productionConfig = {
 }
 
 const createEnvVariables = (obj = {}) => ({
-  REACT_APP_BACKEND_URL: JSON.stringify(obj['REACT_APP_BACKEND_URL']),
-  REACT_APP_WS_URL: JSON.stringify(obj['REACT_APP_WS_URL']),
+  REACT_APP_BACKEND_URL: obj['REACT_APP_BACKEND_URL'],
+  REACT_APP_WS_URL: obj['REACT_APP_WS_URL'],
 });
 
 const createConfig = (envVariables = {}, extension = {}) => {

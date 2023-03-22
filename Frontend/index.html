@@ -13,7 +13,7 @@
   <div id="blocker">
     <div id="authentication" class="blocker-content">
       <div>Authentication</div>
-      <a href="http://localhost:5043/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
+      <a href=<%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
     </div>
     <div id="instructions" class="blocker-content">
       <div style="font-size:40px; color: red;">WARNING</div>
@@ -49,11 +49,11 @@
     var audioVolumeValue = document.getElementById('audio-volume-value');
     var fov = document.getElementById('fov');
     var fovValue = document.getElementById('fov-value');
-    var REACT_APP_BACKEND_URL = <%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>;
+    var REACT_APP_BACKEND_URL = '<%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>';
     if (!REACT_APP_BACKEND_URL) {
       throw new Error('REACT_APP_BACKEND_URL are not defined');
     }
-    var REACT_APP_WS_URL = <%= htmlWebpackPlugin.options.REACT_APP_WS_URL %>;
+    var REACT_APP_WS_URL = '<%= htmlWebpackPlugin.options.REACT_APP_WS_URL %>';
     if (!REACT_APP_WS_URL) {
       throw new Error('REACT_APP_WS_URL are not defined');
     }
