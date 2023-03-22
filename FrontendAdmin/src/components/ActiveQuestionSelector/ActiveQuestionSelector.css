@@ -1,0 +1,13 @@
+.activeQuestionSelector select {
+  width: 100%;
+  background-color: var(--wrap-bg);
+  color: var(--text);
+}
+
+.activeQuestionSelector option:checked{
+  background-color: var(--text);
+}
+
+.activeQuestionSelector option:active{
+  background-color: red;
+}

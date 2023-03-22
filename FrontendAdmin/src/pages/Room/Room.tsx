@@ -132,16 +132,20 @@ export const Room: FunctionComponent = () => {
   const renderReactionsField = useCallback(() => {
     return (
       <Field>
-        <div>{Captions.Reactions}:</div>
-        <ReactionsList
-          reactions={reactions || []}
-          onClick={handleReactionClick}
-        />
-        <div>{Captions.Gas}:</div>
-        <ReactionsList
-          reactions={gasReactions}
-          onClick={handleGasReactionClick}
-        />
+        <div>
+          <span>{Captions.Reactions}:</span>
+          <ReactionsList
+            reactions={reactions || []}
+            onClick={handleReactionClick}
+          />
+        </div>
+        <div>
+          <span>{Captions.Gas}:</span>
+          <ReactionsList
+            reactions={gasReactions}
+            onClick={handleGasReactionClick}
+          />
+        </div>
         {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
         {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
         {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
@@ -184,11 +188,10 @@ export const Room: FunctionComponent = () => {
       <>
         <Field>
           <div>{Captions.Room}: {room?.name}</div>
-        </Field>
-        <Field>
           <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
         </Field>
         <Field>
+          <div>Установить тему допроса:</div>
           <ActiveQuestionSelector
             questions={room?.questions || []}
             selectButtonLabel={Captions.SetActiveQuestion}

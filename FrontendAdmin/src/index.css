@@ -1,8 +1,8 @@
 :root {
   --text: #d2deab;
-  --form-bg: #800000;
+  --form-bg: #7b1712;
   --wrap-bg: #000000;
-  --active: #bf0000;
+  --active: #b9221c;
   --shadow: #100908;
   --bg: #400000;
   --page-bg: #574240;
@@ -20,10 +20,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--page-bg);
-}
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 button {
@@ -47,10 +46,7 @@ button[disabled] {
   color: var(--shadow);
 }
 
-a:visited {
-  color: var(--form-bg);
-}
-
 a {
   color: var(--active);
+  text-decoration: none;
 }
