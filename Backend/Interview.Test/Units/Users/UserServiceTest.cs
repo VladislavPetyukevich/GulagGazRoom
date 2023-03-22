@@ -28,11 +28,11 @@ public class UserServiceTest
 
         _mockUserRepository.Setup(repository =>
                 repository.FindByTwitchIdentityAsync(user.TwitchIdentity, default))
-            .Returns(() => Task.FromResult<User>(null));
+            .Returns(() => Task.FromResult<User?>(null));
 
         _mockRoleRepository.Setup(repository =>
                 repository.FindByIdAsync(RoleName.User.Id, default))
-            .Returns(() => Task.FromResult<Role>(null));
+            .Returns(() => Task.FromResult<Role?>(null));
 
         var throwsAsync = await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await _userService.UpsertByTwitchIdentityAsync(user));

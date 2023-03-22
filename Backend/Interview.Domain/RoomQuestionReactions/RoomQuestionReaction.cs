@@ -11,9 +11,9 @@ public class RoomQuestionReaction : Entity
     {
     }
 
-    public Reaction Reaction { get; set; }
+    public Reaction? Reaction { get; set; }
 
-    public RoomQuestion RoomQuestion { get; set; }
+    public RoomQuestion? RoomQuestion { get; set; }
 
-    public User Sender { get; set; }
+    public User? Sender { get; set; }
 }

@@ -59,8 +59,8 @@ namespace Interview.Domain.RoomQuestions
             return new RoomQuestionDetail
             {
                 Id = roomQuestion.Id,
-                RoomId = roomQuestion.Room.Id,
-                QuestionId = roomQuestion.Question.Id,
+                RoomId = roomQuestion.Room!.Id,
+                QuestionId = roomQuestion.Question!.Id,
                 State = roomQuestion.State,
             };
         }

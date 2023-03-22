@@ -4,6 +4,6 @@ namespace Interview.Domain.Reactions.Records
     {
         public Guid Id { get; set; }
 
-        public ReactionType Type { get; set; }
+        public ReactionType Type { get; set; } = ReactionType.Unknown;
     }
 }

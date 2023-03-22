@@ -16,14 +16,14 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
     {
         return ApplyIncludes(Set)
             .FirstOrDefaultAsync(
-                roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.Question.Id == questionId, cancellationToken);
+                roomQuestion => roomQuestion.Room!.Id == roomId && roomQuestion.Question!.Id == questionId, cancellationToken);
     }
 
     public Task<RoomQuestion?> FindFirstByRoomAndStateAsync(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)
     {
         return ApplyIncludes(Set)
             .FirstOrDefaultAsync(
-                roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.State == roomQuestionState, cancellationToken);
+                roomQuestion => roomQuestion.Room!.Id == roomId && roomQuestion.State == roomQuestionState, cancellationToken);
     }
 
     public Task<RoomQuestion?> FindFirstQuestionByRoomAndState(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)
@@ -32,7 +32,7 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
             .Include(roomQuestion => roomQuestion.Question)
             .Select(roomQuestion => roomQuestion)
             .FirstOrDefaultAsync(
-                roomQuestion => roomQuestion.Room.Id == roomId && roomQuestion.State.Name == roomQuestionState.Name, cancellationToken);
+                roomQuestion => roomQuestion.Room!.Id == roomId && roomQuestion.State!.Name == roomQuestionState.Name, cancellationToken);
     }
 
     protected override IQueryable<RoomQuestion> ApplyIncludes(DbSet<RoomQuestion> set) => Set

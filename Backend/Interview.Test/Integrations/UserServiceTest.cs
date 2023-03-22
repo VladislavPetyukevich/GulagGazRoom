@@ -19,7 +19,7 @@ public class UserServiceTest
                 new AdminUsers(),
                 RoleName.User
             };
-            
+
             yield return new object[]
             {
                 "Dima",
@@ -34,7 +34,7 @@ public class UserServiceTest
             };
         }
     }
-    
+
     [Fact(DisplayName = "'UpsertByTwitchIdentityAsync' when there is already such a user in the database")]
     public async Task UpsertUsersWhenUserExistsInDatabase()
     {
@@ -53,7 +53,7 @@ public class UserServiceTest
         expectedUser.Roles.AddRange(entity.Roles);
         upsertUser.Should().BeEquivalentTo(expectedUser);
     }
-    
+
     [Theory(DisplayName = "'UpsertByTwitchIdentityAsync' when there is no such user in the database")]
     [MemberData(nameof(UpsertUsersWhenUserNotExistsInDatabaseData))]
     public async Task UpsertUsersWhenUserNotExistsInDatabase(string nickname, AdminUsers adminUsers, RoleName expectedRoleName)

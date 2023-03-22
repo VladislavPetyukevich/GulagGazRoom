@@ -6,6 +6,6 @@ namespace Interview.Domain.RoomParticipants.Records.Request
 
         public Guid UserId { get; set; }
 
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
     }
 }

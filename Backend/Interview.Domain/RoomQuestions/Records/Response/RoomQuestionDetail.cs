@@ -8,6 +8,6 @@ namespace Interview.Domain.RoomQuestions.Records.Response
 
         public Guid QuestionId { get; set; }
 
-        public RoomQuestionState State { get; set; }
+        public RoomQuestionState? State { get; set; }
     }
 }
