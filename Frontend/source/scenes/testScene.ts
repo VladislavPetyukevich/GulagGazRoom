@@ -320,12 +320,18 @@ export class TestScene extends BasicScene {
   }
 
   onGasEnable = () => {
+    if (this.gasEnabled) {
+      return;
+    }
     this.setNextGasAudioIndex();
     this.playAudio(this.gasAudios[this.gasAudioIndex]);
     this.disableEnableGas(true);
   }
 
   onGasDisable = () => {
+    if (!this.gasEnabled) {
+      return;
+    }
     this.gasAudios[this.gasAudioIndex].stop();
     this.disableEnableGas(false);
   }
