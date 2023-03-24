@@ -13,23 +13,25 @@
   <div id="blocker">
     <div id="authentication" class="blocker-content">
       <div>Authentication</div>
-      <a href=<%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
+      <a href=<%=htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
     </div>
     <div id="instructions" class="blocker-content">
       <div style="font-size:40px; color: red;">WARNING</div>
       <div>This app contains fast flashing images</div>
       <br />
-      <div>TV set model is adapted from "<a href="https://opengameart.org/content/simple-house-objects">house-objects</a>" by IllusionOfMana, used under CC BY 4.0. TV set model is licensed under CC BY 4.0 by VladislavPetyukevich</div>
+      <div>TV set model is adapted from "<a
+          href="https://opengameart.org/content/simple-house-objects">house-objects</a>" by IllusionOfMana, used under
+        CC BY 4.0. TV set model is licensed under CC BY 4.0 by VladislavPetyukevich</div>
       <br />
       <div style="font-size:25px">Click to play</div>
       <div id="settings">
         <div>Game settings:</div>
         <span>Audio volume:</span>
-        <input id="audio-volume" type="range" min="0" max="10" value="10" step="1" >
+        <input id="audio-volume" type="range" min="0" max="10" value="10" step="1">
         <span id="audio-volume-value"></span>
         <br />
         <span>FOV:</span>
-        <input id="fov" type="range" min="50" max="110" value="95" step="1" >
+        <input id="fov" type="range" min="50" max="110" value="95" step="1">
         <span id="fov-value"></span>
       </div>
     </div>
@@ -38,267 +40,320 @@
 
   <% for(var i=0; i < htmlWebpackPlugin.files.js.length; i++) {%>
     <script type="text/javascript" src="<%= htmlWebpackPlugin.files.js[i] %>"></script>
-  <% } %>
-  <script type="text/javascript">
-    var blocker = document.getElementById('blocker');
-    var instructions = document.getElementById('instructions');
-    var authenticationEl = document.getElementById('authentication');
-    var renderContainer = document.getElementById('render-container');
-    var settings = document.getElementById('settings');
-    var audioVolume = document.getElementById('audio-volume');
-    var audioVolumeValue = document.getElementById('audio-volume-value');
-    var fov = document.getElementById('fov');
-    var fovValue = document.getElementById('fov-value');
-    var REACT_APP_BACKEND_URL = '<%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>';
-    if (!REACT_APP_BACKEND_URL) {
-      throw new Error('REACT_APP_BACKEND_URL are not defined');
-    }
-    var REACT_APP_WS_URL = '<%= htmlWebpackPlugin.options.REACT_APP_WS_URL %>';
-    if (!REACT_APP_WS_URL) {
-      throw new Error('REACT_APP_WS_URL are not defined');
-    }
-
-    function getCommunist() {
-      const cookieName = '_communist';
-      const name = cookieName + "=";
-      const decodedCookie = decodeURIComponent(document.cookie);
-      const ca = decodedCookie.split(';');
-      for(let i = 0; i <ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-          c = c.substring(1);
+    <% } %>
+      <script type="text/javascript">
+        var blocker = document.getElementById('blocker');
+        var instructions = document.getElementById('instructions');
+        var authenticationEl = document.getElementById('authentication');
+        var renderContainer = document.getElementById('render-container');
+        var settings = document.getElementById('settings');
+        var audioVolume = document.getElementById('audio-volume');
+        var audioVolumeValue = document.getElementById('audio-volume-value');
+        var fov = document.getElementById('fov');
+        var fovValue = document.getElementById('fov-value');
+        var REACT_APP_BACKEND_URL = '<%= htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>';
+        if (!REACT_APP_BACKEND_URL) {
+          throw new Error('REACT_APP_BACKEND_URL are not defined');
         }
-        if (c.indexOf(name) == 0) {
-          return c.substring(name.length, c.length);
+        var REACT_APP_WS_URL = '<%= htmlWebpackPlugin.options.REACT_APP_WS_URL %>';
+        if (!REACT_APP_WS_URL) {
+          throw new Error('REACT_APP_WS_URL are not defined');
         }
-      }
-      return '';
-    }
-    const communist = getCommunist();
 
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const roomId = urlParams.get('roomId');
-    if (!roomId) {
-      alert('Некорректная ссылка на комнату');
-      throw new Error('roomId not found in url params');
-    }
-    const noPointerLock = !!urlParams.get('noPointerLock');
-    const paramsFov = parseInt(urlParams.get('fov'));
-
-    function checkAuthorization() {
-      return new Promise((resolve, reject) => {
-        if (!communist) {
-          return reject('Not authenticated');
-        }
-        fetch(`${REACT_APP_BACKEND_URL}/User/GetMe`)
-          .then((response) => {
-            if (response.ok) {
-              return resolve();
+        function getCommunist() {
+          const cookieName = '_communist';
+          const name = cookieName + "=";
+          const decodedCookie = decodeURIComponent(document.cookie);
+          const ca = decodedCookie.split(';');
+          for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+              c = c.substring(1);
             }
-            return reject('Not authenticated')
-          })
-          .catch(() => reject('Not authenticated'));
-      });
-    }
+            if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+            }
+          }
+          return '';
+        }
+        const communist = getCommunist();
 
-    checkAuthorization()
-      .then(() => {
-        console.log('Authorization ok');
-      })
-      .catch(() => {
-        instructions.style.visibility = 'hidden';
-        authenticationEl.style.visibility = 'visible';
-      });
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const roomId = urlParams.get('roomId');
+        if (!roomId) {
+          alert('Некорректная ссылка на комнату');
+          throw new Error('roomId not found in url params');
+        }
+        const noPointerLock = !!urlParams.get('noPointerLock');
+        const paramsFov = parseInt(urlParams.get('fov'));
 
-    function connectWebSocket(onmessage) {
-      return new Promise((resolve, reject) => {
-        const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${roomId}`;
-        const webSocket = new WebSocket(socketUrl);
-        webSocket.onmessage = onmessage;
-        webSocket.onopen = () => resolve();
-        webSocket.onclose = (event) => {
-          alert('webSocket connection closed');
-          reject('webSocket connection closed');
+        function connectWebSocket(onmessage) {
+          return new Promise((resolve, reject) => {
+            const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${roomId}`;
+            const webSocket = new WebSocket(socketUrl);
+            webSocket.onmessage = onmessage;
+            webSocket.onopen = () => resolve();
+            webSocket.onclose = (event) => {
+              alert('webSocket connection closed');
+              reject('webSocket connection closed');
+            };
+          });
+        }
+
+        function createWebSocketMessagehandler(threeShooter) {
+          return function (event) {
+            try {
+              const dataParsed = JSON.parse(event.data);
+              console.log('dataParsed: ', dataParsed);
+              switch (dataParsed.Type) {
+                case 'ChatMessage':
+                  const message = `${dataParsed.Value.Nickname}:\n${dataParsed.Value.Message}`;
+                  threeShooter.onPlayerActionStart('chatMessage', message);
+                  break;
+                case 'ReactionLike':
+                  threeShooter.onPlayerActionStart('like');
+                  break;
+                case 'ReactionDislike':
+                  threeShooter.onPlayerActionStart('dislike');
+                  break;
+                case 'GasOn':
+                  threeShooter.onPlayerActionStart('gasEnable');
+                  break;
+                case 'GasOff':
+                  threeShooter.onPlayerActionStart('gasDisable');
+                  break;
+                case 'ChangeRoomQuestionState':
+                  if (dataParsed.Value.NewState !== 'Active') {
+                    break;
+                  }
+                  const questionId = dataParsed.Value.QuestionId;
+                  fetch(`${REACT_APP_BACKEND_URL}/api/Question/GetById?id=${questionId}`)
+                    .then((response) => {
+                      if (!response.ok) {
+                        return alert('Get new question error');
+                      }
+                      response.json().then(json => {
+                        threeShooter.onPlayerActionStart('newQuestion', json.value);
+                      });
+                    })
+                    .catch(() => alert('Get new question error'));
+                  break;
+                default:
+                  break;
+              }
+            } catch {
+              console.error('Failed to parse WebSocket message: ', event);
+            }
+          }
         };
-      });
-    }
 
-    function onWebSocketMessage(event) {
-      try {
-        const dataParsed = JSON.parse(event.data);
-        console.log('dataParsed: ', dataParsed);
-        switch (dataParsed.Type) {
-          case 'ChatMessage':
-            const message = `${dataParsed.Value.Nickname}:\n${dataParsed.Value.Message}`;
-            threeShooter.onPlayerActionStart('chatMessage', message);
-            break;
-          case 'ReactionLike':
-            threeShooter.onPlayerActionStart('like');
-            break;
-          case 'ReactionDislike':
-            threeShooter.onPlayerActionStart('dislike');
-            break;
-          case 'GasOn':
-            threeShooter.onPlayerActionStart('gasEnable');
-            break;
-          case 'GasOff':
-            threeShooter.onPlayerActionStart('gasDisable');
-            break;
-          case 'ChangeRoomQuestionState':
-            if (dataParsed.Value.NewState !== 'Active') {
-              break;
+        function updateAudioVolumeValue(value) {
+          var valueNode = document.createTextNode(value.toFixed(1));
+          audioVolumeValue.innerHTML = '';
+          audioVolumeValue.appendChild(valueNode);
+        }
+
+        function updateFovValue(value) {
+          var valueNode = document.createTextNode(value);
+          fovValue.innerHTML = '';
+          fovValue.appendChild(valueNode);
+        }
+
+        function onLoad() {
+          console.log('game loaded');
+        }
+
+        function getRendererSize() {
+          return {
+            width: ~~renderContainer.offsetWidth,
+            height: ~~renderContainer.offsetHeight
+          };
+        }
+
+        var rendererSize = getRendererSize();
+
+        function setBlockerVisibility(isVisible) {
+          blocker.style.opacity = isVisible ? '1' : '0';
+          blocker.style.transition = isVisible ? '1s' : '0s';
+        }
+
+        function addThreeShooterEventHandlers(threeShooter) {
+          window.addEventListener('resize', () => {
+            var newRendererSize = getRendererSize();
+            threeShooter.handleResize(
+              newRendererSize.width,
+              newRendererSize.height
+            );
+          });
+
+          instructions.addEventListener('click', function (event) {
+            if (noPointerLock) {
+              setBlockerVisibility(false);
+              threeShooter.setEnabled(true);
+            } else {
+              renderContainer.requestPointerLock();
             }
-            const questionId = dataParsed.Value.QuestionId;
-            fetch(`${REACT_APP_BACKEND_URL}/api/Question/GetById?id=${questionId}`)
+          });
+
+          settings.addEventListener('click', function (event) {
+            event.stopPropagation();
+          });
+
+          audioVolume.addEventListener('input', function (event) {
+            const value = +event.target.value;
+            updateAudioVolume(value);
+          });
+
+          function updateAudioVolume(value) {
+            var newVolume = value / 10;
+            threeShooter.updateAudioVolume(newVolume);
+            updateAudioVolumeValue(newVolume);
+            saveSettings();
+          }
+
+          fov.addEventListener('input', function (event) {
+            const value = +event.target.value;
+            updateFov(value);
+          });
+
+          function updateFov(value) {
+            threeShooter.updateFov(value);
+            updateFovValue(value);
+            saveSettings();
+          }
+
+          var settingsKey = 'settings';
+
+          function saveSettings() {
+            if (!localStorage) {
+              return;
+            }
+            var settings = {
+              audioVolume: +audioVolume.value,
+              fov: +fov.value,
+            };
+            localStorage.setItem(settingsKey, JSON.stringify(settings));
+          }
+
+          function loadSetting() {
+            if (!localStorage) {
+              return;
+            }
+            try {
+              var settings = JSON.parse(localStorage.getItem(settingsKey));
+              audioVolume.value = settings.audioVolume;
+              updateAudioVolume(settings.audioVolume);
+              fov.value = settings.fov;
+              if (isNaN(paramsFov)) {
+                updateFov(settings.fov);
+              } else {
+                threeShooter.updateFov(paramsFov);
+              }
+            } catch {
+              console.error('Falied to load game settings');
+            }
+          }
+          loadSetting();
+
+          document.addEventListener('pointerlockchange', function (event) {
+            setBlockerVisibility(document.pointerLockElement != renderContainer);
+            threeShooter.setEnabled(document.pointerLockElement === renderContainer);
+          });
+        }
+
+        function createThreeShooter(props) {
+          var threeShooter = new ThreeShooter.default(props);
+          connectWebSocket(createWebSocketMessagehandler(threeShooter))
+            .then(() => console.log('websocket connected'))
+            .catch(() => {
+              instructions.style.visibility = 'hidden';
+              authenticationEl.style.visibility = 'visible';
+            });
+          addThreeShooterEventHandlers(threeShooter);
+        }
+
+        function getRoomState() {
+          return new Promise((resolve, reject) => {
+            fetch(`${REACT_APP_BACKEND_URL}/Room/GetRoomState?id=${roomId}`)
               .then((response) => {
                 if (!response.ok) {
-                  return alert('Get new question error');
+                  return reject('Cannot get room state');
                 }
-                response.json().then(json => {
-                  threeShooter.onPlayerActionStart('newQuestion', json.value);
-                });
+                response.json()
+                  .then(responseJson => resolve(responseJson))
+                  .catch(err => reject(err));
+              });
+          });
+        }
+
+        function checkIsRoomStateValid(roomState) {
+          if (typeof roomState !== 'object') {
+            return false;
+          }
+          if (
+            roomState.activeQuestion &&
+            typeof roomState.activeQuestion.value !== 'string'
+          ) {
+            return false;
+          }
+          if (typeof roomState.likeCount !== 'number') {
+            return false;
+          }
+          if (typeof roomState.dislikeCount !== 'number') {
+            return false;
+          }
+          return true;
+        }
+
+        function checkAuthorization() {
+          return new Promise((resolve, reject) => {
+            if (!communist) {
+              return reject('Not authenticated');
+            }
+            fetch(`${REACT_APP_BACKEND_URL}/User/GetMe`)
+              .then((response) => {
+                if (response.ok) {
+                  return resolve();
+                }
+                return reject('Not authenticated');
               })
-              .catch(() => alert('Get new question error'));
-            break;
-          default:
-            break;
+              .catch(() => reject('Not authenticated'));
+          });
         }
-      } catch {
-        console.error('Failed to parse WebSocket message: ', event);
-      }
-    };
 
-    connectWebSocket(onWebSocketMessage)
-      .then(() => console.log('websocket connected'))
-      .catch(() => {
-        instructions.style.visibility = 'hidden';
-        authenticationEl.style.visibility = 'visible';
-      });
+        checkAuthorization()
+          .then(() => {
+            console.log('Authorization ok');
+            getRoomState()
+              .then((roomState) => {
+                if (!checkIsRoomStateValid(roomState)) {
+                  return reject('Received room state is not valid');
+                }
+                var threeShooterProps = {
+                  renderContainer: renderContainer,
+                  renderWidth: rendererSize.width,
+                  renderHeight: rendererSize.height,
+                  preload: {
+                    question: roomState.activeQuestion && roomState.activeQuestion.value,
+                    likes: roomState.likeCount,
+                    dislikes: roomState.dislikeCount,
+                  },
+                  onLoad: onLoad
+                };
+                createThreeShooter(threeShooterProps);
+              })
+              .catch((err) => alert('Cannot load' + err));
+          })
+          .catch(() => {
+            instructions.style.visibility = 'hidden';
+            authenticationEl.style.visibility = 'visible';
+          });
+      </script>
 
-    function updateAudioVolumeValue(value) {
-      var valueNode = document.createTextNode(value.toFixed(1));
-      audioVolumeValue.innerHTML = '';
-      audioVolumeValue.appendChild(valueNode);
-    }
-
-    function updateFovValue(value) {
-      var valueNode = document.createTextNode(value);
-      fovValue.innerHTML = '';
-      fovValue.appendChild(valueNode);
-    }
-
-    function onLoad() {
-      console.log('game loaded');
-    }
-
-    function getRendererSize() {
-      return {
-        width: ~~renderContainer.offsetWidth,
-        height: ~~renderContainer.offsetHeight
-      };
-    }
-
-    var rendererSize = getRendererSize();
-
-    var threeShooter = new ThreeShooter.default({
-      renderContainer: renderContainer,
-      renderWidth: rendererSize.width,
-      renderHeight: rendererSize.height,
-      onLoad: onLoad
-    });
-
-    window.addEventListener('resize', () => {
-      var newRendererSize = getRendererSize();
-      threeShooter.handleResize(
-        newRendererSize.width,
-        newRendererSize.height
-      );
-    });
-
-    instructions.addEventListener('click', function (event) {
-      if (noPointerLock) {
-        setBlockerVisibility(false);
-        threeShooter.setEnabled(true);
-      } else {
-        renderContainer.requestPointerLock();
-      }
-    });
-
-    settings.addEventListener('click', function(event) {
-      event.stopPropagation();
-    });
-
-    audioVolume.addEventListener('input', function(event) {
-      const value = +event.target.value;
-      updateAudioVolume(value);
-    });
-
-    function updateAudioVolume(value) {
-      var newVolume = value / 10;
-      threeShooter.updateAudioVolume(newVolume);
-      updateAudioVolumeValue(newVolume);
-      saveSettings();
-    }
-
-    fov.addEventListener('input', function(event) {
-      const value = +event.target.value;
-      updateFov(value);
-    });
-
-    function updateFov(value) {
-      threeShooter.updateFov(value);
-      updateFovValue(value);
-      saveSettings();
-    }
-
-    var settingsKey = 'settings';
-
-    function saveSettings() {
-      if (!localStorage) {
-        return;
-      }
-      var settings = {
-        audioVolume: +audioVolume.value,
-        fov: +fov.value,
-      };
-      localStorage.setItem(settingsKey, JSON.stringify(settings));
-    }
-
-    function loadSetting() {
-      if (!localStorage) {
-        return;
-      }
-      try {
-        var settings = JSON.parse(localStorage.getItem(settingsKey));
-        audioVolume.value = settings.audioVolume;
-        updateAudioVolume(settings.audioVolume);
-        fov.value = settings.fov;
-        if (isNaN(paramsFov)) {
-          updateFov(settings.fov);
-        } else {
-          threeShooter.updateFov(paramsFov);
-        }
-      } catch {
-        console.error('Falied to load game settings');
-      }
-    }
-    loadSetting();
-
-    function setBlockerVisibility(isVisible) {
-      blocker.style.opacity = isVisible ? '1' : '0';
-      blocker.style.transition = isVisible ? '1s' : '0s';
-    }
-
-    document.addEventListener('pointerlockchange', function (event) {
-      setBlockerVisibility(document.pointerLockElement != renderContainer);
-      threeShooter.setEnabled(document.pointerLockElement === renderContainer);
-    });
-  </script>
-
-  <script type="text/javascript">
-    function showFps(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);}
-  </script>
+      <script type="text/javascript">
+        function showFps() { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); }
+      </script>
 </body>
 
 </html>

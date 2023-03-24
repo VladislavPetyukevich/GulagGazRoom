@@ -31,6 +31,11 @@ interface LightEffect {
 type LightEffectName = 'flick';
 
 export interface TestSceneProps extends BasicSceneProps {
+  preload: {
+    question?: string;
+    likes: number;
+    dislikes: number;
+  },
   onFinish: Function;
 }
 
@@ -122,6 +127,8 @@ export class TestScene extends BasicScene {
     this.scene.fog = new Fog(0x202020, 0.15, 150);
 
     this.stats = new Stats();
+    this.stats.setCount('like', props.preload.likes);
+    this.stats.setCount('dislike', props.preload.dislikes);
 
     const loader = new FBXLoader();
     loader.load(HomePakTV, (object) => {
@@ -133,9 +140,7 @@ export class TestScene extends BasicScene {
         screenSpinAxis: 'y',
       })) as TV;
       this.scene.add(object);
-      this.tvMain.printText(
-        '💀\nЧем контекст выполнения\nотличается от\nлексического окружения?'
-      );
+      this.tvMain.printText(props.preload.question || 'Здесь будет вопрос');
     });
 
     loader.load(HomePakTV, (object) => {
