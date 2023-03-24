@@ -1,6 +1,7 @@
 using Interview.Backend.Auth;
 using Interview.Domain.RoomParticipants.Records;
 using Interview.Domain.RoomParticipants.Records.Request;
+using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.RoomParticipants.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,14 @@ namespace Interview.Backend.RoomParticipants
         }
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
-        [HttpPatch(nameof(ChangeParticipantStatus))]
+        [HttpPost(nameof(CreateParticipant))]
         [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
         [ProducesResponseType(typeof(string), 404)]
-        public async Task<ActionResult<RoomParticipantDetail?>> ChangeParticipantStatus(
-            [FromBody] RoomParticipantChangeStatusRequest request)
+        public async Task<ActionResult<RoomParticipantDetail?>> CreateParticipant(
+            [FromBody] RoomParticipantCreateRequest request)
         {
             var participantResult =
-                await _roomParticipantService.ChangeParticipantStatusAsync(request, HttpContext.RequestAborted);
+                await _roomParticipantService.CreateParticipantAsync(request, HttpContext.RequestAborted);
 
             if (participantResult.IsFailure)
             {
@@ -38,11 +39,11 @@ namespace Interview.Backend.RoomParticipants
         [HttpPatch(nameof(ChangeParticipantStatus))]
         [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
         [ProducesResponseType(typeof(string), 404)]
-        public async Task<ActionResult<RoomParticipantDetail?>> CreateParticipant(
-            [FromBody] RoomParticipantCreateRequest request)
+        public async Task<ActionResult<RoomParticipantDetail?>> ChangeParticipantStatus(
+            [FromBody] RoomParticipantChangeStatusRequest request)
         {
             var participantResult =
-                await _roomParticipantService.CreateParticipantAsync(request, HttpContext.RequestAborted);
+                await _roomParticipantService.ChangeParticipantStatusAsync(request, HttpContext.RequestAborted);
 
             if (participantResult.IsFailure)
             {

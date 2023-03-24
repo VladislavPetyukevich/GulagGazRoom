@@ -1,6 +1,9 @@
 import React, { FunctionComponent, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
+import { REACT_APP_BACKEND_URL } from '../../config';
+import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 
 export const Home: FunctionComponent = () => {
@@ -9,10 +12,11 @@ export const Home: FunctionComponent = () => {
   return (
     <MainContentWrapper>
       <Field>
-        <div>Home</div>
+        <div>{Captions.WelcomeMessage}</div>
         {!auth && (
-          <a href="http://localhost:5043/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
+          <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=%2FUser%2FGetMe`}>Login</a>
         )}
+        <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
       </Field>
     </MainContentWrapper>
   );

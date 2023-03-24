@@ -51,9 +51,14 @@ export class TestScene extends BasicScene {
   gasCenter: Vector3;
   gasParticlesPool: EntitiesPool;
   actions: Record<PlayerActionName, PlayerActionListener['listener']>;
+  gasEnabled: boolean;
   lightEffects: Record<LightEffectName, LightEffect>;
   buzzSound: Audio;
   lightFlickAudios: Audio[];
+  likeAudio: Audio;
+  dislikeAudio: Audio;
+  gasAudios: Audio[];
+  gasAudioIndex: number;
   stats: Stats;
   tvMain?: TV;
   tvChat?: TV;
@@ -138,7 +143,7 @@ export class TestScene extends BasicScene {
         model: object,
         position: new Vector3(24, 0.8, 45),
         rotationY: 0.436332,
-        screenSpinSpeed: -8.0,
+        screenSpinSpeed: -2.0,
         screenSpinAxis: 'y',
       })) as TV;
       this.scene.add(object);
@@ -187,12 +192,29 @@ export class TestScene extends BasicScene {
       },
     };
     this.lightFlickAudios = [];
-    for (let i = 4; i--;) {
+    for (let i = 1; i <= 4; i++) {
       this.lightFlickAudios.push(
-        this.createLightFlickAudio(`lightFlick${i}`)
+        this.createAudio(`lightFlick${i}`)
       );
     }
 
+    this.gasAudioIndex = 0;
+    this.gasAudios = [];
+    for (let i = 1; i <= 2; i++) {
+      const gasAudio = this.createAudio(`gazBeat${i}`);
+      gasAudio.setLoop(true);
+      this.gasAudios.push(gasAudio);
+    }
+
+    this.likeAudio = new Audio(this.audioListener);
+    this.likeAudio.setBuffer(audioStore.getSound('like'));
+    this.likeAudio.setVolume(1.0);
+
+    this.dislikeAudio = new Audio(this.audioListener);
+    this.dislikeAudio.setBuffer(audioStore.getSound('dislike'));
+    this.dislikeAudio.setVolume(0.3);
+
+    this.gasEnabled = false;
     this.actions = {
       gasEnable: this.onGasEnable,
       gasDisable: this.onGasDisable,
@@ -213,15 +235,34 @@ export class TestScene extends BasicScene {
     );
   }
 
-  startBuzzSound() {
+  resumeSounds() {
     this.buzzSound.play();
+    if (
+      this.gasEnabled &&
+      !this.gasAudios[this.gasAudioIndex].isPlaying
+    ) {
+      this.gasAudios[this.gasAudioIndex].play();
+    }
   }
 
-  stopBuzzSound() {
+  stopSounds() {
     this.buzzSound.stop();
+    if (
+      this.gasEnabled &&
+      this.gasAudios[this.gasAudioIndex].isPlaying
+    ) {
+      this.gasAudios[this.gasAudioIndex].pause();
+    }
   }
 
-  createLightFlickAudio(soundName: string) {
+  setNextGasAudioIndex() {
+    this.gasAudioIndex++;
+    if (this.gasAudioIndex === this.gasAudios.length) {
+      this.gasAudioIndex = 0;
+    }
+  }
+
+  createAudio(soundName: string) {
     const audio = new Audio(this.audioListener);
     const audioBuffer = audioStore.getSound(soundName);
     audio.setBuffer(audioBuffer);
@@ -236,6 +277,13 @@ export class TestScene extends BasicScene {
     );
   }
 
+  playAudio(audio: Audio) {
+    if (audio.isPlaying) {
+      audio.stop();
+    }
+    audio.play();
+  }
+
   createLightEffect(effect: LightEffect) {
     this.ambientLight.color.setHex(effect.colorHex);
     this.ambientLight.intensity = effect.intensity;
@@ -248,10 +296,7 @@ export class TestScene extends BasicScene {
   playRandomLightFlickSound() {
     const flickAudioIndex = randomNumbers.getRandomInRange(0, this.lightFlickAudios.length - 1);
     const flickAudio = this.lightFlickAudios[flickAudioIndex];
-    if (flickAudio.isPlaying) {
-      flickAudio.stop();
-    }
-    flickAudio.play();
+    this.playAudio(flickAudio);
   }
 
   lightFlick() {
@@ -275,14 +320,24 @@ export class TestScene extends BasicScene {
   }
 
   onGasEnable = () => {
+    if (this.gasEnabled) {
+      return;
+    }
+    this.setNextGasAudioIndex();
+    this.playAudio(this.gasAudios[this.gasAudioIndex]);
     this.disableEnableGas(true);
   }
 
   onGasDisable = () => {
+    if (!this.gasEnabled) {
+      return;
+    }
+    this.gasAudios[this.gasAudioIndex].stop();
     this.disableEnableGas(false);
   }
 
   disableEnableGas(isEnable: boolean) {
+    this.gasEnabled = isEnable;
     this.gasParticlesPool.entities.forEach(
       gasParticle => (gasParticle as Gas).disableEnableGas(isEnable)
     );
@@ -317,11 +372,13 @@ export class TestScene extends BasicScene {
   }
 
   onLike = () => {
+    this.playAudio(this.likeAudio);
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
   }
 
   onDislike = () => {
+    this.playAudio(this.dislikeAudio);
     this.stats.increaseCount('dislike');
     this.startTvStatsAnimation('👎');
   }

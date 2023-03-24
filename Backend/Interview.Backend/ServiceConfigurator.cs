@@ -1,14 +1,18 @@
+using System.Globalization;
+using System.Net;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
-using Interview.Backend.RoomReactions;
 using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
+using Interview.Domain;
+using Interview.Domain.Connections;
+using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Interview.Backend;
 
@@ -44,6 +48,7 @@ public class ServiceConfigurator
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoleName, int>());
+                options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoomQuestionState, int>());
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
@@ -89,12 +94,44 @@ public class ServiceConfigurator
 
         serviceCollection.AddHostedService<EventSenderJob>();
         serviceCollection.AddHostedService<WebSocketConnectListenJob>();
-        serviceCollection.AddSingleton<WebSocketConnectListenerSource>();
 
         serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
         serviceCollection.AddSingleton(oAuthServiceDispatcher);
         serviceCollection.AddSingleton<UserClaimService>();
 
         serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
+
+        serviceCollection.AddRateLimiter(_ =>
+        {
+            _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
+            {
+                var address = context?.Connection?.RemoteIpAddress;
+                if (address is not null && !IPAddress.IsLoopback(address))
+                {
+                    return RateLimitPartition.GetFixedWindowLimiter(address, key => new()
+                    {
+                        PermitLimit = 13,
+                        Window = TimeSpan.FromSeconds(30),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        AutoReplenishment = true,
+                    });
+                }
+
+                return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
+            });
+            _.OnRejected = (context, token) =>
+            {
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                {
+                    context.HttpContext.Response.Headers.RetryAfter =
+                        ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+                }
+
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken: token);
+
+                return ValueTask.CompletedTask;
+            };
+        });
     }
 }

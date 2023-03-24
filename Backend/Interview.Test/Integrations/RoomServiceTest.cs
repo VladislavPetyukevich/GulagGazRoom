@@ -3,6 +3,7 @@ using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.RoomQuestionReactions;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
 
@@ -25,7 +26,7 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher());
+        var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
 
         var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 

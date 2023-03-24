@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Interview.Backend.Auth;
+using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Infrastructure.Chat;
 using Microsoft.Extensions.Options;
@@ -9,14 +10,14 @@ namespace Interview.Backend.WebSocket.ConnectListener;
 public class WebSocketConnectListenJob : BackgroundService
 {
     private readonly ChatBotAccount _chatBotAccount;
-    private readonly WebSocketConnectListenerSource _webSocketListener;
+    private readonly IConnectUserSource _user;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly ILogger<WebSocketConnectListenJob> _logger;
     private readonly Dictionary<Guid, TwitchChatClient> _twitchClients;
 
-    public WebSocketConnectListenJob(WebSocketConnectListenerSource webSocketListener, IOptions<ChatBotAccount> chatBotAccount, IRoomEventDispatcher roomEventDispatcher, ILogger<WebSocketConnectListenJob> logger)
+    public WebSocketConnectListenJob(IConnectUserSource user, IOptions<ChatBotAccount> chatBotAccount, IRoomEventDispatcher roomEventDispatcher, ILogger<WebSocketConnectListenJob> logger)
     {
-        _webSocketListener = webSocketListener;
+        _user = user;
         _roomEventDispatcher = roomEventDispatcher;
         _logger = logger;
         _chatBotAccount = chatBotAccount.Value;
@@ -27,9 +28,9 @@ public class WebSocketConnectListenJob : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            RemoveUnusedClients(_webSocketListener.Source);
-            var source = _webSocketListener.Source;
-            foreach (var (roomId, (_, twitchChanel)) in _webSocketListener.Source)
+            RemoveUnusedClients(_user.Source);
+            var source = _user.Source;
+            foreach (var (roomId, (_, twitchChanel)) in _user.Source)
             {
                 try
                 {
@@ -49,7 +50,9 @@ public class WebSocketConnectListenJob : BackgroundService
                 }
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+            _logger.LogDebug("Before wait async");
+            await _user.WaitAsync(stoppingToken);
+            _logger.LogDebug("After wait async");
         }
     }
 

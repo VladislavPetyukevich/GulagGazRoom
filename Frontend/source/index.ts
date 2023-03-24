@@ -89,9 +89,9 @@ export default class ThreeShooter {
     }
     if (this.currScene instanceof TestScene) {
       if (this.enabled) {
-        this.currScene.startBuzzSound();
+        this.currScene.resumeSounds();
       } else {
-        this.currScene.stopBuzzSound();
+        this.currScene.stopSounds();
       }
     }
   }

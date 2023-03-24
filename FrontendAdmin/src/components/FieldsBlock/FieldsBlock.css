@@ -17,10 +17,9 @@
 .fields-block .field-wrap {
   background: var(--wrap-bg);
   margin: 20px;
-  margin-right: -40px;
-  margin-left: -40px;
   height: auto;
   min-height: 30px;
-  box-shadow: 2px 2px 2px var(--shadow);
   padding: 10px 0px 5px 0px;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
 }

@@ -18,21 +18,21 @@ jobs:
         
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: true
         fetch-depth: 0
         
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3.0.3
       with:
         dotnet-version: ${{ matrix.version }}
         
     - name: Restore dependencies
-      run: dotnet restore Backend/Interview.Backend
+      run: dotnet restore "Backend"
       
     - name: Build
-      run: dotnet build Backend/Interview.Backend --no-restore
+      run: dotnet build "Backend/Interview.Backend" --no-restore
 
     - name: Test
-      run: dotnet test Backend/Interview.Test --no-restore --verbosity normal
+      run: dotnet test "Backend/Interview.Test" --no-restore --verbosity normal

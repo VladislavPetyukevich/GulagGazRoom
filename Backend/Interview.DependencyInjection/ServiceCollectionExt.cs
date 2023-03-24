@@ -1,6 +1,8 @@
 using Interview.Domain.Certificates;
+using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
+using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
@@ -52,6 +54,10 @@ public static class ServiceCollectionExt
 
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
+        self.AddSingleton<IChangeEntityProcessor, RoomQuestionChangeEntityProcessor>();
+
+        self.AddSingleton<IConnectUserSource, ConnectUserSource>();
+        self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
 
         // Services
         self.AddScoped<UserService>();
@@ -63,7 +69,6 @@ public static class ServiceCollectionExt
         self.AddScoped<ReactionService>();
 
         self.AddSingleton(option.TwitchTokenProviderOption);
-
         return self;
     }
 }

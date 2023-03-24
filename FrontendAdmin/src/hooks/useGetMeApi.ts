@@ -1,4 +1,5 @@
 import { useCallback, useReducer } from 'react';
+import { REACT_APP_BACKEND_URL } from '../config';
 import { User } from '../types/user';
 
 interface GetMeState {
@@ -64,7 +65,7 @@ export const useGetMeApi = () => {
   const loadMe = useCallback(async () => {
     dispatch({ name: 'startLoad' });
     try {
-      const response = await fetch('/User/GetMe');
+      const response = await fetch(`${REACT_APP_BACKEND_URL}/User/GetMe`);
       if (!response.ok) {
         throw new Error('UserApi error');
       }

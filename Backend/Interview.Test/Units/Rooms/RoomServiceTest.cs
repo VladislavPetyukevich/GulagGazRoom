@@ -1,5 +1,6 @@
 using Interview.Domain.Events;
 using Interview.Domain.Questions;
+using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
@@ -20,8 +21,9 @@ public class RoomServiceTest
         var questionRepository = new Mock<IQuestionRepository>();
         var userRepository = new Mock<IUserRepository>();
         var eventDispatcher = new Mock<IRoomEventDispatcher>();
+        var roomQuestionReactionRepository = new Mock<IRoomQuestionReactionRepository>();
 
-        _roomService = new RoomService(_roomRepository.Object, questionRepository.Object, userRepository.Object, eventDispatcher.Object);
+        _roomService = new RoomService(_roomRepository.Object, questionRepository.Object, userRepository.Object, eventDispatcher.Object, roomQuestionReactionRepository.Object);
     }
 
     [Fact(DisplayName = "Patch update of room when request name is null")]

@@ -3,7 +3,7 @@ import { Link, useLocation, matchPath } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
 import { Field } from '../FieldsBlock/Field';
-import { pathnames } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 
 import './NavMenu.css';
 
@@ -24,10 +24,10 @@ export const NavMenu: FunctionComponent = () => {
   const isPathActive = (pathname: string) => !!matchPath(pathname, location.pathname);
 
   const items: MenuItem[] = [
-    { path: pathnames.home, name: 'Home' },
-    { path: pathnames.rooms, name: 'Rooms' },
-    { path: pathnames.questions, name: 'Questions' },
-    { path: pathnames.session, name: auth?.nickname || 'Unauthorized' },
+    { path: pathnames.home, name: Captions.HomePageName },
+    { path: pathnames.rooms, name: Captions.RoomsPageName },
+    { path: pathnames.questions, name: Captions.QuestionsPageName },
+    { path: pathnames.session, name: auth?.nickname || Captions.UnauthorizedMessage },
   ];
 
   return (

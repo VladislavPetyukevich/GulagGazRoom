@@ -24,6 +24,7 @@ public static class ServiceCollectionExt
                     context.Response.StatusCode = 401;
                     return Task.CompletedTask;
                 };
+                options.Cookie.HttpOnly = false;
                 options.Cookie.Name = WebSocketAuthorizationOptions.DefaultCookieName;
                 options.ClaimsIssuer = authorizationService.ClaimsIssuer;
                 options.ExpireTimeSpan = TimeSpan.FromDays(10);
@@ -46,6 +47,7 @@ public static class ServiceCollectionExt
                     var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
                     context.Principal!.EnrichRolesWithId(upsertUser);
                 };
+                options.Scope.Clear();
             });
 
         self.AddAuthorization(options =>
@@ -56,9 +58,7 @@ public static class ServiceCollectionExt
             });
             options.AddPolicy(GulagSecurePolicy.User, policyBuilder =>
             {
-                policyBuilder
-                    .RequireRole(RoleNameConstants.User)
-                    .RequireAuthenticatedUser();
+                policyBuilder.RequireAuthenticatedUser();
             });
         });
     }

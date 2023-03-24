@@ -8,6 +8,14 @@ public interface IRepository<T>
 {
     Task CreateAsync(T entity, CancellationToken cancellationToken = default);
 
+    Task<List<T>> Find(ISpecification<T> specification, CancellationToken cancellationToken = default);
+
+    Task<List<TRes>> Find<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);
+
+    Task<List<T>> FindDetailed(ISpecification<T> specification, CancellationToken cancellationToken = default);
+
+    Task<List<TRes>> FindDetailed<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);
+
     Task<T?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<TRes?> FindByIdAsync<TRes>(Guid id, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);

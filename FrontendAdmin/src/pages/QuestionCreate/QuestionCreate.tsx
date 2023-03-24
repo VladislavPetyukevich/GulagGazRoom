@@ -1,19 +1,24 @@
 import React, { FormEvent, FunctionComponent, useCallback } from 'react';
+import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
-import { pathnames } from '../../constants';
-import { useQuestionsCreateApi } from './hooks/useQuestionsCreateApi';
+import { Captions, pathnames } from '../../constants';
+import { useApiMethod } from '../../hooks/useApiMethod';
+import { Question } from '../../types/question';
 
 import './QuestionCreate.css';
 
 const valueFieldName = 'qestionText';
 
 export const QuestionCreate: FunctionComponent = () => {
-  const { questionState, createQuestion } = useQuestionsCreateApi();
-  const { process: { loading, error }, success } = questionState;
+  const {
+    apiMethodState: questionState,
+    fetchData: fetchCreateQuestion,
+  } = useApiMethod<Question['id']>();
+  const { process: { loading, error }, data: createdQuestionId } = questionState;
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,14 +31,16 @@ export const QuestionCreate: FunctionComponent = () => {
     if (typeof qestionText !== 'string') {
       throw new Error('qestionText field type error');
     }
-    createQuestion({ value: qestionText });
-  }, [createQuestion]);
+    fetchCreateQuestion(questionsApiDeclaration.create({
+      value: qestionText,
+    }));
+  }, [fetchCreateQuestion]);
 
   const renderStatus = useCallback(() => {
     if (error) {
       return (
         <Field>
-          <div>Error: {error}</div>
+          <div>{Captions.Error}: {error}</div>
         </Field>
       );
     }
@@ -44,20 +51,20 @@ export const QuestionCreate: FunctionComponent = () => {
         </Field>
       );
     }
-    if (success) {
+    if (createdQuestionId) {
       return (
         <Field>
-          <div>Question created successfully</div>
+          <div>{Captions.QuestionCreatedSuccessfully}</div>
         </Field>
       );
     }
     return <></>;
-  }, [error, loading, success]);
+  }, [error, loading, createdQuestionId]);
 
   return (
     <MainContentWrapper className="question-create">
       <HeaderWithLink
-        title="Create question"
+        title={Captions.CreateQuestion}
         path={pathnames.questions}
         linkCaption="<"
         linkFloat="left"
@@ -65,10 +72,10 @@ export const QuestionCreate: FunctionComponent = () => {
       {renderStatus()}
       <form onSubmit={handleSubmit}>
         <Field>
-          <label htmlFor="qestionText">Question text:</label>
+          <label htmlFor="qestionText">{Captions.QuestionText}:</label>
           <input id="qestionText" name={valueFieldName} type="text" />
         </Field>
-        <SubmitField caption="Create" />
+        <SubmitField caption={Captions.Create} />
       </form>
     </MainContentWrapper>
   );
