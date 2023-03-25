@@ -3,6 +3,7 @@ using Interview.Backend;
 using Interview.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables("INTERVIEW_BACKEND_");
 
 // Add services to the container.
 var serviceConfigurator = new ServiceConfigurator(builder.Environment, builder.Configuration);
