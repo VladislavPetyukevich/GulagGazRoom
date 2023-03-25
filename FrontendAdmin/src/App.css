@@ -5,4 +5,5 @@
 
 .App h1 {
   color: var(--warp-bg);
+  font-size: 2.25em;
 }

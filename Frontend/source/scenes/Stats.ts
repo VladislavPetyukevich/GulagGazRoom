@@ -15,6 +15,10 @@ export class Stats {
     this.count[stat]++;
   }
 
+  setCount(stat: keyof Stats['count'], value: number) {
+    this.count[stat] = value;
+  }
+
   toString() {
     return `${this.count.like} - 😍\n\n${this.count.dislike} - 😈`;
   }

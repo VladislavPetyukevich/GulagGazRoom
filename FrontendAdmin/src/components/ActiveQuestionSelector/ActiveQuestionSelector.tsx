@@ -1,6 +1,8 @@
 import { ChangeEvent, FunctionComponent, useCallback, useState } from 'react';
 import { Question } from '../../types/question';
 
+import './ActiveQuestionSelector.css';
+
 interface ActiveQuestionSelectorProps {
   questions: Question[];
   selectButtonLabel: string;
@@ -31,7 +33,7 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
   }, [selectedQuestion, onSelect]);
 
   return (
-    <div>
+    <div className="activeQuestionSelector">
       <select
         size={8}
         onChange={handleSelectChange}

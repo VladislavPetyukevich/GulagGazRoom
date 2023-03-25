@@ -7,10 +7,11 @@ export const pathnames = {
   questions: '/questions',
   questionsCreate: '/questions/create',
   session: '/session',
+  terms: '/terms',
 };
 
 export const enum Captions {
-  AppName = 'ГУЛАГ АДМИН',
+  AppName = 'ГУЛАГ ГАЗ РУМ',
   WelcomeMessage = 'Салют',
   HomePageName = 'Проходная',
   RoomsPageName = 'Комнаты',
@@ -43,4 +44,5 @@ export const enum Captions {
   GasOff = 'Газ ВЫКЛ',
   CopyRoomLink = 'Скопировать ссылку на комнату',
   LoggedInAs = 'Представился как',
+  TermsOfUsage = 'Условия использования',
 };
