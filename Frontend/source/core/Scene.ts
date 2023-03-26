@@ -5,6 +5,7 @@ import {
 } from 'three';
 import { EntitiesContainer } from '@/core/Entities/EntitiesContainer';
 import { globalSettings } from '@/GlobalSettings';
+import { DEFAULT_FOV } from '@/constants';
 
 export interface BasicSceneProps {
   renderWidth: number;
@@ -19,7 +20,7 @@ export class BasicScene {
 
   constructor(props: BasicSceneProps) {
     this.scene = new Scene();
-    const fov = globalSettings.getSetting('fov') || 95;
+    const fov = globalSettings.getSetting('fov') || DEFAULT_FOV;
     this.camera = new PerspectiveCamera(fov, props.renderWidth / props.renderHeight, 0.1, 1000);
 
     this.audioListener = new AudioListener();

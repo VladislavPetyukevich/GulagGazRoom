@@ -1,3 +1,5 @@
+import { DEFAULT_FOV } from './constants';
+
 type SettingName =
   'audioVolume' |
   'fov';
@@ -11,7 +13,7 @@ class GlobalSettings {
   constructor() {
     this.settings = {
       audioVolume: 1,
-      fov: 95,
+      fov: DEFAULT_FOV,
     };
     this.onUpdateCallbacks = [];
   }
