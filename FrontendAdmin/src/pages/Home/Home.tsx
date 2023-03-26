@@ -6,15 +6,22 @@ import { REACT_APP_BACKEND_URL } from '../../config';
 import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 
+import './Home.css';
+
 export const Home: FunctionComponent = () => {
   const auth = useContext(AuthContext);
 
   return (
-    <MainContentWrapper>
+    <MainContentWrapper className="home">
       <Field>
         <div>{Captions.WelcomeMessage}</div>
         {!auth && (
-          <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe`}>Login</a>
+          <>
+            <button className="home-login-button">
+              <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe`}>Login</a>
+            </button>
+            <br/>
+          </>
         )}
         <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
       </Field>
