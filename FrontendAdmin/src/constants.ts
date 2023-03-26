@@ -45,4 +45,6 @@ export const enum Captions {
   CopyRoomLink = 'Скопировать ссылку на комнату',
   LoggedInAs = 'Представился как',
   TermsOfUsage = 'Условия использования',
+  Login = 'Представиться',
+  WhoAreYou = 'Ты кто?',
 };

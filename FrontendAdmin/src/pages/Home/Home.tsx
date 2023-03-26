@@ -14,11 +14,13 @@ export const Home: FunctionComponent = () => {
   return (
     <MainContentWrapper className="home">
       <Field>
-        <div>{Captions.WelcomeMessage}</div>
-        {!auth && (
+        {auth ? (
+          <div>{Captions.WelcomeMessage}, {auth.nickname}</div>
+        ) : (
           <>
+            <div>{Captions.WhoAreYou}</div>
             <button className="home-login-button">
-              <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=${encodeURIComponent(window.location.href)}`}>Login</a>
+              <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=${encodeURIComponent(window.location.href)}`}>{Captions.Login}</a>
             </button>
             <br/>
           </>
