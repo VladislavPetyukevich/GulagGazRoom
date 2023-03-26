@@ -128,7 +128,7 @@
                     break;
                   }
                   const questionId = dataParsed.Value.QuestionId;
-                  fetch(`${REACT_APP_BACKEND_URL}/api/Question/GetById?id=${questionId}`)
+                  fetch(`${REACT_APP_BACKEND_URL}/Question/GetById?id=${questionId}`)
                     .then((response) => {
                       if (!response.ok) {
                         return alert('Get new question error');
