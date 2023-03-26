@@ -213,7 +213,7 @@ export class TestScene extends BasicScene {
 
     this.likeAudio = new Audio(this.audioListener);
     this.likeAudio.setBuffer(audioStore.getSound('like'));
-    this.likeAudio.setVolume(1.0);
+    this.likeAudio.setVolume(0.2);
 
     this.dislikeAudio = new Audio(this.audioListener);
     this.dislikeAudio.setBuffer(audioStore.getSound('dislike'));
