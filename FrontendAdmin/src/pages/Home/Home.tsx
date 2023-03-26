@@ -14,7 +14,7 @@ export const Home: FunctionComponent = () => {
       <Field>
         <div>{Captions.WelcomeMessage}</div>
         {!auth && (
-          <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=%2FUser%2FGetMe`}>Login</a>
+          <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe`}>Login</a>
         )}
         <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
       </Field>
