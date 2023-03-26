@@ -174,8 +174,14 @@ export class TestScene extends BasicScene {
     this.camera.rotation.set(0.0, 0.21, 0.0);
 
     this.roomSpawner.spawnWall(
-      new Vector2(30, 45),
+      new Vector2(30, 46),
       new Vector2(this.roomSpawner.cellCoordinates.size * 15, this.roomSpawner.cellCoordinates.size),
+      true
+    );
+
+    this.roomSpawner.spawnWall(
+      new Vector2(20, 45),
+      new Vector2(this.roomSpawner.cellCoordinates.size, this.roomSpawner.cellCoordinates.size * 15),
       true
     );
 
