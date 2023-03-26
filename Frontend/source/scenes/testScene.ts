@@ -153,7 +153,7 @@ export class TestScene extends BasicScene {
       })) as TV;
       this.scene.add(object);
       this.tvChat.printText(
-        'izede:\nЗа этим стоит лаборатория'
+        'Здесь будут сообщения из чата'
       );
     });
 
