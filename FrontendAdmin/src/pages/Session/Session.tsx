@@ -30,14 +30,18 @@ export const Session: FunctionComponent = () => {
       <>
         <Field className="session-info">
           <table>
-            <tr>
-              <th>Позывной</th>
-              <th>Роль</th>
-            </tr>
-            <tr>
-              <td>{auth.nickname}</td>
-              <td>{role}</td>
-            </tr>
+            <thead>
+              <tr>
+                <th>Позывной</th>
+                <th>Роль</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{auth.nickname}</td>
+                <td>{role}</td>
+              </tr>
+            </tbody>
           </table>
         </Field>
         <Field>
