@@ -251,6 +251,9 @@
                 threeShooter.updateFov(paramsFov);
               }
             } catch {
+              if (!isNaN(paramsFov)){
+                threeShooter.updateFov(paramsFov);
+              }
               console.error('Falied to load game settings');
             }
           }
