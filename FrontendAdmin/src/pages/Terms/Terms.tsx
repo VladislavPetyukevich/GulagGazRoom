@@ -5,6 +5,7 @@ import './Terms.css';
 import { Captions, pathnames } from '../../constants';
 import { FieldsBlock } from '../../components/FieldsBlock/FieldsBlock';
 import { Field } from '../../components/FieldsBlock/Field';
+import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 
 interface Term {
   title: string;
@@ -40,6 +41,13 @@ export const Terms: FunctionComponent = () => {
 
   return (
     <FieldsBlock className="terms-of-use">
+      <HeaderWithLink
+        title={Captions.TermsOfUsage}
+        linkVisible={true}
+        path={pathnames.home}
+        linkCaption="<"
+        linkFloat="left"
+      />
       <Field>
         <h2>{Captions.TermsOfUsage}</h2>
         <p>{terms.disclaimer}</p>
