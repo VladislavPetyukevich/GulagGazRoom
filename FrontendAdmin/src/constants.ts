@@ -38,7 +38,7 @@ export const enum Captions {
   ErrorSendingReaction = 'Ошибка в отправке реакции',
   SendingGasEvent = 'Отправка газа',
   ErrorSendingGasEvent = 'Ошибка в отправке газа',
-  Reactions = 'Реакции',
+  Reactions = 'Оценка собеседуемого',
   Gas = 'Газ',
   GasOn = 'Газ ВКЛ',
   GasOff = 'Газ ВЫКЛ',
