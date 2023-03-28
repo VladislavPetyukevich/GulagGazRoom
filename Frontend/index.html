@@ -87,6 +87,7 @@
         }
         const noPointerLock = !!urlParams.get('noPointerLock');
         const paramsFov = parseInt(urlParams.get('fov'));
+        const paramsMuted = !!urlParams.get('muted');
 
         function connectWebSocket(onmessage) {
           return new Promise((resolve, reject) => {
@@ -243,7 +244,11 @@
             try {
               var settings = JSON.parse(localStorage.getItem(settingsKey));
               audioVolume.value = settings.audioVolume;
-              updateAudioVolume(settings.audioVolume);
+              if (paramsMuted) {
+                threeShooter.updateAudioVolume(0);
+              } else {
+                updateAudioVolume(settings.audioVolume);
+              }
               fov.value = settings.fov;
               if (isNaN(paramsFov)) {
                 updateFov(settings.fov);
@@ -253,6 +258,9 @@
             } catch {
               if (!isNaN(paramsFov)){
                 threeShooter.updateFov(paramsFov);
+              }
+              if (paramsMuted) {
+                threeShooter.updateAudioVolume(0);
               }
               console.error('Falied to load game settings');
             }

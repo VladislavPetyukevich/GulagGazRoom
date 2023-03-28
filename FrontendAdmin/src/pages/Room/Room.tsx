@@ -198,7 +198,7 @@ export const Room: FunctionComponent = () => {
       <iframe
         title="interviewee-client-frame"
         className="interviewee-frame"
-        src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&noPointerLock=1&fov=${admin ? '110' : '110'}`}
+        src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&noPointerLock=1&${admin ? '' : 'muted=1'}&fov=${admin ? '110' : '110'}`}
       >
       </iframe>
     </Field>
