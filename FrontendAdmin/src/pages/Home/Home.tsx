@@ -19,9 +19,9 @@ export const Home: FunctionComponent = () => {
         ) : (
           <>
             <div>{Captions.WhoAreYou}</div>
-            <button className="home-login-button">
-              <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=${encodeURIComponent(window.location.href)}`}>{Captions.Login}</a>
-            </button>
+            <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=${encodeURIComponent(window.location.href)}`}>
+              <button className="home-login-button">{Captions.Login}</button>
+            </a>
             <br/>
           </>
         )}
