@@ -39,6 +39,13 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet(nameof(GetByRole))]
+    public Task<List<User>> GetByRole(RoleNameType role)
+    {
+        return _userService.GetByRoleAsync(role);
+    }
+
+    [Authorize]
     [HttpGet(nameof(GetMe))]
     [ProducesResponseType(typeof(UserClaim), 200)]
     [ProducesResponseType(typeof(string), 400)]

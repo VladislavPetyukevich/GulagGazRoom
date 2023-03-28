@@ -50,6 +50,12 @@ public sealed class UserService
         return insertUser;
     }
 
+    public Task<List<User>> GetByRoleAsync(RoleNameType roleNameType, CancellationToken cancellationToken = default)
+    {
+        var roleName = RoleName.FromValue((int)roleNameType);
+        return _userRepository.GetByRoleAsync(roleName, cancellationToken);
+    }
+
     private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
     {
         var roleName = _adminUsers.IsAdmin(nickname) ? RoleName.Admin : RoleName.User;

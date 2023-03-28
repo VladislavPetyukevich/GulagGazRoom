@@ -1,4 +1,5 @@
 using Interview.Domain.Users;
+using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,13 @@ public class UserRepository : EfRepository<User>, IUserRepository
     {
         return Set.Include(e => e.Roles)
             .FirstOrDefaultAsync(user => user.Nickname == nickname, cancellationToken);
+    }
+
+    public Task<List<User>> GetByRoleAsync(RoleName roleName, CancellationToken cancellationToken = default)
+    {
+        return Set.Include(e => e.Roles)
+            .Where(e => e.Roles.Any(r => r.Name == roleName))
+            .ToListAsync(cancellationToken);
     }
 
     public Task<User?> FindByTwitchIdentityAsync(string twitchIdentity, CancellationToken cancellationToken = default)
