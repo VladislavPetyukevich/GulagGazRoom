@@ -14,6 +14,11 @@ public class MiddlewareConfigurator
 
     public void AddMiddlewares()
     {
+        if (_app.Environment.IsPreProduction() || _app.Environment.IsProduction())
+        {
+            _app.UseHsts();
+        }
+
         _app.UseHttpsRedirection();
 
         _app.UseCookiePolicy(new CookiePolicyOptions

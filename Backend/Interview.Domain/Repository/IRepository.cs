@@ -6,11 +6,13 @@ namespace Interview.Domain.Repository;
 public interface IRepository<T>
     where T : Entity
 {
+    Task<bool> HasAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
+
     Task CreateAsync(T entity, CancellationToken cancellationToken = default);
 
-    Task<List<T>> Find(ISpecification<T> specification, CancellationToken cancellationToken = default);
+    Task<List<T>> FindAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
 
-    Task<List<TRes>> Find<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);
+    Task<List<TRes>> FindAsync<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);
 
     Task<List<T>> FindDetailed(ISpecification<T> specification, CancellationToken cancellationToken = default);
 

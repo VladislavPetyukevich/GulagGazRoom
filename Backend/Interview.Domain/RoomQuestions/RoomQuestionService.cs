@@ -1,8 +1,13 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
+using Interview.Domain.Reactions;
+using Interview.Domain.Repository;
+using Interview.Domain.RoomQuestionReactions.Mappers;
+using Interview.Domain.RoomQuestionReactions.Specifications;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
 using Interview.Domain.Rooms;
+using NSpecifications;
 
 namespace Interview.Domain.RoomQuestions
 {
@@ -109,6 +114,20 @@ namespace Interview.Domain.RoomQuestions
                 RoomId = room.Id,
                 State = newRoomQuestion.State,
             };
+        }
+
+        public async Task<Result<List<Guid>>> GetRoomQuestionsAsync(RoomQuestionsRequest request, CancellationToken cancellationToken = default)
+        {
+            var hasRoom = await _roomRepository.HasAsync(new Spec<Room>(room => room.Id == request.RoomId), cancellationToken);
+            if (!hasRoom)
+            {
+                return Result.Failure<List<Guid>>($"Room not found by id {request.RoomId}");
+            }
+
+            var state = RoomQuestionState.FromValue((int)request.State);
+            var specification = new Spec<RoomQuestion>(rq => rq.Room.Id == request.RoomId && rq.State == state);
+            var mapper = new Mapper<RoomQuestion, Guid>(rq => rq.Question.Id);
+            return await _roomQuestionRepository.FindAsync(specification, mapper, cancellationToken);
         }
     }
 }

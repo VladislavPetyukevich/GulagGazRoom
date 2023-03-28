@@ -1,7 +1,6 @@
 using Interview.Backend.Auth;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records;
-using Interview.Domain.RoomQuestions.Records.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +43,21 @@ namespace Interview.Backend.RoomQuestions
         {
             var result = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
 
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
+
+        [Authorize]
+        [HttpGet(nameof(GetRoomQuestions))]
+        [ProducesResponseType(typeof(List<Guid>), 200)]
+        [ProducesResponseType(typeof(string), 404)]
+        public async Task<IActionResult> GetRoomQuestions([FromQuery] RoomQuestionsRequest request)
+        {
+            var result = await _roomQuestionService.GetRoomQuestionsAsync(request);
             if (result.IsFailure)
             {
                 return BadRequest(result.Error);

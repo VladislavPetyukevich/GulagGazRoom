@@ -13,6 +13,7 @@ using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Interview.Domain.Users;
+using NSpecifications;
 using Entity = Interview.Domain.Repository.Entity;
 
 namespace Interview.Domain.Rooms.Service;
