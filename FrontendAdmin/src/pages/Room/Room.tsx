@@ -1,5 +1,6 @@
-import React, { FunctionComponent, useCallback, useContext, useEffect } from 'react';
+import React, { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { TwitchEmbed, TwitchEmbedInstance } from 'react-twitch-embed';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
 import { Field } from '../../components/FieldsBlock/Field';
@@ -47,6 +48,7 @@ const gasReactions: GasReaction[] = [{
 export const Room: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
+  const embed = useRef<TwitchEmbedInstance>();
   let { id } = useParams();
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
@@ -170,6 +172,38 @@ export const Room: FunctionComponent = () => {
     handleGasReactionClick,
   ]);
 
+  const handleReady = (e: TwitchEmbedInstance) => {
+    embed.current = e;
+  };
+
+  const twitch = useMemo(() => {
+    if (loading || !room) {
+      return <div>Loaing twitch...</div>;
+    }
+    return (
+      <Field className="twitch-embed-field">
+        <TwitchEmbed
+          channel={room.twitchChannel}
+          autoplay={!admin}
+          withChat
+          darkMode={true}
+          onVideoReady={handleReady}
+        />
+      </Field>
+    );
+  }, [loading, room, admin]);
+
+  const interviewee = useMemo(() => (
+    <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
+      <iframe
+        title="interviewee-client-frame"
+        className="interviewee-frame"
+        src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&noPointerLock=1&fov=${admin ? '110' : '110'}`}
+      >
+      </iframe>
+    </Field>
+  ), [admin, room?.id]);
+
   const renderRoomContent = useCallback(() => {
     if (error) {
       return (
@@ -211,14 +245,8 @@ export const Room: FunctionComponent = () => {
           </Field>
         )}
         {renderReactionsField()}
-        <Field className="interviewee-frame-wrapper">
-          <iframe
-            title="interviewee-client-frame"
-            className="interviewee-frame"
-            src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&noPointerLock=1&fov=125`}
-          >
-          </iframe>
-        </Field>
+        {admin ? interviewee : twitch}
+        {admin ? twitch : interviewee}
       </>
     );
   }, [
@@ -230,6 +258,8 @@ export const Room: FunctionComponent = () => {
     errorReactions,
     errorRoomActiveQuestion,
     room,
+    twitch,
+    interviewee,
     renderReactionsField,
     handleQuestionSelect,
     handleCopyRoomLink,
