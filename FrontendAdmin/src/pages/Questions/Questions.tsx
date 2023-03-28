@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
@@ -6,8 +6,10 @@ import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { Captions, pathnames } from '../../constants';
+import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
+import { checkAdmin } from '../../utils/checkAdmin';
 
 import './Questions.css';
 
@@ -15,6 +17,8 @@ const pageSize = 10;
 const initialPageNumber = 1;
 
 export const Questions: FunctionComponent = () => {
+  const auth = useContext(AuthContext);
+  const admin = checkAdmin(auth);
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
   const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[]>();
   const { process: { loading, error }, data: questions } = questionsState;
@@ -166,6 +170,7 @@ export const Questions: FunctionComponent = () => {
     <MainContentWrapper>
       <HeaderWithLink
         title={`${Captions.QuestionsPageName}:`}
+        linkVisible={admin}
         path={pathnames.questionsCreate}
         linkCaption="+"
         linkFloat="right"

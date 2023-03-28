@@ -6,6 +6,7 @@ import './HeaderWithLink.css';
 
 interface HeaderWithLinkProps {
   title: string;
+  linkVisible: boolean;
   path: string;
   linkCaption: string;
   linkFloat: 'left' | 'right';
@@ -13,15 +14,18 @@ interface HeaderWithLinkProps {
 
 export const HeaderWithLink: FunctionComponent<HeaderWithLinkProps> = ({
   title,
+  linkVisible,
   path,
   linkCaption,
   linkFloat,
 }) => {
   return (
     <Field className="header-with-link">
-      <Link to={path}>
-        <button className={`button-link float-${linkFloat}`}>{linkCaption}</button>
-      </Link>
+      {linkVisible && (
+        <Link to={path}>
+          <button className={`button-link float-${linkFloat}`}>{linkCaption}</button>
+        </Link>
+      )}
       <span>{title}</span>
     </Field>
   );

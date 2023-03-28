@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useEffect } from 'react';
+import React, { FunctionComponent, useCallback, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
@@ -8,10 +8,12 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
 import { REACT_APP_INTERVIEW_FRONTEND_URL } from '../../config';
 import { Captions } from '../../constants';
+import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
+import { checkAdmin } from '../../utils/checkAdmin';
 
 import './Room.css';
 
@@ -43,6 +45,8 @@ const gasReactions: GasReaction[] = [{
 }];
 
 export const Room: FunctionComponent = () => {
+  const auth = useContext(AuthContext);
+  const admin = checkAdmin(auth);
   let { id } = useParams();
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
@@ -140,13 +144,15 @@ export const Room: FunctionComponent = () => {
             onClick={handleReactionClick}
           />
         </div>
-        <div>
-          <span>{Captions.Gas}:</span>
-          <ReactionsList
-            reactions={gasReactions}
-            onClick={handleGasReactionClick}
-          />
-        </div>
+        {admin && (
+          <div>
+            <span>{Captions.Gas}:</span>
+            <ReactionsList
+              reactions={gasReactions}
+              onClick={handleGasReactionClick}
+            />
+          </div>
+        )}
         {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
         {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
         {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
@@ -154,6 +160,7 @@ export const Room: FunctionComponent = () => {
       </Field>
     );
   }, [
+    admin,
     loadingRoomReaction,
     loadingRoomGas,
     errorRoomReaction,
@@ -191,16 +198,18 @@ export const Room: FunctionComponent = () => {
           <div>{Captions.Room}: {room?.name}</div>
           <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
         </Field>
-        <Field>
-          <div>Установить тему допроса:</div>
-          <ActiveQuestionSelector
-            questions={room?.questions || []}
-            selectButtonLabel={Captions.SetActiveQuestion}
-            onSelect={handleQuestionSelect}
-          />
-          {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
-          {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
-        </Field>
+        {admin && (
+          <Field>
+            <div>Установить тему допроса:</div>
+            <ActiveQuestionSelector
+              questions={room?.questions || []}
+              selectButtonLabel={Captions.SetActiveQuestion}
+              onSelect={handleQuestionSelect}
+            />
+            {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
+            {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
+          </Field>
+        )}
         {renderReactionsField()}
         <Field className="interviewee-frame-wrapper">
           <iframe
@@ -213,6 +222,7 @@ export const Room: FunctionComponent = () => {
       </>
     );
   }, [
+    admin,
     loading,
     loadingReactions,
     loadingRoomActiveQuestion,
