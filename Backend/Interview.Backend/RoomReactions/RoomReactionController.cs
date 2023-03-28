@@ -42,7 +42,7 @@ public class RoomReactionController : ControllerBase
         return Ok(createRoomQuestionReactionResult.Value);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost(nameof(SendReaction))]
     [ProducesResponseType(typeof(string), 200)]
     [ProducesResponseType(typeof(string), 400)]
