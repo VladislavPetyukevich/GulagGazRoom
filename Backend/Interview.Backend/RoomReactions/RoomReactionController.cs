@@ -19,7 +19,7 @@ public class RoomReactionController : ControllerBase
         _roomQuestionReactionService = roomQuestionReactionService;
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(RoomQuestionReactionDetail), 200)]
     [ProducesResponseType(typeof(string), 400)]
@@ -42,7 +42,7 @@ public class RoomReactionController : ControllerBase
         return Ok(createRoomQuestionReactionResult.Value);
     }
 
-    [Authorize]
+    [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(SendReaction))]
     [ProducesResponseType(typeof(string), 200)]
     [ProducesResponseType(typeof(string), 400)]
