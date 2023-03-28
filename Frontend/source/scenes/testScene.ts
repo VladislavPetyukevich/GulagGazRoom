@@ -185,7 +185,7 @@ export class TestScene extends BasicScene {
       true
     );
 
-    this.gasCenter = new Vector3(30.55, -2.0, 50.0);
+    this.gasCenter = new Vector3(30.4, -2.0, 50.0);
     const gasParticlesCount = 160;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
