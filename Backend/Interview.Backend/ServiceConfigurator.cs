@@ -110,7 +110,7 @@ public class ServiceConfigurator
                 {
                     return RateLimitPartition.GetFixedWindowLimiter(address, key => new()
                     {
-                        PermitLimit = 13,
+                        PermitLimit = 36,
                         Window = TimeSpan.FromSeconds(30),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         AutoReplenishment = true,
