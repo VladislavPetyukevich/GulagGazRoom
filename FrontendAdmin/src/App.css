@@ -5,5 +5,11 @@
 
 .App h1 {
   color: var(--warp-bg);
-  font-size: 2.25em;
+  margin: 0px;
+}
+
+.App .app-header-field {
+  padding: 10px 0px;
+  margin-top: 25px;
+  margin-bottom: 0px;
 }
