@@ -103,6 +103,7 @@ public class ServiceConfigurator
         {
             _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
             {
+                /*
                 var address = context?.Connection?.RemoteIpAddress;
                 if (address is not null && !IPAddress.IsLoopback(address))
                 {
@@ -114,7 +115,7 @@ public class ServiceConfigurator
                         AutoReplenishment = true,
                     });
                 }
-
+                */
                 return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
             });
             _.OnRejected = (context, token) =>
