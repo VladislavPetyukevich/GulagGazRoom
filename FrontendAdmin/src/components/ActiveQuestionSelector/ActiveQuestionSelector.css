@@ -4,6 +4,11 @@
   color: var(--text);
 }
 
+.activeQuestionSelector option.closed {
+  text-decoration: line-through;
+  opacity: 0.4;
+}
+
 .activeQuestionSelector option:checked{
   background-color: var(--text);
 }

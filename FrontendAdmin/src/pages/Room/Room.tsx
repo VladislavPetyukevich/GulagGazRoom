@@ -1,17 +1,22 @@
-import React, { FunctionComponent, useCallback, useEffect } from 'react';
+import React, { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { TwitchEmbed, TwitchEmbedInstance } from 'react-twitch-embed';
+import useWebSocket from 'react-use-websocket';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
-import { REACT_APP_INTERVIEW_FRONTEND_URL } from '../../config';
+import { REACT_APP_INTERVIEW_FRONTEND_URL, REACT_APP_WS_URL } from '../../config';
 import { Captions } from '../../constants';
+import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
+import { useCommunist } from '../../hooks/useCommunist';
 import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
+import { checkAdmin } from '../../utils/checkAdmin';
 
 import './Room.css';
 
@@ -43,7 +48,15 @@ const gasReactions: GasReaction[] = [{
 }];
 
 export const Room: FunctionComponent = () => {
+  const auth = useContext(AuthContext);
+  const admin = checkAdmin(auth);
+  const embed = useRef<TwitchEmbedInstance>();
+  const { getCommunist } = useCommunist();
+  const communist = getCommunist();
   let { id } = useParams();
+  const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${id}`;
+  const { lastMessage } = useWebSocket(socketUrl);
+
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
 
@@ -79,6 +92,43 @@ export const Room: FunctionComponent = () => {
   const {
     process: { loading: loadingRoomActiveQuestion, error: errorRoomActiveQuestion },
   } = apiSendActiveQuestionState;
+
+  const {
+    apiMethodState: apiOpenRoomQuestions,
+    fetchData: getRoomOpenQuestions,
+  } = useApiMethod<Array<Question['id']>>();
+  const {
+    data: openRoomQuestions,
+  } = apiOpenRoomQuestions;
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    getRoomOpenQuestions(roomQuestionApiDeclaration.getRoomQuestions({
+      RoomId: id,
+      State: 'Open',
+    }))
+  }, [id, getRoomOpenQuestions]);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    try {
+      const parsedData = JSON.parse(lastMessage?.data);
+      if (parsedData.Type !== 'ChangeRoomQuestionState') {
+        return;
+      }
+      if (parsedData.Value.NewState !== 'Active') {
+        return;
+      }
+      getRoomOpenQuestions(roomQuestionApiDeclaration.getRoomQuestions({
+        RoomId: id,
+        State: 'Open',
+      }))
+    } catch {}
+  }, [id, lastMessage, getRoomOpenQuestions]);
 
   useEffect(() => {
     if (!id) {
@@ -140,13 +190,15 @@ export const Room: FunctionComponent = () => {
             onClick={handleReactionClick}
           />
         </div>
-        <div>
-          <span>{Captions.Gas}:</span>
-          <ReactionsList
-            reactions={gasReactions}
-            onClick={handleGasReactionClick}
-          />
-        </div>
+        {admin && (
+          <div>
+            <span>{Captions.Gas}:</span>
+            <ReactionsList
+              reactions={gasReactions}
+              onClick={handleGasReactionClick}
+            />
+          </div>
+        )}
         {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
         {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
         {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
@@ -154,6 +206,7 @@ export const Room: FunctionComponent = () => {
       </Field>
     );
   }, [
+    admin,
     loadingRoomReaction,
     loadingRoomGas,
     errorRoomReaction,
@@ -162,6 +215,38 @@ export const Room: FunctionComponent = () => {
     handleReactionClick,
     handleGasReactionClick,
   ]);
+
+  const handleReady = (e: TwitchEmbedInstance) => {
+    embed.current = e;
+  };
+
+  const twitch = useMemo(() => {
+    if (loading || !room) {
+      return <div>Loaing twitch...</div>;
+    }
+    return (
+      <Field className="twitch-embed-field">
+        <TwitchEmbed
+          channel={room.twitchChannel}
+          autoplay={!admin}
+          withChat
+          darkMode={true}
+          onVideoReady={handleReady}
+        />
+      </Field>
+    );
+  }, [loading, room, admin]);
+
+  const interviewee = useMemo(() => (
+    <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
+      <iframe
+        title="interviewee-client-frame"
+        className="interviewee-frame"
+        src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&${admin ? '' : 'muted=1'}&fov=${admin ? '110' : '110'}`}
+      >
+      </iframe>
+    </Field>
+  ), [admin, room?.id]);
 
   const renderRoomContent = useCallback(() => {
     if (error) {
@@ -191,28 +276,26 @@ export const Room: FunctionComponent = () => {
           <div>{Captions.Room}: {room?.name}</div>
           <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
         </Field>
-        <Field>
-          <div>Установить тему допроса:</div>
-          <ActiveQuestionSelector
-            questions={room?.questions || []}
-            selectButtonLabel={Captions.SetActiveQuestion}
-            onSelect={handleQuestionSelect}
-          />
-          {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
-          {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
-        </Field>
+        {admin && (
+          <Field>
+            <div>Установить тему допроса:</div>
+            <ActiveQuestionSelector
+              questions={room?.questions || []}
+              openQuestions={openRoomQuestions || []}
+              selectButtonLabel={Captions.SetActiveQuestion}
+              onSelect={handleQuestionSelect}
+            />
+            {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
+            {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
+          </Field>
+        )}
         {renderReactionsField()}
-        <Field className="interviewee-frame-wrapper">
-          <iframe
-            title="interviewee-client-frame"
-            className="interviewee-frame"
-            src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&noPointerLock=1&fov=125`}
-          >
-          </iframe>
-        </Field>
+        {admin ? interviewee : twitch}
+        {admin ? twitch : interviewee}
       </>
     );
   }, [
+    admin,
     loading,
     loadingReactions,
     loadingRoomActiveQuestion,
@@ -220,6 +303,9 @@ export const Room: FunctionComponent = () => {
     errorReactions,
     errorRoomActiveQuestion,
     room,
+    twitch,
+    interviewee,
+    openRoomQuestions,
     renderReactionsField,
     handleQuestionSelect,
     handleCopyRoomLink,

@@ -4,10 +4,15 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { useCommunist } from '../../hooks/useCommunist';
 import { Captions } from '../../constants';
+import { checkAdmin } from '../../utils/checkAdmin';
+
+import './Session.css';
 
 export const Session: FunctionComponent = () => {
   const auth = useContext(AuthContext);
+  const admin = checkAdmin(auth);
   const { resetCommunist } = useCommunist();
+  const role = admin ? 'Начальник управления' : 'Очередной штатник';
 
   const handleLogOut = useCallback(() => {
     resetCommunist();
@@ -23,21 +28,28 @@ export const Session: FunctionComponent = () => {
     }
     return (
       <>
-        <Field>
-          <div>{Captions.LoggedInAs}:</div>
-        </Field>
-        <Field>
-          <div>nickname: {auth.nickname}</div>
-        </Field>
-        <Field>
-          <div>roles: {JSON.stringify(auth.roles)}</div>
+        <Field className="session-info">
+          <table>
+            <thead>
+              <tr>
+                <th>Позывной</th>
+                <th>Роль</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{auth.nickname}</td>
+                <td>{role}</td>
+              </tr>
+            </tbody>
+          </table>
         </Field>
         <Field>
           <button onClick={handleLogOut}>{Captions.LogOut}🚪</button>
         </Field>
       </>
     );
-  }, [auth, handleLogOut]);
+  }, [auth, role, handleLogOut]);
 
   return (
     <MainContentWrapper>

@@ -5,16 +5,30 @@ import './ActiveQuestionSelector.css';
 
 interface ActiveQuestionSelectorProps {
   questions: Question[];
+  openQuestions: Question['id'][];
   selectButtonLabel: string;
   onSelect: (question: Question) => void;
 }
 
 export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorProps> = ({
   questions,
+  openQuestions,
   selectButtonLabel,
   onSelect,
 }) => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question>(questions[0]);
+  const questionsWithStatusSorted = questions
+    .map(
+      question => ({ ...question, open: openQuestions.includes(question.id) })
+    )
+    .sort(
+      (question1, question2) => {
+        if (question1.open === question2.open) {
+          return 0;
+        }
+        return +question2.open - +question1.open;
+      }
+    );
 
   const handleSelectChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
     const targetValue = event.target.value;
@@ -38,16 +52,19 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
         size={8}
         onChange={handleSelectChange}
       >
-        {questions.map(question => (
-          <option
-            key={question.id}
-            value={question.id}
-          >
-            {question.value}
-          </option>
-        ))}
+        {questionsWithStatusSorted
+          .map(question => (
+            <option
+              key={question.id}
+              value={question.id}
+              className={`${question.open ? '' : 'closed'}`}
+            >
+              {question.value}
+            </option>
+          ))
+        }
       </select>
-      <br/>
+      <br />
       <button onClick={handleOnSelect}>{selectButtonLabel}</button>
     </div>
   );

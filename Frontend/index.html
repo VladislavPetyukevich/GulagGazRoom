@@ -59,6 +59,7 @@
         if (!REACT_APP_WS_URL) {
           throw new Error('REACT_APP_WS_URL are not defined');
         }
+        let adminsId = [];
 
         function getCommunist() {
           const cookieName = '_communist';
@@ -85,8 +86,8 @@
           alert('Некорректная ссылка на комнату');
           throw new Error('roomId not found in url params');
         }
-        const noPointerLock = !!urlParams.get('noPointerLock');
         const paramsFov = parseInt(urlParams.get('fov'));
+        const paramsMuted = !!urlParams.get('muted');
 
         function connectWebSocket(onmessage) {
           return new Promise((resolve, reject) => {
@@ -112,10 +113,10 @@
                   threeShooter.onPlayerActionStart('chatMessage', message);
                   break;
                 case 'ReactionLike':
-                  threeShooter.onPlayerActionStart('like');
+                  threeShooter.onPlayerActionStart('like', adminsId.includes(dataParsed.Value.UserId) && 'admin');
                   break;
                 case 'ReactionDislike':
-                  threeShooter.onPlayerActionStart('dislike');
+                  threeShooter.onPlayerActionStart('dislike', adminsId.includes(dataParsed.Value.UserId) && 'admin');
                   break;
                 case 'GasOn':
                   threeShooter.onPlayerActionStart('gasEnable');
@@ -188,12 +189,8 @@
           });
 
           instructions.addEventListener('click', function (event) {
-            if (noPointerLock) {
-              setBlockerVisibility(false);
-              threeShooter.setEnabled(true);
-            } else {
-              renderContainer.requestPointerLock();
-            }
+            setBlockerVisibility(false);
+            threeShooter.setEnabled(true);
           });
 
           settings.addEventListener('click', function (event) {
@@ -243,7 +240,11 @@
             try {
               var settings = JSON.parse(localStorage.getItem(settingsKey));
               audioVolume.value = settings.audioVolume;
-              updateAudioVolume(settings.audioVolume);
+              if (paramsMuted) {
+                threeShooter.updateAudioVolume(0);
+              } else {
+                updateAudioVolume(settings.audioVolume);
+              }
               fov.value = settings.fov;
               if (isNaN(paramsFov)) {
                 updateFov(settings.fov);
@@ -254,15 +255,13 @@
               if (!isNaN(paramsFov)){
                 threeShooter.updateFov(paramsFov);
               }
+              if (paramsMuted) {
+                threeShooter.updateAudioVolume(0);
+              }
               console.error('Falied to load game settings');
             }
           }
           loadSetting();
-
-          document.addEventListener('pointerlockchange', function (event) {
-            setBlockerVisibility(document.pointerLockElement != renderContainer);
-            threeShooter.setEnabled(document.pointerLockElement === renderContainer);
-          });
         }
 
         function createThreeShooter(props) {
@@ -289,6 +288,23 @@
               });
           });
         }
+
+        function getAdmins() {
+          return new Promise((resolve, reject) => {
+            fetch(`${REACT_APP_BACKEND_URL}/User/GetByRole?role=Admin`)
+              .then((response) => {
+                if (!response.ok) {
+                  return reject('Cannot get admins');
+                }
+                response.json()
+                  .then(responseJson => resolve(responseJson))
+                  .catch(err => reject(err));
+              });
+          });
+        }
+        getAdmins().then(admins => {
+          adminsId = admins.map(admin => admin.id);
+        });
 
         function checkIsRoomStateValid(roomState) {
           if (typeof roomState !== 'object') {

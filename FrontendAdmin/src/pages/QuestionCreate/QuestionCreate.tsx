@@ -65,6 +65,7 @@ export const QuestionCreate: FunctionComponent = () => {
     <MainContentWrapper className="question-create">
       <HeaderWithLink
         title={Captions.CreateQuestion}
+        linkVisible={true}
         path={pathnames.questions}
         linkCaption="<"
         linkFloat="left"

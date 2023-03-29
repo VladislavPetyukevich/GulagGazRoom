@@ -185,7 +185,7 @@ export class TestScene extends BasicScene {
       true
     );
 
-    this.gasCenter = new Vector3(30.55, -2.0, 50.0);
+    this.gasCenter = new Vector3(30.4, -2.0, 50.0);
     const gasParticlesCount = 160;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
@@ -382,14 +382,22 @@ export class TestScene extends BasicScene {
     }, 600);
   }
 
-  onLike = () => {
-    this.playAudio(this.likeAudio);
+  checkAdminAction(action: PlayerAction) {
+    return action.payload === 'admin';
+  }
+
+  onLike = (action: PlayerAction) => {
+    if (this.checkAdminAction(action)) {
+      this.playAudio(this.likeAudio);
+    }
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
   }
 
-  onDislike = () => {
-    this.playAudio(this.dislikeAudio);
+  onDislike = (action: PlayerAction) => {
+    if (this.checkAdminAction(action)) {
+      this.playAudio(this.dislikeAudio);
+    }
     this.stats.increaseCount('dislike');
     this.startTvStatsAnimation('👎');
   }

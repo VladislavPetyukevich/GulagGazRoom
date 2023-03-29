@@ -1,5 +1,5 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
-import { Question } from './types/question';
+import { Question, QuestionState } from './types/question';
 import { Reaction } from './types/reaction';
 import { Room } from './types/room';
 import { User } from './types/user';
@@ -44,6 +44,11 @@ export const roomQuestionApiDeclaration = {
     method: 'POST',
     baseUrl: '/RoomQuestion/ChangeActiveQuestion',
     body,
+  }),
+  getRoomQuestions: (params: { RoomId: Room['id']; State: QuestionState }): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/RoomQuestion/GetRoomQuestions',
+    urlParams: params,
   }),
 };
 
