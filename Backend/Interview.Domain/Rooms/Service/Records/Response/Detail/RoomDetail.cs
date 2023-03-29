@@ -6,6 +6,8 @@ public class RoomDetail
 
     public string? Name { get; set; }
 
+    public string? TwitchChannel { get; set; }
+
     public List<RoomQuestionDetail>? Questions { get; set; }
 
     public List<RoomUserDetail>? Users { get; set; }
