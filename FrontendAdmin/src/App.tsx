@@ -62,9 +62,7 @@ export const App: FunctionComponent = () => {
         <div className="App">
           <header>
             <FieldsBlock>
-              <Field className="app-header-field">
-                <h1>{Captions.AppName}</h1>
-              </Field>
+              <h1>{Captions.AppName}</h1>
             </FieldsBlock>
             <NavMenu />
           </header>
