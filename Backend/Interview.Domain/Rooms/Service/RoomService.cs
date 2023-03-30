@@ -200,6 +200,17 @@ public sealed class RoomService
         return roomState;
     }
 
+    public async Task<Result<Analytics>> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        var analytics = await _roomRepository.GetAnalyticsAsync(roomId, cancellationToken);
+        if (analytics == null)
+        {
+            return Result.Failure<Analytics>($"Room not found by id {roomId}");
+        }
+
+        return Result.Success(analytics);
+    }
+
     private string FindNotFoundEntityIds<T>(IEnumerable<Guid> guids, IEnumerable<T> collection)
         where T : Entity
     {

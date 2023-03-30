@@ -112,4 +112,17 @@ public class RoomController : ControllerBase
 
         return Ok();
     }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpGet("{id:guid}/analytics")]
+    [ProducesResponseType(typeof(Analytics), 200)]
+    [ProducesResponseType(typeof(string), 404)]
+    public async Task<IActionResult> GetAnalytics(Guid id)
+    {
+        var questionItemResult = await _roomService.GetAnalyticsAsync(id, HttpContext.RequestAborted);
+
+        return questionItemResult.IsFailure
+            ? NotFound(questionItemResult.Error)
+            : Ok(questionItemResult.Value);
+    }
 }
