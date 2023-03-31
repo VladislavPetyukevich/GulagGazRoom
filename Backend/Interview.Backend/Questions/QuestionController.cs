@@ -20,10 +20,10 @@ public class QuestionController : ControllerBase
     }
 
     /// <summary>
-    /// Getting a Question page
+    /// Getting a Question page.
     /// </summary>
-    /// <param name="request">Page Parameters</param>
-    /// <returns>A page of questions with metadata about the pages</returns>
+    /// <param name="request">Page Parameters.</param>
+    /// <returns>A page of questions with metadata about the pages.</returns>
     [Authorize]
     [HttpGet]
     [Produces("application/json")]
@@ -38,7 +38,7 @@ public class QuestionController : ControllerBase
     }
 
     /// <summary>
-    /// Getting a question by ID
+    /// Getting a question by ID.
     /// </summary>
     /// <param name="id">Question ID.</param>
     /// <returns>The found object of the question.</returns>
@@ -59,10 +59,10 @@ public class QuestionController : ControllerBase
     }
 
     /// <summary>
-    /// Creating a new question
+    /// Creating a new question.
     /// </summary>
-    /// <param name="request">The object with the question data for which you need to create</param>
-    /// <returns>The object of the new question</returns>
+    /// <param name="request">The object with the question data for which you need to create.</param>
+    /// <returns>The object of the new question.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost]
     [Produces("application/json")]
@@ -83,11 +83,11 @@ public class QuestionController : ControllerBase
     }
 
     /// <summary>
-    /// Updating the question by ID
+    /// Updating the question by ID.
     /// </summary>
-    /// <param name="id">ID of the of question</param>
-    /// <param name="request">The object with the question data for which you need to update</param>
-    /// <returns>Updated question object</returns>
+    /// <param name="id">ID of the of question.</param>
+    /// <param name="request">The object with the question data for which you need to update.</param>
+    /// <returns>Updated question object.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPut("/{id:guid}")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]

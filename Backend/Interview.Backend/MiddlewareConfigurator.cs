@@ -23,12 +23,14 @@ public class MiddlewareConfigurator
 
         _app.UseCookiePolicy(new CookiePolicyOptions
         {
-            MinimumSameSitePolicy = SameSiteMode.Lax, HttpOnly = HttpOnlyPolicy.None,
+            MinimumSameSitePolicy = SameSiteMode.Lax,
+            HttpOnly = HttpOnlyPolicy.None,
         });
 
         _app.UseWebSockets().UseWebSocketsAuthorization(new WebSocketAuthorizationOptions
         {
-            CookieName = WebSocketAuthorizationOptions.DefaultCookieName, WebSocketQueryName = "Authorization",
+            CookieName = WebSocketAuthorizationOptions.DefaultCookieName,
+            WebSocketQueryName = "Authorization",
         });
 
         if (_app.Environment.IsDevelopment())

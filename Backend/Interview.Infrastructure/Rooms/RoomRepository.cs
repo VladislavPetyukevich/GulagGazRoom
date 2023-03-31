@@ -84,12 +84,16 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                         ParticipantType = participant?.Type.Name ?? string.Empty,
                         Reactions = e.Select(e => new Analytics.AnalyticsReaction
                         {
-                            Id = e.Reaction.Id, Type = e.Reaction.Type.Name, CreatedAt = e.CreateDate,
+                            Id = e.Reaction.Id,
+                            Type = e.Reaction.Type.Name,
+                            CreatedAt = e.CreateDate,
                         }).ToList(),
                         ReactionsSummary = e.GroupBy(e => (e.Reaction.Id, e.Reaction.Type))
                             .Select(e => new Analytics.AnalyticsReactionSummary
                             {
-                                Id = e.Key.Id, Count = e.Count(), Type = e.Key.Type.Name,
+                                Id = e.Key.Id,
+                                Count = e.Count(),
+                                Type = e.Key.Type.Name,
                             }).ToList(),
                     };
                 }).ToList();
