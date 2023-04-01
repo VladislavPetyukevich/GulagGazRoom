@@ -1,4 +1,3 @@
-using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.Shared;
 using Interview.Domain.Questions.Records.Response;

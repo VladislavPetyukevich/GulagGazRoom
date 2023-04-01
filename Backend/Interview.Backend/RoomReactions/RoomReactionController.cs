@@ -1,8 +1,8 @@
 using Interview.Backend.Auth;
+using Interview.Backend.Responses;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestionReactions.Records;
 using Interview.Domain.RoomQuestionReactions.Records.Response;
-using Interview.Domain.RoomQuestions.Records;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,44 +23,31 @@ public class RoomReactionController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(RoomQuestionReactionDetail), 200)]
     [ProducesResponseType(typeof(string), 400)]
-    public async Task<ActionResult<RoomQuestionReactionDetail?>> CreateInRoom([FromBody] RoomQuestionReactionCreateRequest request)
+    public Task<ActionResult<RoomQuestionReactionDetail>> CreateInRoom([FromBody] RoomQuestionReactionCreateRequest request)
     {
         var user = HttpContext.User.ToUser();
 
         if (user == null)
         {
-            return NotFound("Authorized user not found");
+            return Task.FromResult<ActionResult<RoomQuestionReactionDetail>>(Unauthorized());
         }
 
-        var createRoomQuestionReactionResult = await _roomQuestionReactionService.CreateInRoomAsync(request, user.Id);
-
-        if (createRoomQuestionReactionResult.IsFailure)
-        {
-            return BadRequest(createRoomQuestionReactionResult.Error);
-        }
-
-        return Ok(createRoomQuestionReactionResult.Value);
+        return _roomQuestionReactionService.CreateInRoomAsync(request, user.Id).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(SendReaction))]
     [ProducesResponseType(typeof(string), 200)]
     [ProducesResponseType(typeof(string), 400)]
-    public async Task<ActionResult<string?>> SendReaction(RoomQuestionSendReactionApiRequest request)
+    public Task<ActionResult<string?>> SendReaction(RoomQuestionSendReactionApiRequest request)
     {
         var user = User.ToUser();
         if (user == null)
         {
-            return Unauthorized();
+            return Task.FromResult<ActionResult<string?>>(Unauthorized());
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
-        var result = await _roomQuestionReactionService.SendReactionAsync(sendRequest, HttpContext.RequestAborted);
-        if (result.IsFailure)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return Ok();
+        return _roomQuestionReactionService.SendReactionAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync<string?>();
     }
 }
