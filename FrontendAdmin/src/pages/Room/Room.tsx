@@ -128,7 +128,7 @@ export const Room: FunctionComponent = () => {
         RoomId: id,
         State: 'Open',
       }))
-    } catch {}
+    } catch { }
   }, [id, lastMessage, getRoomOpenQuestions]);
 
   useEffect(() => {
@@ -185,10 +185,10 @@ export const Room: FunctionComponent = () => {
     setShowClosedQuestions(e.currentTarget.checked);
   }, []);
 
-  const renderReactionsField = useCallback(() => {
+  const renderReactions = useCallback(() => {
     return (
-      <Field>
-        <div>
+      <div>
+        <div className="reaction-wrapper">
           <span>{Captions.Reactions}:</span>
           <ReactionsList
             reactions={reactions || []}
@@ -196,7 +196,7 @@ export const Room: FunctionComponent = () => {
           />
         </div>
         {admin && (
-          <div>
+          <div className="reaction-wrapper">
             <span>{Captions.Gas}:</span>
             <ReactionsList
               reactions={gasReactions}
@@ -208,7 +208,7 @@ export const Room: FunctionComponent = () => {
         {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
         {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
         {errorRoomGas && <div>{Captions.ErrorSendingGasEvent}</div>}
-      </Field>
+      </div>
     );
   }, [
     admin,
@@ -281,23 +281,24 @@ export const Room: FunctionComponent = () => {
           <div>{Captions.Room}: {room?.name}</div>
           <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
         </Field>
-        {admin && (
-          <Field>
-            <div>{Captions.SelectActiveQuestion}:</div>
-            <span>{Captions.ShowClosedQuestions}</span>
-            <input type="checkbox" onClick={handleShowClosedQuestions} />
-            <ActiveQuestionSelector
-              showClosedQuestions={showClosedQuestions}
-              questions={room?.questions || []}
-              openQuestions={openRoomQuestions || []}
-              placeHolder={Captions.SelectActiveQuestion}
-              onSelect={handleQuestionSelect}
-            />
-            {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
-            {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
-          </Field>
-        )}
-        {renderReactionsField()}
+        <Field className="reactions-field">
+          {admin && (
+            <div>
+              <span>{Captions.ShowClosedQuestions}</span>
+              <input type="checkbox" onClick={handleShowClosedQuestions} />
+              <ActiveQuestionSelector
+                showClosedQuestions={showClosedQuestions}
+                questions={room?.questions || []}
+                openQuestions={openRoomQuestions || []}
+                placeHolder={Captions.SelectActiveQuestion}
+                onSelect={handleQuestionSelect}
+              />
+              {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
+              {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
+            </div>
+          )}
+          {renderReactions()}
+        </Field>
         {admin ? interviewee : twitch}
         {admin ? twitch : interviewee}
       </>
@@ -315,7 +316,7 @@ export const Room: FunctionComponent = () => {
     interviewee,
     openRoomQuestions,
     showClosedQuestions,
-    renderReactionsField,
+    renderReactions,
     handleQuestionSelect,
     handleCopyRoomLink,
     handleShowClosedQuestions,
