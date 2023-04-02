@@ -28,10 +28,9 @@ public class QuestionController : ControllerBase
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<QuestionItem>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<IPagedList<QuestionItem>> GetPage([FromQuery] PageRequest request)
     {
         return _questionService.FindPageAsync(request.PageSize, request.PageNumber, HttpContext.RequestAborted);
@@ -43,14 +42,14 @@ public class QuestionController : ControllerBase
     /// <param name="id">Question ID.</param>
     /// <returns>The found object of the question.</returns>
     [Authorize]
-    [HttpGet("/{id:guid}")]
+    [HttpGet("{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<ActionResult<QuestionItem>> GetById(Guid id)
     {
         return _questionService.FindById(id, HttpContext.RequestAborted).ToResponseAsync();
@@ -67,8 +66,8 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<ActionResult<QuestionItem>> Create(QuestionCreateRequest request)
     {
         return _questionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
@@ -81,13 +80,13 @@ public class QuestionController : ControllerBase
     /// <param name="request">The object with the question data for which you need to update.</param>
     /// <returns>Updated question object.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPut("/{id:guid}")]
+    [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     public Task<ActionResult<QuestionItem>> Update(Guid id, QuestionEditRequest request)
     {

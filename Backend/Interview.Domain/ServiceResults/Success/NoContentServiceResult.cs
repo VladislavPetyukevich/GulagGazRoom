@@ -1,10 +1,8 @@
-using Interview.Domain.ServiceResults.Success;
+namespace Interview.Domain.ServiceResults.Success;
 
-namespace Interview.Domain.ServiceResults;
-
-public sealed class OkServiceResult<T> : ServiceResult<T>
+public sealed class NoContentServiceResult<T> : ServiceResult<T>
 {
-    public OkServiceResult(T value)
+    public NoContentServiceResult(T value)
         : base(value)
     {
     }
@@ -13,5 +11,5 @@ public sealed class OkServiceResult<T> : ServiceResult<T>
         Func<OkServiceResult<T>, TRes> ok,
         Func<CreateServiceResult<T>, TRes> create,
         Func<NoContentServiceResult<T>, TRes> noContent)
-        => ok(this);
+        => noContent(this);
 }

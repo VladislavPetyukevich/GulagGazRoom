@@ -7,6 +7,7 @@ public sealed class CreateServiceResult<T> : ServiceResult<T>
     {
     }
 
-    public override TRes Match<TRes>(Func<OkServiceResult<T>, TRes> ok, Func<CreateServiceResult<T>, TRes> create)
+    public override TRes Match<TRes>(Func<OkServiceResult<T>, TRes> ok, Func<CreateServiceResult<T>, TRes> create,
+        Func<NoContentServiceResult<T>, TRes> noContent)
         => create(this);
 }

@@ -6,6 +6,7 @@ using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults;
 using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
 
 namespace Interview.Domain.RoomParticipants.Service;

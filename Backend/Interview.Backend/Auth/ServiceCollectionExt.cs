@@ -1,3 +1,4 @@
+using Interview.Backend.Responses;
 using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -17,11 +18,13 @@ public static class ServiceCollectionExt
                 options.Events.OnRedirectToAccessDenied = context =>
                 {
                     context.Response.StatusCode = 403;
+                    context.Response.WriteAsJsonAsync(new MessageResponse { Message = "Forbidden", });
                     return Task.CompletedTask;
                 };
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = 401;
+                    context.Response.WriteAsJsonAsync(new MessageResponse { Message = "Unauthorized", });
                     return Task.CompletedTask;
                 };
                 options.Cookie.HttpOnly = false;

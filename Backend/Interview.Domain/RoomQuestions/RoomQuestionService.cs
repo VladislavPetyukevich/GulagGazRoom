@@ -9,6 +9,7 @@ using Interview.Domain.RoomQuestions.Records.Response;
 using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults;
 using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Success;
 using NSpecifications;
 
 namespace Interview.Domain.RoomQuestions

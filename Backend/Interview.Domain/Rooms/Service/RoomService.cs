@@ -15,6 +15,7 @@ using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Interview.Domain.ServiceResults;
 using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
 using NSpecifications;
 using Entity = Interview.Domain.Repository.Entity;

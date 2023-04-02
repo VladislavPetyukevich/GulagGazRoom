@@ -10,6 +10,7 @@ using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Backend;
@@ -64,8 +65,7 @@ public class ServiceConfigurator
         var serviceOption = new DependencyInjectionAppServiceOption(
             new TwitchTokenProviderOption
             {
-                ClientSecret = twitchService.ClientSecret,
-                ClientId = twitchService.ClientId,
+                ClientSecret = twitchService.ClientSecret, ClientId = twitchService.ClientId,
             },
             adminUsers,
             optionsBuilder =>
@@ -103,7 +103,6 @@ public class ServiceConfigurator
         {
             _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
             {
-                /*
                 var address = context?.Connection?.RemoteIpAddress;
                 if (address is not null && !IPAddress.IsLoopback(address))
                 {
@@ -115,7 +114,7 @@ public class ServiceConfigurator
                         AutoReplenishment = true,
                     });
                 }
-                */
+
                 return RateLimitPartition.GetNoLimiter(IPAddress.Loopback);
             });
             _.OnRejected = (context, token) =>
@@ -127,7 +126,8 @@ public class ServiceConfigurator
                 }
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken: token);
+                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.",
+                    cancellationToken: token);
 
                 return ValueTask.CompletedTask;
             };

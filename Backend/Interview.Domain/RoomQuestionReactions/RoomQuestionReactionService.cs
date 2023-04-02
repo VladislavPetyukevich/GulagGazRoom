@@ -6,6 +6,7 @@ using Interview.Domain.RoomQuestionReactions.Records.Response;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.ServiceResults;
 using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
 
 namespace Interview.Domain.RoomQuestionReactions;

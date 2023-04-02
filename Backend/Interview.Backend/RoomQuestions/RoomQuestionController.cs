@@ -44,6 +44,7 @@ namespace Interview.Backend.RoomQuestions
         [Authorize]
         [HttpGet(nameof(GetRoomQuestions))]
         [ProducesResponseType(typeof(List<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<Guid>), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
         public Task<ActionResult<List<Guid>>> GetRoomQuestions([FromQuery] RoomQuestionsRequest request)
         {

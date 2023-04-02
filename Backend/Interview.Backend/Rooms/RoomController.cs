@@ -98,7 +98,6 @@ public class RoomController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     public Task<ActionResult<Analytics>> GetAnalytics(Guid id)
     {
-        throw new Exception();
         return _roomService.GetAnalyticsAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

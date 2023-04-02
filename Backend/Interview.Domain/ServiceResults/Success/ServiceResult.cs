@@ -1,6 +1,4 @@
-using Interview.Domain.ServiceResults.Success;
-
-namespace Interview.Domain.ServiceResults;
+namespace Interview.Domain.ServiceResults.Success;
 
 public class ServiceResult : IEquatable<ServiceResult>
 {
@@ -12,6 +10,8 @@ public class ServiceResult : IEquatable<ServiceResult>
     public static ServiceResult Ok() => Instance;
 
     public static ServiceResult<T> Created<T>(T value) => new CreateServiceResult<T>(value);
+
+    public static ServiceResult<T> NoContent<T>() => new NoContentServiceResult<T>(default);
 
     public bool Equals(ServiceResult? other)
     {
@@ -44,7 +44,10 @@ public abstract class ServiceResult<T> : IEquatable<ServiceResult<T>>, IEquatabl
         Value = value;
     }
 
-    public abstract TRes Match<TRes>(Func<OkServiceResult<T>, TRes> ok, Func<CreateServiceResult<T>, TRes> create);
+    public abstract TRes Match<TRes>(
+        Func<OkServiceResult<T>, TRes> ok,
+        Func<CreateServiceResult<T>, TRes> create,
+        Func<NoContentServiceResult<T>, TRes> noContent);
 
     public bool Equals(ServiceResult<T>? other)
     {
