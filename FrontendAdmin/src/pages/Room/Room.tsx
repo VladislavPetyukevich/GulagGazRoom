@@ -191,6 +191,7 @@ export const Room: FunctionComponent = () => {
         <div className="reaction-wrapper">
           <span>{Captions.Reactions}:</span>
           <ReactionsList
+            sortOrder={-1}
             reactions={reactions || []}
             onClick={handleReactionClick}
           />
@@ -199,6 +200,7 @@ export const Room: FunctionComponent = () => {
           <div className="reaction-wrapper">
             <span>{Captions.Gas}:</span>
             <ReactionsList
+              sortOrder={1}
               reactions={gasReactions}
               onClick={handleGasReactionClick}
             />
