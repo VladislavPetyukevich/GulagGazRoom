@@ -43,10 +43,11 @@ export const Rooms: FunctionComponent = () => {
     return (
       <li key={room.id}>
         <Field>
-          <Link to={`${pathnames.rooms}/${room.id}`}>
+          <Link to={`${pathnames.rooms}/${room.id}`} className='room-link'>
             {room.name}
           </Link>
           <div className="room-users">
+            <span>Участники: </span>
             {room.users.map(user => user.nickname).join(', ')}
           </div>
           {admin && (

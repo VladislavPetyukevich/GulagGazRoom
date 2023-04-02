@@ -9,8 +9,8 @@
   --progress-bg: var(--shadow);
   --progress-1: var(--active);
   --progress-2: var(--form-bg);
-  --menu-font-size: 1.1rem;
-  --menu-line-height: calc(var(--menu-font-size) * 1.10);
+  --menu-font-size: 1.15rem;
+  --menu-line-height: calc(var(--menu-font-size) * 1.4);
 }
 
 body {
@@ -21,7 +21,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--page-bg);
 
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 

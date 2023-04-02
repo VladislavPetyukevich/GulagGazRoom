@@ -4,6 +4,8 @@
   flex-direction: row;
   justify-content: center;
   align-items: stretch;
+  font-size: var(--menu-font-size);
+  line-height: var(--menu-line-height) !important;
 }
 
 .header-with-link .button-link {
