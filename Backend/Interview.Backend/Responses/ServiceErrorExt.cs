@@ -1,4 +1,4 @@
-﻿using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Errors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.Responses
