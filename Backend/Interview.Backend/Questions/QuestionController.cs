@@ -1,5 +1,5 @@
-using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
+using Interview.Backend.Responses;
 using Interview.Backend.Shared;
 using Interview.Domain.Questions.Records.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -28,10 +28,9 @@ public class QuestionController : ControllerBase
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<QuestionItem>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<IPagedList<QuestionItem>> GetPage([FromQuery] PageRequest request)
     {
         return _questionService.FindPageAsync(request.PageSize, request.PageNumber, HttpContext.RequestAborted);
@@ -43,19 +42,17 @@ public class QuestionController : ControllerBase
     /// <param name="id">Question ID.</param>
     /// <returns>The found object of the question.</returns>
     [Authorize]
-    [HttpGet("/{id:guid}")]
+    [HttpGet("{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<QuestionItem?>> GetById(Guid id)
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionItem>> GetById(Guid id)
     {
-        var questionItemResult = await _questionService.FindById(id, HttpContext.RequestAborted);
-
-        return questionItemResult.IsFailure
-            ? NotFound(questionItemResult.Error)
-            : Ok(questionItemResult.Value);
+        return _questionService.FindById(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     /// <summary>
@@ -67,19 +64,13 @@ public class QuestionController : ControllerBase
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<QuestionItem?>> Create(QuestionCreateRequest request)
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionItem>> Create(QuestionCreateRequest request)
     {
-        var createdQuestionResult = await _questionService.CreateAsync(request, HttpContext.RequestAborted);
-
-        if (createdQuestionResult.IsFailure)
-        {
-            return BadRequest(createdQuestionResult.Error);
-        }
-
-        return Ok(createdQuestionResult.Value);
+        return _questionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     /// <summary>
@@ -89,23 +80,16 @@ public class QuestionController : ControllerBase
     /// <param name="request">The object with the question data for which you need to update.</param>
     /// <returns>Updated question object.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPut("/{id:guid}")]
-    [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [HttpPut("{id:guid}")]
     [Produces("application/json")]
-    public async Task<ActionResult<QuestionItem?>> Update(Guid id, QuestionEditRequest request)
+    [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionItem>> Update(Guid id, QuestionEditRequest request)
     {
-        var result = await _questionService.UpdateAsync(id, request, HttpContext.RequestAborted);
-
-        if (result.IsFailure)
-        {
-            return NotFound(result.Error);
-        }
-
-        return Ok(result);
+        return _questionService.UpdateAsync(id, request, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

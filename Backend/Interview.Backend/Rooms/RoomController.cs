@@ -1,4 +1,5 @@
 using Interview.Backend.Auth;
+using Interview.Backend.Responses;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
@@ -33,55 +34,39 @@ public class RoomController : ControllerBase
 
     [Authorize]
     [HttpGet(nameof(GetById))]
-    [ProducesResponseType(typeof(Room), 200)]
-    [ProducesResponseType(typeof(string), 404)]
+    [ProducesResponseType(typeof(Room), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById([FromQuery] Guid id)
     {
         var room = await _roomRepository.GetByIdAsync(id);
-        var notFoundMessage = room?.GetNotFoundMessage("room", id);
-        if (!string.IsNullOrEmpty(notFoundMessage))
+        return room is null ? NotFound(new MessageResponse
         {
-            return NotFound(notFoundMessage);
-        }
-
-        return Ok(room);
+            Message = $"Not found room by id {id}",
+        }) : Ok(room);
     }
 
     [Authorize]
     [HttpGet(nameof(GetRoomState))]
-    [ProducesResponseType(typeof(RoomState), 200)]
-    [ProducesResponseType(typeof(string), 404)]
-    public async Task<IActionResult> GetRoomState([FromQuery] Guid id)
+    [ProducesResponseType(typeof(RoomState), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    public Task<ActionResult<RoomState>> GetRoomState([FromQuery] Guid id)
     {
-        var room = await _roomService.GetRoomStateAsync(id);
-        var notFoundMessage = room?.GetNotFoundMessage("room", id);
-        if (!string.IsNullOrEmpty(notFoundMessage))
-        {
-            return NotFound(notFoundMessage);
-        }
-
-        return Ok(room);
+        return _roomService.GetRoomStateAsync(id).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(Create))]
     [ProducesResponseType(typeof(Guid), 201)]
-    [ProducesResponseType(typeof(string), 400)]
-    public async Task<IActionResult> Create([FromBody] RoomCreateRequest room)
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public Task<ActionResult<Room>> Create([FromBody] RoomCreateRequest room)
     {
-        var newRoomResult = await _roomService.CreateAsync(room);
-        if (newRoomResult.IsFailure)
-        {
-            return BadRequest(newRoomResult.Error);
-        }
-
-        return Created(string.Empty, newRoomResult.Value.Id);
+        return _roomService.CreateAsync(room).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPatch]
-    [ProducesResponseType(typeof(Guid), 200)]
-    [ProducesResponseType(typeof(string), 400)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PatchUpdate([FromQuery] Guid? id, [FromBody] RoomPatchUpdateRequest room)
     {
         var updatedRoomResult = await _roomService.PatchUpdate(id, room);
@@ -93,36 +78,26 @@ public class RoomController : ControllerBase
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(SendGasEvent))]
-    [ProducesResponseType(typeof(string), 200)]
-    [ProducesResponseType(typeof(string), 400)]
-    public async Task<ActionResult<string?>> SendGasEvent(SendGasRoomEventApiRequest request)
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public Task<ActionResult> SendGasEvent(SendGasRoomEventApiRequest request)
     {
         var user = User.ToUser();
         if (user == null)
         {
-            return Unauthorized();
+            return Task.FromResult<ActionResult>(Unauthorized());
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
-        var result = await _roomService.SendGasEventAsync(sendRequest, HttpContext.RequestAborted);
-        if (result.IsFailure)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return Ok();
+        return _roomService.SendGasEventAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpGet("{id:guid}/analytics")]
-    [ProducesResponseType(typeof(Analytics), 200)]
-    [ProducesResponseType(typeof(string), 404)]
-    public async Task<IActionResult> GetAnalytics(Guid id)
+    [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    public Task<ActionResult<Analytics>> GetAnalytics(Guid id)
     {
-        var questionItemResult = await _roomService.GetAnalyticsAsync(id, HttpContext.RequestAborted);
-
-        return questionItemResult.IsFailure
-            ? NotFound(questionItemResult.Error)
-            : Ok(questionItemResult.Value);
+        return _roomService.GetAnalyticsAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

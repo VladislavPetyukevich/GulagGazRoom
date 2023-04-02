@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Interview.Domain.Errors;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Questions;
@@ -12,6 +13,9 @@ using Interview.Domain.Rooms.Service.Records;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
+using Interview.Domain.ServiceResults;
+using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
 using NSpecifications;
 using Entity = Interview.Domain.Repository.Entity;
@@ -40,7 +44,7 @@ public sealed class RoomService
         _roomQuestionReactionRepository = roomQuestionReactionRepository;
     }
 
-    public async Task<Result<Room>> CreateAsync(
+    public async Task<Result<ServiceResult<Room>, ServiceError>> CreateAsync(
         RoomCreateRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -52,7 +56,7 @@ public sealed class RoomService
         var name = request.Name.Trim();
         if (string.IsNullOrEmpty(name))
         {
-            return Result.Failure<Room>("Room name should not be empty");
+            return ServiceError.Error("Room name should not be empty");
         }
 
         var questions = await _questionRepository.FindByIdsAsync(request.Questions, cancellationToken);
@@ -61,7 +65,7 @@ public sealed class RoomService
 
         if (!string.IsNullOrEmpty(questionsNotFound))
         {
-            return Result.Failure<Room>($"Not found questions with id [{questionsNotFound}]");
+            return ServiceError.Error($"Not found questions with id [{questionsNotFound}]");
         }
 
         var users = await _userRepository.FindByIdsAsync(request.Users, cancellationToken);
@@ -70,14 +74,14 @@ public sealed class RoomService
 
         if (!string.IsNullOrEmpty(usersNotFound))
         {
-            return Result.Failure<Room>($"Not found users with id [{usersNotFound}]");
+            return ServiceError.Error($"Not found users with id [{usersNotFound}]");
         }
 
         var twitchChannel = request.TwitchChannel?.Trim();
 
         if (string.IsNullOrEmpty(twitchChannel))
         {
-            return Result.Failure<Room>($"Twitch channel should not be empty");
+            return ServiceError.Error($"Twitch channel should not be empty");
         }
 
         var room = new Room(name, twitchChannel);
@@ -95,7 +99,7 @@ public sealed class RoomService
 
         await _roomRepository.CreateAsync(room, cancellationToken);
 
-        return room;
+        return ServiceResult.Created(room);
     }
 
     public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request, CancellationToken cancellationToken = default)
@@ -167,48 +171,48 @@ public sealed class RoomService
         return currentRoom;
     }
 
-    public async Task<Result> SendGasEventAsync(SendGasRoomEventRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult, ServiceError>> SendGasEventAsync(SendGasRoomEventRequest request, CancellationToken cancellationToken = default)
     {
         var currentRoom = await _roomRepository.FindByIdAsync(request.RoomId, cancellationToken);
         if (currentRoom == null)
         {
-            return Result.Failure<Room?>($"Room not found by id {request.RoomId}");
+            return ServiceError.NotFound($"Room not found by id {request.RoomId}");
         }
 
         var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
         if (user == null)
         {
-            return Result.Failure<Room?>($"User not found by id {request.UserId}");
+            return ServiceError.NotFound($"User not found by id {request.UserId}");
         }
 
         await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);
-        return Result.Success();
+        return ServiceResult.Ok();
     }
 
-    public async Task<RoomState?> GetRoomStateAsync(Guid roomId, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult<RoomState>, ServiceError>> GetRoomStateAsync(Guid roomId, CancellationToken cancellationToken = default)
     {
         var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, RoomState.Mapper, cancellationToken);
         if (roomState == null)
         {
-            return null;
+            return ServiceError.NotFound($"Not found room by id {roomId}");
         }
 
         var spec = new RoomReactionsSpecification(roomId);
         var reactions = await _roomQuestionReactionRepository.FindDetailed(spec, ReactionTypeOnlyMapper.Instance, cancellationToken);
         roomState.DislikeCount = reactions.Count(e => e == ReactionType.Dislike);
         roomState.LikeCount = reactions.Count(e => e == ReactionType.Like);
-        return roomState;
+        return ServiceResult.Ok(roomState);
     }
 
-    public async Task<Result<Analytics>> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult<Analytics>, ServiceError>> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default)
     {
         var analytics = await _roomRepository.GetAnalyticsAsync(roomId, cancellationToken);
         if (analytics == null)
         {
-            return Result.Failure<Analytics>($"Room not found by id {roomId}");
+            return ServiceError.NotFound($"Room not found by id {roomId}");
         }
 
-        return Result.Success(analytics);
+        return ServiceResult.Ok(analytics);
     }
 
     private string FindNotFoundEntityIds<T>(IEnumerable<Guid> guids, IEnumerable<T> collection)

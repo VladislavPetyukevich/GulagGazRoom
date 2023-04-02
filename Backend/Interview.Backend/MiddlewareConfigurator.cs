@@ -1,3 +1,4 @@
+using Interview.Backend.Errors;
 using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.CookiePolicy;
 
@@ -14,6 +15,8 @@ public class MiddlewareConfigurator
 
     public void AddMiddlewares()
     {
+        _app.UseMiddleware<ExceptionMiddleware>();
+
         if (_app.Environment.IsPreProduction() || _app.Environment.IsProduction())
         {
             _app.UseHsts();
