@@ -29,7 +29,7 @@ public class RoomQuestionReactionService
         _userRepository = userRepository;
     }
 
-    public async Task<Result<ServiceResult, ServiceError>> SendReactionAsync(
+    public async Task<Result<ServiceResult<RoomQuestionReaction>, ServiceError>> SendReactionAsync(
         RoomQuestionSendReactionRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -43,7 +43,7 @@ public class RoomQuestionReactionService
         var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
         if (user == null)
         {
-            throw new InvalidOperationException($"Not found User by id {request.UserId}");
+            return ServiceError.Error($"Not found User by id {request.UserId}");
         }
 
         var reactionType = ReactionType.List.Single(e => e.EventType == request.Type);
@@ -54,14 +54,9 @@ public class RoomQuestionReactionService
             return ServiceError.Error($"Reaction not found by event type {request.Type}");
         }
 
-        await _roomQuestionReactionRepository.CreateAsync(
-            new RoomQuestionReaction
-            {
-                Reaction = reaction,
-                Sender = user,
-                RoomQuestion = roomQuestion,
-            }, cancellationToken);
-        return ServiceResult.Ok();
+        var entity = new RoomQuestionReaction { Reaction = reaction, Sender = user, RoomQuestion = roomQuestion, };
+        await _roomQuestionReactionRepository.CreateAsync(entity, cancellationToken);
+        return ServiceResult.Created(entity);
     }
 
     public async Task<Result<ServiceResult<RoomQuestionReactionDetail>, ServiceError>> CreateInRoomAsync(

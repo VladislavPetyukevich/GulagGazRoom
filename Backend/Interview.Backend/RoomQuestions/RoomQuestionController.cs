@@ -1,6 +1,8 @@
 using Interview.Backend.Auth;
+using Interview.Backend.Responses;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records;
+using Interview.Domain.RoomQuestions.Records.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,51 +21,33 @@ namespace Interview.Backend.RoomQuestions
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(ChangeActiveQuestion))]
-        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> ChangeActiveQuestion(
+        [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        public Task<ActionResult<RoomQuestionDetail>> ChangeActiveQuestion(
             RoomQuestionChangeActiveRequest request)
         {
-            var result = await _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted);
-
-            if (result.IsFailure)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted).ToResponseAsync();
         }
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(Create))]
-        [ProducesResponseType(typeof(RoomQuestionChangeActiveRequest), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        public async Task<ActionResult<RoomQuestionChangeActiveRequest?>> Create(
+        [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        public Task<ActionResult<RoomQuestionDetail>> Create(
             RoomQuestionCreateRequest request)
         {
-            var result = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
-
-            if (result.IsFailure)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
         }
 
         [Authorize]
         [HttpGet(nameof(GetRoomQuestions))]
-        [ProducesResponseType(typeof(List<Guid>), 200)]
-        [ProducesResponseType(typeof(string), 404)]
-        public async Task<IActionResult> GetRoomQuestions([FromQuery] RoomQuestionsRequest request)
+        [ProducesResponseType(typeof(List<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        public Task<ActionResult<List<Guid>>> GetRoomQuestions([FromQuery] RoomQuestionsRequest request)
         {
-            var result = await _roomQuestionService.GetRoomQuestionsAsync(request);
-            if (result.IsFailure)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Value);
+            return _roomQuestionService.GetRoomQuestionsAsync(request).ToResponseAsync();
         }
     }
 }

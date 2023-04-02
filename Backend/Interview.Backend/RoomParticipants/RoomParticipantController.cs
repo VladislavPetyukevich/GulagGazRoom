@@ -1,6 +1,5 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
-using Interview.Domain.RoomParticipants.Records;
 using Interview.Domain.RoomParticipants.Records.Request;
 using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.RoomParticipants.Service;
@@ -20,8 +19,9 @@ namespace Interview.Backend.RoomParticipants
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(CreateParticipant))]
-        [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
-        [ProducesResponseType(typeof(string), 404)]
+        [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
         public Task<ActionResult<RoomParticipantDetail>> CreateParticipant(
             [FromBody] RoomParticipantCreateRequest request)
         {
@@ -30,8 +30,9 @@ namespace Interview.Backend.RoomParticipants
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPatch(nameof(ChangeParticipantStatus))]
-        [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
-        [ProducesResponseType(typeof(string), 404)]
+        [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
         public Task<ActionResult<RoomParticipantDetail>> ChangeParticipantStatus(
             [FromBody] RoomParticipantChangeStatusRequest request)
         {

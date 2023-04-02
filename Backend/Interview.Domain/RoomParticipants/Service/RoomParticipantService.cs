@@ -69,7 +69,7 @@ public class RoomParticipantService
     {
         if (!RoomParticipantType.TryFromName(request.Type, out var participantType))
         {
-            return ServiceError.Error($"Invalid participant type");
+            return ServiceError.Error("Invalid participant type");
         }
 
         var existingParticipant = await _roomParticipantRepository.IsExistsByRoomIdAndUserIdAsync(
@@ -77,7 +77,7 @@ public class RoomParticipantService
 
         if (existingParticipant)
         {
-            return ServiceError.Error($"Participant already exists. " +
+            return ServiceError.Error("Participant already exists. " +
                                   $"Room id = {request.RoomId} User id = {request.UserId}");
         }
 
@@ -85,14 +85,14 @@ public class RoomParticipantService
 
         if (room == null)
         {
-            return ServiceError.Error($"Room not found with id = {request.RoomId}");
+            return ServiceError.NotFound($"Room not found with id = {request.RoomId}");
         }
 
         var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
 
         if (user == null)
         {
-            return ServiceError.Error($"User not found with id = {request.UserId}");
+            return ServiceError.NotFound($"User not found with id = {request.UserId}");
         }
 
         var roomParticipant = new RoomParticipant(user, room, participantType);

@@ -46,6 +46,6 @@ public class QuestionServiceTest
 
         var questionItem = resultQuestion.Value;
 
-        Assert.Equal(questionStub.Value, questionItem.Value);
+        Assert.Equal(questionStub.Value, questionItem.Value.Value);
     }
 }

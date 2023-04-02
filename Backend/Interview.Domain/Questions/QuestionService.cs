@@ -1,6 +1,8 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
+using Interview.Domain.ServiceResults;
+using Interview.Domain.ServiceResults.Errors;
 using X.PagedList;
 
 namespace Interview.Domain.Questions;
@@ -20,45 +22,47 @@ public class QuestionService
         return _questionRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
     }
 
-    public async Task<Result<QuestionItem?>> CreateAsync(QuestionCreateRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
         var result = new Question(request.Value);
 
         await _questionRepository.CreateAsync(result, cancellationToken);
 
-        return new QuestionItem
+        return ServiceResult.Created(new QuestionItem
         {
             Id = result.Id,
             Value = result.Value,
-        };
+        });
     }
 
-    public async Task<Result<QuestionItem?>> UpdateAsync(Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default)
     {
         var entity = await _questionRepository.FindByIdAsync(id, cancellationToken);
 
         if (entity == null)
         {
-            return Result.Failure<QuestionItem?>($"Question not found with id={id}");
+            return ServiceError.NotFound($"Question not found with id={id}");
         }
 
         entity.Value = request.Value;
 
         await _questionRepository.UpdateAsync(entity, cancellationToken);
 
-        return new QuestionItem
+        return ServiceResult.Ok(new QuestionItem
         {
             Id = entity.Id,
             Value = entity.Value,
-        };
+        });
     }
 
-    public async Task<Result<QuestionItem>> FindById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindById(Guid id, CancellationToken cancellationToken = default)
     {
         var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
+        if (question is null)
+        {
+            return ServiceError.NotFound($"Not found question with id [{id}]");
+        }
 
-        return question == null
-            ? Result.Failure<QuestionItem>($"Not found question with id [{id}]")
-            : new QuestionItem { Id = question.Id, Value = question.Value };
+        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value });
     }
 }
