@@ -52,7 +52,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<ActionResult<QuestionItem>> GetById(Guid id)
     {
-        return _questionService.FindById(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _questionService.FindByIdAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     /// <summary>
@@ -91,5 +91,41 @@ public class QuestionController : ControllerBase
     public Task<ActionResult<QuestionItem>> Update(Guid id, QuestionEditRequest request)
     {
         return _questionService.UpdateAsync(id, request, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
+    /// Transfer to the archive of the question.
+    /// </summary>
+    /// <param name="id">ID of the of question.</param>
+    /// <returns>Archived question object.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpDelete("{id:guid}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionItem>> ArchiveAsync(Guid id)
+    {
+        return _questionService.ArchiveAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
+    /// Permanently deleting a question by ID.
+    /// </summary>
+    /// <param name="id">ID of the of question.</param>
+    /// <returns>Deleted question object.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpDelete("{id:guid}/permanently")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionItem>> DeletePermanently(Guid id)
+    {
+        return _questionService.DeletePermanentlyAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

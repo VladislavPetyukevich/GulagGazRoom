@@ -23,7 +23,7 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionService = new QuestionService(questionRepository);
 
-        var foundQuestion = await questionService.FindById(question.Id);
+        var foundQuestion = await questionService.FindByIdAsync(question.Id);
 
         Assert.True(foundQuestion.IsSuccess);
 
@@ -39,7 +39,7 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionService = new QuestionService(questionRepository);
 
-        var foundQuestion = await questionService.FindById(Guid.NewGuid());
+        var foundQuestion = await questionService.FindByIdAsync(Guid.NewGuid());
 
         Assert.True(foundQuestion.IsFailure);
 

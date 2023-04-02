@@ -15,4 +15,6 @@ public class Question : Entity
     }
 
     public string Value { get; internal set; }
+
+    public bool IsArchived { get; set; }
 }

@@ -24,7 +24,7 @@ public class QuestionServiceTest
         _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
             .ReturnsAsync((Question?)null);
 
-        var resultQuestion = await _questionService.FindById(questionGuid);
+        var resultQuestion = await _questionService.FindByIdAsync(questionGuid);
 
         Assert.True(resultQuestion.IsFailure);
 
@@ -40,7 +40,7 @@ public class QuestionServiceTest
         _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
             .ReturnsAsync(questionStub);
 
-        var resultQuestion = await _questionService.FindById(questionGuid);
+        var resultQuestion = await _questionService.FindByIdAsync(questionGuid);
 
         Assert.True(resultQuestion.IsSuccess);
 

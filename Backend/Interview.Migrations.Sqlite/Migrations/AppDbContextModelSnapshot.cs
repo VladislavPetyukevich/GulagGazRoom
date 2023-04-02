@@ -26,6 +26,11 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsArchived")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("TEXT");
 
