@@ -81,13 +81,13 @@ public class QuestionController : ControllerBase
     /// <returns>Updated question object.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPut("{id:guid}")]
+    [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
     public Task<ActionResult<QuestionItem>> Update(Guid id, QuestionEditRequest request)
     {
         return _questionService.UpdateAsync(id, request, HttpContext.RequestAborted).ToResponseAsync();
