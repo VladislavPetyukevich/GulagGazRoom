@@ -245,6 +245,10 @@ namespace Interview.Migrations.Sqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Avatar")
+                        .HasMaxLength(250)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("TEXT");
 

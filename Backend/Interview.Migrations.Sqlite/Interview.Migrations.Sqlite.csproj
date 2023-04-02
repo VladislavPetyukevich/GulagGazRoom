@@ -22,4 +22,8 @@
       <ProjectReference Include="..\Interview.Infrastructure\Interview.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Migrations" />
+    </ItemGroup>
+
 </Project>

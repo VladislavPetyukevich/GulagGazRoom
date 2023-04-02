@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Interview.Migrations.Sqlite.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230402142653_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230402191115_User.Add_Column_Avatar")]
+    partial class UserAdd_Column_Avatar
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -246,6 +246,10 @@ namespace Interview.Migrations.Sqlite.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Avatar")
+                        .HasMaxLength(250)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateDate")

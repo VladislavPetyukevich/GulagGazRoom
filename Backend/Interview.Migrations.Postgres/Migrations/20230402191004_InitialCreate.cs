@@ -19,8 +19,8 @@ namespace Interview.Migrations.Postgres.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Value = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,8 +33,8 @@ namespace Interview.Migrations.Postgres.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<string>(type: "text", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,8 +47,8 @@ namespace Interview.Migrations.Postgres.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -62,8 +62,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(70)", maxLength: 70, nullable: false),
                     TwitchChannel = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,8 +77,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Nickname = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     TwitchIdentity = table.Column<string>(type: "text", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,8 +93,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     RoomId = table.Column<Guid>(type: "uuid", nullable: false),
                     QuestionId = table.Column<Guid>(type: "uuid", nullable: false),
                     State = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,8 +145,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoomId = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -173,8 +173,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     ReactionId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoomQuestionId = table.Column<Guid>(type: "uuid", nullable: false),
                     SenderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
