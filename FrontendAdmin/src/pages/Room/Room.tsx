@@ -280,8 +280,13 @@ export const Room: FunctionComponent = () => {
     return (
       <>
         <Field>
-          <div>{Captions.Room}: {room?.name}</div>
-          <button onClick={handleCopyRoomLink}>{Captions.CopyRoomLink}</button>
+          <h2>{Captions.Room}: {room?.name}</h2>
+          <button
+            className="copy-link-button"
+            onClick={handleCopyRoomLink}
+          >
+            {Captions.CopyRoomLink}
+          </button>
         </Field>
         <Field className="reactions-field">
           {admin && (
