@@ -55,17 +55,17 @@ export const roomQuestionApiDeclaration = {
 export const questionsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Question/GetPage',
+    baseUrl: '/questions',
     urlParams: pagination,
   }),
   create: (question: Pick<Question, 'value'>): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/Question/Create',
+    baseUrl: '/questions',
     body: question,
   }),
   update: (question: Question): ApiContractPut => ({
     method: 'PUT',
-    baseUrl: '/Question/Update',
+    baseUrl: '/questions',
     body: question,
   }),
 };
