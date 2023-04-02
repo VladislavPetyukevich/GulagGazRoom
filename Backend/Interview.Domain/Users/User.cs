@@ -24,6 +24,8 @@ public class User : Entity
 
     public string Nickname { get; internal set; }
 
+    public string? Avatar { get; set; }
+
     public string TwitchIdentity { get; private set; }
 
     public List<Role> Roles { get; private set; } = new List<Role>();
