@@ -25,6 +25,8 @@ export const Home: FunctionComponent = () => {
             <br/>
           </>
         )}
+      </Field>
+      <Field>
         <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
       </Field>
     </MainContentWrapper>
