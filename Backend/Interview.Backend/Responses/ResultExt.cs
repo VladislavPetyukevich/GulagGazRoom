@@ -1,19 +1,20 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Errors;
 using Interview.Domain.ServiceResults;
+using Interview.Domain.ServiceResults.Errors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Interview.Backend.Responses
 {
     public static class ResultExt
     {
-        public static async Task<ActionResult<TObj>> ToResponseAsync<TObj>(this Task<Result<ServiceResult<TObj>, AppError>> self)
+        public static async Task<ActionResult<TObj>> ToResponseAsync<TObj>(this Task<Result<ServiceResult<TObj>, ServiceError>> self)
         {
             var result = await self;
             return result.ToResponse();
         }
 
-        public static ActionResult<TObj> ToResponse<TObj>(this Result<ServiceResult<TObj>, AppError> self)
+        public static ActionResult<TObj> ToResponse<TObj>(this Result<ServiceResult<TObj>, ServiceError> self)
         {
             return self.Match(
                 success =>
@@ -30,13 +31,13 @@ namespace Interview.Backend.Responses
                 });
         }
 
-        public static async Task<IActionResult> ToResponseAsync(this Task<Result<ServiceResult, AppError>> self)
+        public static async Task<IActionResult> ToResponseAsync(this Task<Result<ServiceResult, ServiceError>> self)
         {
             var result = await self;
             return result.ToResponse();
         }
 
-        public static IActionResult ToResponse(this Result<ServiceResult, AppError> self)
+        public static IActionResult ToResponse(this Result<ServiceResult, ServiceError> self)
         {
             return self.Match(
                 success => new OkObjectResult(string.Empty),
@@ -48,13 +49,13 @@ namespace Interview.Backend.Responses
                 });
         }
 
-        public static async Task<ActionResult<T>> ToResponseAsync<T>(this Task<Result<ServiceResult, AppError>> self)
+        public static async Task<ActionResult<T>> ToResponseAsync<T>(this Task<Result<ServiceResult, ServiceError>> self)
         {
             var result = await self;
             return result.ToResponse<T>();
         }
 
-        public static ActionResult<T> ToResponse<T>(this Result<ServiceResult, AppError> self)
+        public static ActionResult<T> ToResponse<T>(this Result<ServiceResult, ServiceError> self)
         {
             return self.Match(
                 success => new OkObjectResult(string.Empty),

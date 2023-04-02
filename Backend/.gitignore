@@ -1,3 +1,6 @@
 ﻿/*/bin
 /*/obj
 /.idea
+.vs
+Interview.Backend.sln.DotSettings.user
+Interview.Backend/Interview.Backend.csproj.user

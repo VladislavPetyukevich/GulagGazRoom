@@ -5,6 +5,7 @@ using Interview.Domain.RoomParticipants.Records.Request;
 using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults;
+using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.Users;
 
 namespace Interview.Domain.RoomParticipants.Service;
@@ -27,20 +28,20 @@ public class RoomParticipantService
         _userRepository = userRepository;
     }
 
-    public async Task<Result<ServiceResult<RoomParticipantDetail>, AppError>> ChangeParticipantStatusAsync(
+    public async Task<Result<ServiceResult<RoomParticipantDetail>, ServiceError>> ChangeParticipantStatusAsync(
         RoomParticipantChangeStatusRequest request,
         CancellationToken cancellationToken = default)
     {
         if (!RoomParticipantType.TryFromName(request.UserType, out var participantType))
         {
-            return AppError.Error($"Type user not valid");
+            return ServiceError.Error($"Type user not valid");
         }
 
         var participant = await _roomParticipantRepository.FindByRoomIdAndUserId(request.RoomId, request.UserId, cancellationToken);
 
         if (participant == null)
         {
-            return AppError.Error($"The user not found in the room");
+            return ServiceError.Error($"The user not found in the room");
         }
 
         participant.Type = participantType;
@@ -62,13 +63,13 @@ public class RoomParticipantService
     /// <param name="request">Data for adding a new participant to the room.</param>
     /// <param name="cancellationToken">Cancellation Token.</param>
     /// <returns>Data of the new room participant.</returns>
-    public async Task<Result<ServiceResult<RoomParticipantDetail>, AppError>> CreateParticipantAsync(
+    public async Task<Result<ServiceResult<RoomParticipantDetail>, ServiceError>> CreateParticipantAsync(
         RoomParticipantCreateRequest request,
         CancellationToken cancellationToken = default)
     {
         if (!RoomParticipantType.TryFromName(request.Type, out var participantType))
         {
-            return AppError.Error($"Invalid participant type");
+            return ServiceError.Error($"Invalid participant type");
         }
 
         var existingParticipant = await _roomParticipantRepository.IsExistsByRoomIdAndUserIdAsync(
@@ -76,7 +77,7 @@ public class RoomParticipantService
 
         if (existingParticipant)
         {
-            return AppError.Error($"Participant already exists. " +
+            return ServiceError.Error($"Participant already exists. " +
                                   $"Room id = {request.RoomId} User id = {request.UserId}");
         }
 
@@ -84,14 +85,14 @@ public class RoomParticipantService
 
         if (room == null)
         {
-            return AppError.Error($"Room not found with id = {request.RoomId}");
+            return ServiceError.Error($"Room not found with id = {request.RoomId}");
         }
 
         var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
 
         if (user == null)
         {
-            return AppError.Error($"User not found with id = {request.UserId}");
+            return ServiceError.Error($"User not found with id = {request.UserId}");
         }
 
         var roomParticipant = new RoomParticipant(user, room, participantType);

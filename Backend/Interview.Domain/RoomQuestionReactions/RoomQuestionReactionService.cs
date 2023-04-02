@@ -5,6 +5,7 @@ using Interview.Domain.RoomQuestionReactions.Records;
 using Interview.Domain.RoomQuestionReactions.Records.Response;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.ServiceResults;
+using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.Users;
 
 namespace Interview.Domain.RoomQuestionReactions;
@@ -28,7 +29,7 @@ public class RoomQuestionReactionService
         _userRepository = userRepository;
     }
 
-    public async Task<Result<ServiceResult, AppError>> SendReactionAsync(
+    public async Task<Result<ServiceResult, ServiceError>> SendReactionAsync(
         RoomQuestionSendReactionRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -36,7 +37,7 @@ public class RoomQuestionReactionService
 
         if (roomQuestion == null)
         {
-            return AppError.Error($"Question in room not found by id {request.QuestionId}");
+            return ServiceError.Error($"Question in room not found by id {request.QuestionId}");
         }
 
         var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
@@ -50,7 +51,7 @@ public class RoomQuestionReactionService
 
         if (reaction == null)
         {
-            return AppError.Error($"Reaction not found by event type {request.Type}");
+            return ServiceError.Error($"Reaction not found by event type {request.Type}");
         }
 
         await _roomQuestionReactionRepository.CreateAsync(
@@ -63,7 +64,7 @@ public class RoomQuestionReactionService
         return ServiceResult.Ok();
     }
 
-    public async Task<Result<ServiceResult<RoomQuestionReactionDetail>, AppError>> CreateInRoomAsync(
+    public async Task<Result<ServiceResult<RoomQuestionReactionDetail>, ServiceError>> CreateInRoomAsync(
         RoomQuestionReactionCreateRequest request,
         Guid userId)
     {
@@ -71,7 +72,7 @@ public class RoomQuestionReactionService
 
         if (user == null)
         {
-            return AppError.Error($"User not found by user id {userId}");
+            return ServiceError.Error($"User not found by user id {userId}");
         }
 
         var roomQuestion =
@@ -79,14 +80,14 @@ public class RoomQuestionReactionService
 
         if (roomQuestion == null)
         {
-            return AppError.Error($"Active question not found in room id {request.RoomId}");
+            return ServiceError.Error($"Active question not found in room id {request.RoomId}");
         }
 
         var reaction = await _reactionRepository.FindByIdAsync(request.ReactionId);
 
         if (reaction == null)
         {
-            return AppError.Error($"Reaction not found by id {request.ReactionId}");
+            return ServiceError.Error($"Reaction not found by id {request.ReactionId}");
         }
 
         var questionReaction = new RoomQuestionReaction
