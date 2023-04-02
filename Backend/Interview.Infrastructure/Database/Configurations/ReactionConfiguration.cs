@@ -24,7 +24,7 @@ public class ReactionConfiguration : EntityTypeConfigurationBase<Reaction>
         var entities = ReactionType.List.Where(e => e != ReactionType.Unknown)
             .Select(rt => new Reaction
             {
-                Id = Guid.NewGuid(),
+                Id = rt.Id,
                 Type = rt,
             })
             .ToList();
