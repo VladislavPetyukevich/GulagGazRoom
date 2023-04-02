@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { FunctionComponent, MouseEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { TwitchEmbed, TwitchEmbedInstance } from 'react-twitch-embed';
 import useWebSocket from 'react-use-websocket';
@@ -56,6 +56,7 @@ export const Room: FunctionComponent = () => {
   let { id } = useParams();
   const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${id}`;
   const { lastMessage } = useWebSocket(socketUrl);
+  const [showClosedQuestions, setShowClosedQuestions] = useState(false);
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
@@ -180,6 +181,10 @@ export const Room: FunctionComponent = () => {
     );
   }, [id]);
 
+  const handleShowClosedQuestions: MouseEventHandler<HTMLInputElement> = useCallback((e) => {
+    setShowClosedQuestions(e.currentTarget.checked);
+  }, []);
+
   const renderReactionsField = useCallback(() => {
     return (
       <Field>
@@ -278,11 +283,14 @@ export const Room: FunctionComponent = () => {
         </Field>
         {admin && (
           <Field>
-            <div>Установить тему допроса:</div>
+            <div>{Captions.SelectActiveQuestion}:</div>
+            <span>{Captions.ShowClosedQuestions}</span>
+            <input type="checkbox" onClick={handleShowClosedQuestions} />
             <ActiveQuestionSelector
+              showClosedQuestions={showClosedQuestions}
               questions={room?.questions || []}
               openQuestions={openRoomQuestions || []}
-              selectButtonLabel={Captions.SetActiveQuestion}
+              placeHolder={Captions.SelectActiveQuestion}
               onSelect={handleQuestionSelect}
             />
             {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
@@ -306,9 +314,11 @@ export const Room: FunctionComponent = () => {
     twitch,
     interviewee,
     openRoomQuestions,
+    showClosedQuestions,
     renderReactionsField,
     handleQuestionSelect,
     handleCopyRoomLink,
+    handleShowClosedQuestions,
   ]);
 
   return (

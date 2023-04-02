@@ -1,18 +1,54 @@
-.activeQuestionSelector select {
-  width: 100%;
-  background-color: var(--wrap-bg);
-  color: var(--text);
+.activeQuestionSelector-container {
+  text-align: left;
+  border: 1px solid var(--page-bg);
+  position: relative;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.activeQuestionSelector option.closed {
+.activeQuestionSelector-input {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.activeQuestionSelector-menu {
+  position: absolute;
+  transform: translateY(4px);
+  width: 100%;
+  border: 1px solid var(--active);
+  border-radius: 5px;
+  overflow: auto;
+  max-height: 150px;
+  background-color: var(--wrap-bg);
+  z-index: 99;
+}
+
+.activeQuestionSelector-tools {
+  background-color: var(--active);
+}
+
+.activeQuestionSelector-item {
+  padding: 5px;
+}
+
+.activeQuestionSelector-item:hover {
+  background-color: var(--active);
+}
+
+.activeQuestionSelector-item.closed {
   text-decoration: line-through;
   opacity: 0.4;
 }
 
-.activeQuestionSelector option:checked{
-  background-color: var(--text);
+.search-box {
+  padding: 5px;
 }
 
-.activeQuestionSelector option:active{
-  background-color: red;
+.search-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
 }
