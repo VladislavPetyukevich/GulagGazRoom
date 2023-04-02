@@ -7,7 +7,12 @@ namespace Interview.Backend.Responses
     {
         public static ActionResult<T> ToActionResult<T>(this ServiceError self)
         {
-            return self.Match<ActionResult<T>>(
+            return self.ToActionResult();
+        }
+
+        public static ActionResult ToActionResult(this ServiceError self)
+        {
+            return self.Match<ActionResult>(
                 appError => new BadRequestObjectResult(new MessageResponse
                 {
                     Message = appError.Message,

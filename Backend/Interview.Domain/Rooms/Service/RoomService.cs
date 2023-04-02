@@ -170,22 +170,22 @@ public sealed class RoomService
         return currentRoom;
     }
 
-    public async Task<Result> SendGasEventAsync(SendGasRoomEventRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult, ServiceError>> SendGasEventAsync(SendGasRoomEventRequest request, CancellationToken cancellationToken = default)
     {
         var currentRoom = await _roomRepository.FindByIdAsync(request.RoomId, cancellationToken);
         if (currentRoom == null)
         {
-            return Result.Failure<Room?>($"Room not found by id {request.RoomId}");
+            return ServiceError.NotFound($"Room not found by id {request.RoomId}");
         }
 
         var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
         if (user == null)
         {
-            return Result.Failure<Room?>($"User not found by id {request.UserId}");
+            return ServiceError.NotFound($"User not found by id {request.UserId}");
         }
 
         await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);
-        return Result.Success();
+        return ServiceResult.Ok();
     }
 
     public async Task<Result<ServiceResult<RoomState>, ServiceError>> GetRoomStateAsync(Guid roomId, CancellationToken cancellationToken = default)

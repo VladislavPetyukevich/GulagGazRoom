@@ -21,8 +21,8 @@ public class RoomReactionController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    [ProducesResponseType(typeof(RoomQuestionReactionDetail), 200)]
-    [ProducesResponseType(typeof(string), 400)]
+    [ProducesResponseType(typeof(RoomQuestionReactionDetail), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     public Task<ActionResult<RoomQuestionReactionDetail>> CreateInRoom([FromBody] RoomQuestionReactionCreateRequest request)
     {
         var user = HttpContext.User.ToUser();
@@ -37,8 +37,8 @@ public class RoomReactionController : ControllerBase
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost(nameof(SendReaction))]
-    [ProducesResponseType(typeof(string), 200)]
-    [ProducesResponseType(typeof(string), 400)]
+    [ProducesResponseType(typeof(RoomQuestionReaction), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     public Task<ActionResult<RoomQuestionReaction>> SendReaction(RoomQuestionSendReactionApiRequest request)
     {
         var user = User.ToUser();

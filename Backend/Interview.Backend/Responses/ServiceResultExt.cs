@@ -11,5 +11,9 @@ namespace Interview.Backend.Responses
                 ok => new OkObjectResult(ok.Value),
                 create => new CreatedResult(string.Empty, create.Value));
         }
+
+        public static ActionResult<T> ToActionResult<T>(this ServiceResult self) => self.ToActionResult();
+
+        public static ActionResult ToActionResult(this ServiceResult self) => new OkObjectResult(string.Empty);
     }
 }
