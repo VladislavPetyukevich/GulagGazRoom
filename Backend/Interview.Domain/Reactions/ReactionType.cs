@@ -14,7 +14,7 @@ public class ReactionType : SmartEnum<ReactionType>
     public EventType EventType { get; }
 
     public Guid Id { get; }
-    
+
     private ReactionType(Guid id, string name, int value, EventType eventType)
         : base(name, value)
     {

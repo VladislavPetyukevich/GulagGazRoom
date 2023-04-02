@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
