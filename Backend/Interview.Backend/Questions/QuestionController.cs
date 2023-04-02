@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Backend.Shared;
@@ -26,7 +27,7 @@ public class QuestionController : ControllerBase
     /// <returns>A page of questions with metadata about the pages.</returns>
     [Authorize]
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPagedList<QuestionItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
@@ -43,7 +44,7 @@ public class QuestionController : ControllerBase
     /// <returns>The found object of the question.</returns>
     [Authorize]
     [HttpGet("{id:guid}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -62,7 +63,7 @@ public class QuestionController : ControllerBase
     /// <returns>The object of the new question.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -81,7 +82,7 @@ public class QuestionController : ControllerBase
     /// <returns>Updated question object.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPut("{id:guid}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
