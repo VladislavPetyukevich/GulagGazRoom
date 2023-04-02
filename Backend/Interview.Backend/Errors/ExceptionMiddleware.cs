@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Interview.Backend.Responses;
 
 namespace Interview.Backend.Errors

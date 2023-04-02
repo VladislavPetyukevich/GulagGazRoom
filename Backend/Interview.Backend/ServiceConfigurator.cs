@@ -65,7 +65,8 @@ public class ServiceConfigurator
         var serviceOption = new DependencyInjectionAppServiceOption(
             new TwitchTokenProviderOption
             {
-                ClientSecret = twitchService.ClientSecret, ClientId = twitchService.ClientId,
+                ClientSecret = twitchService.ClientSecret,
+                ClientId = twitchService.ClientId,
             },
             adminUsers,
             optionsBuilder =>
@@ -126,7 +127,8 @@ public class ServiceConfigurator
                 }
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.",
+                context.HttpContext.Response.WriteAsync(
+                    "Too many requests. Please try again later.",
                     cancellationToken: token);
 
                 return ValueTask.CompletedTask;
