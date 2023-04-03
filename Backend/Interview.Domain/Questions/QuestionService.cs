@@ -1,9 +1,6 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
-using Interview.Domain.RoomQuestionReactions;
-using Interview.Domain.RoomQuestions;
-using Interview.Domain.ServiceResults;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using X.PagedList;
@@ -67,6 +64,12 @@ public class QuestionService
         return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value });
     }
 
+    /// <summary>
+    /// Permanent deletion of a question with verification of its existence.
+    /// </summary>
+    /// <param name="id">Question's guid.</param>
+    /// <param name="cancellationToken">Cancellation Token.</param>
+    /// <returns>ServiceResult with QuestionItem - success, ServiceError - error.</returns>
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> DeletePermanentlyAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
