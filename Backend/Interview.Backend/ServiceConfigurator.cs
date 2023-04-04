@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
+using Interview.Backend.Swagger;
 using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
@@ -12,6 +14,7 @@ using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace Interview.Backend;
 
@@ -133,6 +136,38 @@ public class ServiceConfigurator
 
                 return ValueTask.CompletedTask;
             };
+        });
+
+        serviceCollection.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Gulag Open API",
+                Version = "v1",
+                Description = "Gulag Service Interface",
+                Contact = new OpenApiContact
+                {
+                    Name = "Vladislav Petyukevich",
+                    Url = new Uri("https://github.com/VladislavPetyukevich"),
+                    Email = "gulaglinkfun@yandex.ru",
+                },
+                License = new OpenApiLicense
+                {
+                    Name = "Example License",
+                    Url = new Uri("https://example.com/license"),
+                },
+            });
+
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            options.CustomSchemaIds(type => type.ToString());
+
+            var swaggerOption = _configuration.GetSection(nameof(SwaggerOption)).Get<SwaggerOption>() ??
+                         throw new InvalidOperationException(nameof(SwaggerOption));
+            if (!string.IsNullOrEmpty(swaggerOption.RoutePrefix))
+            {
+                options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);
+            }
         });
     }
 }
