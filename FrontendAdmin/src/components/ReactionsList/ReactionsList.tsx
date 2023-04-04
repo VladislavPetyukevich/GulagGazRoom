@@ -8,11 +8,13 @@ const reactionNameReplaces: Record<string, string> = {
 
 interface ReactionsListProps {
   reactions: Reaction[];
+  sortOrder: 1 | -1;
   onClick: (reaction: Reaction) => void;
 }
 
 export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
   reactions,
+  sortOrder,
   onClick,
 }) => {
   const handleReactionClick = useCallback((reaction: Reaction) => () => {
@@ -24,10 +26,10 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
       {reactions
         .sort((reaction1, reaction2) => {
           if (reaction1.type.name > reaction2.type.name) {
-            return -1;
+            return 1 * sortOrder;
           }
           if (reaction1.type.name < reaction2.type.name) {
-            return 1;
+            return -1 * sortOrder;
           }
           return 0;
         })

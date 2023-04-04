@@ -12,7 +12,6 @@ using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -77,12 +76,16 @@ public class ServiceConfigurator
                 var connectionString = _configuration.GetConnectionString("database");
                 if (_environment.IsDevelopment())
                 {
-                    optionsBuilder.UseSqlite(connectionString);
+                    optionsBuilder.UseSqlite(
+                        connectionString,
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly.FullName));
                 }
                 else if (_environment.IsPreProduction())
                 {
                     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-                    optionsBuilder.UseNpgsql(connectionString);
+                    optionsBuilder.UseNpgsql(
+                        connectionString,
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly.FullName));
                 }
                 else
                 {

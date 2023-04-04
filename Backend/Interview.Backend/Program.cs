@@ -3,6 +3,7 @@ using Interview.Backend;
 
 using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +23,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 using (var serviceScope = app.Services.CreateScope())
 {
     var appDbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-    appDbContext.Database.EnsureCreated();
+    appDbContext.Database.Migrate();
 }
 
 var middlewareConfigurator = new MiddlewareConfigurator(app);
