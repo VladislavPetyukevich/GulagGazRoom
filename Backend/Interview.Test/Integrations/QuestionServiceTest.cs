@@ -88,19 +88,21 @@ public class QuestionServiceTest
 
         var roomQuestionReaction = new RoomQuestionReaction
         {
-            Reaction = reaction, RoomQuestion = roomQuestion, Sender = user
+            Reaction = reaction,
+            RoomQuestion = roomQuestion,
+            Sender = user
         };
         appDbContext.RoomQuestionReactions.Add(roomQuestionReaction);
         appDbContext.SaveChanges();
-        
+
         await transaction.CommitAsync();
-        
+
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionArchiveRepository(appDbContext);
         var questionService = new QuestionService(questionRepository, questionArchiveRepository);
-        
+
         var result = await questionService.DeletePermanentlyAsync(question.Id);
-        
+
         Assert.True(result.IsSuccess);
     }
 }

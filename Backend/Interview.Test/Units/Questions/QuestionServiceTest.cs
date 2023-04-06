@@ -13,7 +13,7 @@ public class QuestionServiceTest
     public QuestionServiceTest()
     {
         _questionRepository = new Mock<IQuestionRepository>();
-        
+
         _questionArchiveRepository = new Mock<IQuestionArchiveRepository>();
 
         _questionService = new QuestionService(_questionRepository.Object, _questionArchiveRepository.Object);
