@@ -7,13 +7,16 @@ namespace Interview.Test.Units.Questions;
 public class QuestionServiceTest
 {
     private readonly Mock<IQuestionRepository> _questionRepository;
+    private readonly Mock<IQuestionArchiveRepository> _questionArchiveRepository;
     private readonly QuestionService _questionService;
 
     public QuestionServiceTest()
     {
         _questionRepository = new Mock<IQuestionRepository>();
+        
+        _questionArchiveRepository = new Mock<IQuestionArchiveRepository>();
 
-        _questionService = new QuestionService(_questionRepository.Object);
+        _questionService = new QuestionService(_questionRepository.Object, _questionArchiveRepository.Object);
     }
 
     [Fact(DisplayName = "Searching question by id when question not found")]
@@ -37,7 +40,7 @@ public class QuestionServiceTest
         var questionGuid = Guid.Empty;
 
         var questionStub = new Question("value");
-        _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
+        _questionArchiveRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
             .ReturnsAsync(questionStub);
 
         var resultQuestion = await _questionService.FindByIdAsync(questionGuid);

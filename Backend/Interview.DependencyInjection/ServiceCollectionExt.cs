@@ -5,6 +5,7 @@ using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
+using Interview.Domain.Repository;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomParticipants.Service;
 using Interview.Domain.RoomQuestionReactions;
@@ -41,6 +42,7 @@ public static class ServiceCollectionExt
         self.AddScoped<IUserRepository, UserRepository>();
         self.AddScoped<IRoomRepository, RoomRepository>();
         self.AddScoped<IQuestionRepository, QuestionRepository>();
+        self.AddScoped<IQuestionArchiveRepository, QuestionArchiveRepository>();
         self.AddScoped<IRoleRepository, RoleRepository>();
         self.AddScoped<IRoomParticipantRepository, RoomParticipantRepository>();
         self.AddScoped<IRoomQuestionRepository, RoomQuestionRepository>();

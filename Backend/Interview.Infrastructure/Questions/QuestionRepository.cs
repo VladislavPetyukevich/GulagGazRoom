@@ -16,13 +16,10 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
         var transaction = await Db.Database.BeginTransactionAsync(cancellationToken);
 
         await Db.RoomQuestionReactions
-            .Include(roomQuestionReaction => roomQuestionReaction.RoomQuestion)
-            .Include(roomQuestionReaction => roomQuestionReaction.RoomQuestion.Question)
             .Where(roomQuestionReaction => roomQuestionReaction.RoomQuestion.Question.Id == entity.Id)
             .ExecuteDeleteAsync(cancellationToken);
 
         await Db.RoomQuestions
-            .Include(roomQuestion => roomQuestion.Question)
             .Where(roomQuestion => roomQuestion.Question.Id == entity.Id)
             .ExecuteDeleteAsync(cancellationToken);
 
@@ -32,6 +29,4 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
 
         await transaction.CommitAsync(cancellationToken);
     }
-
-    protected override IQueryable<Question> ApplyIncludes(DbSet<Question> set) => set;
 }

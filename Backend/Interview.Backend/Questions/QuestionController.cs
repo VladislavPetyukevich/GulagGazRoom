@@ -33,7 +33,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<IPagedList<QuestionItem>> GetPage([FromQuery] PageRequest request)
     {
-        return _questionService.FindPageAsync(request.PageSize, request.PageNumber, HttpContext.RequestAborted);
+        return _questionService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -127,5 +127,23 @@ public class QuestionController : ControllerBase
     public Task<ActionResult<QuestionItem>> DeletePermanently(Guid id)
     {
         return _questionService.DeletePermanentlyAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
+    /// Permanently deleting a question by ID.
+    /// </summary>
+    /// <param name="id">ID of the of question.</param>
+    /// <returns>Deleted question object.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpDelete("{id:guid}/unarchive")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionItem>> Unarchive(Guid id)
+    {
+        return _questionService.UnarchiveAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

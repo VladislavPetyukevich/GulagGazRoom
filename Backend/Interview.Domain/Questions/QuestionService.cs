@@ -11,9 +11,12 @@ public class QuestionService
 {
     private readonly IQuestionRepository _questionRepository;
 
-    public QuestionService(IQuestionRepository questionRepository)
+    private readonly IQuestionArchiveRepository _questionArchiveRepository;
+
+    public QuestionService(IQuestionRepository questionRepository, IQuestionArchiveRepository questionArchiveRepository)
     {
         _questionRepository = questionRepository;
+        _questionArchiveRepository = questionArchiveRepository;
     }
 
     public Task<IPagedList<QuestionItem>> FindPageAsync(
@@ -22,7 +25,7 @@ public class QuestionService
         var mapper =
             new Mapper<Question, QuestionItem>(
                 question => new QuestionItem { Id = question.Id, Value = question.Value });
-        return _questionRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
+        return _questionArchiveRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
@@ -38,7 +41,7 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
         Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default)
     {
-        var entity = await _questionRepository.FindByIdAsync(id, cancellationToken);
+        var entity = await _questionArchiveRepository.FindByIdAsync(id, cancellationToken);
 
         if (entity == null)
         {
@@ -55,7 +58,8 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
-        var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
+        var question = await _questionArchiveRepository.FindByIdAsync(id, cancellationToken);
+
         if (question is null)
         {
             return ServiceError.NotFound($"Not found question with id [{id}]");
@@ -100,6 +104,32 @@ public class QuestionService
         }
 
         question.IsArchived = true;
+
+        await _questionRepository.UpdateAsync(question, cancellationToken);
+
+        return ServiceResult.Ok(new QuestionItem
+        {
+            Id = question.Id,
+            Value = question.Value,
+        });
+    }
+
+    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
+        Guid id, CancellationToken cancellationToken = default)
+    {
+        var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
+
+        if (question == null)
+        {
+            return ServiceError.NotFound($"Question not found by id {id}");
+        }
+
+        if (!question.IsArchived)
+        {
+            return ServiceError.Error($"The question is not archived");
+        }
+
+        question.IsArchived = false;
 
         await _questionRepository.UpdateAsync(question, cancellationToken);
 
