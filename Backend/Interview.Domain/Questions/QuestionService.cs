@@ -1,8 +1,10 @@
+using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
+using NSpecifications;
 using X.PagedList;
 
 namespace Interview.Domain.Questions;
@@ -26,6 +28,19 @@ public class QuestionService
             new Mapper<Question, QuestionItem>(
                 question => new QuestionItem { Id = question.Id, Value = question.Value });
         return _questionArchiveRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
+    }
+
+    public Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
+        int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        var mapper = new Mapper<Question, QuestionItem>(question => new QuestionItem
+        {
+            Id = question.Id, Value = question.Value,
+        });
+
+        var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
+
+        return _questionRepository.GetPageDetailedAsync(isArchiveSpecification, mapper, pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
@@ -86,11 +101,7 @@ public class QuestionService
 
         await _questionRepository.DeletePermanentlyAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem
-        {
-            Id = question.Id,
-            Value = question.Value,
-        });
+        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
@@ -107,11 +118,7 @@ public class QuestionService
 
         await _questionRepository.UpdateAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem
-        {
-            Id = question.Id,
-            Value = question.Value,
-        });
+        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
@@ -133,10 +140,6 @@ public class QuestionService
 
         await _questionRepository.UpdateAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem
-        {
-            Id = question.Id,
-            Value = question.Value,
-        });
+        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
     }
 }
