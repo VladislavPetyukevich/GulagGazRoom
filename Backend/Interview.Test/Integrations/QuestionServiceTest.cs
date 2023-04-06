@@ -5,13 +5,8 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
-using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Questions;
-using Interview.Infrastructure.Reactions;
-using Interview.Infrastructure.RoomQuestionReactions;
-using Interview.Infrastructure.RoomQuestions;
-using Interview.Infrastructure.Rooms;
-using Interview.Infrastructure.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Test.Integrations;
 
@@ -104,5 +99,23 @@ public class QuestionServiceTest
         var result = await questionService.DeletePermanentlyAsync(question.Id);
 
         Assert.True(result.IsSuccess);
+
+        var foundQuestion = await appDbContext.Questions
+            .Where(it => it.Id == question.Id)
+            .FirstOrDefaultAsync();
+
+        Assert.Null(foundQuestion);
+
+        var fountRoomQuestion = await appDbContext.RoomQuestions
+            .Where(it => it.Id == roomQuestion.Id)
+            .FirstOrDefaultAsync();
+
+        Assert.Null(fountRoomQuestion);
+
+        var fountRoomQuestionReaction = await appDbContext.RoomQuestionReactions
+            .Where(it => it.Id == roomQuestion.Id)
+            .FirstOrDefaultAsync();
+
+        Assert.Null(fountRoomQuestionReaction);
     }
 }
