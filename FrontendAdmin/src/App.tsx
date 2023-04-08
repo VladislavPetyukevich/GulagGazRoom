@@ -8,9 +8,10 @@ import { Loader } from './components/Loader/Loader';
 import { MainContentWrapper } from './components/MainContentWrapper/MainContentWrapper';
 import { Field } from './components/FieldsBlock/Field';
 import { useCommunist } from './hooks/useCommunist';
+import { Captions } from './constants';
+import { FieldsBlock } from './components/FieldsBlock/FieldsBlock';
 
 import './App.css';
-import { Captions } from './constants';
 
 export const App: FunctionComponent = () => {
   const { getCommunist, resetCommunist } = useCommunist();
@@ -35,7 +36,7 @@ export const App: FunctionComponent = () => {
         <MainContentWrapper>
           <Field>
             <div>Loading user data...</div>
-            <Loader/>
+            <Loader />
           </Field>
         </MainContentWrapper>
       )
@@ -60,7 +61,9 @@ export const App: FunctionComponent = () => {
       <AuthContext.Provider value={user}>
         <div className="App">
           <header>
-            <h1>{Captions.AppName}</h1>
+            <FieldsBlock>
+              <h1>{Captions.AppName}</h1>
+            </FieldsBlock>
             <NavMenu />
           </header>
           {renderMainContent()}

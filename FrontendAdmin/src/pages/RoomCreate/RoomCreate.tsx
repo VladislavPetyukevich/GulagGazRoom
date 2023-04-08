@@ -100,6 +100,7 @@ export const RoomCreate: FunctionComponent = () => {
     <MainContentWrapper className="question-create">
       <HeaderWithLink
         title="Create room"
+        linkVisible={true}
         path={pathnames.rooms}
         linkCaption="<"
         linkFloat="left"

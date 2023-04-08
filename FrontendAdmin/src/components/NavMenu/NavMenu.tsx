@@ -6,6 +6,7 @@ import { Field } from '../FieldsBlock/Field';
 import { Captions, pathnames } from '../../constants';
 
 import './NavMenu.css';
+import { checkAdmin } from '../../utils/checkAdmin';
 
 interface MenuItem {
   path: string;
@@ -20,13 +21,18 @@ const createMenuItem = (item: MenuItem, isActive: boolean) => (
 
 export const NavMenu: FunctionComponent = () => {
   const auth = useContext(AuthContext);
+  const admin = checkAdmin(auth);
   const location = useLocation()
   const isPathActive = (pathname: string) => !!matchPath(pathname, location.pathname);
 
-  const items: MenuItem[] = [
+  const items: MenuItem[] = admin ? [
     { path: pathnames.home, name: Captions.HomePageName },
     { path: pathnames.rooms, name: Captions.RoomsPageName },
     { path: pathnames.questions, name: Captions.QuestionsPageName },
+    { path: pathnames.session, name: auth?.nickname || Captions.UnauthorizedMessage },
+  ] : [
+    { path: pathnames.home, name: Captions.HomePageName },
+    { path: pathnames.rooms, name: Captions.RoomsPageName },
     { path: pathnames.session, name: auth?.nickname || Captions.UnauthorizedMessage },
   ];
 

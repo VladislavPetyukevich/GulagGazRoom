@@ -1,5 +1,5 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
-import { Question } from './types/question';
+import { Question, QuestionState } from './types/question';
 import { Reaction } from './types/reaction';
 import { Room } from './types/room';
 import { User } from './types/user';
@@ -45,22 +45,27 @@ export const roomQuestionApiDeclaration = {
     baseUrl: '/RoomQuestion/ChangeActiveQuestion',
     body,
   }),
+  getRoomQuestions: (params: { RoomId: Room['id']; State: QuestionState }): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/RoomQuestion/GetRoomQuestions',
+    urlParams: params,
+  }),
 };
 
 export const questionsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Question/GetPage',
+    baseUrl: '/questions',
     urlParams: pagination,
   }),
   create: (question: Pick<Question, 'value'>): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/Question/Create',
+    baseUrl: '/questions',
     body: question,
   }),
   update: (question: Question): ApiContractPut => ({
     method: 'PUT',
-    baseUrl: '/Question/Update',
+    baseUrl: '/questions',
     body: question,
   }),
 };

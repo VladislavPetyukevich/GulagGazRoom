@@ -34,6 +34,7 @@ public sealed class UserService
         if (existingUser != null)
         {
             existingUser.Nickname = user.Nickname;
+            existingUser.Avatar = user.Avatar;
             await _userRepository.UpdateAsync(existingUser, cancellationToken);
             return existingUser;
         }
@@ -44,10 +45,17 @@ public sealed class UserService
             throw new InvalidOperationException("Not found \"User\" role");
         }
 
-        var insertUser = new User(user.Nickname, user.TwitchIdentity);
+        var insertUser = new User(user.Nickname, user.TwitchIdentity) { Avatar = user.Avatar };
+
         insertUser.Roles.Add(userRole);
         await _userRepository.CreateAsync(insertUser, cancellationToken);
         return insertUser;
+    }
+
+    public Task<List<User>> GetByRoleAsync(RoleNameType roleNameType, CancellationToken cancellationToken = default)
+    {
+        var roleName = RoleName.FromValue((int)roleNameType);
+        return _userRepository.GetByRoleAsync(roleName, cancellationToken);
     }
 
     private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)

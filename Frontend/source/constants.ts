@@ -16,6 +16,8 @@ import dislike from './assets/dislike.mp3';
 import gazBeat1 from './assets/gazBeat1.mp3';
 import gazBeat2 from './assets/gazBeat2.mp3';
 
+export const DEFAULT_FOV = 105;
+
 export const PI_2 = Math.PI / 2;
 
 export const RANDOM_NUMBERS_COUNT = 500;

@@ -1,5 +1,5 @@
 using Interview.Backend.Auth;
-using Interview.Domain.RoomParticipants.Records;
+using Interview.Backend.Responses;
 using Interview.Domain.RoomParticipants.Records.Request;
 using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.RoomParticipants.Service;
@@ -19,38 +19,24 @@ namespace Interview.Backend.RoomParticipants
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(CreateParticipant))]
-        [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
-        [ProducesResponseType(typeof(string), 404)]
-        public async Task<ActionResult<RoomParticipantDetail?>> CreateParticipant(
+        [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+        public Task<ActionResult<RoomParticipantDetail>> CreateParticipant(
             [FromBody] RoomParticipantCreateRequest request)
         {
-            var participantResult =
-                await _roomParticipantService.CreateParticipantAsync(request, HttpContext.RequestAborted);
-
-            if (participantResult.IsFailure)
-            {
-                return NotFound(participantResult.Error);
-            }
-
-            return Ok(participantResult.Value);
+            return _roomParticipantService.CreateParticipantAsync(request, HttpContext.RequestAborted).ToResponseAsync();
         }
 
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPatch(nameof(ChangeParticipantStatus))]
-        [ProducesResponseType(typeof(RoomParticipantDetail), 200)]
-        [ProducesResponseType(typeof(string), 404)]
-        public async Task<ActionResult<RoomParticipantDetail?>> ChangeParticipantStatus(
+        [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+        public Task<ActionResult<RoomParticipantDetail>> ChangeParticipantStatus(
             [FromBody] RoomParticipantChangeStatusRequest request)
         {
-            var participantResult =
-                await _roomParticipantService.ChangeParticipantStatusAsync(request, HttpContext.RequestAborted);
-
-            if (participantResult.IsFailure)
-            {
-                return NotFound(participantResult.Error);
-            }
-
-            return Ok(participantResult.Value);
+            return _roomParticipantService.ChangeParticipantStatusAsync(request, HttpContext.RequestAborted).ToResponseAsync();
         }
     }
 }

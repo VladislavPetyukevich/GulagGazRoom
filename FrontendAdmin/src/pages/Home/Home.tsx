@@ -1,19 +1,33 @@
 import React, { FunctionComponent, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
-import { Captions } from '../../constants';
+import { REACT_APP_BACKEND_URL } from '../../config';
+import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
+
+import './Home.css';
 
 export const Home: FunctionComponent = () => {
   const auth = useContext(AuthContext);
 
   return (
-    <MainContentWrapper>
+    <MainContentWrapper className="home">
       <Field>
-        <div>{Captions.WelcomeMessage}</div>
-        {!auth && (
-          <a href="http://localhost:5043/login/twitch?redirectUri=%2FUser%2FGetMe">Login</a>
+        {auth ? (
+          <div>{Captions.WelcomeMessage}, {auth.nickname}</div>
+        ) : (
+          <>
+            <div>{Captions.WhoAreYou}</div>
+            <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=${encodeURIComponent(window.location.href)}`}>
+              <button className="home-login-button">{Captions.Login}</button>
+            </a>
+            <br/>
+          </>
         )}
+      </Field>
+      <Field>
+        <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
       </Field>
     </MainContentWrapper>
   );

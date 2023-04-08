@@ -18,18 +18,23 @@ public abstract class EfRepository<T> : IRepository<T>
         Set = db.Set<T>();
     }
 
+    public Task<bool> HasAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+    {
+        return Set.AsNoTracking().AnyAsync(specification.Expression, cancellationToken);
+    }
+
     public Task CreateAsync(T entity, CancellationToken cancellationToken = default)
     {
         Set.Add(entity);
         return Db.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<List<T>> Find(ISpecification<T> specification, CancellationToken cancellationToken = default)
+    public Task<List<T>> FindAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
     {
         return Set.Where(specification.Expression).ToListAsync(cancellationToken);
     }
 
-    public Task<List<TRes>> Find<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
+    public Task<List<TRes>> FindAsync<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
     {
         return Set.Where(specification.Expression).Select(mapper.Expression).ToListAsync(cancellationToken);
     }

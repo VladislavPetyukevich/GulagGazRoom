@@ -1,18 +1,19 @@
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
+using Interview.Backend.Swagger;
 using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
-using Interview.Domain;
-using Interview.Domain.Connections;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace Interview.Backend;
 
@@ -75,12 +76,16 @@ public class ServiceConfigurator
                 var connectionString = _configuration.GetConnectionString("database");
                 if (_environment.IsDevelopment())
                 {
-                    optionsBuilder.UseSqlite(connectionString);
+                    optionsBuilder.UseSqlite(
+                        connectionString,
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly.FullName));
                 }
                 else if (_environment.IsPreProduction())
                 {
                     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-                    optionsBuilder.UseNpgsql(connectionString);
+                    optionsBuilder.UseNpgsql(
+                        connectionString,
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly.FullName));
                 }
                 else
                 {
@@ -110,7 +115,7 @@ public class ServiceConfigurator
                 {
                     return RateLimitPartition.GetFixedWindowLimiter(address, key => new()
                     {
-                        PermitLimit = 13,
+                        PermitLimit = 36,
                         Window = TimeSpan.FromSeconds(30),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         AutoReplenishment = true,
@@ -128,10 +133,44 @@ public class ServiceConfigurator
                 }
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken: token);
+                context.HttpContext.Response.WriteAsync(
+                    "Too many requests. Please try again later.",
+                    cancellationToken: token);
 
                 return ValueTask.CompletedTask;
             };
+        });
+
+        serviceCollection.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Gulag Open API",
+                Version = "v1",
+                Description = "Gulag Service Interface",
+                Contact = new OpenApiContact
+                {
+                    Name = "Vladislav Petyukevich",
+                    Url = new Uri("https://github.com/VladislavPetyukevich"),
+                    Email = "gulaglinkfun@yandex.ru",
+                },
+                License = new OpenApiLicense
+                {
+                    Name = "Example License",
+                    Url = new Uri("https://example.com/license"),
+                },
+            });
+
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            options.CustomSchemaIds(type => type.ToString());
+
+            var swaggerOption = _configuration.GetSection(nameof(SwaggerOption)).Get<SwaggerOption>() ??
+                         throw new InvalidOperationException(nameof(SwaggerOption));
+            if (!string.IsNullOrEmpty(swaggerOption.RoutePrefix))
+            {
+                options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);
+            }
         });
     }
 }

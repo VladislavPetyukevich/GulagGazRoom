@@ -6,6 +6,8 @@ namespace Interview.Domain.Rooms;
 
 public interface IRoomRepository : IRepository<Room>
 {
+    Task<Analytics?> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default);
+
     Task<bool> HasUserAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default);
 
     Task<IPagedList<RoomDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);

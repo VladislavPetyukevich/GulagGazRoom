@@ -20,7 +20,7 @@ namespace Interview.Backend.Reactions
 
         [Authorize(policy: GulagSecurePolicy.User)]
         [HttpGet(nameof(GetPage))]
-        [ProducesResponseType(typeof(IPagedList<ReactionDetail>), 200)]
+        [ProducesResponseType(typeof(IPagedList<ReactionDetail>), StatusCodes.Status200OK)]
         public Task<IPagedList<ReactionDetail>> GetPage([FromQuery] PageRequest request) =>
             _reactionService.GetPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }

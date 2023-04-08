@@ -1,9 +1,45 @@
+.room-page h2 {
+  margin: 0px;
+}
+
+.room-page .copy-link-button {
+  position: absolute;
+  margin-left: 125px;
+}
+
+.room-page .reactions-field {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: -15px;
+}
+
+.room-page .reactions-field .reaction-wrapper {
+  display: inline-block;
+  margin-left: 15px;
+}
+
 .room-page .interviewee-frame-wrapper {
-  height: 600px;
+  height: 400px;
+}
+
+.room-page .interviewee-frame-wrapper.admin {
+  height: 800px;
 }
 
 .room-page .interviewee-frame {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.room-page .twitch-embed-field {
+  height: 600px;
+}
+
+.room-page .twitch-embed-field #twitch-embed {
+  width: inherit !important;
+  height: 600px !important;
 }

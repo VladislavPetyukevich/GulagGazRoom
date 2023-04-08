@@ -1,5 +1,7 @@
+using Interview.Backend.Errors;
 using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.Extensions.Options;
 
 namespace Interview.Backend;
 
@@ -14,6 +16,13 @@ public class MiddlewareConfigurator
 
     public void AddMiddlewares()
     {
+        _app.UseMiddleware<ExceptionMiddleware>();
+
+        if (_app.Environment.IsPreProduction() || _app.Environment.IsProduction())
+        {
+            _app.UseHsts();
+        }
+
         _app.UseHttpsRedirection();
 
         _app.UseCookiePolicy(new CookiePolicyOptions
@@ -22,12 +31,11 @@ public class MiddlewareConfigurator
             HttpOnly = HttpOnlyPolicy.None,
         });
 
-        _app.UseWebSockets()
-            .UseWebSocketsAuthorization(new WebSocketAuthorizationOptions
-            {
-                CookieName = WebSocketAuthorizationOptions.DefaultCookieName,
-                WebSocketQueryName = "Authorization",
-            });
+        _app.UseWebSockets().UseWebSocketsAuthorization(new WebSocketAuthorizationOptions
+        {
+            CookieName = WebSocketAuthorizationOptions.DefaultCookieName,
+            WebSocketQueryName = "Authorization",
+        });
 
         if (_app.Environment.IsDevelopment())
         {
@@ -35,10 +43,13 @@ public class MiddlewareConfigurator
         }
 
         _app.UseRateLimiter();
+
         var logger = _app.Services.GetRequiredService<ILogger<MiddlewareConfigurator>>();
+
         _app.Use((context, func) =>
         {
-            logger.LogInformation("New request {Path}", context.Request.Path);
+            logger.LogInformation("Request {Path}", context.Request.Path);
+
             return func();
         });
 

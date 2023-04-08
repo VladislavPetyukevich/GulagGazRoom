@@ -27,7 +27,7 @@ public class QuestionServiceTest
 
         Assert.True(foundQuestion.IsSuccess);
 
-        foundQuestion.Value?.Value.Should().BeEquivalentTo(question.Value);
+        foundQuestion.Value?.Value.Value.Should().BeEquivalentTo(question.Value);
     }
 
     [Fact(DisplayName = "Searching question by id when question not found")]

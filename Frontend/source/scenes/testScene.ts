@@ -31,6 +31,11 @@ interface LightEffect {
 type LightEffectName = 'flick';
 
 export interface TestSceneProps extends BasicSceneProps {
+  preload: {
+    question?: string;
+    likes: number;
+    dislikes: number;
+  },
   onFinish: Function;
 }
 
@@ -122,6 +127,8 @@ export class TestScene extends BasicScene {
     this.scene.fog = new Fog(0x202020, 0.15, 150);
 
     this.stats = new Stats();
+    this.stats.setCount('like', props.preload.likes);
+    this.stats.setCount('dislike', props.preload.dislikes);
 
     const loader = new FBXLoader();
     loader.load(HomePakTV, (object) => {
@@ -133,9 +140,7 @@ export class TestScene extends BasicScene {
         screenSpinAxis: 'y',
       })) as TV;
       this.scene.add(object);
-      this.tvMain.printText(
-        '💀\nЧем контекст выполнения\nотличается от\nлексического окружения?'
-      );
+      this.tvMain.printText(props.preload.question || 'Здесь будет вопрос');
     });
 
     loader.load(HomePakTV, (object) => {
@@ -148,7 +153,7 @@ export class TestScene extends BasicScene {
       })) as TV;
       this.scene.add(object);
       this.tvChat.printText(
-        'izede:\nЗа этим стоит лаборатория'
+        'Здесь будут сообщения из чата'
       );
     });
 
@@ -169,12 +174,18 @@ export class TestScene extends BasicScene {
     this.camera.rotation.set(0.0, 0.21, 0.0);
 
     this.roomSpawner.spawnWall(
-      new Vector2(30, 45),
+      new Vector2(30, 46),
       new Vector2(this.roomSpawner.cellCoordinates.size * 15, this.roomSpawner.cellCoordinates.size),
       true
     );
 
-    this.gasCenter = new Vector3(30.55, -2.0, 50.0);
+    this.roomSpawner.spawnWall(
+      new Vector2(20, 45),
+      new Vector2(this.roomSpawner.cellCoordinates.size, this.roomSpawner.cellCoordinates.size * 15),
+      true
+    );
+
+    this.gasCenter = new Vector3(30.4, -2.0, 50.0);
     const gasParticlesCount = 160;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
@@ -208,7 +219,7 @@ export class TestScene extends BasicScene {
 
     this.likeAudio = new Audio(this.audioListener);
     this.likeAudio.setBuffer(audioStore.getSound('like'));
-    this.likeAudio.setVolume(1.0);
+    this.likeAudio.setVolume(0.2);
 
     this.dislikeAudio = new Audio(this.audioListener);
     this.dislikeAudio.setBuffer(audioStore.getSound('dislike'));
@@ -320,12 +331,18 @@ export class TestScene extends BasicScene {
   }
 
   onGasEnable = () => {
+    if (this.gasEnabled) {
+      return;
+    }
     this.setNextGasAudioIndex();
     this.playAudio(this.gasAudios[this.gasAudioIndex]);
     this.disableEnableGas(true);
   }
 
   onGasDisable = () => {
+    if (!this.gasEnabled) {
+      return;
+    }
     this.gasAudios[this.gasAudioIndex].stop();
     this.disableEnableGas(false);
   }
@@ -365,14 +382,22 @@ export class TestScene extends BasicScene {
     }, 600);
   }
 
-  onLike = () => {
-    this.playAudio(this.likeAudio);
+  checkAdminAction(action: PlayerAction) {
+    return action.payload === 'admin';
+  }
+
+  onLike = (action: PlayerAction) => {
+    if (this.checkAdminAction(action)) {
+      this.playAudio(this.likeAudio);
+    }
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
   }
 
-  onDislike = () => {
-    this.playAudio(this.dislikeAudio);
+  onDislike = (action: PlayerAction) => {
+    if (this.checkAdminAction(action)) {
+      this.playAudio(this.dislikeAudio);
+    }
     this.stats.increaseCount('dislike');
     this.startTvStatsAnimation('👎');
   }
