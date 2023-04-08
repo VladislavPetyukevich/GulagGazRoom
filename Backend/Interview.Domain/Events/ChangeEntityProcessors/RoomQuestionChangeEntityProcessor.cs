@@ -39,17 +39,17 @@ namespace Interview.Domain.Events.ChangeEntityProcessors
         private static IRoomEvent CreateChangeEvent(RoomQuestion current, RoomQuestion original)
         {
             return new RoomEvent<ChangeEventPayload>(
-                current.Room.Id,
+                current.Room!.Id,
                 EventType.ChangeRoomQuestionState,
-                new ChangeEventPayload(current.Question.Id, original.State, current.State));
+                new ChangeEventPayload(current.Question!.Id, original.State!, current.State!));
         }
 
         private static IRoomEvent CreateAddEvent(RoomQuestion entity)
         {
             return new RoomEvent<AddEventPayload>(
-                entity.Room.Id,
+                entity.Room!.Id,
                 EventType.AddRoomQuestion,
-                new AddEventPayload(entity.Question.Id, entity.State));
+                new AddEventPayload(entity.Question!.Id, entity.State!));
         }
 
         public sealed record ChangeEventPayload(Guid QuestionId, RoomQuestionState OldState, RoomQuestionState NewState);

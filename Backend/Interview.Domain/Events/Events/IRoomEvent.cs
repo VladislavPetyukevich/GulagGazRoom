@@ -9,5 +9,5 @@ public interface IRoomEvent
 
 public interface IRoomEvent<out T> : IRoomEvent
 {
-    T Value { get; }
+    T? Value { get; }
 }

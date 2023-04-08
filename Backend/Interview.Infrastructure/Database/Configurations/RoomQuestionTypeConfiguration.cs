@@ -18,7 +18,7 @@ public class RoomQuestionTypeConfiguration : EntityTypeConfigurationBase<RoomQue
             .IsRequired();
 
         builder.Property(roomQuestion => roomQuestion.State)
-            .HasConversion(questionState => questionState.Name, name => RoomQuestionState.FromName(name, false))
+            .HasConversion(questionState => questionState!.Name, name => RoomQuestionState.FromName(name, false))
             .HasMaxLength(10)
             .IsRequired();
     }
