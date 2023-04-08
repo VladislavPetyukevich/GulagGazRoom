@@ -98,6 +98,22 @@ public class RoomController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     public Task<ActionResult<Analytics>> GetAnalytics(Guid id)
     {
-        return _roomService.GetAnalyticsAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(id), HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    [Authorize]
+    [HttpGet("{id:guid}/analytics/summary")]
+    [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    public Task<ActionResult<Analytics>> GetAnalyticsSummary(Guid id)
+    {
+        var user = User.ToUser();
+        if (user == null)
+        {
+            return Task.FromResult<ActionResult<Analytics>>(Unauthorized());
+        }
+
+        var request = new RoomAnalyticsRequest(id, new[] { user.Id });
+        return _roomService.GetAnalyticsAsync(request, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

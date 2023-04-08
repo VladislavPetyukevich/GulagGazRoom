@@ -1,5 +1,6 @@
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
+using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Infrastructure.Database;
@@ -15,13 +16,13 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
     {
     }
 
-    public async Task<Analytics?> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default)
+    public async Task<Analytics?> GetAnalyticsAsync(RoomAnalyticsRequest request, CancellationToken cancellationToken = default)
     {
         var analytics = await Set.AsNoTracking()
             .Include(e => e.Questions)
                 .ThenInclude(e => e.Question)
             .Include(e => e.Participants)
-            .Where(e => e.Id == roomId)
+            .Where(e => e.Id == request.RoomId)
             .Select(e => new Analytics
             {
                 Questions = e.Questions.Select(q => new Analytics.AnalyticsQuestion
@@ -43,14 +44,17 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .Include(e => e.Reaction)
             .Include(e => e.RoomQuestion)
                 .ThenInclude(e => e.Question)
-            .Where(e => e.RoomQuestion.Room.Id == roomId)
+            .Where(e => e.RoomQuestion.Room.Id == request.RoomId)
             .ToListAsync(cancellationToken);
 
         var users = reactions.Select(e => e.Sender.Id).Distinct();
+
         var participants = await Db.RoomParticipants.AsNoTracking()
             .Include(e => e.Room)
             .Include(e => e.User)
-            .Where(e => e.Room.Id == roomId && users.Contains(e.User.Id))
+            .Where(e => e.Room.Id == request.RoomId &&
+                        users.Contains(e.User.Id) &&
+                        (request.SpecificUserIds.Count == 0 || request.SpecificUserIds.Contains(e.User.Id)))
             .ToDictionaryAsync(e => e.User.Id, cancellationToken);
 
         analytics.Reactions = reactions.Select(e => e.Reaction)
@@ -72,6 +76,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             }
 
             analyticsQuestion.Users = questionReaction[analyticsQuestion.Id]
+                .Where(e => request.SpecificUserIds.Count == 0 || request.SpecificUserIds.Contains(e.Sender.Id))
                 .GroupBy(e => e.Sender.Id).Select(e =>
                 {
                     var sender = e.First().Sender;

@@ -204,12 +204,12 @@ public sealed class RoomService
         return ServiceResult.Ok(roomState);
     }
 
-    public async Task<Result<ServiceResult<Analytics>, ServiceError>> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult<Analytics>, ServiceError>> GetAnalyticsAsync(RoomAnalyticsRequest request, CancellationToken cancellationToken = default)
     {
-        var analytics = await _roomRepository.GetAnalyticsAsync(roomId, cancellationToken);
+        var analytics = await _roomRepository.GetAnalyticsAsync(request, cancellationToken);
         if (analytics == null)
         {
-            return ServiceError.NotFound($"Room not found by id {roomId}");
+            return ServiceError.NotFound($"Room not found by id {request.RoomId}");
         }
 
         return ServiceResult.Ok(analytics);
