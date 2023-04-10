@@ -48,6 +48,8 @@ public class ServiceConfigurator
             .AddControllers()
             .AddJsonOptions(options =>
             {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
                 options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoleName, int>());
                 options.JsonSerializerOptions.Converters.Add(new SmartEnumNameConverter<RoomQuestionState, int>());
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
