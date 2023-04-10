@@ -33,7 +33,7 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<IPagedList<QuestionItem>> GetPage([FromQuery] PageRequest request)
     {
-        return _questionService.FindPageAsync(request.PageSize, request.PageNumber, HttpContext.RequestAborted);
+        return _questionService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
     /// <summary>
