@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Interview.Domain;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomQuestionReactions;
@@ -27,8 +28,9 @@ public class QuestionServiceTest
         await appDbContext.SaveChangesAsync();
 
         var questionRepository = new QuestionRepository(appDbContext);
-        var questionArchiveRepository = new QuestionArchiveRepository(appDbContext);
-        var questionService = new QuestionService(questionRepository, questionArchiveRepository);
+        var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
+        var archiveService = new ArchiveService<Question>(questionRepository);
+        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService);
 
         var foundQuestion = await questionService.FindByIdAsync(question.Id);
 
@@ -44,8 +46,9 @@ public class QuestionServiceTest
         await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
 
         var questionRepository = new QuestionRepository(appDbContext);
-        var questionArchiveRepository = new QuestionArchiveRepository(appDbContext);
-        var questionService = new QuestionService(questionRepository, questionArchiveRepository);
+        var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
+        var archiveService = new ArchiveService<Question>(questionRepository);
+        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService);
 
         var foundQuestion = await questionService.FindByIdAsync(Guid.NewGuid());
 
@@ -93,8 +96,9 @@ public class QuestionServiceTest
         await transaction.CommitAsync();
 
         var questionRepository = new QuestionRepository(appDbContext);
-        var questionArchiveRepository = new QuestionArchiveRepository(appDbContext);
-        var questionService = new QuestionService(questionRepository, questionArchiveRepository);
+        var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
+        var archiveService = new ArchiveService<Question>(questionRepository);
+        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService);
 
         var result = await questionService.DeletePermanentlyAsync(question.Id);
 

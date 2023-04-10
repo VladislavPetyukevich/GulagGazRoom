@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
@@ -13,12 +12,18 @@ public class QuestionService
 {
     private readonly IQuestionRepository _questionRepository;
 
-    private readonly IQuestionArchiveRepository _questionArchiveRepository;
+    private readonly IQuestionNonArchiveRepository _questionNonArchiveRepository;
 
-    public QuestionService(IQuestionRepository questionRepository, IQuestionArchiveRepository questionArchiveRepository)
+    private readonly ArchiveService<Question> _archiveService;
+
+    public QuestionService(
+        IQuestionRepository questionRepository,
+        IQuestionNonArchiveRepository questionNonArchiveRepository,
+        ArchiveService<Question> archiveService)
     {
         _questionRepository = questionRepository;
-        _questionArchiveRepository = questionArchiveRepository;
+        _questionNonArchiveRepository = questionNonArchiveRepository;
+        _archiveService = archiveService;
     }
 
     public Task<IPagedList<QuestionItem>> FindPageAsync(
@@ -27,7 +32,7 @@ public class QuestionService
         var mapper =
             new Mapper<Question, QuestionItem>(
                 question => new QuestionItem { Id = question.Id, Value = question.Value });
-        return _questionArchiveRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
+        return _questionNonArchiveRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
     }
 
     public Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
@@ -41,7 +46,8 @@ public class QuestionService
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
 
-        return _questionRepository.GetPageDetailedAsync(isArchiveSpecification, mapper, pageNumber, pageSize, cancellationToken);
+        return _questionRepository
+            .GetPageDetailedAsync(isArchiveSpecification, mapper, pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
@@ -57,7 +63,7 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
         Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default)
     {
-        var entity = await _questionArchiveRepository.FindByIdAsync(id, cancellationToken);
+        var entity = await _questionNonArchiveRepository.FindByIdAsync(id, cancellationToken);
 
         if (entity == null)
         {
@@ -74,7 +80,7 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
-        var question = await _questionArchiveRepository.FindByIdAsync(id, cancellationToken);
+        var question = await _questionNonArchiveRepository.FindByIdAsync(id, cancellationToken);
 
         if (question is null)
         {
@@ -105,42 +111,18 @@ public class QuestionService
         return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
     }
 
-    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
+    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
-        var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
-
-        if (question == null)
-        {
-            return ServiceError.NotFound($"Question not found by id {id}");
-        }
-
-        question.IsArchived = true;
-
-        await _questionRepository.UpdateAsync(question, cancellationToken);
-
-        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
+        return _archiveService.ArchiveAsync(id, cancellationToken)
+            .Map(q => ServiceResult.Ok(new QuestionItem { Id = q.Value.Id, Value = q.Value.Value, }));
     }
 
-    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
+    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
-        var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
-
-        if (question == null)
-        {
-            return ServiceError.NotFound($"Question not found by id {id}");
-        }
-
-        if (!question.IsArchived)
-        {
-            return ServiceError.Error($"The question is not archived");
-        }
-
-        question.IsArchived = false;
-
-        await _questionRepository.UpdateAsync(question, cancellationToken);
-
-        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
+        return _archiveService.UnarchiveAsync(id, cancellationToken)
+            .Map(question =>
+                ServiceResult.Ok(new QuestionItem { Id = question.Value.Id, Value = question.Value.Value, }));
     }
 }

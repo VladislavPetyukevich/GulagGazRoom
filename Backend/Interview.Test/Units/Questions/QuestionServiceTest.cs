@@ -1,3 +1,4 @@
+using Interview.Domain;
 using Interview.Domain.Questions;
 using Interview.Infrastructure.Questions;
 using Moq;
@@ -7,16 +8,19 @@ namespace Interview.Test.Units.Questions;
 public class QuestionServiceTest
 {
     private readonly Mock<IQuestionRepository> _questionRepository;
-    private readonly Mock<IQuestionArchiveRepository> _questionArchiveRepository;
+    private readonly Mock<IQuestionNonArchiveRepository> _questionArchiveRepository;
+    private readonly Mock<ArchiveService<Question>> _archiveService;
     private readonly QuestionService _questionService;
 
     public QuestionServiceTest()
     {
         _questionRepository = new Mock<IQuestionRepository>();
 
-        _questionArchiveRepository = new Mock<IQuestionArchiveRepository>();
+        _questionArchiveRepository = new Mock<IQuestionNonArchiveRepository>();
 
-        _questionService = new QuestionService(_questionRepository.Object, _questionArchiveRepository.Object);
+        _archiveService = new Mock<ArchiveService<Question>>();
+
+        _questionService = new QuestionService(_questionRepository.Object, _questionArchiveRepository.Object, _archiveService.Object);
     }
 
     [Fact(DisplayName = "Searching question by id when question not found")]
