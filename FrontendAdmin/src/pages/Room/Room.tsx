@@ -279,7 +279,7 @@ export const Room: FunctionComponent = () => {
     }
     return (
       <>
-        <Field>
+        <Field className='room-title'>
           <h2>{Captions.Room}: {room?.name}</h2>
           <button
             className="copy-link-button"
