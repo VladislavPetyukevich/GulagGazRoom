@@ -6,5 +6,5 @@ public class QuestionItem
 {
     public Guid Id { get; init; }
 
-    public string Value { get; init; }
+    public string Value { get; init; } = string.Empty;
 }

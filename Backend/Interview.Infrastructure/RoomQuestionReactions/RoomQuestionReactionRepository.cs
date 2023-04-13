@@ -14,5 +14,5 @@ public class RoomQuestionReactionRepository : EfRepository<RoomQuestionReaction>
     protected override IQueryable<RoomQuestionReaction> ApplyIncludes(DbSet<RoomQuestionReaction> set) => Set
         .Include(roomQuestionReaction => roomQuestionReaction.Reaction)
         .Include(roomQuestionReaction => roomQuestionReaction.RoomQuestion)
-            .ThenInclude(roomQuestion => roomQuestion.Room);
+            .ThenInclude(roomQuestion => roomQuestion!.Room);
 }

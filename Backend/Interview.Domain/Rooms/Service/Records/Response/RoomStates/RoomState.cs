@@ -13,8 +13,8 @@ public class RoomState
         ActiveQuestion = room.Questions.Select(q => new RoomStateQuestion
         {
             Id = q.Id,
-            Value = q.Question.Value,
-            State = q.State,
+            Value = q.Question!.Value,
+            State = q.State!,
         }).FirstOrDefault(q => q.State == RoomQuestionState.Active),
     });
 

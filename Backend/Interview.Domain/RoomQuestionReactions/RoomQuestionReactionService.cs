@@ -98,7 +98,7 @@ public class RoomQuestionReactionService
         return ServiceResult.Created(new RoomQuestionReactionDetail
         {
             RoomId = request.RoomId,
-            Question = roomQuestion.Question.Id,
+            Question = roomQuestion.Question!.Id,
             Reaction = reaction.Id,
         });
     }

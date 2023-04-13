@@ -11,9 +11,9 @@ public class RoomQuestion : Entity
     {
     }
 
-    public Room Room { get; set; }
+    public Room? Room { get; set; }
 
-    public Question Question { get; set; }
+    public Question? Question { get; set; }
 
-    public RoomQuestionState State { get; set; }
+    public RoomQuestionState? State { get; set; }
 }

@@ -18,7 +18,7 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
     {
         foreach (var entity in entities.OfType<RoomQuestionReaction>())
         {
-            if (entity.Reaction.Type == ReactionType.Like)
+            if (entity.Reaction!.Type == ReactionType.Like)
             {
                 await _eventDispatcher.WriteAsync(CreateEvent(entity, EventType.ReactionLike), cancellationToken);
             }
@@ -37,8 +37,8 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
     private IRoomEvent CreateEvent(RoomQuestionReaction entity, EventType type)
     {
         return new RoomEvent<RoomEventUserPayload>(
-            entity.RoomQuestion.Room.Id,
+            entity.RoomQuestion!.Room!.Id,
             type,
-            new RoomEventUserPayload(entity.Sender.Id));
+            new RoomEventUserPayload(entity.Sender!.Id));
     }
 }

@@ -5,6 +5,6 @@ namespace Interview.Domain.RoomQuestionReactions.Mappers
 {
     public class ReactionTypeOnlyMapper
     {
-        public static readonly Mapper<RoomQuestionReaction, ReactionType> Instance = new(reaction => reaction.Reaction.Type);
+        public static readonly Mapper<RoomQuestionReaction, ReactionType> Instance = new(reaction => reaction.Reaction!.Type);
     }
 }

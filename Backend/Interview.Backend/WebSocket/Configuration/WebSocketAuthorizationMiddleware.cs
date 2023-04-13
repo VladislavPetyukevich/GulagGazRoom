@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 namespace Interview.Backend.WebSocket.Configuration;
@@ -36,7 +37,7 @@ public class WebSocketAuthorizationMiddleware
         }
 
         context.Request.Headers.Cookie = $"{_options.CookieName}={value}";
-        context.Request.Cookies = new CustomRequestCookieCollection { { $"{_options.CookieName}", value } };
+        context.Request.Cookies = new CustomRequestCookieCollection { { $"{_options.CookieName}", value! } };
 
         return _next(context);
     }
@@ -51,7 +52,7 @@ public class WebSocketAuthorizationMiddleware
 
         public bool ContainsKey(string key) => _store.ContainsKey(key);
 
-        public bool TryGetValue(string key, out string? value) => _store.TryGetValue(key, out value);
+        public bool TryGetValue(string key, [MaybeNullWhen(false)] out string value) => _store.TryGetValue(key, out value);
 
         public ICollection<string> Keys => this.Select(e => e.Key).ToList();
 
