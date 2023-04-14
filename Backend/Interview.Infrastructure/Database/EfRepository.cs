@@ -1,4 +1,3 @@
-using Interview.Domain;
 using Interview.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 using NSpecifications;
@@ -20,7 +19,7 @@ public abstract class EfRepository<T> : IRepository<T>
 
     public Task<bool> HasAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
     {
-        return Set.AsNoTracking().AnyAsync(specification.Expression, cancellationToken);
+        return ApplyNonDetail(Set).AsNoTracking().AnyAsync(specification.Expression, cancellationToken);
     }
 
     public Task CreateAsync(T entity, CancellationToken cancellationToken = default)
@@ -31,12 +30,12 @@ public abstract class EfRepository<T> : IRepository<T>
 
     public Task<List<T>> FindAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
     {
-        return Set.Where(specification.Expression).ToListAsync(cancellationToken);
+        return ApplyNonDetail(Set).Where(specification.Expression).ToListAsync(cancellationToken);
     }
 
     public Task<List<TRes>> FindAsync<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
     {
-        return Set.Where(specification.Expression).Select(mapper.Expression).ToListAsync(cancellationToken);
+        return ApplyNonDetail(Set).Where(specification.Expression).Select(mapper.Expression).ToListAsync(cancellationToken);
     }
 
     public Task<List<T>> FindDetailed(ISpecification<T> specification, CancellationToken cancellationToken = default)
@@ -51,12 +50,12 @@ public abstract class EfRepository<T> : IRepository<T>
 
     public Task<T?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return Set.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        return ApplyNonDetail(Set).FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
     public Task<TRes?> FindByIdAsync<TRes>(Guid id, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
     {
-        return Set.Where(e => e.Id == id).Select(mapper.Expression).FirstOrDefaultAsync(cancellationToken);
+        return ApplyNonDetail(Set).Where(e => e.Id == id).Select(mapper.Expression).FirstOrDefaultAsync(cancellationToken);
     }
 
     public Task<T?> FindByIdDetailedAsync(Guid id, CancellationToken cancellationToken = default)
@@ -71,7 +70,7 @@ public abstract class EfRepository<T> : IRepository<T>
 
     public Task<List<T>> FindByIdsAsync(ICollection<Guid> id, CancellationToken cancellationToken = default)
     {
-        return Set.Where(e => id.Contains(e.Id)).ToListAsync(cancellationToken);
+        return ApplyNonDetail(Set).Where(e => id.Contains(e.Id)).ToListAsync(cancellationToken);
     }
 
     public Task<List<T>> FindByIdsDetailedAsync(ICollection<Guid> id, CancellationToken cancellationToken = default)
@@ -81,7 +80,7 @@ public abstract class EfRepository<T> : IRepository<T>
 
     public Task<List<TRes>> FindByIdsAsync<TRes>(ICollection<Guid> id, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
     {
-        return Set.Where(e => id.Contains(e.Id)).Select(mapper.Expression).ToListAsync(cancellationToken);
+        return ApplyNonDetail(Set).Where(e => id.Contains(e.Id)).Select(mapper.Expression).ToListAsync(cancellationToken);
     }
 
     public Task<List<TRes>> FindByIdsDetailedAsync<TRes>(ICollection<Guid> id, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default)
@@ -102,11 +101,11 @@ public abstract class EfRepository<T> : IRepository<T>
     }
 
     public Task<bool> IsExistsWithIdAsync(Guid id, CancellationToken cancellationToken = default) =>
-        Set.AnyAsync(entity => entity.Id == id, cancellationToken);
+        ApplyNonDetail(Set).AnyAsync(entity => entity.Id == id, cancellationToken);
 
     public Task<IPagedList<T>> GetPageAsync(ISpecification<T> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        return Set
+        return ApplyNonDetail(Set)
             .OrderBy(entity => entity.Id)
             .Where(specification.Expression)
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
@@ -126,7 +125,7 @@ public abstract class EfRepository<T> : IRepository<T>
 
     public Task<IPagedList<T>> GetPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        return Set.OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+        return ApplyNonDetail(Set).OrderBy(entity => entity.Id).ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public Task<IPagedList<T>> GetPageDetailedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
@@ -143,7 +142,7 @@ public abstract class EfRepository<T> : IRepository<T>
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        return Set
+        return ApplyNonDetail(Set)
             .Where(specification.Expression)
             .OrderBy(entity => entity.Id)
             .Select(mapper.Expression)
@@ -170,7 +169,7 @@ public abstract class EfRepository<T> : IRepository<T>
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        return Set
+        return ApplyNonDetail(Set)
             .OrderBy(entity => entity.Id)
             .Select(mapper.Expression)
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
@@ -188,5 +187,7 @@ public abstract class EfRepository<T> : IRepository<T>
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
-    protected abstract IQueryable<T> ApplyIncludes(DbSet<T> set);
+    protected virtual IQueryable<T> ApplyIncludes(DbSet<T> set) => set;
+
+    protected virtual IQueryable<T> ApplyNonDetail(DbSet<T> set) => set;
 }

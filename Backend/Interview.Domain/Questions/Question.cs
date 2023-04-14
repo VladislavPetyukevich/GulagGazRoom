@@ -2,7 +2,7 @@ using Interview.Domain.Repository;
 
 namespace Interview.Domain.Questions;
 
-public class Question : Entity
+public class Question : ArchiveEntity
 {
     public Question(string value)
     {
