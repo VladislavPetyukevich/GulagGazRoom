@@ -1,6 +1,7 @@
+using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
-using Interview.Domain.Rooms.Service.Records.Response;
+using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -15,53 +16,17 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
     {
     }
 
-    public async Task<Analytics?> GetAnalyticsAsync(Guid roomId, CancellationToken cancellationToken = default)
+    public async Task<Analytics?> GetAnalyticsAsync(RoomAnalyticsRequest request, CancellationToken cancellationToken = default)
     {
-        var analytics = await Set.AsNoTracking()
-            .Include(e => e.Questions)
-                .ThenInclude(e => e.Question)
-            .Include(e => e.Participants)
-            .Where(e => e.Id == roomId)
-            .Select(e => new Analytics
-            {
-                Questions = e.Questions.Select(q => new Analytics.AnalyticsQuestion
-                {
-                    Id = q.Question.Id,
-                    Status = q.State.Name,
-                    Value = q.Question.Value,
-                }).ToList(),
-            })
-            .FirstOrDefaultAsync(cancellationToken);
-
+        var analytics = await GetAnalyticsCoreAsync(request.RoomId, cancellationToken);
         if (analytics == null)
         {
             return null;
         }
 
-        var reactions = await Db.RoomQuestionReactions.AsNoTracking()
-            .Include(e => e.Sender)
-            .Include(e => e.Reaction)
-            .Include(e => e.RoomQuestion)
-                .ThenInclude(e => e.Question)
-            .Where(e => e.RoomQuestion.Room.Id == roomId)
-            .ToListAsync(cancellationToken);
+        var reactions = await GetRoomQuestionReactionAsync(request.RoomId, cancellationToken);
 
-        var users = reactions.Select(e => e.Sender.Id).Distinct();
-        var participants = await Db.RoomParticipants.AsNoTracking()
-            .Include(e => e.Room)
-            .Include(e => e.User)
-            .Where(e => e.Room.Id == roomId && users.Contains(e.User.Id))
-            .ToDictionaryAsync(e => e.User.Id, cancellationToken);
-
-        analytics.Reactions = reactions.Select(e => e.Reaction)
-            .GroupBy(e => (e.Id, e.Type))
-            .Select(e => new Analytics.AnalyticsReactionSummary
-            {
-                Id = e.Key.Id,
-                Count = e.Count(),
-                Type = e.Key.Type.Name,
-            })
-            .ToList();
+        analytics.Reactions = GetReactions(reactions);
 
         var questionReaction = reactions.ToLookup(e => e.RoomQuestion.Question.Id);
         foreach (var analyticsQuestion in analytics.Questions!)
@@ -71,7 +36,69 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 continue;
             }
 
-            analyticsQuestion.Users = questionReaction[analyticsQuestion.Id]
+            analyticsQuestion.Users = await GetUsersAsync(questionReaction[analyticsQuestion.Id]);
+        }
+
+        return analytics;
+
+        Task<List<RoomQuestionReaction>> GetRoomQuestionReactionAsync(Guid roomId, CancellationToken ct)
+        {
+            return Db.RoomQuestionReactions.AsNoTracking()
+                .Include(e => e.Sender)
+                .Include(e => e.Reaction)
+                .Include(e => e.RoomQuestion)
+                    .ThenInclude(e => e.Question)
+                .Where(e => e.RoomQuestion.Room.Id == roomId)
+                .ToListAsync(ct);
+        }
+
+        Task<Analytics?> GetAnalyticsCoreAsync(Guid roomId, CancellationToken ct)
+        {
+            return Set.AsNoTracking()
+                .Include(e => e.Questions)
+                .ThenInclude(e => e.Question)
+                .Include(e => e.Participants)
+                .Where(e => e.Id == roomId)
+                .Select(e => new Analytics
+                {
+                    Questions = e.Questions.Select(q => new Analytics.AnalyticsQuestion
+                    {
+                        Id = q.Question.Id,
+                        Status = q.State.Name,
+                        Value = q.Question.Value,
+                    }).ToList(),
+                })
+                .FirstOrDefaultAsync(ct);
+        }
+
+        List<Analytics.AnalyticsReactionSummary> GetReactions(List<RoomQuestionReaction> roomQuestionReactions)
+        {
+            return roomQuestionReactions
+                .Select(e => e.Reaction)
+                .GroupBy(e => (e.Id, e.Type))
+                .Select(e => new Analytics.AnalyticsReactionSummary
+                {
+                    Id = e.Key.Id,
+                    Count = e.Count(),
+                    Type = e.Key.Type.Name,
+                })
+                .ToList();
+        }
+
+        async Task<List<Analytics.AnalyticsUser>> GetUsersAsync(IEnumerable<RoomQuestionReaction> roomReactions)
+        {
+            var users = reactions.Select(e => e.Sender.Id).Distinct();
+
+            var participants = await Db.RoomParticipants.AsNoTracking()
+                .Include(e => e.Room)
+                .Include(e => e.User)
+                .Where(e => e.Room.Id == request.RoomId &&
+                            users.Contains(e.User.Id) &&
+                            (request.SpecificUserIds.Count == 0 || request.SpecificUserIds.Contains(e.User.Id)))
+                .ToDictionaryAsync(e => e.User.Id, cancellationToken);
+
+            return roomReactions
+                .Where(e => request.SpecificUserIds.Count == 0 || request.SpecificUserIds.Contains(e.Sender.Id))
                 .GroupBy(e => e.Sender.Id).Select(e =>
                 {
                     var sender = e.First().Sender;
@@ -82,24 +109,32 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                         Avatar = string.Empty,
                         Nickname = sender.Nickname,
                         ParticipantType = participant?.Type.Name ?? string.Empty,
-                        Reactions = e.Select(roomQuestionReaction => new Analytics.AnalyticsReaction
-                        {
-                            Id = roomQuestionReaction.Reaction.Id,
-                            Type = roomQuestionReaction.Reaction.Type.Name,
-                            CreatedAt = roomQuestionReaction.CreateDate,
-                        }).ToList(),
-                        ReactionsSummary = e.GroupBy(roomQuestionReaction => (roomQuestionReaction.Reaction.Id, roomQuestionReaction.Reaction.Type))
-                            .Select(roomQuestionReactions => new Analytics.AnalyticsReactionSummary
-                            {
-                                Id = roomQuestionReactions.Key.Id,
-                                Count = roomQuestionReactions.Count(),
-                                Type = roomQuestionReactions.Key.Type.Name,
-                            }).ToList(),
+                        Reactions = ToAnalyticsReaction(e),
+                        ReactionsSummary = ToAnalyticsReactionSummary(e),
                     };
                 }).ToList();
         }
 
-        return analytics;
+        static List<Analytics.AnalyticsReaction> ToAnalyticsReaction(IGrouping<Guid, RoomQuestionReaction> e)
+        {
+            return e.Select(roomQuestionReaction => new Analytics.AnalyticsReaction
+            {
+                Id = roomQuestionReaction.Reaction.Id,
+                Type = roomQuestionReaction.Reaction.Type.Name,
+                CreatedAt = roomQuestionReaction.CreateDate,
+            }).ToList();
+        }
+
+        static List<Analytics.AnalyticsReactionSummary> ToAnalyticsReactionSummary(IGrouping<Guid, RoomQuestionReaction> e)
+        {
+            return e.GroupBy(roomQuestionReaction => (roomQuestionReaction.Reaction.Id, roomQuestionReaction.Reaction.Type))
+                .Select(roomQuestionReactions => new Analytics.AnalyticsReactionSummary
+                {
+                    Id = roomQuestionReactions.Key.Id,
+                    Count = roomQuestionReactions.Count(),
+                    Type = roomQuestionReactions.Key.Type.Name,
+                }).ToList();
+        }
     }
 
     public Task<bool> HasUserAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)
