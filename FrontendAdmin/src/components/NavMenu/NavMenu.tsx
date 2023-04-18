@@ -1,8 +1,7 @@
 import React, { FunctionComponent, useContext } from 'react';
-import { Link, useLocation, matchPath } from 'react-router-dom';
+import { NavLink, useLocation, matchPath } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
-import { Field } from '../FieldsBlock/Field';
 import { Captions, pathnames } from '../../constants';
 
 import './NavMenu.css';
@@ -13,10 +12,14 @@ interface MenuItem {
   name: string;
 }
 
-const createMenuItem = (item: MenuItem, isActive: boolean) => (
-  <Field key={item.path} className={isActive ? 'active' : ''}>
-    <Link to={item.path}>{item.name}</Link>
-  </Field>
+const createMenuItem = (item: MenuItem, isActive: boolean) => (  
+  <NavLink
+    key={item.path}
+    to={item.path}
+    className="field-wrap"
+  >
+    {item.name}
+  </NavLink>
 );
 
 export const NavMenu: FunctionComponent = () => {
