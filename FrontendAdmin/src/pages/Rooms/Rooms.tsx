@@ -55,6 +55,9 @@ export const Rooms: FunctionComponent = () => {
               {Captions.EditParticipants}
             </Link>
           )}
+          <div>
+            <Link to={pathnames.roomAnalyticsSummary.replace(':id', room.id)}>roomAnalyticsSummary</Link>
+          </div>
         </Field>
       </li>
     );

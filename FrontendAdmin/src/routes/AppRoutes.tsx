@@ -13,6 +13,7 @@ import { RoomParticipants } from '../pages/RoomParticipants/RoomParticipants';
 import { ProtectedRoute } from './ProtectedRoute';
 import { User } from '../types/user';
 import { Terms } from '../pages/Terms/Terms';
+import { RoomAnayticsSummary } from '../pages/RoomAnayticsSummary/RoomAnayticsSummary';
 
 interface AppRoutesProps {
   user: User | null;
@@ -37,6 +38,13 @@ export const AppRoutes: FunctionComponent<AppRoutesProps> = ({
         element={
           <ProtectedRoute allowed={authenticated}>
             <RoomParticipants />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.roomAnalyticsSummary}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <RoomAnayticsSummary />
           </ProtectedRoute>
         }
       />

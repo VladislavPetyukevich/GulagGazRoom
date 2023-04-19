@@ -4,6 +4,7 @@ export const pathnames = {
   roomsCreate: '/rooms/create',
   roomsParticipants: '/rooms/participants/:id',
   room: '/rooms/:id',
+  roomAnalyticsSummary: '/rooms/:id/analytics/summary',
   questions: '/questions',
   questionsCreate: '/questions/create',
   session: '/session',
