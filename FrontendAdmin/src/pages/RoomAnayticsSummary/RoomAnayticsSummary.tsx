@@ -25,6 +25,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   const { apiMethodState, fetchData } = useApiMethod<AnalyticsSummary>();
   const { data, process: { loading, error } } = apiMethodState;
   const [flatQuestions, setFlatQuestions] = useState<FlatQuestion[]>([]);
+  const displayedReactions = ['Like', 'Dislike'];
 
   useEffect(() => {
     if (!data?.questions) {
@@ -86,16 +87,29 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
       </Field>
       <Field>
         <div>Questions:</div>
-        {flatQuestions.map(question => (
-          <div key={question.id}>
-            <span>{question.value}&emsp;</span>
-            {question.reactions.map(reaction => (
-              <span key={`${question.id}${reaction.type}`}>
-                {reaction.type}: {reaction.count}&emsp;
-              </span>
+        <table>
+          <thead>
+            <tr>
+              <th>Question</th>
+              {displayedReactions.map(reaction => (<th key={reaction}>{reaction}</th>))}
+            </tr>
+          </thead>
+          <tbody>
+            {flatQuestions.map(question => (
+              <tr key={question.id}>
+                <td>{question.value}</td>
+                {displayedReactions.map(displayedReaction =>
+                  question.reactions
+                    .filter(reaction => reaction.type === displayedReaction)
+                    .map(reaction => (
+                      <td key={`${question.id}${reaction.type}`}>
+                        {reaction.count}
+                      </td>
+                    )))}
+              </tr>
             ))}
-          </div>
-        ))}
+          </tbody>
+        </table>
       </Field>
     </MainContentWrapper>
   );
