@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
-import { pathnames } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 import { Field } from '../../components/FieldsBlock/Field';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { roomsApiDeclaration } from '../../apiDeclarations';
@@ -26,6 +26,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   const { data, process: { loading, error } } = apiMethodState;
   const [flatQuestions, setFlatQuestions] = useState<FlatQuestion[]>([]);
   const displayedReactions = ['Like', 'Dislike'];
+  const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
 
   useEffect(() => {
     if (!data?.questions) {
@@ -86,12 +87,14 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         ))}
       </Field>
       <Field>
-        <div>Questions:</div>
+        <div>{Captions.QuestionsSummary}:</div>
         <table>
           <thead>
             <tr>
-              <th>Question</th>
-              {displayedReactions.map(reaction => (<th key={reaction}>{reaction}</th>))}
+              <th>{Captions.Question}</th>
+              {displayedReactions.map((reaction, reactionIndex) => (
+                <th key={reaction}>{displayedReactionsView[reactionIndex]}</th>
+              ))}
             </tr>
           </thead>
           <tbody>

@@ -49,4 +49,8 @@ export const enum Captions {
   TermsOfUsage = 'Условия использования',
   Login = 'Представиться',
   WhoAreYou = 'Ты кто?',
+  LikeTable = '👍',
+  DislikeTable = '👎',
+  Question = 'Вопрос',
+  QuestionsSummary = 'Отчётики на вопросики',
 };
