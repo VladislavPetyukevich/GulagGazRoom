@@ -71,3 +71,15 @@ table th {
 table td {
   background-color: var(--form-bg);
 }
+
+h2 {
+  margin: 0px;
+  font-size: 1.25rem;
+}
+
+h3 {
+  margin: 0px;
+  margin-bottom: 5px;
+  font-size: var(--menu-font-size);
+  line-height: var(--menu-line-height) !important;
+}
