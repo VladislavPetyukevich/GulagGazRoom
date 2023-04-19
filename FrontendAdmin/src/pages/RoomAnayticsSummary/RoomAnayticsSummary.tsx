@@ -27,6 +27,15 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   const [flatQuestions, setFlatQuestions] = useState<FlatQuestion[]>([]);
   const displayedReactions = ['Like', 'Dislike'];
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
+  const [totalMark, setTotalMark] = useState('Mark not calculated');
+  const [totalMarkError, setTotalMarkError] = useState('');
+
+  useEffect(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    fetchData(roomsApiDeclaration.analyticsSummary(id));
+  }, [id, fetchData]);
 
   useEffect(() => {
     if (!data?.questions) {
@@ -50,11 +59,31 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   }, [data]);
 
   useEffect(() => {
-    if (!id) {
-      throw new Error('Room id not found');
+    if (!data?.reactions) {
+      return;
     }
-    fetchData(roomsApiDeclaration.analyticsSummary(id));
-  }, [id, fetchData]);
+    const getReactionByType = (reactionType: string) => data.reactions.find(reaction => reaction.type === reactionType);
+    const getMarkWithComment = (mark: number) => {
+      const markInt = ~~mark;
+      const markFirstDecimal = +mark.toString().split('.')[1][0];
+      if (markFirstDecimal >= 8) {
+        return `${markInt + 1} с минусом.`;
+      }
+      if (markFirstDecimal > 5) {
+        return `${markInt} с плюсом.`;
+      }
+      return `Чисто ${markInt} без плюса и минуса, без крестика и нолика.`;
+    };
+    const likeReaction = getReactionByType('Like');
+    const dislikeReaction = getReactionByType('Dislike');
+    if (!likeReaction || !dislikeReaction) {
+      setTotalMarkError('Failed to calculate total mark');
+      return;
+    }
+    const totalCount = likeReaction.count + dislikeReaction.count;
+    const mark = likeReaction.count / totalCount * 10 / 2;
+    setTotalMark(getMarkWithComment(mark));
+  }, [data]);
 
   if (loading) {
     return (
@@ -78,13 +107,8 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         linkFloat="left"
       />
       <Field>
-        RoomAnayticsSummary
-      </Field>
-      <Field>
-        <div>Summary:</div>
-        {data?.reactions.map(reaction => (
-          <div key={reaction.id}>{reaction.type}: {reaction.count}</div>
-        ))}
+        <h3>Чёткость ответа:</h3>
+        <div>{totalMarkError ? totalMarkError : totalMark}</div>
       </Field>
       <Field>
         <h3>{Captions.QuestionsSummary}:</h3>
