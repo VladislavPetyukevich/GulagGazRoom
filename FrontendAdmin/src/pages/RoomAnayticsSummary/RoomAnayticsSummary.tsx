@@ -87,7 +87,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         ))}
       </Field>
       <Field>
-        <div>{Captions.QuestionsSummary}:</div>
+        <h3>{Captions.QuestionsSummary}:</h3>
         <table>
           <thead>
             <tr>
