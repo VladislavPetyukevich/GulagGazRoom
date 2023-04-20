@@ -91,7 +91,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   return (
     <MainContentWrapper className="room-anaytics-summary">
       <HeaderWithLink
-        title="RoomAnayticsSummary"
+        title="Официальный отчет заседания"
         linkVisible={true}
         path={pathnames.rooms}
         linkCaption="<"
