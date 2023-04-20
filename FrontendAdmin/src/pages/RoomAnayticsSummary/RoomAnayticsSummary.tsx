@@ -7,6 +7,7 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { roomsApiDeclaration } from '../../apiDeclarations';
 import { AnalyticsSummary } from '../../types/analytics';
+import { SovietMark } from '../../components/SovietMark/SovietMark';
 
 interface FlatQuestionReaction {
   type: string;
@@ -27,7 +28,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   const [flatQuestions, setFlatQuestions] = useState<FlatQuestion[]>([]);
   const displayedReactions = ['Like', 'Dislike'];
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
-  const [totalMark, setTotalMark] = useState('Mark not calculated');
+  const [totalLikesDislikes, setTotalLikesDislikes] = useState({ likes: 0, dislikes: 0 });
   const [totalMarkError, setTotalMarkError] = useState('');
 
   useEffect(() => {
@@ -63,26 +64,16 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
       return;
     }
     const getReactionByType = (reactionType: string) => data.reactions.find(reaction => reaction.type === reactionType);
-    const getMarkWithComment = (mark: number) => {
-      const markInt = ~~mark;
-      const markFirstDecimal = +mark.toString().split('.')[1][0];
-      if (markFirstDecimal >= 8) {
-        return `${markInt + 1} с минусом.`;
-      }
-      if (markFirstDecimal > 5) {
-        return `${markInt} с плюсом.`;
-      }
-      return `Чисто ${markInt} без плюса и минуса, без крестика и нолика.`;
-    };
     const likeReaction = getReactionByType('Like');
     const dislikeReaction = getReactionByType('Dislike');
     if (!likeReaction || !dislikeReaction) {
       setTotalMarkError('Failed to calculate total mark');
       return;
     }
-    const totalCount = likeReaction.count + dislikeReaction.count;
-    const mark = likeReaction.count / totalCount * 10 / 2;
-    setTotalMark(getMarkWithComment(mark));
+    setTotalLikesDislikes({
+      likes: likeReaction.count,
+      dislikes: likeReaction.count,
+    });
   }, [data]);
 
   if (loading) {
@@ -108,7 +99,9 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
       />
       <Field>
         <h3>Чёткость ответа:</h3>
-        <div>{totalMarkError ? totalMarkError : totalMark}</div>
+        <div>
+          {totalMarkError ? totalMarkError : (<SovietMark {...totalLikesDislikes} />)}
+        </div>
       </Field>
       <Field>
         <h3>{Captions.QuestionsSummary}:</h3>
