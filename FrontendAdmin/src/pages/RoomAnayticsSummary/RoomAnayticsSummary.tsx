@@ -7,6 +7,7 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { roomsApiDeclaration } from '../../apiDeclarations';
 import { AnalyticsSummary } from '../../types/analytics';
+import { Room as RoomType } from '../../types/room';
 import { SovietMark } from '../../components/SovietMark/SovietMark';
 
 interface FlatQuestionReaction {
@@ -25,6 +26,16 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   let { id } = useParams();
   const { apiMethodState, fetchData } = useApiMethod<AnalyticsSummary>();
   const { data, process: { loading, error } } = apiMethodState;
+
+  const {
+    apiMethodState: roomApiMethodState,
+    fetchData: fetchRoom,
+  } = useApiMethod<RoomType>();
+  const {
+    process: { loading: roomLoading, error: roomError },
+    data: room,
+  } = roomApiMethodState;
+
   const [flatQuestions, setFlatQuestions] = useState<FlatQuestion[]>([]);
   const displayedReactions = ['Like', 'Dislike'];
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
@@ -36,7 +47,8 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
       throw new Error('Room id not found');
     }
     fetchData(roomsApiDeclaration.analyticsSummary(id));
-  }, [id, fetchData]);
+    fetchRoom(roomsApiDeclaration.getById(id));
+  }, [id, fetchData, fetchRoom]);
 
   useEffect(() => {
     if (!data?.questions) {
@@ -76,13 +88,13 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     });
   }, [data]);
 
-  if (loading) {
+  if (loading || roomLoading) {
     return (
       <div>Loading...</div>
     );
   }
 
-  if (error) {
+  if (error || roomError) {
     return (
       <div>Error: {error}</div>
     );
@@ -97,6 +109,9 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         linkCaption="<"
         linkFloat="left"
       />
+      <Field>
+        <h3>{room?.name}</h3>
+      </Field>
       <Field>
         <h3>Чёткость ответа:</h3>
         <div>
