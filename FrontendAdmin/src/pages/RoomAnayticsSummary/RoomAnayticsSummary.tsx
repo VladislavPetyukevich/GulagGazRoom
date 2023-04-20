@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { Fragment, FunctionComponent, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
@@ -10,17 +10,7 @@ import { AnalyticsSummary } from '../../types/analytics';
 import { Room as RoomType } from '../../types/room';
 import { SovietMark } from '../../components/SovietMark/SovietMark';
 
-interface FlatQuestionReaction {
-  type: string;
-  count: number;
-}
-
-interface FlatQuestion {
-  id: string;
-  value: string;
-  status: string;
-  reactions: FlatQuestionReaction[];
-}
+import './RoomAnayticsSummary.css';
 
 export const RoomAnayticsSummary: FunctionComponent = () => {
   let { id } = useParams();
@@ -36,7 +26,6 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     data: room,
   } = roomApiMethodState;
 
-  const [flatQuestions, setFlatQuestions] = useState<FlatQuestion[]>([]);
   const displayedReactions = ['Like', 'Dislike'];
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
   const [totalLikesDislikes, setTotalLikesDislikes] = useState({ likes: 0, dislikes: 0 });
@@ -49,27 +38,6 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     fetchData(roomsApiDeclaration.analyticsSummary(id));
     fetchRoom(roomsApiDeclaration.getById(id));
   }, [id, fetchData, fetchRoom]);
-
-  useEffect(() => {
-    if (!data?.questions) {
-      return;
-    }
-    const newFlatQuestions = data.questions.reduce((acc: FlatQuestion[], question) => {
-      const questionReactions = new Map<string, number>();
-      question.users.forEach(questionUser => {
-        questionUser.reactionsSummary.forEach(userReactionsSummary => {
-          const prevCount = questionReactions.get(userReactionsSummary.type) || 0;
-          const newCount = prevCount + userReactionsSummary.count;
-          questionReactions.set(userReactionsSummary.type, newCount);
-        });
-      });
-      const reactions = Array.from(questionReactions.entries()).map(
-        questionReaction => ({ type: questionReaction[0], count: questionReaction[1] })
-      );
-      return [...acc, { ...question, reactions }];
-    }, []);
-    setFlatQuestions(newFlatQuestions);
-  }, [data]);
 
   useEffect(() => {
     if (!data?.reactions) {
@@ -124,24 +92,34 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
           <thead>
             <tr>
               <th>{Captions.Question}</th>
-              {displayedReactions.map((reaction, reactionIndex) => (
-                <th key={reaction}>{displayedReactionsView[reactionIndex]}</th>
-              ))}
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {flatQuestions.map(question => (
-              <tr key={question.id}>
-                <td>{question.value}</td>
-                {displayedReactions.map(displayedReaction =>
-                  question.reactions
-                    .filter(reaction => reaction.type === displayedReaction)
-                    .map(reaction => (
-                      <td key={`${question.id}${reaction.type}`}>
-                        {reaction.count}
+            {data?.questions.map(question => (
+              <Fragment key={question.id}>
+                <tr>
+                  <td className="question-cell">
+                    {question.value}
+                  </td>
+                  {displayedReactions.map((reaction, reactionIndex) => (
+                    <td key={reaction}>{displayedReactionsView[reactionIndex]}</td>
+                  ))}
+                </tr>
+                {question.users && question.users.map(user => (
+                  <tr key={user.id} className="user-row">
+                    <td>{user.nickname}</td>
+                    {displayedReactions.map(displayedReaction => (
+                      <td key={displayedReaction}>
+                        {user.reactionsSummary.find(
+                          reactionSummary => reactionSummary.type === displayedReaction
+                        )?.count || 0}
                       </td>
-                    )))}
-              </tr>
+                    ))}
+                  </tr>
+                ))}
+              </Fragment>
             ))}
           </tbody>
         </table>

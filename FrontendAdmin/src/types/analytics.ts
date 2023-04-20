@@ -20,7 +20,7 @@ export interface AnalyticsQuestionsUser extends User {
 
 export interface AnalyticsQuestions extends Question {
   status: string;
-  users: AnalyticsQuestionsUser[];
+  users: AnalyticsQuestionsUser[] | null;
 }
 
 interface AnalyticsReaction {
