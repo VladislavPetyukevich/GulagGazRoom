@@ -79,7 +79,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     const likeReaction = getReactionByType('Like');
     const dislikeReaction = getReactionByType('Dislike');
     if (!likeReaction || !dislikeReaction) {
-      setTotalMarkError('Failed to calculate total mark');
+      setTotalMarkError(Captions.FailedToCalculateMark);
       return;
     }
     setTotalLikesDislikes({
@@ -103,7 +103,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   return (
     <MainContentWrapper className="room-anaytics-summary">
       <HeaderWithLink
-        title="Официальный отчет заседания"
+        title={Captions.RoomAnayticsSummary}
         linkVisible={true}
         path={pathnames.rooms}
         linkCaption="<"
