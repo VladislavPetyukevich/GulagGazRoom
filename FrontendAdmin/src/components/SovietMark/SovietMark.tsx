@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
+import { Captions } from '../../constants';
 
 interface SovietMarkProps {
   likes: number;
@@ -9,8 +10,8 @@ export const SovietMark: FunctionComponent<SovietMarkProps> = ({
   likes,
   dislikes,
 }) => {
-  const [markWithComment, setMarkWithComment] = useState('Mark not calculated');
-  const [markPostfix, setMarkPostfix] = useState('Mark not calculated');
+  const [markWithComment, setMarkWithComment] = useState<string>(Captions.MarkNotCalculated);
+  const [markPostfix, setMarkPostfix] = useState<string>(Captions.MarkNotCalculated);
 
   useEffect(() => {
     const getMarkWithComment = (mark: number) => {
@@ -18,22 +19,22 @@ export const SovietMark: FunctionComponent<SovietMarkProps> = ({
       const markParts = mark.toString().split('.');
       const markFirstDecimal = markParts.length < 2 ? 0 : +markParts[1][0];
       if (markFirstDecimal >= 8) {
-        return `${markInt + 1} с минусом.`;
+        return `${markInt + 1} ${Captions.MarkWithMinus}.`;
       }
       if (markFirstDecimal > 5) {
-        return `${markInt} с плюсом.`;
+        return `${markInt} ${Captions.MarkWithPlus}.`;
       }
-      return `Чисто ${markInt} без плюса и минуса, без крестика и без нолика.`;
+      return `${Captions.MarkAveragePrefix} ${markInt} ${Captions.MarkAverage}.`;
     };
 
     const getMarkPostfix = (mark: number) => {
       if (mark > 4) {
-        return 'Ну ты и даёшь, братишка.';
+        return Captions.MarkPostfixCool;
       }
       if (mark >= 3) {
-        return 'То густо, то пусто. Продолжай, брат.';
+        return Captions.MarkPostfixAverage;
       }
-      return 'Надо тренироваться, брат.';
+      return Captions.MarkPostfixBad;
     };
 
     const totalCount = likes + dislikes;
@@ -47,7 +48,7 @@ export const SovietMark: FunctionComponent<SovietMarkProps> = ({
   return (
     <>
       <div>{markWithComment}</div>
-      <div>Чтож сказать. {markPostfix}</div>
+      <div>{Captions.MarkSmmary}. {markPostfix}</div>
     </>
   );
 };

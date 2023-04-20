@@ -55,4 +55,13 @@ export const enum Captions {
   QuestionsSummary = 'Отчётики на вопросики',
   FailedToCalculateMark = 'Ошибка при подсчёте оценки',
   RoomAnayticsSummary = 'Официальный отчет заседания',
+  MarkNotCalculated = 'Оценка не рассчитана',
+  MarkWithPlus = 'с плюсом',
+  MarkWithMinus = 'с минусом',
+  MarkAveragePrefix = 'Чисто',
+  MarkAverage = 'без плюса и минуса, без крестика и без нолика',
+  MarkPostfixCool = 'Ну ты и даёшь, братишка.',
+  MarkPostfixAverage = 'То густо, то пусто. Продолжай, брат.',
+  MarkPostfixBad = 'Надо тренироваться, брат.',
+  MarkSmmary = 'Чтож сказать',
 };
