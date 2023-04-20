@@ -1,6 +1,8 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { Captions } from '../../constants';
 
+import './SovietMark.css';
+
 interface SovietMarkProps {
   likes: number;
   dislikes: number;
@@ -46,9 +48,9 @@ export const SovietMark: FunctionComponent<SovietMarkProps> = ({
   }, [likes, dislikes]);
 
   return (
-    <>
+    <div className="soviet-mark">
       <div>{markWithComment}</div>
-      <div>{Captions.MarkSmmary}. {markPostfix}</div>
-    </>
+      <div className="soviet-mark-postfix">{Captions.MarkSmmary}. {markPostfix}</div>
+    </div>
   );
 };
