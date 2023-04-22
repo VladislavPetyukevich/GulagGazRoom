@@ -11,6 +11,7 @@ using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.RoomQuestionReactions;
+using Interview.Infrastructure.RoomQuestions;
 using Interview.Infrastructure.Rooms;
 using Interview.Infrastructure.Users;
 
@@ -33,17 +34,65 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
+        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
 
-        var roomPatchUpdateRequest = new RoomPatchUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
+        var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
-        var patchUpdate = await roomService.PatchUpdate(savedRoom.Id, roomPatchUpdateRequest);
+        var patchUpdate = await roomService.UpdateAsync(savedRoom.Id, roomPatchUpdateRequest);
 
         Assert.True(patchUpdate.IsSuccess);
 
         var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
 
         foundedRoom?.Name.Should().BeEquivalentTo(roomPatchUpdateRequest.Name);
+    }
+
+    [Fact(DisplayName = "Close room should correctly close active room")]
+    public async Task CloseActiveRoom()
+    {
+        var testSystemClock = new TestSystemClock();
+        await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
+
+        var savedRoom = new Room(DefaultRoomName, DefaultRoomName);
+
+        appDbContext.Rooms.Add(savedRoom);
+        var questions = new[] { new Question("V1"), new Question("V2"), new Question("V3") };
+        appDbContext.Questions.AddRange(questions);
+        var activeRoomQuestion = new RoomQuestion
+        {
+            Room = savedRoom,
+            State = RoomQuestionState.Active,
+            Question = questions[2]
+        };
+        appDbContext.RoomQuestions.AddRange(new RoomQuestion
+        {
+            Room = savedRoom,
+            State = RoomQuestionState.Open,
+            Question = questions[0]
+        },
+        new RoomQuestion
+        {
+            Room = savedRoom,
+            State = RoomQuestionState.Closed,
+            Question = questions[1]
+        }, activeRoomQuestion);
+
+        await appDbContext.SaveChangesAsync();
+
+        var roomRepository = new RoomRepository(appDbContext);
+        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
+
+        var result = await roomService.CloseRoomAsync(savedRoom.Id);
+
+        Assert.True(result.IsSuccess);
+
+        var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
+        foundedRoom!.Status.Should().BeEquivalentTo(RoomStatus.Close);
+
+        var activeQuestions = appDbContext.RoomQuestions.Count(e =>
+            e.Room!.Id == savedRoom.Id &&
+            e.State == RoomQuestionState.Active);
+        activeQuestions.Should().Be(0);
     }
 
     [Fact(DisplayName = "GetAnalytics should return valid analytics by roomId")]
@@ -158,7 +207,7 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
+        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
 
         var expectAnalytics = new Analytics
         {
@@ -450,7 +499,7 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
+        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
 
         var expectAnalytics = new Analytics
         {

@@ -12,6 +12,23 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
     {
     }
 
+    public async Task<bool> CloseActiveQuestionAsync(Guid roomId, CancellationToken cancellationToken)
+    {
+        var roomQuestion = await FindFirstByRoomAndStateAsync(
+            roomId,
+            RoomQuestionState.Active,
+            cancellationToken);
+
+        if (roomQuestion != null)
+        {
+            roomQuestion.State = RoomQuestionState.Closed;
+            await UpdateAsync(roomQuestion, cancellationToken);
+            return true;
+        }
+
+        return false;
+    }
+
     public Task<RoomQuestion?> FindFirstByQuestionIdAndRoomIdAsync(Guid questionId, Guid roomId, CancellationToken cancellationToken = default)
     {
         return ApplyIncludes(Set)

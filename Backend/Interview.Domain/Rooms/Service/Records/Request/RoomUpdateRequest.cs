@@ -1,6 +1,6 @@
 namespace Interview.Domain.Rooms.Service.Records.Request;
 
-public class RoomPatchUpdateRequest
+public class RoomUpdateRequest
 {
     public string? Name { get; set; }
 

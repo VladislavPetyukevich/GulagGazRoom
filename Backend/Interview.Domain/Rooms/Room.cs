@@ -12,6 +12,7 @@ public class Room : Entity
     {
         Name = name;
         TwitchChannel = twitchChannel;
+        Status = RoomStatus.New;
     }
 
     private Room()
@@ -22,6 +23,8 @@ public class Room : Entity
     public string Name { get; internal set; }
 
     public string TwitchChannel { get; internal set; }
+
+    public RoomStatus Status { get; internal set; }
 
     public List<RoomQuestion> Questions { get; set; } = new();
 

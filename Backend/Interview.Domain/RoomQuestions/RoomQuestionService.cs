@@ -45,25 +45,20 @@ namespace Interview.Domain.RoomQuestions
 
             if (roomQuestion.State == RoomQuestionState.Active)
             {
-                return ServiceError.Error($"Question already has active state");
+                return ServiceError.Error("Question already has active state");
             }
 
-            var roomQuestionActual = await _roomQuestionRepository.FindFirstByRoomAndStateAsync(
-                request.RoomId,
-                RoomQuestionState.Active,
-                cancellationToken);
-
-            if (roomQuestionActual != null)
+            var specification = new Spec<Room>(r => r.Id == request.RoomId && r.Status == RoomStatus.New);
+            var room = await _roomRepository.FindFirstOrDefaultAsync(specification, cancellationToken);
+            if (room != null)
             {
-                roomQuestionActual.State = RoomQuestionState.Closed;
-
-                await _roomQuestionRepository.UpdateAsync(roomQuestionActual, cancellationToken);
+                room.Status = RoomStatus.Active;
+                await _roomRepository.UpdateAsync(room, cancellationToken);
             }
 
+            await _roomQuestionRepository.CloseActiveQuestionAsync(request.RoomId, cancellationToken);
             roomQuestion.State = RoomQuestionState.Active;
-
             await _roomQuestionRepository.UpdateAsync(roomQuestion, cancellationToken);
-
             return ServiceResult.Ok(new RoomQuestionDetail
             {
                 Id = roomQuestion.Id,
