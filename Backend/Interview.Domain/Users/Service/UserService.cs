@@ -1,5 +1,11 @@
 using CSharpFunctionalExtensions;
+using Interview.Domain.Repository;
+using Interview.Domain.ServiceResults.Errors;
+using Interview.Domain.ServiceResults.Success;
+using Interview.Domain.Users.Records;
 using Interview.Domain.Users.Roles;
+using NSpecifications;
+using X.PagedList;
 
 namespace Interview.Domain.Users;
 
@@ -16,7 +22,40 @@ public sealed class UserService
         _adminUsers = adminUsers;
     }
 
-    public async Task<Result<User?>> GetByIdentityAsync(Guid userIdentity, CancellationToken cancellationToken = default)
+    public async Task<IPagedList<UserDetail>> FindPageAsync(
+        int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var mapperUserDetail = new Mapper<User, UserDetail>(user => new UserDetail
+        {
+            Id = user.Id, Nickname = user.Nickname, Avatar = user.Avatar,
+        });
+
+        var resultPage =
+            await _userRepository.GetPageDetailedAsync(mapperUserDetail, pageNumber, pageSize, cancellationToken);
+
+        return resultPage;
+    }
+
+    public async Task<Result<ServiceResult<UserDetail>, ServiceError>> FindByNicknameAsync(
+        string nickname, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.FindByNicknameAsync(nickname, cancellationToken);
+
+        if (user == null)
+        {
+            return ServiceError.NotFound($"Not found user with nickname [{nickname}]");
+        }
+
+        return ServiceResult.Ok(new UserDetail
+        {
+            Id = user.Id,
+            Avatar = user.Avatar,
+            Nickname = user.Nickname,
+        });
+    }
+
+    public async Task<Result<User?>> GetByIdentityAsync(
+        Guid userIdentity, CancellationToken cancellationToken = default)
     {
         var user = await _userRepository.FindByIdAsync(userIdentity, cancellationToken);
 
@@ -52,10 +91,17 @@ public sealed class UserService
         return insertUser;
     }
 
-    public Task<List<User>> GetByRoleAsync(RoleNameType roleNameType, CancellationToken cancellationToken = default)
+    public Task<IPagedList<UserDetail>> FindByRoleAsync(int pageNumber, int pageSize, RoleNameType roleNameType, CancellationToken cancellationToken = default)
     {
         var roleName = RoleName.FromValue((int)roleNameType);
-        return _userRepository.GetByRoleAsync(roleName, cancellationToken);
+
+        var spec = new Spec<User>(user => user.Roles.Any(r => r.Name == roleName));
+        var mapper = new Mapper<User, UserDetail>(user => new UserDetail
+        {
+            Id = user.Id, Nickname = user.Nickname, Avatar = user.Avatar,
+        });
+
+        return _userRepository.GetPageAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
     }
 
     private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
