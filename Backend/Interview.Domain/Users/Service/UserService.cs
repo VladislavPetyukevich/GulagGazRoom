@@ -27,7 +27,9 @@ public sealed class UserService
     {
         var mapperUserDetail = new Mapper<User, UserDetail>(user => new UserDetail
         {
-            Id = user.Id, Nickname = user.Nickname, Avatar = user.Avatar,
+            Id = user.Id,
+            Nickname = user.Nickname,
+            Avatar = user.Avatar,
         });
 
         var resultPage =
@@ -98,7 +100,9 @@ public sealed class UserService
         var spec = new Spec<User>(user => user.Roles.Any(r => r.Name == roleName));
         var mapper = new Mapper<User, UserDetail>(user => new UserDetail
         {
-            Id = user.Id, Nickname = user.Nickname, Avatar = user.Avatar,
+            Id = user.Id,
+            Nickname = user.Nickname,
+            Avatar = user.Avatar,
         });
 
         return _userRepository.GetPageAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
