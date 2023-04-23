@@ -1,7 +1,5 @@
 using CSharpFunctionalExtensions;
-using Interview.Domain.Errors;
 using Interview.Domain.Events;
-using Interview.Domain.Events.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
@@ -13,11 +11,9 @@ using Interview.Domain.Rooms.Service.Records;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
-using Interview.Domain.ServiceResults;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
-using NSpecifications;
 using Entity = Interview.Domain.Repository.Entity;
 
 namespace Interview.Domain.Rooms.Service;
@@ -25,6 +21,7 @@ namespace Interview.Domain.Rooms.Service;
 public sealed class RoomService
 {
     private readonly IRoomRepository _roomRepository;
+    private readonly IRoomQuestionRepository _roomQuestionRepository;
     private readonly IQuestionRepository _questionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
@@ -32,6 +29,7 @@ public sealed class RoomService
 
     public RoomService(
         IRoomRepository roomRepository,
+        IRoomQuestionRepository roomQuestionRepository,
         IQuestionRepository questionRepository,
         IUserRepository userRepository,
         IRoomEventDispatcher roomEventDispatcher,
@@ -42,6 +40,7 @@ public sealed class RoomService
         _userRepository = userRepository;
         _roomEventDispatcher = roomEventDispatcher;
         _roomQuestionReactionRepository = roomQuestionReactionRepository;
+        _roomQuestionRepository = roomQuestionRepository;
     }
 
     public async Task<Result<ServiceResult<Room>, ServiceError>> CreateAsync(
@@ -60,49 +59,40 @@ public sealed class RoomService
         }
 
         var questions = await _questionRepository.FindByIdsAsync(request.Questions, cancellationToken);
-
         var questionsNotFound = FindNotFoundEntityIds(request.Questions, questions);
-
         if (!string.IsNullOrEmpty(questionsNotFound))
         {
             return ServiceError.Error($"Not found questions with id [{questionsNotFound}]");
         }
 
         var users = await _userRepository.FindByIdsAsync(request.Users, cancellationToken);
-
         var usersNotFound = FindNotFoundEntityIds(request.Users, users);
-
         if (!string.IsNullOrEmpty(usersNotFound))
         {
             return ServiceError.Error($"Not found users with id [{usersNotFound}]");
         }
 
         var twitchChannel = request.TwitchChannel?.Trim();
-
         if (string.IsNullOrEmpty(twitchChannel))
         {
             return ServiceError.Error($"Twitch channel should not be empty");
         }
 
         var room = new Room(name, twitchChannel);
-
         var roomQuestions = questions.Select(question =>
             new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
 
         room.Questions.AddRange(roomQuestions);
-
         var participants = users
             .Select(user => new RoomParticipant(user, room, RoomParticipantType.Viewer))
             .ToList();
 
         room.Participants.AddRange(participants);
-
         await _roomRepository.CreateAsync(room, cancellationToken);
-
         return ServiceResult.Created(room);
     }
 
-    public async Task<Result<RoomItem>> PatchUpdate(Guid? id, RoomPatchUpdateRequest? request, CancellationToken cancellationToken = default)
+    public async Task<Result<RoomItem>> UpdateAsync(Guid? id, RoomUpdateRequest? request, CancellationToken cancellationToken = default)
     {
         if (id == null)
         {
@@ -115,21 +105,18 @@ public sealed class RoomService
         }
 
         var name = request.Name?.Trim();
-
         if (string.IsNullOrEmpty(name))
         {
             return Result.Failure<RoomItem>("Room name should not be empty");
         }
 
         var twitchChannel = request.TwitchChannel?.Trim();
-
         if (string.IsNullOrEmpty(twitchChannel))
         {
             return Result.Failure<RoomItem>("Room twitch channel should not be empty");
         }
 
         var foundRoom = await _roomRepository.FindByIdAsync((Guid)id, cancellationToken);
-
         if (foundRoom == null)
         {
             return Result.Failure<RoomItem>($"Not found room with id [{id}]");
@@ -137,37 +124,32 @@ public sealed class RoomService
 
         foundRoom.Name = name;
         foundRoom.TwitchChannel = twitchChannel;
-
         await _roomRepository.UpdateAsync(foundRoom, cancellationToken);
-
         return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
     }
 
-    public async Task<Result<Room?>> PrepareRoomAsync(Guid roomIdentity, Guid userIdentity, CancellationToken cancellationToken = default)
+    public async Task<Result<Room?>> AddParticipantAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)
     {
-        var currentRoom = await _roomRepository.FindByIdAsync(roomIdentity, cancellationToken);
+        var currentRoom = await _roomRepository.FindByIdAsync(roomId, cancellationToken);
         if (currentRoom == null)
         {
-            return Result.Failure<Room?>($"Room not found by id {roomIdentity}");
+            return Result.Failure<Room?>($"Room not found by id {roomId}");
         }
 
-        var user = await _userRepository.FindByIdAsync(userIdentity, cancellationToken);
+        var user = await _userRepository.FindByIdAsync(userId, cancellationToken);
         if (user == null)
         {
-            return Result.Failure<Room?>($"User not found by id {userIdentity}");
+            return Result.Failure<Room?>($"User not found by id {userId}");
         }
 
-        if (await _roomRepository.HasUserAsync(roomIdentity, user.Id, cancellationToken))
+        if (await _roomRepository.HasUserAsync(roomId, user.Id, cancellationToken))
         {
             return currentRoom;
         }
 
         var participant = new RoomParticipant(user, currentRoom, RoomParticipantType.Viewer);
-
         currentRoom.Participants.Add(participant);
-
         await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
-
         return currentRoom;
     }
 
@@ -186,6 +168,31 @@ public sealed class RoomService
         }
 
         await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);
+        return ServiceResult.Ok();
+    }
+
+    /// <summary>
+    /// Close non closed room.
+    /// </summary>
+    /// <param name="roomId">Room id.</param>
+    /// <param name="cancellationToken">Token.</param>
+    /// <returns>Result.</returns>
+    public async Task<Result<ServiceResult, ServiceError>> CloseRoomAsync(Guid roomId, CancellationToken cancellationToken = default)
+    {
+        var currentRoom = await _roomRepository.FindByIdAsync(roomId, cancellationToken);
+        if (currentRoom == null)
+        {
+            return ServiceError.NotFound($"Room not found by id {roomId}");
+        }
+
+        if (currentRoom.Status == RoomStatus.Close)
+        {
+            return ServiceError.Error("Room already closed");
+        }
+
+        await _roomQuestionRepository.CloseActiveQuestionAsync(roomId, cancellationToken);
+        currentRoom.Status = RoomStatus.Close;
+        await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
         return ServiceResult.Ok();
     }
 

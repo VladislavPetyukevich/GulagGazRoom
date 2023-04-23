@@ -60,7 +60,7 @@ public class WebSocketController : ControllerBase
                 return;
             }
 
-            var (_, isFailure, dbRoom) = await _roomService.PrepareRoomAsync(roomIdentity, user.Id, ct);
+            var (_, isFailure, dbRoom) = await _roomService.AddParticipantAsync(roomIdentity, user.Id, ct);
 
             if (isFailure || dbRoom == null)
             {

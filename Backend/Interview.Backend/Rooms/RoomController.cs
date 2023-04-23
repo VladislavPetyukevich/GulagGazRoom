@@ -3,7 +3,6 @@ using Interview.Backend.Responses;
 using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
-using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Microsoft.AspNetCore.Authorization;
@@ -67,9 +66,9 @@ public class RoomController : ControllerBase
     [HttpPatch]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> PatchUpdate([FromQuery] Guid? id, [FromBody] RoomPatchUpdateRequest room)
+    public async Task<IActionResult> PatchUpdate([FromQuery] Guid? id, [FromBody] RoomUpdateRequest room)
     {
-        var updatedRoomResult = await _roomService.PatchUpdate(id, room);
+        var updatedRoomResult = await _roomService.UpdateAsync(id, room);
 
         return updatedRoomResult.IsFailure
             ? BadRequest(updatedRoomResult.Error)
@@ -115,5 +114,15 @@ public class RoomController : ControllerBase
 
         var request = new RoomAnalyticsRequest(id, new[] { user.Id });
         return _roomService.GetAnalyticsAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPatch("Close")]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public Task<ActionResult> CloseRoom([FromQuery] Guid roomId)
+    {
+        return _roomService.CloseRoomAsync(roomId, HttpContext.RequestAborted).ToResponseAsync();
     }
 }

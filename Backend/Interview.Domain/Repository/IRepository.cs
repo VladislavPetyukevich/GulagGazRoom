@@ -10,6 +10,10 @@ public interface IRepository<T>
 
     Task CreateAsync(T entity, CancellationToken cancellationToken = default);
 
+    Task<T?> FindFirstOrDefaultAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
+
+    Task<TRes?> FindFirstOrDefaultAsync<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);
+
     Task<List<T>> FindAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
 
     Task<List<TRes>> FindAsync<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);
