@@ -1,0 +1,7 @@
+.reactions-list .reaction {
+  margin-right: 2px;
+}
+
+.reactions-list .reaction:last-child {
+  margin-right: 0px;
+}
