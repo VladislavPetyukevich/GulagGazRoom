@@ -64,4 +64,6 @@ export const enum Captions {
   MarkPostfixAverage = 'То густо, то пусто. Продолжай, брат.',
   MarkPostfixBad = 'Надо тренироваться, брат.',
   MarkSmmary = 'Чтож сказать',
+  CloseRoom = 'Закрыть заседание ❌',
+  CloseRoomLoading = 'Закрытие комнаты',
 };

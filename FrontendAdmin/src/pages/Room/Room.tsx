@@ -102,6 +102,14 @@ export const Room: FunctionComponent = () => {
     data: openRoomQuestions,
   } = apiOpenRoomQuestions;
 
+  const {
+    apiMethodState: closeRoomState,
+    fetchData: closeRoom,
+  } = useApiMethod<unknown>({ noParseResponse: true });
+  const {
+    process: { loading: closeRoomLoading, error: closeRoomError },
+  } = closeRoomState;
+
   useEffect(() => {
     if (!id) {
       return;
@@ -180,6 +188,13 @@ export const Room: FunctionComponent = () => {
       `${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${id}`
     );
   }, [id]);
+
+  const handleCloseRoom = useCallback(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    closeRoom(roomsApiDeclaration.close(id));
+  }, [id, closeRoom]);
 
   const handleShowClosedQuestions: MouseEventHandler<HTMLInputElement> = useCallback((e) => {
     setShowClosedQuestions(e.currentTarget.checked);
@@ -288,6 +303,15 @@ export const Room: FunctionComponent = () => {
             {Captions.CopyRoomLink}
           </button>
         </Field>
+        <Field>
+          <button
+            onClick={handleCloseRoom}
+          >
+            {Captions.CloseRoom}
+          </button>
+          {closeRoomLoading && (<div>{Captions.CloseRoomLoading}...</div>)}
+          {closeRoomError && (<div>{Captions.Error}: {closeRoomError}</div>)}
+        </Field>
         <Field className="reactions-field">
           {admin && (
             <div>
@@ -323,10 +347,13 @@ export const Room: FunctionComponent = () => {
     interviewee,
     openRoomQuestions,
     showClosedQuestions,
+    closeRoomLoading,
+    closeRoomError,
     renderReactions,
     handleQuestionSelect,
     handleCopyRoomLink,
     handleShowClosedQuestions,
+    handleCloseRoom,
   ]);
 
   return (

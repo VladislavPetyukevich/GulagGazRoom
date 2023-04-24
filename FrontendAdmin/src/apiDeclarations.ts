@@ -41,6 +41,11 @@ export const roomsApiDeclaration = {
     baseUrl: '/Room/SendGasEvent',
     body,
   }),
+  close: (id: Room['id']): ApiContractPatch => ({
+    method: 'PATCH',
+    baseUrl: `/Room/Close?roomId=${id}`,
+    body: {},
+  }),
 };
 
 export const roomQuestionApiDeclaration = {
