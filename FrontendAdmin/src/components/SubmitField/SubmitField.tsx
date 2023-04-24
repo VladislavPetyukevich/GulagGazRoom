@@ -9,10 +9,11 @@ interface SubmitFieldProps {
 
 export const SubmitField: FunctionComponent<SubmitFieldProps> = ({
   caption,
+  ...rest
 }) => {
   return (
     <Field className="submit-field">
-      <input type="submit" value={caption} />
+      <input type="submit" value={caption} {...rest} />
     </Field>
   );
 };

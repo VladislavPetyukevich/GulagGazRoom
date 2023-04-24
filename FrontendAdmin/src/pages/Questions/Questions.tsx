@@ -81,7 +81,7 @@ export const Questions: FunctionComponent = () => {
   }, [editingQuestion, fetchUpdateQuestion]);
 
   const createQuestionItem = useCallback((question: Question) => (
-    <li key={question.id}>
+    <li key={question.id} data-cy="question-item">
       {question.id === editingQuestion?.id ? (
         <Field className="question-item">
           <input

@@ -54,7 +54,11 @@ export const QuestionCreate: FunctionComponent = () => {
     if (createdQuestionId) {
       return (
         <Field>
-          <div>{Captions.QuestionCreatedSuccessfully}</div>
+          <div
+            data-cy="label-question-created-successfully"
+          >
+            {Captions.QuestionCreatedSuccessfully}
+          </div>
         </Field>
       );
     }
@@ -76,7 +80,7 @@ export const QuestionCreate: FunctionComponent = () => {
           <label htmlFor="qestionText">{Captions.QuestionText}:</label>
           <input id="qestionText" name={valueFieldName} type="text" />
         </Field>
-        <SubmitField caption={Captions.Create} />
+        <SubmitField caption={Captions.Create} data-cy="qestion-submit" />
       </form>
     </MainContentWrapper>
   );

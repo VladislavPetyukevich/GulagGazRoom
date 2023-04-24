@@ -17,6 +17,7 @@ const createMenuItem = (item: MenuItem, isActive: boolean) => (
     key={item.path}
     to={item.path}
     className="field-wrap"
+    data-cy={`nav-${item.path}`}
   >
     {item.name}
   </NavLink>

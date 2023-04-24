@@ -23,7 +23,12 @@ export const HeaderWithLink: FunctionComponent<HeaderWithLinkProps> = ({
     <Field className="header-with-link">
       {linkVisible && (
         <Link to={path}>
-          <button className={`button-link float-${linkFloat}`}>{linkCaption}</button>
+          <button
+            className={`button-link float-${linkFloat}`}
+            data-cy={`header-link-${path}`}
+          >
+            {linkCaption}
+          </button>
         </Link>
       )}
       <span>{title}</span>
