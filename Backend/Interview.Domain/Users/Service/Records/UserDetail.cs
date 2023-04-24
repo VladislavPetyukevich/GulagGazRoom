@@ -4,7 +4,11 @@ public class UserDetail
 {
     public Guid Id { get; set; }
 
-    public string Nickname { get; set; }
+    public string TwitchIdentity { get; init; } = string.Empty;
 
-    public string? Avatar { get; set; }
+    public string Nickname { get; init; } = string.Empty;
+
+    public string? Avatar { get; init; } = string.Empty;
+
+    public List<string> Roles { get; init; } = new();
 }

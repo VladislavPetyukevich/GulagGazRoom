@@ -22,7 +22,7 @@ public sealed class UserService
         _adminUsers = adminUsers;
     }
 
-    public async Task<IPagedList<UserDetail>> FindPageAsync(
+    public Task<IPagedList<UserDetail>> FindPageAsync(
         int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         var mapperUserDetail = new Mapper<User, UserDetail>(user => new UserDetail
@@ -30,12 +30,11 @@ public sealed class UserService
             Id = user.Id,
             Nickname = user.Nickname,
             Avatar = user.Avatar,
+            Roles = user.Roles.Select(role => role.Name.Name).ToList(),
+            TwitchIdentity = user.TwitchIdentity,
         });
 
-        var resultPage =
-            await _userRepository.GetPageDetailedAsync(mapperUserDetail, pageNumber, pageSize, cancellationToken);
-
-        return resultPage;
+        return _userRepository.GetPageDetailedAsync(mapperUserDetail, pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<Result<ServiceResult<UserDetail>, ServiceError>> FindByNicknameAsync(
@@ -53,6 +52,8 @@ public sealed class UserService
             Id = user.Id,
             Avatar = user.Avatar,
             Nickname = user.Nickname,
+            Roles = user.Roles.Select(role => role.Name.Name).ToList(),
+            TwitchIdentity = user.TwitchIdentity,
         });
     }
 
@@ -103,6 +104,8 @@ public sealed class UserService
             Id = user.Id,
             Nickname = user.Nickname,
             Avatar = user.Avatar,
+            Roles = user.Roles.Select(role => role.Name.Name).ToList(),
+            TwitchIdentity = user.TwitchIdentity,
         });
 
         return _userRepository.GetPageAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
@@ -111,6 +114,7 @@ public sealed class UserService
     private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
     {
         var roleName = _adminUsers.IsAdmin(nickname) ? RoleName.Admin : RoleName.User;
+
         return _roleRepository.FindByIdAsync(roleName.Id, cancellationToken);
     }
 }
