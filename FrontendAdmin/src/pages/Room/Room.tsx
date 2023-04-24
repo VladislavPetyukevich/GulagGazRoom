@@ -298,6 +298,7 @@ export const Room: FunctionComponent = () => {
           <h2>{Captions.Room}: {room?.name}</h2>
           <button
             className="copy-link-button"
+            data-cy="copy-link-button"
             onClick={handleCopyRoomLink}
           >
             {Captions.CopyRoomLink}
@@ -316,7 +317,11 @@ export const Room: FunctionComponent = () => {
           {admin && (
             <div>
               <span>{Captions.ShowClosedQuestions}</span>
-              <input type="checkbox" onClick={handleShowClosedQuestions} />
+              <input
+                type="checkbox"
+                data-cy="checkbox-closed-questions"
+                onClick={handleShowClosedQuestions}
+              />
               <ActiveQuestionSelector
                 showClosedQuestions={showClosedQuestions}
                 questions={room?.questions || []}
@@ -325,7 +330,13 @@ export const Room: FunctionComponent = () => {
                 onSelect={handleQuestionSelect}
               />
               {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
-              {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
+              {errorRoomActiveQuestion && (
+                <div
+                  data-cy="error-sending-active-question"
+                >
+                  {Captions.ErrorSendingActiveQuestion}...
+                </div>
+              )}
             </div>
           )}
           {renderReactions()}

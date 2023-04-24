@@ -55,7 +55,7 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
   }, [users, onSelect, onUnselect]);
 
   const createUserItem = useCallback((user: User) => (
-    <li key={user.id}>
+    <li key={user.id} data-cy={`users-selector-${user.nickname}`}>
       <label htmlFor={`input-${user.id}`}>{user.nickname}</label>
       <input
         id={`input-${user.id}`}

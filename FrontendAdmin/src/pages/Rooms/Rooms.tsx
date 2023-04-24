@@ -43,7 +43,11 @@ export const Rooms: FunctionComponent = () => {
     return (
       <li key={room.id}>
         <Field>
-          <Link to={`${pathnames.rooms}/${room.id}`} className='room-link'>
+          <Link
+            to={`${pathnames.rooms}/${room.id}`}
+            className='room-link'
+            data-cy={`room-link-${room.name}`}
+          >
             {room.name}
           </Link>
           <div className="room-users">

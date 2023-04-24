@@ -51,7 +51,7 @@ export const QuestionsSelector: FunctionComponent<QuestionsSelectorProps> = ({
   }, [questions, onSelect, onUnselect]);
 
   const createQuestionItem = useCallback((question: Question) => (
-    <li key={question.id}>
+    <li key={question.id} data-cy={`questions-selector-${question.value}`}>
       <label htmlFor={`input-${question.id}`}>{question.value}</label>
       <input
         id={`input-${question.id}`}

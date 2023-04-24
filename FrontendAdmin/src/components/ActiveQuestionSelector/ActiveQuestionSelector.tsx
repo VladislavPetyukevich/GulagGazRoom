@@ -94,7 +94,10 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
   };
 
   return (
-    <div className="activeQuestionSelector-container">
+    <div
+      className="activeQuestionSelector-container"
+      data-cy="active-question-selector"
+    >
       <div ref={inputRef} onClick={handleInputClick} className="activeQuestionSelector-input">
         <div className="activeQuestionSelector-selected-value">{getDisplay()}</div>
         <div className="activeQuestionSelector-tools">
@@ -113,6 +116,7 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
               onClick={() => onItemClick(option)}
               key={option.value}
               className={`activeQuestionSelector-item ${!isOpened(option) && 'closed'}`}
+              data-cy={`active-question-selector-${option.value}`}
             >
               {option.value}
             </div>

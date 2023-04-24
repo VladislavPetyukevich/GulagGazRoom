@@ -89,7 +89,7 @@ export const RoomCreate: FunctionComponent = () => {
     if (createdRoomId) {
       return (
         <Field>
-          <div>Room created successfully</div>
+          <div data-cy="room-created-successfully">Room created successfully</div>
         </Field>
       );
     }
@@ -135,7 +135,7 @@ export const RoomCreate: FunctionComponent = () => {
             onUnselect={handleUserUnSelect}
           />
         </Field>
-        <SubmitField caption="Create" />
+        <SubmitField caption="Create" data-cy="room-create-submit" />
       </form>
     </MainContentWrapper>
   );
