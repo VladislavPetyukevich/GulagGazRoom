@@ -1,8 +1,7 @@
 .activeQuestionSelector-container {
   text-align: left;
-  border: 1px solid var(--page-bg);
+  border: 1px solid var(--form-bg);
   position: relative;
-  border-radius: 5px;
   cursor: pointer;
 }
 
