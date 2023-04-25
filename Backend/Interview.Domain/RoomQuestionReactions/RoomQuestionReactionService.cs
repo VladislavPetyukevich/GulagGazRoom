@@ -30,36 +30,6 @@ public class RoomQuestionReactionService
         _userRepository = userRepository;
     }
 
-    public async Task<Result<ServiceResult<RoomQuestionReaction>, ServiceError>> SendReactionAsync(
-        RoomQuestionSendReactionRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        var roomQuestion = await _questionRepository.FindFirstByQuestionIdAndRoomIdAsync(request.QuestionId, request.RoomId, default);
-
-        if (roomQuestion == null)
-        {
-            return ServiceError.Error($"Question in room not found by id {request.QuestionId}");
-        }
-
-        var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
-        if (user == null)
-        {
-            return ServiceError.Error($"Not found User by id {request.UserId}");
-        }
-
-        var reactionType = ReactionType.List.Single(e => e.EventType == request.Type);
-        var reaction = await _reactionRepository.FindByReactionTypeAsync(reactionType, cancellationToken);
-
-        if (reaction == null)
-        {
-            return ServiceError.Error($"Reaction not found by event type {request.Type}");
-        }
-
-        var entity = new RoomQuestionReaction { Reaction = reaction, Sender = user, RoomQuestion = roomQuestion, };
-        await _roomQuestionReactionRepository.CreateAsync(entity, cancellationToken);
-        return ServiceResult.Created(entity);
-    }
-
     public async Task<Result<ServiceResult<RoomQuestionReactionDetail>, ServiceError>> CreateInRoomAsync(
         RoomQuestionReactionCreateRequest request,
         Guid userId)
@@ -101,5 +71,39 @@ public class RoomQuestionReactionService
             Question = roomQuestion.Question!.Id,
             Reaction = reaction.Id,
         });
+    }
+
+    public async Task<Result<ServiceResult<RoomQuestionReaction>, ServiceError>> SendReactionAsync(
+        RoomQuestionSendReactionRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var roomQuestion =
+            await _questionRepository.FindFirstByQuestionIdAndRoomIdAsync(request.QuestionId, request.RoomId, default);
+
+        if (roomQuestion == null)
+        {
+            return ServiceError.Error($"Question in room not found by id {request.QuestionId}");
+        }
+
+        var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
+
+        if (user == null)
+        {
+            return ServiceError.Error($"Not found User by id {request.UserId}");
+        }
+
+        var reactionType = ReactionType.List.Single(e => e.EventType == request.Type);
+        var reaction = await _reactionRepository.FindByReactionTypeAsync(reactionType, cancellationToken);
+
+        if (reaction == null)
+        {
+            return ServiceError.Error($"Reaction not found by event type {request.Type}");
+        }
+
+        var entity = new RoomQuestionReaction { Reaction = reaction, Sender = user, RoomQuestion = roomQuestion, };
+
+        await _roomQuestionReactionRepository.CreateAsync(entity, cancellationToken);
+
+        return ServiceResult.Created(entity);
     }
 }

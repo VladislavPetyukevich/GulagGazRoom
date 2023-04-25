@@ -49,7 +49,9 @@ namespace Interview.Domain.RoomQuestions
             }
 
             var specification = new Spec<Room>(r => r.Id == request.RoomId && r.Status == RoomStatus.New);
+
             var room = await _roomRepository.FindFirstOrDefaultAsync(specification, cancellationToken);
+
             if (room != null)
             {
                 room.Status = RoomStatus.Active;
@@ -57,8 +59,11 @@ namespace Interview.Domain.RoomQuestions
             }
 
             await _roomQuestionRepository.CloseActiveQuestionAsync(request.RoomId, cancellationToken);
+
             roomQuestion.State = RoomQuestionState.Active;
+
             await _roomQuestionRepository.UpdateAsync(roomQuestion, cancellationToken);
+
             return ServiceResult.Ok(new RoomQuestionDetail
             {
                 Id = roomQuestion.Id,
@@ -113,7 +118,7 @@ namespace Interview.Domain.RoomQuestions
             });
         }
 
-        public async Task<Result<ServiceResult<List<Guid>>, ServiceError>> GetRoomQuestionsAsync(RoomQuestionsRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<ServiceResult<List<Guid>>, ServiceError>> FindRoomQuestionsAsync(RoomQuestionsRequest request, CancellationToken cancellationToken = default)
         {
             var hasRoom = await _roomRepository.HasAsync(new Spec<Room>(room => room.Id == request.RoomId), cancellationToken);
             if (!hasRoom)
