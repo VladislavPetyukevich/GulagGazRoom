@@ -1,6 +1,9 @@
 using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
+using Interview.Backend.Responses;
 using Interview.Backend.Shared;
+using Interview.Domain.Questions.Records.Response;
+using Interview.Domain.Users.Records;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -8,48 +11,66 @@ using X.PagedList;
 namespace Interview.Backend.Users;
 
 [ApiController]
-[Route("[controller]")]
+[Route("users")]
 public class UserController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
-
     private readonly UserService _userService;
 
     private readonly UserClaimService _userClaimService;
 
-    public UserController(IUserRepository userRepository, UserService userService, UserClaimService userClaimService)
+    public UserController(UserService userService, UserClaimService userClaimService)
     {
-        _userRepository = userRepository;
         _userService = userService;
         _userClaimService = userClaimService;
     }
 
-    [Authorize]
-    [HttpGet(nameof(GetPage))]
-    public Task<IPagedList<User>> GetPage([FromQuery] PageRequest request)
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpGet]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<IPagedList<UserDetail>> FindPage([FromQuery] PageRequest request)
     {
-        return _userRepository.GetPageAsync(request.PageNumber, request.PageSize);
+        return _userService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+    }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpGet("nickname/{nickname}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<UserDetail>> FindByNickname([FromRoute] string nickname)
+    {
+        return _userService.FindByNicknameAsync(nickname, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpGet("role/{role}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<IPagedList<UserDetail>> FindByRole([FromQuery] PageRequest pageRequest, [FromRoute] RoleNameType role)
+    {
+        return _userService.FindByRoleAsync(pageRequest.PageNumber, pageRequest.PageSize, role, HttpContext.RequestAborted);
     }
 
     [Authorize]
-    [HttpGet(nameof(FindByNickname))]
-    public Task<User?> FindByNickname(string nickname)
-    {
-        return _userRepository.FindByNicknameAsync(nickname);
-    }
-
-    [Authorize]
-    [HttpGet(nameof(GetByRole))]
-    public Task<List<User>> GetByRole(RoleNameType role)
-    {
-        return _userService.GetByRoleAsync(role);
-    }
-
-    [Authorize]
-    [HttpGet(nameof(GetMe))]
-    [ProducesResponseType(typeof(UserClaim), 200)]
-    [ProducesResponseType(typeof(string), 400)]
-    public async Task<ActionResult<UserClaim?>> GetMe()
+    [HttpGet("self")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(UserClaim), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<UserClaim?>> GetMyself()
     {
         var userClaimResult =
             await _userClaimService.ParseClaimsAsync(HttpContext.User.Claims, HttpContext.RequestAborted);

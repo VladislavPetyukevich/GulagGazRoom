@@ -1,5 +1,6 @@
 using Interview.Domain.Repository;
 using Interview.Domain.Users.Roles;
+using NSpecifications;
 
 namespace Interview.Domain.Users;
 
