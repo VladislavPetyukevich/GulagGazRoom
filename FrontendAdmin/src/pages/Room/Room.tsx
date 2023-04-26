@@ -329,7 +329,13 @@ export const Room: FunctionComponent = () => {
                 placeHolder={Captions.SelectActiveQuestion}
                 onSelect={handleQuestionSelect}
               />
-              {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
+              {loadingRoomActiveQuestion && (
+                <div
+                  data-cy="sending-active-question"
+                >
+                  {Captions.SendingActiveQuestion}...
+                </div>
+              )}
               {errorRoomActiveQuestion && (
                 <div
                   data-cy="error-sending-active-question"

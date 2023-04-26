@@ -1,0 +1,23 @@
+{
+  "name": "e2e-crutch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:server": "node ./index.js",
+    "start:frontend:admin": "npm start --prefix ../FrontendAdmin",
+    "start:servers": "npm run start:frontend:admin | npm run start:server",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "start:open": "start-server-and-test start:servers http://localhost:3000 cypress:open",
+    "start": "start-server-and-test start:servers http://localhost:3000 cypress:run",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^12.11.0",
+    "start-server-and-test": "^2.0.0"
+  }
+}
