@@ -82,7 +82,7 @@ export const questionsApiDeclaration = {
 export const usersApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/User/GetPage',
+    baseUrl: '/users',
     urlParams: pagination,
   }),
 };
