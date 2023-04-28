@@ -65,5 +65,8 @@ export const enum Captions {
   MarkPostfixBad = 'Надо тренироваться, брат.',
   MarkSmmary = 'Чтож сказать',
   CloseRoom = 'Закрыть заседание ❌',
+  CloseRoomModalTitle = 'Действительно хотите закрыть заседание?',
   CloseRoomLoading = 'Закрытие комнаты',
+  Yes = 'Так точно ✔️',
+  No = 'Никак нет! ❌',
 };

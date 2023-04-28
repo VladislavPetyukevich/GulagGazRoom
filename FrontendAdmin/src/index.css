@@ -82,4 +82,5 @@ h3 {
   margin-bottom: 5px;
   font-size: var(--menu-font-size);
   line-height: var(--menu-line-height) !important;
+  color: var(--text);
 }

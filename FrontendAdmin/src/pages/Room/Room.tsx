@@ -17,6 +17,7 @@ import { Question } from '../../types/question';
 import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
+import { CloseRoom } from './components/CloseRoom/CloseRoom';
 
 import './Room.css';
 
@@ -102,13 +103,7 @@ export const Room: FunctionComponent = () => {
     data: openRoomQuestions,
   } = apiOpenRoomQuestions;
 
-  const {
-    apiMethodState: closeRoomState,
-    fetchData: closeRoom,
-  } = useApiMethod<unknown>({ noParseResponse: true });
-  const {
-    process: { loading: closeRoomLoading, error: closeRoomError },
-  } = closeRoomState;
+
 
   useEffect(() => {
     if (!id) {
@@ -189,12 +184,7 @@ export const Room: FunctionComponent = () => {
     );
   }, [id]);
 
-  const handleCloseRoom = useCallback(() => {
-    if (!id) {
-      throw new Error('Room id not found');
-    }
-    closeRoom(roomsApiDeclaration.close(id));
-  }, [id, closeRoom]);
+
 
   const handleShowClosedQuestions: MouseEventHandler<HTMLInputElement> = useCallback((e) => {
     setShowClosedQuestions(e.currentTarget.checked);
@@ -304,13 +294,7 @@ export const Room: FunctionComponent = () => {
           </button>
         </Field>
         <Field>
-          <button
-            onClick={handleCloseRoom}
-          >
-            {Captions.CloseRoom}
-          </button>
-          {closeRoomLoading && (<div>{Captions.CloseRoomLoading}...</div>)}
-          {closeRoomError && (<div>{Captions.Error}: {closeRoomError}</div>)}
+          <CloseRoom />
         </Field>
         <Field className="reactions-field">
           {admin && (
@@ -347,13 +331,10 @@ export const Room: FunctionComponent = () => {
     interviewee,
     openRoomQuestions,
     showClosedQuestions,
-    closeRoomLoading,
-    closeRoomError,
     renderReactions,
     handleQuestionSelect,
     handleCopyRoomLink,
     handleShowClosedQuestions,
-    handleCloseRoom,
   ]);
 
   return (

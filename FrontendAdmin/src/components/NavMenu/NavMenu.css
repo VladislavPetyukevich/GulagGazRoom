@@ -17,7 +17,6 @@
 
 .nav-menu .active {
   background-color: var(--shadow);
-  z-index: 1;
 }
 
 .nav-menu .field-wrap:first-child {
