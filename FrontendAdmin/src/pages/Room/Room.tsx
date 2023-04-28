@@ -45,74 +45,60 @@ export const Room: FunctionComponent = () => {
     );
   }, [id]);
 
-  const renderRoomContent = useCallback(() => {
-    if (error) {
-      return (
-        <Field>
-          <div>{Captions.Error}: {error}</div>
-        </Field>
-      );
-    }
-    if (loading) {
-      return (
-        <Field>
-          <Loader />
-        </Field>
-      );
-    }
+  if (error) {
     return (
-      <>
-        <Field className='room-title'>
-          <h2>{Captions.Room}: {room?.name}</h2>
-          <button
-            className="copy-link-button"
-            onClick={handleCopyRoomLink}
-          >
-            {Captions.CopyRoomLink}
-          </button>
-        </Field>
-        <Field>
-          <CloseRoom />
-        </Field>
-        <Field className="reactions-field">
-          {admin && (
-            <ActiveQuestion
-              room={room}
-              lastWebSocketMessage={lastMessage}
-            />
-          )}
-          <Reactions
-            admin={admin}
-            room={room}
-          />
-        </Field>
-        <Field className="twitch-embed-field">
-          <Twitch
-            channel={room?.twitchChannel || ''}
-            autoplay={!admin}
-          />
-        </Field>
-        <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
-          <Interviewee
-            roomId={room?.id || ''}
-            fov={110}
-            muted={!admin}
-          />
-        </Field>
-      </>
+      <Field>
+        <div>{Captions.Error}: {error}</div>
+      </Field>
     );
-  }, [
-    admin,
-    loading,
-    error,
-    room,
-    lastMessage,
-    handleCopyRoomLink,
-  ]);
+  }
+  if (loading) {
+    return (
+      <Field>
+        <Loader />
+      </Field>
+    );
+  }
 
   return (
     <MainContentWrapper className="room-page">
-      {renderRoomContent()}
+      <Field className='room-title'>
+        <h2>{Captions.Room}: {room?.name}</h2>
+        <button
+          className="copy-link-button"
+          onClick={handleCopyRoomLink}
+        >
+          {Captions.CopyRoomLink}
+        </button>
+      </Field>
+      <Field>
+        <CloseRoom />
+      </Field>
+      <Field className="reactions-field">
+        {admin && (
+          <ActiveQuestion
+            room={room}
+            lastWebSocketMessage={lastMessage}
+          />
+        )}
+        <Reactions
+          admin={admin}
+          room={room}
+        />
+      </Field>
+      <Field className="twitch-embed-field">
+        <Twitch
+          channel={room?.twitchChannel || ''}
+          autoplay={!admin}
+        />
+      </Field>
+      <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
+        <Interviewee
+          roomId={room?.id || ''}
+          fov={110}
+          muted={!admin}
+        />
+      </Field>
     </MainContentWrapper>
   );
 };
