@@ -1,6 +1,5 @@
-import React, { FunctionComponent, MouseEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FunctionComponent, MouseEventHandler, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { TwitchEmbed, TwitchEmbedInstance } from 'react-twitch-embed';
 import useWebSocket from 'react-use-websocket';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
@@ -18,6 +17,7 @@ import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { CloseRoom } from './components/CloseRoom/CloseRoom';
+import { Twitch } from './components/Twitch/Twitch';
 
 import './Room.css';
 
@@ -51,7 +51,6 @@ const gasReactions: GasReaction[] = [{
 export const Room: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
-  const embed = useRef<TwitchEmbedInstance>();
   const { getCommunist } = useCommunist();
   const communist = getCommunist();
   let { id } = useParams();
@@ -102,8 +101,6 @@ export const Room: FunctionComponent = () => {
   const {
     data: openRoomQuestions,
   } = apiOpenRoomQuestions;
-
-
 
   useEffect(() => {
     if (!id) {
@@ -228,27 +225,6 @@ export const Room: FunctionComponent = () => {
     handleGasReactionClick,
   ]);
 
-  const handleReady = (e: TwitchEmbedInstance) => {
-    embed.current = e;
-  };
-
-  const twitch = useMemo(() => {
-    if (loading || !room) {
-      return <div>Loaing twitch...</div>;
-    }
-    return (
-      <Field className="twitch-embed-field">
-        <TwitchEmbed
-          channel={room.twitchChannel}
-          autoplay={!admin}
-          withChat
-          darkMode={true}
-          onVideoReady={handleReady}
-        />
-      </Field>
-    );
-  }, [loading, room, admin]);
-
   const interviewee = useMemo(() => (
     <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
       <iframe
@@ -314,8 +290,13 @@ export const Room: FunctionComponent = () => {
           )}
           {renderReactions()}
         </Field>
-        {admin ? interviewee : twitch}
-        {admin ? twitch : interviewee}
+        <Field className="twitch-embed-field">
+          <Twitch
+            channel={room?.twitchChannel || ''}
+            autoplay={!admin}
+          />
+        </Field>
+        {interviewee}
       </>
     );
   }, [
@@ -327,7 +308,6 @@ export const Room: FunctionComponent = () => {
     errorReactions,
     errorRoomActiveQuestion,
     room,
-    twitch,
     interviewee,
     openRoomQuestions,
     showClosedQuestions,
