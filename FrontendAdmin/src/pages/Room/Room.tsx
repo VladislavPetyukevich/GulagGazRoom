@@ -1,19 +1,17 @@
 import React, { FunctionComponent, MouseEventHandler, useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
-import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import { roomQuestionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { ActiveQuestionSelector } from '../../components/ActiveQuestionSelector/ActiveQuestionSelector';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
-import { ReactionsList } from '../../components/ReactionsList/ReactionsList';
 import { REACT_APP_INTERVIEW_FRONTEND_URL, REACT_APP_WS_URL } from '../../config';
 import { Captions } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
 import { Question } from '../../types/question';
-import { Reaction } from '../../types/reaction';
 import { Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { CloseRoom } from './components/CloseRoom/CloseRoom';
@@ -21,33 +19,7 @@ import { Twitch } from './components/Twitch/Twitch';
 import { Interviewee } from './components/Interviewee/Interviewee';
 
 import './Room.css';
-
-const reactionsPageSize = 30;
-const reactionsPageNumber = 1;
-
-interface GasReaction extends Reaction {
-  type: {
-    eventType: 'GasOn' | 'GasOff';
-    name: string;
-    value: number;
-  }
-}
-
-const gasReactions: GasReaction[] = [{
-  id: 'gasReactionOnId',
-  type: {
-    eventType: 'GasOn',
-    name: `${Captions.GasOn} 🤿`,
-    value: 0,
-  }
-}, {
-  id: 'gasReactionOffId',
-  type: {
-    eventType: 'GasOff',
-    name: `${Captions.GasOff} 👌`,
-    value: 0,
-  }
-}];
+import { Reactions } from './components/Reactions/Reactions';
 
 export const Room: FunctionComponent = () => {
   const auth = useContext(AuthContext);
@@ -61,31 +33,6 @@ export const Room: FunctionComponent = () => {
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
-
-  const {
-    apiMethodState: apiReactionsState,
-    fetchData: fetchReactions,
-  } = useApiMethod<Reaction[]>();
-  const {
-    process: { loading: loadingReactions, error: errorReactions },
-    data: reactions,
-  } = apiReactionsState;
-
-  const {
-    apiMethodState: apiRoomReactionState,
-    fetchData: sendRoomReaction,
-  } = useApiMethod<unknown>();
-  const {
-    process: { loading: loadingRoomReaction, error: errorRoomReaction },
-  } = apiRoomReactionState;
-
-  const {
-    apiMethodState: apiSendGasState,
-    fetchData: sendRoomGas,
-  } = useApiMethod<unknown>({ noParseResponse: true });
-  const {
-    process: { loading: loadingRoomGas, error: errorRoomGas },
-  } = apiSendGasState;
 
   const {
     apiMethodState: apiSendActiveQuestionState,
@@ -139,33 +86,6 @@ export const Room: FunctionComponent = () => {
     fetchData(roomsApiDeclaration.getById(id));
   }, [id, fetchData]);
 
-  useEffect(() => {
-    fetchReactions(reactionsApiDeclaration.getPage({
-      PageSize: reactionsPageSize,
-      PageNumber: reactionsPageNumber,
-    }));
-  }, [fetchReactions]);
-
-  const handleReactionClick = useCallback((reaction: Reaction) => {
-    if (!room) {
-      throw new Error('Error sending reaction. Room not found.');
-    }
-    sendRoomReaction(roomReactionApiDeclaration.send({
-      reactionId: reaction.id,
-      roomId: room.id,
-    }));
-  }, [room, sendRoomReaction]);
-
-  const handleGasReactionClick = useCallback((reaction: Reaction) => {
-    if (!room) {
-      throw new Error('Error sending reaction. Room not found.');
-    }
-    sendRoomGas(roomsApiDeclaration.sendGasEvent({
-      roomId: room.id,
-      type: (reaction as GasReaction).type.eventType,
-    }));
-  }, [room, sendRoomGas]);
-
   const handleQuestionSelect = useCallback((question: Question) => {
     if (!room) {
       throw new Error('Error sending reaction. Room not found.');
@@ -182,49 +102,9 @@ export const Room: FunctionComponent = () => {
     );
   }, [id]);
 
-
-
   const handleShowClosedQuestions: MouseEventHandler<HTMLInputElement> = useCallback((e) => {
     setShowClosedQuestions(e.currentTarget.checked);
   }, []);
-
-  const renderReactions = useCallback(() => {
-    return (
-      <div>
-        <div className="reaction-wrapper">
-          <span>{Captions.Reactions}:</span>
-          <ReactionsList
-            sortOrder={-1}
-            reactions={reactions || []}
-            onClick={handleReactionClick}
-          />
-        </div>
-        {admin && (
-          <div className="reaction-wrapper">
-            <span>{Captions.Gas}:</span>
-            <ReactionsList
-              sortOrder={1}
-              reactions={gasReactions}
-              onClick={handleGasReactionClick}
-            />
-          </div>
-        )}
-        {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
-        {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
-        {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
-        {errorRoomGas && <div>{Captions.ErrorSendingGasEvent}</div>}
-      </div>
-    );
-  }, [
-    admin,
-    loadingRoomReaction,
-    loadingRoomGas,
-    errorRoomReaction,
-    errorRoomGas,
-    reactions,
-    handleReactionClick,
-    handleGasReactionClick,
-  ]);
 
   const renderRoomContent = useCallback(() => {
     if (error) {
@@ -234,14 +114,7 @@ export const Room: FunctionComponent = () => {
         </Field>
       );
     }
-    if (errorReactions) {
-      return (
-        <Field>
-          <div>{Captions.ReactionsLoadingError}: {errorReactions}</div>
-        </Field>
-      );
-    }
-    if (loading || loadingReactions) {
+    if (loading) {
       return (
         <Field>
           <Loader />
@@ -278,7 +151,10 @@ export const Room: FunctionComponent = () => {
               {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}
             </div>
           )}
-          {renderReactions()}
+          <Reactions
+            admin={admin}
+            room={room}
+          />
         </Field>
         <Field className="twitch-embed-field">
           <Twitch
@@ -298,15 +174,12 @@ export const Room: FunctionComponent = () => {
   }, [
     admin,
     loading,
-    loadingReactions,
     loadingRoomActiveQuestion,
     error,
-    errorReactions,
     errorRoomActiveQuestion,
     room,
     openRoomQuestions,
     showClosedQuestions,
-    renderReactions,
     handleQuestionSelect,
     handleCopyRoomLink,
     handleShowClosedQuestions,
