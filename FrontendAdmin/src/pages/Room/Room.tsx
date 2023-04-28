@@ -1,4 +1,4 @@
-import React, { FunctionComponent, MouseEventHandler, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FunctionComponent, MouseEventHandler, useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import { reactionsApiDeclaration, roomQuestionApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
@@ -18,6 +18,7 @@ import { Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { CloseRoom } from './components/CloseRoom/CloseRoom';
 import { Twitch } from './components/Twitch/Twitch';
+import { Interviewee } from './components/Interviewee/Interviewee';
 
 import './Room.css';
 
@@ -225,17 +226,6 @@ export const Room: FunctionComponent = () => {
     handleGasReactionClick,
   ]);
 
-  const interviewee = useMemo(() => (
-    <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
-      <iframe
-        title="interviewee-client-frame"
-        className="interviewee-frame"
-        src={`${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${room?.id}&${admin ? '' : 'muted=1'}&fov=${admin ? '110' : '110'}`}
-      >
-      </iframe>
-    </Field>
-  ), [admin, room?.id]);
-
   const renderRoomContent = useCallback(() => {
     if (error) {
       return (
@@ -296,7 +286,13 @@ export const Room: FunctionComponent = () => {
             autoplay={!admin}
           />
         </Field>
-        {interviewee}
+        <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
+          <Interviewee
+            roomId={room?.id || ''}
+            fov={110}
+            muted={!admin}
+          />
+        </Field>
       </>
     );
   }, [
@@ -308,7 +304,6 @@ export const Room: FunctionComponent = () => {
     errorReactions,
     errorRoomActiveQuestion,
     room,
-    interviewee,
     openRoomQuestions,
     showClosedQuestions,
     renderReactions,
