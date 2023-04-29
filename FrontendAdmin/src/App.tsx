@@ -67,6 +67,12 @@ export const App: FunctionComponent = () => {
             background: 'var(--bg)',
             color: 'var(--text)',
           },
+          success: {
+            style: {
+              background: 'var(--bg-success)',
+              color: 'var(--text)',
+            },
+          },
         }}
       />
       <AuthContext.Provider value={user}>

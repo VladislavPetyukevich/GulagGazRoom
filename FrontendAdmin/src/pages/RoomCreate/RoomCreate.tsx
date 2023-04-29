@@ -9,7 +9,7 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { QuestionsSelector } from '../../components/QuestionsSelector/QuestionsSelector';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { UsersSelector } from '../../components/UsersSelector/UsersSelector';
-import { Captions, pathnames } from '../../constants';
+import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { User } from '../../types/user';
@@ -30,7 +30,7 @@ export const RoomCreate: FunctionComponent = () => {
     if (!createdRoomId) {
       return;
     }
-    toast(Captions.RoomCreated);
+    toast.success(Captions.RoomCreated, toastSuccessOptions);
     navigate(pathnames.rooms);
   }, [createdRoomId, navigate]);
 

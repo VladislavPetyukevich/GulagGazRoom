@@ -5,6 +5,7 @@
   --active: #b9221c;
   --shadow: #100908;
   --bg: #400000;
+  --bg-success: #103000;
   --page-bg: #574240;
   --progress-bg: var(--shadow);
   --progress-1: var(--active);

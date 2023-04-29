@@ -37,7 +37,7 @@ export const enum Captions {
   SendingActiveQuestion = 'Установка активного вопроса',
   LoadingRoom = 'Загрузка заседания',
   ErrorLoadingRoom = 'Ошибка загрузки заседания',
-  RoomCreated = 'Заседание успешно создано 👌',
+  RoomCreated = 'Заседание успешно создано',
   ErrorSendingActiveQuestion = 'Ошибка в установке активного вопроса',
   ReactionsLoadingError = 'Ошибка загрузки реакций',
   SendingReaction = 'Отправка реакции',
@@ -72,4 +72,8 @@ export const enum Captions {
   CloseRoomLoading = 'Закрытие комнаты',
   Yes = 'Так точно ✔️',
   No = 'Никак нет! ❌',
+};
+
+export const toastSuccessOptions = {
+  icon: '👌',
 };

@@ -6,7 +6,7 @@ import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
-import { Captions, pathnames } from '../../constants';
+import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 
@@ -25,7 +25,7 @@ export const QuestionCreate: FunctionComponent = () => {
     if (!createdQuestionId) {
       return;
     }
-    toast(Captions.QuestionCreatedSuccessfully);
+    toast.success(Captions.QuestionCreatedSuccessfully, toastSuccessOptions);
   }, [createdQuestionId]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
