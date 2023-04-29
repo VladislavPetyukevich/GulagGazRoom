@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { AppRoutes } from './routes/AppRoutes';
 import { NavMenu } from './components/NavMenu/NavMenu';
 import { AuthContext } from './context/AuthContext';
@@ -57,7 +57,7 @@ export const App: FunctionComponent = () => {
   }, [loading, userWillLoad, error, user, handlePageReset]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthContext.Provider value={user}>
         <div className="App">
           <header>
@@ -69,6 +69,6 @@ export const App: FunctionComponent = () => {
           {renderMainContent()}
         </div>
       </AuthContext.Provider>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
