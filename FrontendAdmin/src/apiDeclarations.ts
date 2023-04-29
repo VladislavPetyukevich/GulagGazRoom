@@ -49,14 +49,14 @@ export const roomsApiDeclaration = {
 };
 
 export const roomQuestionApiDeclaration = {
-  changeActiveQuestion: (body: { roomId: Room['id'], questionId: Question['id']; }): ApiContractPost => ({
-    method: 'POST',
-    baseUrl: '/RoomQuestion/ChangeActiveQuestion',
+  changeActiveQuestion: (body: { roomId: Room['id'], questionId: Question['id']; }): ApiContractPut => ({
+    method: 'PUT',
+    baseUrl: '/room-questions/active-question',
     body,
   }),
   getRoomQuestions: (params: { RoomId: Room['id']; State: QuestionState }): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/RoomQuestion/GetRoomQuestions',
+    baseUrl: '/room-questions',
     urlParams: params,
   }),
 };
