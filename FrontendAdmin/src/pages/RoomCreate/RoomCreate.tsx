@@ -1,4 +1,5 @@
 import React, { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
@@ -19,6 +20,7 @@ const nameFieldName = 'roomName';
 const twitchChannelFieldName = 'roomTwitchChannel';
 
 export const RoomCreate: FunctionComponent = () => {
+  const navigate = useNavigate();
   const { apiMethodState, fetchData } = useApiMethod<string>();
   const { process: { loading, error }, data: createdRoomId } = apiMethodState;
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
@@ -29,7 +31,8 @@ export const RoomCreate: FunctionComponent = () => {
       return;
     }
     toast(Captions.RoomCreated);
-  }, [createdRoomId]);
+    navigate(pathnames.rooms);
+  }, [createdRoomId, navigate]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
