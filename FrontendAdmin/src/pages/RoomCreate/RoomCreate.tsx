@@ -1,4 +1,5 @@
-import React, { FormEvent, FunctionComponent, useCallback, useState } from 'react';
+import React, { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
@@ -7,7 +8,7 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { QuestionsSelector } from '../../components/QuestionsSelector/QuestionsSelector';
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { UsersSelector } from '../../components/UsersSelector/UsersSelector';
-import { pathnames } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { User } from '../../types/user';
@@ -22,6 +23,13 @@ export const RoomCreate: FunctionComponent = () => {
   const { process: { loading, error }, data: createdRoomId } = apiMethodState;
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    if (!createdRoomId) {
+      return;
+    }
+    toast(Captions.RoomCreated);
+  }, [createdRoomId]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -86,15 +94,8 @@ export const RoomCreate: FunctionComponent = () => {
         </Field>
       );
     }
-    if (createdRoomId) {
-      return (
-        <Field>
-          <div>Room created successfully</div>
-        </Field>
-      );
-    }
     return <></>;
-  }, [error, loading, createdRoomId]);
+  }, [error, loading]);
 
   return (
     <MainContentWrapper className="question-create">
