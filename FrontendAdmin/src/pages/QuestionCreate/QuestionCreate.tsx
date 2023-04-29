@@ -1,4 +1,5 @@
-import React, { FormEvent, FunctionComponent, useCallback } from 'react';
+import React, { FormEvent, FunctionComponent, useCallback, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
@@ -19,6 +20,13 @@ export const QuestionCreate: FunctionComponent = () => {
     fetchData: fetchCreateQuestion,
   } = useApiMethod<Question['id']>();
   const { process: { loading, error }, data: createdQuestionId } = questionState;
+
+  useEffect(() => {
+    if (!createdQuestionId) {
+      return;
+    }
+    toast(Captions.QuestionCreatedSuccessfully);
+  }, [createdQuestionId]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -51,15 +59,8 @@ export const QuestionCreate: FunctionComponent = () => {
         </Field>
       );
     }
-    if (createdQuestionId) {
-      return (
-        <Field>
-          <div>{Captions.QuestionCreatedSuccessfully}</div>
-        </Field>
-      );
-    }
     return <></>;
-  }, [error, loading, createdQuestionId]);
+  }, [error, loading]);
 
   return (
     <MainContentWrapper className="question-create">
