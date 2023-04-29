@@ -35,6 +35,8 @@ export const enum Captions {
   ShowClosedQuestions = 'Показывать закрытые вопросы',
   SelectActiveQuestion = 'Установить тему допроса',
   SendingActiveQuestion = 'Установка активного вопроса',
+  LoadingRoom = 'Загрузка заседания',
+  ErrorLoadingRoom = 'Ошибка загрузки заседания',
   ErrorSendingActiveQuestion = 'Ошибка в установке активного вопроса',
   ReactionsLoadingError = 'Ошибка загрузки реакций',
   SendingReaction = 'Отправка реакции',
