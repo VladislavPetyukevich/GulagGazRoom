@@ -2,7 +2,6 @@ import React, { ChangeEvent, FunctionComponent, useCallback, useContext, useEffe
 import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
-import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { Captions, pathnames } from '../../constants';
@@ -10,6 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { checkAdmin } from '../../utils/checkAdmin';
+import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 
 import './Questions.css';
 
@@ -28,6 +28,7 @@ export const Questions: FunctionComponent = () => {
     data: updatedQuestionId,
   } = updatingQuestionState;
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const questionsSafe = questions || [];
 
   useEffect(() => {
     fetchQuestios(questionsApiDeclaration.getPage({
@@ -116,56 +117,6 @@ export const Questions: FunctionComponent = () => {
     handleEditingQuestionSubmit,
   ]);
 
-  const renderMainContent = useCallback(() => {
-    if (error) {
-      return (
-        <Field>
-          <div>Error: {error}</div>
-        </Field>
-      );
-    }
-    if (updatingError) {
-      return (
-        <Field>
-          <div>Updating error: {updatingError}</div>
-        </Field>
-      );
-    }
-    if (loading || updatingLoading || !questions) {
-      return (
-        Array.from({ length: pageSize + 1 }, (_, index) => (
-          <Field key={index}>
-            <Loader />
-          </Field>
-        ))
-      );
-    }
-    return (
-      <>
-        <ul className="questions-list">
-          {questions.map(createQuestionItem)}
-        </ul>
-        <Paginator
-          pageNumber={pageNumber}
-          prevDisabled={pageNumber === initialPageNumber}
-          nextDisabled={questions.length !== pageSize}
-          onPrevClick={handlePrevPage}
-          onNextClick={handleNextPage}
-        />
-      </>
-    );
-  }, [
-    error,
-    loading,
-    updatingError,
-    updatingLoading,
-    pageNumber,
-    questions,
-    handleNextPage,
-    handlePrevPage,
-    createQuestionItem,
-  ]);
-
   return (
     <MainContentWrapper>
       <HeaderWithLink
@@ -175,7 +126,24 @@ export const Questions: FunctionComponent = () => {
         linkCaption="+"
         linkFloat="right"
       />
-      {renderMainContent()}
+      <ProcessWrapper
+        loading={loading || updatingLoading}
+        error={error || updatingError}
+        loaders={Array.from({ length: pageSize }, () => ({}))}
+      >
+        <>
+          <ul className="questions-list">
+            {questionsSafe.map(createQuestionItem)}
+          </ul>
+          <Paginator
+            pageNumber={pageNumber}
+            prevDisabled={pageNumber === initialPageNumber}
+            nextDisabled={questionsSafe.length !== pageSize}
+            onPrevClick={handlePrevPage}
+            onNextClick={handleNextPage}
+          />
+        </>
+      </ProcessWrapper>
     </MainContentWrapper>
   );
 };
