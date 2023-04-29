@@ -62,7 +62,7 @@ export const App: FunctionComponent = () => {
       <Toaster
         position="top-center"
         toastOptions={{
-          duration: 1000,
+          duration: 3000,
           style: {
             background: 'var(--bg)',
             color: 'var(--text)',
