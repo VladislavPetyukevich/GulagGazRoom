@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useCallback, useEffect } from 'react';
 import { HashRouter } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AppRoutes } from './routes/AppRoutes';
 import { NavMenu } from './components/NavMenu/NavMenu';
 import { AuthContext } from './context/AuthContext';
@@ -58,6 +59,16 @@ export const App: FunctionComponent = () => {
 
   return (
     <HashRouter>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 1000,
+          style: {
+            background: 'var(--bg)',
+            color: 'var(--text)',
+          },
+        }}
+      />
       <AuthContext.Provider value={user}>
         <div className="App">
           <header>
