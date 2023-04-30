@@ -1,4 +1,4 @@
-import { FunctionComponent, useRef } from 'react';
+import { FunctionComponent, memo, useRef } from 'react';
 import { TwitchEmbed, TwitchEmbedInstance } from 'react-twitch-embed';
 
 export interface TwitchProps {
@@ -6,7 +6,7 @@ export interface TwitchProps {
   channel: string;
 }
 
-export const Twitch: FunctionComponent<TwitchProps> = ({
+export const Twitch: FunctionComponent<TwitchProps> = memo(({
   autoplay,
   channel,
 }) => {
@@ -25,4 +25,4 @@ export const Twitch: FunctionComponent<TwitchProps> = ({
       onVideoReady={handleReady}
     />
   );
-};
+});
