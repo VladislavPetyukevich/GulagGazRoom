@@ -291,7 +291,7 @@
 
         function getAdmins() {
           return new Promise((resolve, reject) => {
-            fetch(`${REACT_APP_BACKEND_URL}/User/GetByRole?role=Admin`)
+            fetch(`${REACT_APP_BACKEND_URL}/users/role/Admin`)
               .then((response) => {
                 if (!response.ok) {
                   return reject('Cannot get admins');
@@ -330,7 +330,7 @@
             if (!communist) {
               return reject('Not authenticated');
             }
-            fetch(`${REACT_APP_BACKEND_URL}/User/GetMe`)
+            fetch(`${REACT_APP_BACKEND_URL}/users/self`)
               .then((response) => {
                 if (response.ok) {
                   return resolve();
