@@ -8,11 +8,13 @@ import { roomQuestionApiDeclaration } from '../../../../apiDeclarations';
 
 export interface ActiveQuestionProps {
   room: Room | null;
+  placeHolder: string | null;
   lastWebSocketMessage: MessageEvent<any> | null;
 }
 
 export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
   room,
+  placeHolder,
   lastWebSocketMessage,
 }) => {
   const [showClosedQuestions, setShowClosedQuestions] = useState(false);
@@ -84,7 +86,7 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
         showClosedQuestions={showClosedQuestions}
         questions={room?.questions || []}
         openQuestions={openRoomQuestions || []}
-        placeHolder={Captions.SelectActiveQuestion}
+        placeHolder={placeHolder || Captions.SelectActiveQuestion}
         onSelect={handleQuestionSelect}
       />
       {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}

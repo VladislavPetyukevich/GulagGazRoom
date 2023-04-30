@@ -9,7 +9,7 @@ import { Captions } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
-import { Room as RoomType } from '../../types/room';
+import { RoomState, Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { CloseRoom } from './components/CloseRoom/CloseRoom';
 import { Twitch } from './components/Twitch/Twitch';
@@ -32,12 +32,16 @@ export const Room: FunctionComponent = () => {
   const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
 
+  const { apiMethodState: apiRoomStateMethodState, fetchData: fetchRoomState } = useApiMethod<RoomState>();
+  const { data: roomState } = apiRoomStateMethodState;
+
   useEffect(() => {
     if (!id) {
       throw new Error('Room id not found');
     }
     fetchData(roomsApiDeclaration.getById(id));
-  }, [id, fetchData]);
+    fetchRoomState(roomsApiDeclaration.getState(id));
+  }, [id, fetchData, fetchRoomState]);
 
   const handleCopyRoomLink = useCallback(() => {
     navigator.clipboard.writeText(
@@ -79,6 +83,7 @@ export const Room: FunctionComponent = () => {
             {admin && (
               <ActiveQuestion
                 room={room}
+                placeHolder={roomState?.activeQuestion?.value || null}
                 lastWebSocketMessage={lastMessage}
               />
             )}

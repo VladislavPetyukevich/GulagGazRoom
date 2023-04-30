@@ -8,3 +8,11 @@ export interface Room {
   questions: Question[];
   users: User[];
 }
+
+export interface RoomState {
+  id: Room['id'];
+  name: Room['name'];
+  likeCount: number;
+  dislikeCount: number;
+  activeQuestion: Question;
+}
