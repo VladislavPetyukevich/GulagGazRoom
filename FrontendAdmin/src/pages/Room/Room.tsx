@@ -1,6 +1,7 @@
 import { FunctionComponent, useCallback, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
+import toast from 'react-hot-toast';
 import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
@@ -42,6 +43,26 @@ export const Room: FunctionComponent = () => {
     fetchData(roomsApiDeclaration.getById(id));
     fetchRoomState(roomsApiDeclaration.getState(id));
   }, [id, fetchData, fetchRoomState]);
+
+  useEffect(() => {
+    if (!lastMessage || !auth?.nickname) {
+      return;
+    }
+    try {
+      const parsedData = JSON.parse(lastMessage?.data);
+      if (parsedData?.Type !== 'ChatMessage') {
+        return;
+      }
+      const message = parsedData?.Value?.Message;
+      const nickname = parsedData?.Value?.Nickname;
+      if (typeof message !== 'string') {
+        return;
+      }
+      if (message.includes(auth.nickname)) {
+        toast(`${nickname}: ${message}`, { icon: '💬' });
+      }
+    } catch { }
+  }, [auth, lastMessage]);
 
   const handleCopyRoomLink = useCallback(() => {
     navigator.clipboard.writeText(
