@@ -1,6 +1,6 @@
 using System.Reflection;
 using Interview.Backend;
-
+using Interview.Backend.Users;
 using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -24,19 +24,10 @@ using (var serviceScope = app.Services.CreateScope())
 {
     var appDbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
     appDbContext.Database.Migrate();
-    var testUserId = Guid.Parse("b5a05f34-e44d-11ed-b49f-e8e34e3377ec");
-    if (app.Environment.IsDevelopment() && !appDbContext.Users.Any(e => e.Id == testUserId))
+    var testUserService = serviceScope.ServiceProvider.GetService<TestUserService>();
+    if (testUserService is not null)
     {
-        appDbContext.Users.Add(new User("TEST_BACKEND_DEV_USER", "d1731c50-e44d-11ed-905c-d08c09609150")
-        {
-            Id = testUserId,
-            Avatar = null,
-            Roles =
-            {
-                appDbContext.Roles.Find(RoleName.User.Id) !,
-            },
-        });
-        appDbContext.SaveChanges();
+        await testUserService.AddUsersAsync(appDbContext);
     }
 }
 

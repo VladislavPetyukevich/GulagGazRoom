@@ -6,6 +6,7 @@ using System.Threading.RateLimiting;
 using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
 using Interview.Backend.Swagger;
+using Interview.Backend.Users;
 using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
@@ -174,5 +175,10 @@ public class ServiceConfigurator
                 options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);
             }
         });
+
+        if (_environment.IsDevelopment())
+        {
+            serviceCollection.AddSingleton<TestUserService>();
+        }
     }
 }

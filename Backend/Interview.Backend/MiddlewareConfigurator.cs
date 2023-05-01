@@ -1,4 +1,5 @@
 using Interview.Backend.Errors;
+using Interview.Backend.Users;
 using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.Extensions.Options;
@@ -52,6 +53,9 @@ public class MiddlewareConfigurator
 
             return func();
         });
+
+        var testUserService = _app.Services.GetService<TestUserService>();
+        testUserService?.AddMiddleware(_app);
 
         _app.UseAuthentication();
         _app.UseAuthorization();
