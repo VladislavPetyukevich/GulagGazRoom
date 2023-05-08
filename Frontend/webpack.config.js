@@ -27,7 +27,7 @@ const createCommonConfig = (envVariables = {}) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'source'),
+        '@': path.resolve(__dirname, 'source/view'),
       },
       extensions: ['.js', '.ts'],
     },
@@ -76,8 +76,8 @@ const createCommonConfig = (envVariables = {}) => {
         inject: false,
         template: PATHS.root + '/index.html',
         filename: './index.html',
-        ...envVariables,
       }),
+      new webpack.DefinePlugin(envVariables),
     ],
   };
 };
@@ -125,8 +125,8 @@ const productionConfig = {
 }
 
 const createEnvVariables = (obj = {}) => ({
-  REACT_APP_BACKEND_URL: obj['REACT_APP_BACKEND_URL'],
-  REACT_APP_WS_URL: obj['REACT_APP_WS_URL'],
+  'process.env.REACT_APP_BACKEND_URL': JSON.stringify(obj['REACT_APP_BACKEND_URL']),
+  'process.env.REACT_APP_WS_URL': JSON.stringify(obj['REACT_APP_WS_URL']),
 });
 
 const createConfig = (envVariables = {}, extension = {}) => {

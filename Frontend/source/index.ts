@@ -1,195 +1,201 @@
+import ThreeShooter, { ThreeShooterProps } from './view';
 import {
-  ReinhardToneMapping,
-  WebGLRenderer,
-  BasicShadowMap,
-} from 'three';
-import { BasicScene } from './core/Scene';
-import { TestScene } from './scenes/testScene';
-import { LoadingScene } from './scenes/loadingScene';
-import { ImageDisplayer, imageDisplayer } from './ImageDisplayer';
-import { ShaderPass } from './Postprocessing/ShaderPass';
-import { RenderPass } from './Postprocessing/RenderPass';
-import { EffectComposer } from './Postprocessing/EffectComposer';
-import { ColorCorrectionShader } from './Postprocessing/Shaders/ColorCorrectionShader';
-import { ColorPaletteShader } from './Postprocessing/Shaders/ColorPalette';
-import { texturesStore, audioStore } from '@/core/loaders';
-import { ImageScaler } from '@/ImageScaler';
-import { gameTextures, gameSounds } from './constants';
-import { playerActions, PlayerActionName } from '@/PlayerActions';
-import { globalSettings } from '@/GlobalSettings';
+  REACT_APP_BACKEND_URL,
+  REACT_APP_WS_URL,
+} from './logic/env';
+import { HTMLElements } from './logic/HTMLElements';
+import { Api } from './logic/Api';
+import { WebSocketConnection } from './logic/WebSocketConnection';
+import { Communist } from './logic/Communist';
+import { Settings } from './logic/Settings';
 
-const SceneClass = TestScene;
+let threeShooter: ThreeShooter | null = null;
 
-export default class ThreeShooter {
-  gameProps: any;
-  currScene: BasicScene;
-  loadedScene?: BasicScene;
-  imageDisplayer: ImageDisplayer;
-  prevTime: number;
-  enabled: boolean;
-  loaded: boolean;
-  pixelRatio: number;
-  renderer: WebGLRenderer;
-  composer: EffectComposer;
-  effectColorCorrection?: ShaderPass;
-  effectColorPalette?: ShaderPass;
-
-  constructor(props: any) {
-    this.gameProps = props;
-    this.currScene = new LoadingScene(props);
-    this.imageDisplayer = imageDisplayer;
-    this.prevTime = performance.now();
-    this.enabled = false;
-    this.loaded = false;
-    this.loadTextures(props);
-
-    this.pixelRatio = 1;
-    this.renderer = new WebGLRenderer({
-      powerPreference: 'high-performance',
-    });
-    this.renderer.setPixelRatio(this.pixelRatio);
-    this.renderer.autoClear = false;
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = BasicShadowMap;
-    this.renderer.physicallyCorrectLights = true;
-    this.renderer.gammaInput = true;
-    this.renderer.gammaOutput = true;
-    this.renderer.toneMapping = ReinhardToneMapping;
-    this.renderer.toneMappingExposure = Math.pow(0.68, 5.0);
-
-    this.composer = new EffectComposer(this.renderer);
-    this.composer.addPass(new RenderPass(this.currScene.scene, this.currScene.camera));
-
-    props.renderContainer.appendChild(this.renderer.domElement);
-    this.update();
-    this.handleResize(props.renderWidth, props.renderHeight);
+function onControlsEnabled(enabled: boolean) {
+  if (!threeShooter) {
+    return;
   }
+  threeShooter.setEnabled(enabled);
+}
 
-  handleResize = (width: number, height: number) => {
-    this.currScene.camera.aspect = width / height;
-    this.currScene.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
-    this.composer.setSize(width, height);
+export const htmlElements = new HTMLElements({
+  onControlsEnabled,
+  onAudioVolumeUpdate: updateAudioVolume,
+  onFovUpdate: updateFov,
+});
+
+function updateAudioVolume(value: number) {
+  if (!threeShooter) {
+    return;
+  }
+  var newVolume = value / 10;
+  threeShooter.updateAudioVolume(newVolume);
+  saveSettings();
+}
+
+function updateFov(value: number) {
+  if (!threeShooter) {
+    return;
+  }
+  threeShooter.updateFov(value);
+  htmlElements.updateFovValue(value);
+  saveSettings();
+}
+
+const settings = new Settings();
+
+function saveSettings() {
+  const settingsData = {
+    audioVolume: htmlElements.getAudioVolume(),
+    fov: htmlElements.getFov(),
   };
+  settings.save(settingsData);
+}
 
-  onPlayerActionStart(actionName: PlayerActionName, payload?: string) {
-    playerActions.startAction(actionName, payload);
-  }
+let adminsId: string[] = [];
 
-  setEnabled(newValue: boolean) {
-    if (!this.enabled && newValue) {
-      this.prevTime = performance.now();
-    }
-    this.enabled = newValue;
-    if (this.enabled && this.currScene instanceof LoadingScene) {
-      this.loaded = true;
-      if (this.loadedScene) {
-        this.changeScene(this.loadedScene);
+const communistValue = new Communist().get();
+
+if (!REACT_APP_BACKEND_URL) {
+  throw new Error('REACT_APP_BACKEND_URL are not defined');
+}
+const api = new Api({
+  communist: communistValue,
+  url: REACT_APP_BACKEND_URL,
+});
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const roomId = urlParams.get('roomId');
+if (!roomId) {
+  alert('Некорректная ссылка на комнату');
+  throw new Error('roomId not found in url params');
+}
+const paramsFov = parseInt(urlParams.get('fov') || '');
+const paramsMuted = !!urlParams.get('muted');
+
+function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
+  return function (event: MessageEvent<any>) {
+    try {
+      const dataParsed = JSON.parse(event.data);
+      console.log('dataParsed: ', dataParsed);
+      switch (dataParsed.Type) {
+        case 'ChatMessage':
+          const message = `${dataParsed.Value.Nickname}:\n${dataParsed.Value.Message}`;
+          threeShooter.onPlayerActionStart('chatMessage', message);
+          break;
+        case 'ReactionLike':
+          threeShooter.onPlayerActionStart('like', adminsId.includes(dataParsed.Value.UserId) ? 'admin' : undefined);
+          break;
+        case 'ReactionDislike':
+          threeShooter.onPlayerActionStart('dislike', adminsId.includes(dataParsed.Value.UserId) ? 'admin' : undefined);
+          break;
+        case 'GasOn':
+          threeShooter.onPlayerActionStart('gasEnable');
+          break;
+        case 'GasOff':
+          threeShooter.onPlayerActionStart('gasDisable');
+          break;
+        case 'ChangeRoomQuestionState':
+          if (dataParsed.Value.NewState !== 'Active') {
+            break;
+          }
+          const questionId = dataParsed.Value.QuestionId as string;
+          api.getQuestion(questionId)
+            .then(value => threeShooter.onPlayerActionStart('newQuestion', value))
+            .catch(() => alert('Get new question error'));
+          break;
+        default:
+          break;
       }
-    }
-    if (this.currScene instanceof TestScene) {
-      if (this.enabled) {
-        this.currScene.resumeSounds();
-      } else {
-        this.currScene.stopSounds();
-      }
+    } catch {
+      console.error('Failed to parse WebSocket message: ', event);
     }
   }
+};
 
-  loadTextures(gameProps: any) {
-    const imageScaler = new ImageScaler(8);
-    const onLoad = () => {
-      const soundsProgress = (<LoadingScene>this.currScene).soundsProgress;
-      const texturesProgress = (<LoadingScene>this.currScene).texturesProgress;
-      if ((soundsProgress !== 100) || (texturesProgress !== 100)) {
-        return;
-      }
+function onLoad() {
+  console.log('game loaded');
+}
 
-      this.loadScene(SceneClass, gameProps, () => {
-        if (this.enabled && this.loadedScene) {
-          this.changeScene(this.loadedScene);
-        }
-      });
-      gameProps.onLoad();
-    };
-
-    const onTexturesProgress = (progress: number) => {
-      (<LoadingScene>this.currScene).onTexturesProgress(progress);
-    };
-
-    const onSoundsProgress = (progress: number) => {
-      (<LoadingScene>this.currScene).onSoundsProgress(progress);
-    };
-
-    const onImagesScale = (imagesInfo: { [name: string]: string }) => {
-      texturesStore.loadTextures(imagesInfo, onLoad, onTexturesProgress);
-    };
-
-    const onImagesScaleProgress = (progress: number) => {
-      (<LoadingScene>this.currScene).onImagesScaleProgress(progress);
-    };
-    imageScaler.addToIgnore('damageEffect');
-    imageScaler.scaleImages(gameTextures, onImagesScale, onImagesScaleProgress);
-    audioStore.loadSounds(gameSounds, onLoad, onSoundsProgress);
-  }
-
-  onSceneFinish = () => {
-    setTimeout(
-      () => {
-        this.loadScene(
-          SceneClass,
-          { ...this.gameProps, onFinish: this.onSceneFinish },
-          () => this.loadedScene && this.changeScene(this.loadedScene)
-        );
-      },
-      0
+function addThreeShooterEventHandlers(threeShooter: ThreeShooter) {
+  window.addEventListener('resize', () => {
+    const rendererSize = htmlElements.getRendererSize();
+    threeShooter.handleResize(
+      rendererSize.width,
+      rendererSize.height
     );
-  }
+  });
 
-  loadScene(constructor: typeof BasicScene, gameProps: any, onLoaded?: Function) {
-    this.loadedScene = new constructor({
-      ...gameProps, onFinish: this.onSceneFinish
-    });
-    if (onLoaded) {
-      onLoaded();
-    }
-  }
-
-  changeScene(scene: BasicScene) {
-    this.currScene.entitiesContainer.onDestroy();
-    this.currScene = scene;
-    this.composer = new EffectComposer(this.renderer);
-    this.composer.addPass(new RenderPass(this.currScene.scene, this.currScene.camera));
-
-    this.effectColorCorrection = new ShaderPass(ColorCorrectionShader);
-    this.composer.addPass(this.effectColorCorrection);
-    this.effectColorPalette = new ShaderPass(ColorPaletteShader);
-    this.composer.addPass(this.effectColorPalette);
-  }
-
-  updateAudioVolume = (value: number) => {
-    globalSettings.setSetting('audioVolume', value);
-  };
-
-  updateFov = (value: number) => {
-    globalSettings.setSetting('fov', value);
-  };
-
-  update = () => {
-    if (this.enabled || !this.loaded) {
-      const time = performance.now();
-      const delta = (time - this.prevTime) / 1000;
-      if (delta < 1) {
-        this.renderer.clear();
-        this.currScene.update(delta);
-        this.composer.render(delta);
-        this.renderer.clearDepth();
-        this.renderer.render(this.imageDisplayer.scene, this.imageDisplayer.camera);
+  function loadSetting() {
+    try {
+      var settingsData = settings.load();
+      htmlElements.setAudioVolume(settingsData.audioVolume);
+      if (paramsMuted) {
+        threeShooter.updateAudioVolume(0);
       } else {
-        console.warn('Performance issues. Skip frame');
+        updateAudioVolume(settingsData.audioVolume);
       }
-      this.prevTime = time;
+      htmlElements.setFov(settingsData.fov);
+      if (isNaN(paramsFov)) {
+        updateFov(settingsData.fov);
+      } else {
+        threeShooter.updateFov(paramsFov);
+      }
+    } catch {
+      if (!isNaN(paramsFov)) {
+        threeShooter.updateFov(paramsFov);
+      }
+      if (paramsMuted) {
+        threeShooter.updateAudioVolume(0);
+      }
+      console.error('Falied to load game settings');
     }
-    requestAnimationFrame(this.update);
+  }
+  loadSetting();
+}
+
+async function init() {
+  if (!REACT_APP_WS_URL) {
+    throw new Error('REACT_APP_WS_URL are not defined');
+  }
+  if (!roomId) {
+    alert('Некорректная ссылка на комнату');
+    throw new Error('roomId not found in url params');
+  }
+  try {
+    await api.checkAuthorization();
+  } catch {
+    htmlElements.displayAuthentication();
+    return;
+  }
+  try {
+    const admins = await api.getAdmins();
+    adminsId = admins.map(admin => admin.id);
+    const roomState = await api.getRoomState(roomId);
+    const rendererSize = htmlElements.getRendererSize();
+    const threeShooterProps = {
+      renderContainer: htmlElements.renderContainer,
+      renderWidth: rendererSize.width,
+      renderHeight: rendererSize.height,
+      preload: {
+        question: roomState.activeQuestion && roomState.activeQuestion.value,
+        likes: roomState.likeCount,
+        dislikes: roomState.dislikeCount,
+      },
+      onLoad: onLoad
+    };
+    threeShooter = new ThreeShooter(threeShooterProps);
+    addThreeShooterEventHandlers(threeShooter);
+    const webSocketConnection = new WebSocketConnection({
+      communist: communistValue,
+      roomId,
+      url: REACT_APP_WS_URL,
+      onMessage: createWebSocketMessagehandler(threeShooter),
+    });
+    await webSocketConnection.connect();
+  } catch (err) {
+    alert(err);
   }
 }
+init();
