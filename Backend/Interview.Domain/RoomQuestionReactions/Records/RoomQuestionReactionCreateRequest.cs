@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Interview.Domain.RoomQuestionReactions.Records;
 
 public class RoomQuestionReactionCreateRequest
