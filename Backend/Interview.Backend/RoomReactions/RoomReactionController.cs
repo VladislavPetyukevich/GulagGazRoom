@@ -20,13 +20,14 @@ public class RoomReactionController : ControllerBase
     }
 
     /// <summary>
-    ///  Creating a reaction on a question and a room.
+    ///  Creates a reaction from the user to an active question in the room.
     /// </summary>
     /// <param name="request">The user request.</param>
     /// <returns>Data about the new bundle (reaction, room, question).</returns>
     [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(RoomQuestionReactionDetail), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
@@ -41,33 +42,8 @@ public class RoomReactionController : ControllerBase
             return Task.FromResult<ActionResult<RoomQuestionReactionDetail>>(Unauthorized());
         }
 
-        return _roomQuestionReactionService.CreateInRoomAsync(request, user.Id).ToResponseAsync();
-    }
-
-    /// <summary>
-    ///  Send new event for question and a room.
-    /// </summary>
-    /// <param name="request">The user request.</param>
-    /// <returns>Data about the new bundle (reaction, room, question).</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPost("event")]
-    [ProducesResponseType(typeof(RoomQuestionReaction), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomQuestionReaction>> SendReaction([FromBody] RoomQuestionSendReactionApiRequest request)
-    {
-        var user = User.ToUser();
-
-        if (user == null)
-        {
-            return Task.FromResult<ActionResult<RoomQuestionReaction>>(Unauthorized());
-        }
-
-        var sendRequest = request.ToDomainRequest(user.Id);
-
-        return _roomQuestionReactionService.SendReactionAsync(sendRequest, HttpContext.RequestAborted)
+        return _roomQuestionReactionService
+            .CreateAsync(request, user.Id, HttpContext.RequestAborted)
             .ToResponseAsync();
     }
 }
