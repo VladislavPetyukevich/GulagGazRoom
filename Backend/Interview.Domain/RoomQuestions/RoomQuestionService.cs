@@ -48,13 +48,13 @@ namespace Interview.Domain.RoomQuestions
                 return ServiceError.Error("Question already has active state");
             }
 
-            var specification = new Spec<Room>(r => r.Id == request.RoomId && r.Status == RoomStatus.New);
+            var specification = new Spec<Room>(r => r.Id == request.RoomId && r.Status == SERoomStatus.New);
 
             var room = await _roomRepository.FindFirstOrDefaultAsync(specification, cancellationToken);
 
             if (room != null)
             {
-                room.Status = RoomStatus.Active;
+                room.Status = SERoomStatus.Active;
                 await _roomRepository.UpdateAsync(room, cancellationToken);
             }
 

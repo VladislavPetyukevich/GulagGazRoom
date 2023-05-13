@@ -87,7 +87,7 @@ public class RoomServiceTest
         Assert.True(result.IsSuccess);
 
         var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
-        foundedRoom!.Status.Should().BeEquivalentTo(RoomStatus.Close);
+        foundedRoom!.Status.Should().BeEquivalentTo(SERoomStatus.Close);
 
         var activeQuestions = appDbContext.RoomQuestions.Count(e =>
             e.Room!.Id == savedRoom.Id &&

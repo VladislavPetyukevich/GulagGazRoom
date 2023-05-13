@@ -92,13 +92,8 @@ public sealed class RoomService
         return ServiceResult.Created(room);
     }
 
-    public async Task<Result<RoomItem>> UpdateAsync(Guid? id, RoomUpdateRequest? request, CancellationToken cancellationToken = default)
+    public async Task<Result<RoomItem>> UpdateAsync(Guid roomId, RoomUpdateRequest? request, CancellationToken cancellationToken = default)
     {
-        if (id == null)
-        {
-            return Result.Failure<RoomItem>($"Room id should not be null [{nameof(id)}]");
-        }
-
         if (request == null)
         {
             return Result.Failure<RoomItem>($"Room update request should not be null [{nameof(request)}]");
@@ -116,10 +111,10 @@ public sealed class RoomService
             return Result.Failure<RoomItem>("Room twitch channel should not be empty");
         }
 
-        var foundRoom = await _roomRepository.FindByIdAsync((Guid)id, cancellationToken);
+        var foundRoom = await _roomRepository.FindByIdAsync((Guid)roomId, cancellationToken);
         if (foundRoom == null)
         {
-            return Result.Failure<RoomItem>($"Not found room with id [{id}]");
+            return Result.Failure<RoomItem>($"Not found room with id [{roomId}]");
         }
 
         foundRoom.Name = name;
@@ -185,13 +180,13 @@ public sealed class RoomService
             return ServiceError.NotFound($"Room not found by id {roomId}");
         }
 
-        if (currentRoom.Status == RoomStatus.Close)
+        if (currentRoom.Status == SERoomStatus.Close)
         {
             return ServiceError.Error("Room already closed");
         }
 
         await _roomQuestionRepository.CloseActiveQuestionAsync(roomId, cancellationToken);
-        currentRoom.Status = RoomStatus.Close;
+        currentRoom.Status = SERoomStatus.Close;
         await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
         return ServiceResult.Ok();
     }

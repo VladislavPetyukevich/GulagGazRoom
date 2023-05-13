@@ -54,15 +54,4 @@ public class RoomServiceTest
         Assert.True(roomPatchUpdate.IsFailure);
         Assert.Equal($"Not found room with id [{roomId}]", roomPatchUpdate.Error);
     }
-
-    [Fact(DisplayName = "Patch update of room when room id is null")]
-    public async void PatchUpdateRoomWhenRoomIdIsNull()
-    {
-        var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "new_value_name_room", TwitchChannel = "TestCH" };
-
-        var roomPatchUpdate = await _roomService.UpdateAsync(null, roomPatchUpdateRequest);
-
-        Assert.True(roomPatchUpdate.IsFailure);
-        Assert.Equal("Room id should not be null [id]", roomPatchUpdate.Error);
-    }
 }
