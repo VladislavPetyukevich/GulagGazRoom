@@ -12,7 +12,7 @@ using X.PagedList;
 namespace Interview.Backend.Rooms;
 
 [ApiController]
-[Route("room")]
+[Route("rooms")]
 public class RoomController : ControllerBase
 {
     private readonly IRoomRepository _roomRepository;
