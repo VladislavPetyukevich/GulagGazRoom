@@ -10,6 +10,7 @@ using Interview.Domain.Repository;
 using Interview.Domain.RoomParticipants.Service;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
+using Interview.Domain.RoomReviews;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
 using Interview.Infrastructure.Certificates.Pdf;
@@ -51,6 +52,7 @@ public static class ServiceCollectionExt
         self.AddScoped<RoomQuestionService>();
         self.AddScoped<RoomQuestionReactionService>();
         self.AddScoped<ReactionService>();
+        self.AddScoped<RoomReviewService>();
         self.AddScoped(typeof(ArchiveService<>));
 
         self.AddSingleton(option.TwitchTokenProviderOption);
