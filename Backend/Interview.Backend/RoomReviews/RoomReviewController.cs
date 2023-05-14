@@ -2,7 +2,6 @@ using System.Net.Mime;
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Backend.Shared;
-using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.RoomReviews.Records;
 using Microsoft.AspNetCore.Authorization;
