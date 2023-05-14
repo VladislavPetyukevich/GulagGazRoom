@@ -4,6 +4,7 @@ using Interview.Backend.Responses;
 using Interview.Backend.Shared;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.RoomReviews.Records;
+using Interview.Domain.ServiceResults.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -53,7 +54,14 @@ public class RoomReviewController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<ActionResult<RoomReviewDetail>> Create([FromBody] RoomReviewCreateRequest request)
     {
-        return _roomReviewService.CreateAsync(request, HttpContext.User.ToUser() !.Id, HttpContext.RequestAborted)
+        var user = HttpContext.User.ToUser();
+
+        if (user == null)
+        {
+            return Task.FromResult(ServiceError.Error("Current user not found").ToActionResult<RoomReviewDetail>());
+        }
+
+        return _roomReviewService.CreateAsync(request, user.Id, HttpContext.RequestAborted)
             .ToResponseAsync();
     }
 
