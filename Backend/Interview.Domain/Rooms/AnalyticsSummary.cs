@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Rooms;
+namespace Interview.Domain.Rooms;
 
 public class AnalyticsSummary
 {
