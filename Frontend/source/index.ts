@@ -1,4 +1,4 @@
-import ThreeShooter, { ThreeShooterProps } from './view';
+import ThreeShooter from './view';
 import {
   REACT_APP_BACKEND_URL,
   REACT_APP_WS_URL,
@@ -8,6 +8,7 @@ import { Api } from './logic/Api';
 import { WebSocketConnection } from './logic/WebSocketConnection';
 import { Communist } from './logic/Communist';
 import { Settings } from './logic/Settings';
+import { CodeEditor } from './logic/CodeEditor';
 
 let threeShooter: ThreeShooter | null = null;
 
@@ -18,11 +19,14 @@ function onControlsEnabled(enabled: boolean) {
   threeShooter.setEnabled(enabled);
 }
 
-export const htmlElements = new HTMLElements({
+const htmlElements = new HTMLElements({
   onControlsEnabled,
   onAudioVolumeUpdate: updateAudioVolume,
   onFovUpdate: updateFov,
 });
+
+const codeEditor = new CodeEditor(htmlElements.editorContainer);
+// codeEditor.show();
 
 function updateAudioVolume(value: number) {
   if (!threeShooter) {
