@@ -26,6 +26,8 @@ public class Room : Entity
 
     public SERoomStatus Status { get; internal set; }
 
+    public RoomConfiguration? Configuration { get; internal set; }
+
     public List<RoomQuestion> Questions { get; set; } = new();
 
     public List<RoomParticipant> Participants { get; set; } = new();
