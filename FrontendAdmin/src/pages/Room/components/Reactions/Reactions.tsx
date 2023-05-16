@@ -63,7 +63,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const {
     apiMethodState: apiSendGasState,
     fetchData: sendRoomGas,
-  } = useApiMethod<unknown>({ noParseResponse: true });
+  } = useApiMethod<unknown>();
   const {
     process: { loading: loadingRoomGas, error: errorRoomGas },
   } = apiSendGasState;

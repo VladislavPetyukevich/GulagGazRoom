@@ -13,7 +13,7 @@ export const CloseRoom: FunctionComponent = () => {
   const {
     apiMethodState,
     fetchData,
-  } = useApiMethod<unknown>({ noParseResponse: true });
+  } = useApiMethod<unknown>();
   const {
     process: { loading, error },
   } = apiMethodState;
