@@ -21,6 +21,19 @@ body {
   background-color: rgba(0,0,0,0.5);
   z-index: 1;
 }
+#editor-container {
+  position: absolute;
+  top: 5%;
+  left: 40%;
+  width: 55%;
+  height: 90%;
+  min-width: 400px;
+  min-height: 200px;
+}
+.monaco-editor .editor-widget {
+  display: none !important;
+  visibility: hidden !important;
+}
 .blocker-content {
   color: #ffffff;
   text-align: center;
