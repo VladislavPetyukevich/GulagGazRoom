@@ -19,13 +19,12 @@ interface CreateRoomBody {
 export const roomsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Room/GetPage',
+    baseUrl: '/rooms',
     urlParams: pagination,
   }),
   getById: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Room/GetById',
-    urlParams: { id },
+    baseUrl: `/rooms/${id}`,
   }),
   getState: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
@@ -33,7 +32,7 @@ export const roomsApiDeclaration = {
   }),
   analyticsSummary: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: `/Room/${id}/analytics/summary`,
+    baseUrl: `/rooms/${id}/analytics/summary`,
   }),
   create: (body: CreateRoomBody): ApiContractPost => ({
     method: 'POST',
@@ -102,7 +101,7 @@ export const reactionsApiDeclaration = {
 export const roomReactionApiDeclaration = {
   send: (body: { reactionId: Reaction['id'], roomId: Room['id'] }): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/RoomReaction',
+    baseUrl: '/room-reactions',
     body,
   }),
 };
