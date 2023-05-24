@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -41,7 +41,7 @@ namespace Interview.Migrations.Postgres.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-            
+
             migrationBuilder.CreateIndex(
                 name: "IX_RoomReview_RoomId",
                 table: "RoomReview",
