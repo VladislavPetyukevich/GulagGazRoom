@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Interview.Migrations.Sqlite.Migrations
 {
     /// <inheritdoc />
-    public partial class RoomReview : Migration
+    public partial class RoomReviewAdd_Table : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,8 +20,8 @@ namespace Interview.Migrations.Sqlite.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     RoomId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Review = table.Column<string>(type: "TEXT", nullable: true),
-                    RoomReviewState = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    Review = table.Column<string>(type: "TEXT", nullable: false),
+                    SeRoomReviewState = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },

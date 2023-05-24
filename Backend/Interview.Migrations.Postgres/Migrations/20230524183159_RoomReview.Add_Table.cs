@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace Interview.Migrations.Postgres.Migrations
 {
@@ -18,8 +20,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoomId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Review = table.Column<string>(type: "text", nullable: true),
-                    RoomReviewState = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    Review = table.Column<string>(type: "text", nullable: false),
+                    SeRoomReviewState = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     CreateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
@@ -39,7 +41,7 @@ namespace Interview.Migrations.Postgres.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
+            
             migrationBuilder.CreateIndex(
                 name: "IX_RoomReview_RoomId",
                 table: "RoomReview",
