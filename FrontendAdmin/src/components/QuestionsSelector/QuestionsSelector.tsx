@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { questionsApiDeclaration } from '../../apiDeclarations';
+import { ChangeEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { PaginationUrlParams, questionsApiDeclaration } from '../../apiDeclarations';
 import { Loader } from '../../components/Loader/Loader';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { useApiMethod } from '../../hooks/useApiMethod';
@@ -22,15 +22,15 @@ export const QuestionsSelector: FunctionComponent<QuestionsSelectorProps> = ({
   onUnselect,
 }) => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[]>();
-  const { process: { loading, error }, data: questions } = questionsState;
+  const { apiMethodState, fetchData } = useApiMethod<Question[], PaginationUrlParams>(questionsApiDeclaration.getPage);
+  const { process: { loading, error }, data: questions } = apiMethodState;
 
   useEffect(() => {
-    fetchQuestios(questionsApiDeclaration.getPage({
+    fetchData({
       PageNumber: pageNumber,
       PageSize: pageSize,
-    }));
-  }, [fetchQuestios, pageNumber]);
+    });
+  }, [fetchData, pageNumber]);
 
   const handleCheckboxChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;

@@ -2,7 +2,7 @@ import React, { ChangeEvent, FunctionComponent, useCallback, useEffect, useState
 import { Loader } from '../Loader/Loader';
 import { Paginator } from '../Paginator/Paginator';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { usersApiDeclaration } from '../../apiDeclarations';
+import { PaginationUrlParams, usersApiDeclaration } from '../../apiDeclarations';
 import { User } from '../../types/user';
 
 import './UsersSelector.css';
@@ -25,14 +25,14 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
   const {
     apiMethodState: usersState,
     fetchData: fetchUsers,
-  } = useApiMethod<User[]>();
+  } = useApiMethod<User[], PaginationUrlParams>(usersApiDeclaration.getPage);
   const { process: { loading, error }, data: users } = usersState;
 
   useEffect(() => {
-    fetchUsers(usersApiDeclaration.getPage({
+    fetchUsers({
       PageNumber: pageNumber,
       PageSize: pageSize,
-    }));
+    });
   }, [fetchUsers, pageNumber]);
 
   const handleCheckboxChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {

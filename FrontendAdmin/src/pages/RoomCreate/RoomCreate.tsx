@@ -1,7 +1,7 @@
 import React, { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { roomsApiDeclaration } from '../../apiDeclarations';
+import { CreateRoomBody, roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
@@ -21,7 +21,7 @@ const twitchChannelFieldName = 'roomTwitchChannel';
 
 export const RoomCreate: FunctionComponent = () => {
   const navigate = useNavigate();
-  const { apiMethodState, fetchData } = useApiMethod<string>();
+  const { apiMethodState, fetchData } = useApiMethod<string, CreateRoomBody>(roomsApiDeclaration.create);
   const { process: { loading, error }, data: createdRoomId } = apiMethodState;
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
@@ -52,12 +52,12 @@ export const RoomCreate: FunctionComponent = () => {
     if (typeof roomTwitchChannel !== 'string') {
       throw new Error('roomTwitchChannel field type error');
     }
-    fetchData(roomsApiDeclaration.create({
+    fetchData({
       name: roomName,
       twitchChannel: roomTwitchChannel,
       questions: selectedQuestions.map(question => question.id),
       users: selectedUsers.map(user => user.id),
-    }));
+    });
   }, [selectedQuestions, selectedUsers, fetchData]);
 
   const handleQuestionSelect = useCallback((question: Question) => {

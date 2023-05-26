@@ -18,7 +18,7 @@ export const QuestionCreate: FunctionComponent = () => {
   const {
     apiMethodState: questionState,
     fetchData: fetchCreateQuestion,
-  } = useApiMethod<Question['id']>();
+  } = useApiMethod<Question['id'], Pick<Question, 'value'>>(questionsApiDeclaration.create);
   const { process: { loading, error }, data: createdQuestionId } = questionState;
 
   useEffect(() => {
@@ -39,9 +39,9 @@ export const QuestionCreate: FunctionComponent = () => {
     if (typeof qestionText !== 'string') {
       throw new Error('qestionText field type error');
     }
-    fetchCreateQuestion(questionsApiDeclaration.create({
+    fetchCreateQuestion({
       value: qestionText,
-    }));
+    });
   }, [fetchCreateQuestion]);
 
   const renderStatus = useCallback(() => {

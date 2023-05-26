@@ -14,13 +14,13 @@ import './RoomAnayticsSummary.css';
 
 export const RoomAnayticsSummary: FunctionComponent = () => {
   let { id } = useParams();
-  const { apiMethodState, fetchData } = useApiMethod<AnalyticsSummary>();
+  const { apiMethodState, fetchData } = useApiMethod<AnalyticsSummary, RoomType['id']>(roomsApiDeclaration.analyticsSummary);
   const { data, process: { loading, error } } = apiMethodState;
 
   const {
     apiMethodState: roomApiMethodState,
     fetchData: fetchRoom,
-  } = useApiMethod<RoomType>();
+  } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
   const {
     process: { loading: roomLoading, error: roomError },
     data: room,
@@ -35,8 +35,8 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     if (!id) {
       throw new Error('Room id not found');
     }
-    fetchData(roomsApiDeclaration.analyticsSummary(id));
-    fetchRoom(roomsApiDeclaration.getById(id));
+    fetchData(id);
+    fetchRoom(id);
   }, [id, fetchData, fetchRoom]);
 
   useEffect(() => {
