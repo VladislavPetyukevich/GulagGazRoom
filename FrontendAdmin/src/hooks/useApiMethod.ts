@@ -111,13 +111,14 @@ const getResponseError = (
   return responseContent.message;
 }
 
-export const useApiMethod = <ResponseData>() => {
+export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractCall: (data: RequestData) => ApiContract) => {
   const [apiMethodState, dispatch] = useReducer(apiMethodReducer, initialState);
   const navidate = useNavigate();
   const { deleteCommunist } = useCommunist();
 
-  const fetchData = useCallback(async (apiContract: ApiContract) => {
+  const fetchData = useCallback(async (requestData: RequestData) => {
     dispatch({ name: 'startLoad' });
+    const apiContract = apiContractCall(requestData);
     try {
       const response = await fetch(
         createFetchUrl(apiContract),
@@ -141,7 +142,7 @@ export const useApiMethod = <ResponseData>() => {
         payload: err.message || `Failed to fetch ${apiContract.method} ${apiContract.baseUrl}`,
       });
     }
-  }, [deleteCommunist, navidate]);
+  }, [apiContractCall, deleteCommunist, navidate]);
 
   return {
     apiMethodState: apiMethodState as ApiMethodState<ResponseData>,
