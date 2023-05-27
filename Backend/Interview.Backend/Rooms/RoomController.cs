@@ -4,6 +4,7 @@ using Interview.Backend.Shared;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
+using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ public class RoomController : ControllerBase
     /// <returns>Page.</returns>
     [Authorize]
     [HttpGet("")]
-    public Task<IPagedList<RoomDetail>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<RoomPageDetail>> GetPage([FromQuery] PageRequest request)
     {
         return _roomRepository.GetDetailedPageAsync(request.PageNumber, request.PageSize);
     }
@@ -119,7 +120,28 @@ public class RoomController : ControllerBase
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
-        return _roomService.SendGasEventAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
+    /// Sending code editor event to room.
+    /// </summary>
+    /// <param name="request">Request.</param>
+    /// <returns>Ok message.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPost("event/codeEditor")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public Task<ActionResult> SendCodeEditorEvent(CodeEditorRoomEventApiRequest request)
+    {
+        var user = User.ToUser();
+        if (user == null)
+        {
+            return Task.FromResult<ActionResult>(Unauthorized());
+        }
+
+        var sendRequest = request.ToDomainRequest(user.Id);
+        return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
@@ -128,22 +150,23 @@ public class RoomController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     public Task<ActionResult<Analytics>> GetAnalytics(Guid id)
     {
-        return _roomService.GetAnalyticsAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(id), HttpContext.RequestAborted).ToResponseAsync();
     }
 
     [Authorize]
     [HttpGet("{id:guid}/analytics/summary")]
-    [ProducesResponseType(typeof(AnalyticsSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
-    public Task<ActionResult<AnalyticsSummary>> GetAnalyticsSummary(Guid id)
+    public Task<ActionResult<Analytics>> GetAnalyticsSummary(Guid id)
     {
         var user = User.ToUser();
         if (user == null)
         {
-            return Task.FromResult<ActionResult<AnalyticsSummary>>(Unauthorized());
+            return Task.FromResult<ActionResult<Analytics>>(Unauthorized());
         }
 
-        return _roomService.GetAnalyticsSummaryAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        var request = new RoomAnalyticsRequest(id, new[] { user.Id });
+        return _roomService.GetAnalyticsAsync(request, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]

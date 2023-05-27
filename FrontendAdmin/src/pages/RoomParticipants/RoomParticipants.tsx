@@ -1,6 +1,6 @@
 import React, { FormEvent, FunctionComponent, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { ChangeParticipantStatusBody, roomParticipantApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import { roomParticipantApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { Loader } from '../../components/Loader/Loader';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
@@ -14,13 +14,13 @@ const userTypeFieldName = 'userType';
 
 export const RoomParticipants: FunctionComponent = () => {
   let { id } = useParams();
-  const { apiMethodState, fetchData } = useApiMethod<Room, Room['id']>(roomsApiDeclaration.getById);
+  const { apiMethodState, fetchData } = useApiMethod<Room>();
   const { process: { loading, error }, data: room } = apiMethodState;
 
   const {
     apiMethodState: changeParticipantStatusState,
     fetchData: changeParticipantStatusFetch,
-  } = useApiMethod<object, ChangeParticipantStatusBody>(roomParticipantApiDeclaration.changeParticipantStatus);
+  } = useApiMethod<object>();
   const {
     process: { loading: changeParticipantStatusLoading, error: changeParticipantStatusError },
     data: changeParticipantStatusData,
@@ -30,7 +30,7 @@ export const RoomParticipants: FunctionComponent = () => {
     if (!id) {
       throw new Error('Room id not found');
     }
-    fetchData(id);
+    fetchData(roomsApiDeclaration.getById(id));
   }, [id, fetchData]);
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
@@ -54,11 +54,11 @@ export const RoomParticipants: FunctionComponent = () => {
     if (typeof userType !== 'string') {
       throw new Error('userType field type error');
     }
-    changeParticipantStatusFetch({
+    changeParticipantStatusFetch(roomParticipantApiDeclaration.changeParticipantStatus({
       roomId: id,
       userId,
       userType,
-    });
+    }));
   }, [id, changeParticipantStatusFetch]);
 
   const renderMainContent = useCallback(() => {

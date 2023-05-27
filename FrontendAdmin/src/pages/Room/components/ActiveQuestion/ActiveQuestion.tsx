@@ -4,7 +4,7 @@ import { ActiveQuestionSelector } from '../../../../components/ActiveQuestionSel
 import { Room } from '../../../../types/room';
 import { useApiMethod } from '../../../../hooks/useApiMethod';
 import { Question } from '../../../../types/question';
-import { ChangeActiveQuestionBody, GetRoomQuestionsBody, roomQuestionApiDeclaration } from '../../../../apiDeclarations';
+import { roomQuestionApiDeclaration } from '../../../../apiDeclarations';
 
 export interface ActiveQuestionProps {
   room: Room | null;
@@ -22,7 +22,7 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
   const {
     apiMethodState: apiOpenRoomQuestions,
     fetchData: getRoomOpenQuestions,
-  } = useApiMethod<Array<Question['id']>, GetRoomQuestionsBody>(roomQuestionApiDeclaration.getRoomQuestions);
+  } = useApiMethod<Array<Question['id']>>();
   const {
     data: openRoomQuestions,
   } = apiOpenRoomQuestions;
@@ -30,7 +30,7 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
   const {
     apiMethodState: apiSendActiveQuestionState,
     fetchData: sendRoomActiveQuestion,
-  } = useApiMethod<unknown, ChangeActiveQuestionBody>(roomQuestionApiDeclaration.changeActiveQuestion);
+  } = useApiMethod<unknown>();
   const {
     process: { loading: loadingRoomActiveQuestion, error: errorRoomActiveQuestion },
   } = apiSendActiveQuestionState;
@@ -39,10 +39,10 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
     if (!room?.id) {
       return;
     }
-    getRoomOpenQuestions({
+    getRoomOpenQuestions(roomQuestionApiDeclaration.getRoomQuestions({
       RoomId: room.id,
       State: 'Open',
-    })
+    }))
   }, [room, getRoomOpenQuestions]);
 
   useEffect(() => {
@@ -57,10 +57,10 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
       if (parsedData.Value.NewState !== 'Active') {
         return;
       }
-      getRoomOpenQuestions({
+      getRoomOpenQuestions(roomQuestionApiDeclaration.getRoomQuestions({
         RoomId: room.id,
         State: 'Open',
-      });
+      }))
     } catch { }
   }, [room, lastWebSocketMessage, getRoomOpenQuestions]);
 
@@ -72,10 +72,10 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
     if (!room) {
       throw new Error('Error sending reaction. Room not found.');
     }
-    sendRoomActiveQuestion({
+    sendRoomActiveQuestion(roomQuestionApiDeclaration.changeActiveQuestion({
       roomId: room.id,
       questionId: question.id,
-    });
+    }));
   }, [room, sendRoomActiveQuestion]);
 
   return (

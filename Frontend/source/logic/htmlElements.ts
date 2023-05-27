@@ -14,7 +14,6 @@ export class HTMLElements {
   audioVolumeValue: HTMLElement;
   fov: HTMLInputElement;
   fovValue: HTMLElement;
-  editorContainer: HTMLElement;
 
   constructor(props: HTMLElementsProps) {
     this.blocker = this.getElementByIdOrError('blocker');
@@ -26,7 +25,6 @@ export class HTMLElements {
     this.audioVolumeValue = this.getElementByIdOrError('audio-volume-value');
     this.fov = this.getElementByIdOrError('fov') as HTMLInputElement;
     this.fovValue = this.getElementByIdOrError('fov-value');
-    this.editorContainer = this.getElementByIdOrError('editor-container');
 
     this.instructions.addEventListener('click', () => {
       this.setBlockerVisibility(false);
@@ -82,7 +80,7 @@ export class HTMLElements {
   }
 
   setBlockerVisibility(isVisible: boolean) {
-    this.blocker.style.visibility = isVisible ? 'visible' : 'hidden';
+    this.blocker.style.opacity = isVisible ? '1' : '0';
     this.blocker.style.transition = isVisible ? '1s' : '0s';
   }
 

@@ -4,32 +4,28 @@ import { Reaction } from './types/reaction';
 import { Room } from './types/room';
 import { User } from './types/user';
 
-export interface PaginationUrlParams {
+interface PaginationUrlParams {
   PageSize: number;
   PageNumber: number;
 }
 
-export interface CreateRoomBody {
+interface CreateRoomBody {
   name: string;
   twitchChannel: string;
   questions: Array<Question['id']>;
   users: Array<User['id']>;
 }
 
-export interface SendGasBody {
-  roomId: Room['id'];
-  type: 'GasOn' | 'GasOff';
-}
-
 export const roomsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/rooms',
+    baseUrl: '/Room/GetPage',
     urlParams: pagination,
   }),
   getById: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: `/rooms/${id}`,
+    baseUrl: '/Room/GetById',
+    urlParams: { id },
   }),
   getState: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
@@ -37,14 +33,14 @@ export const roomsApiDeclaration = {
   }),
   analyticsSummary: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: `/rooms/${id}/analytics/summary`,
+    baseUrl: `/Room/${id}/analytics/summary`,
   }),
   create: (body: CreateRoomBody): ApiContractPost => ({
     method: 'POST',
     baseUrl: '/Room/Create',
     body,
   }),
-  sendGasEvent: (body: SendGasBody): ApiContractPost => ({
+  sendGasEvent: (body: { roomId: Room['id'], type: 'GasOn' | 'GasOff'; }): ApiContractPost => ({
     method: 'POST',
     baseUrl: '/Room/SendGasEvent',
     body,
@@ -56,23 +52,13 @@ export const roomsApiDeclaration = {
   }),
 };
 
-export interface ChangeActiveQuestionBody {
-  roomId: Room['id'];
-  questionId: Question['id'];
-}
-
-export interface GetRoomQuestionsBody {
-  RoomId: Room['id'];
-  State: QuestionState;
-}
-
 export const roomQuestionApiDeclaration = {
-  changeActiveQuestion: (body: ChangeActiveQuestionBody): ApiContractPut => ({
+  changeActiveQuestion: (body: { roomId: Room['id'], questionId: Question['id']; }): ApiContractPut => ({
     method: 'PUT',
     baseUrl: '/room-questions/active-question',
     body,
   }),
-  getRoomQuestions: (params: GetRoomQuestionsBody): ApiContractGet => ({
+  getRoomQuestions: (params: { RoomId: Room['id']; State: QuestionState }): ApiContractGet => ({
     method: 'GET',
     baseUrl: '/room-questions',
     urlParams: params,
@@ -113,27 +99,20 @@ export const reactionsApiDeclaration = {
   }),
 };
 
-export interface SendReactionBody {
-  reactionId: Reaction['id'];
-  roomId: Room['id'];
-}
-
 export const roomReactionApiDeclaration = {
-  send: (body: SendReactionBody): ApiContractPost => ({
+  send: (body: { reactionId: Reaction['id'], roomId: Room['id'] }): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/room-reactions',
+    baseUrl: '/RoomReaction',
     body,
   }),
 };
 
-export interface ChangeParticipantStatusBody {
-  userId: Reaction['id'];
-  roomId: Room['id'];
-  userType: string;
-}
-
 export const roomParticipantApiDeclaration = {
-  changeParticipantStatus: (body: ChangeParticipantStatusBody): ApiContractPatch => ({
+  changeParticipantStatus: (body: {
+    userId: Reaction['id'];
+    roomId: Room['id'];
+    userType: string;
+  }): ApiContractPatch => ({
     method: 'PATCH',
     baseUrl: '/ChangeParticipantStatus',
     body,

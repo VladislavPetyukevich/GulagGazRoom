@@ -3,7 +3,6 @@ const webpack = require('webpack');
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const PATHS = {
   root: path.join(__dirname),
@@ -68,15 +67,7 @@ const createCommonConfig = (envVariables = {}) => {
         {
           test: /\.(glsl)$/i,
           use: 'raw-loader'
-        },
-        {
-          test: /\.css$/,
-          use: ['style-loader', 'css-loader']
-        },
-        {
-          test: /\.ttf$/,
-          use: ['file-loader']
-        },
+        }
       ]
     },
     plugins: [
@@ -87,7 +78,6 @@ const createCommonConfig = (envVariables = {}) => {
         filename: './index.html',
       }),
       new webpack.DefinePlugin(envVariables),
-      new MonacoWebpackPlugin(),
     ],
   };
 };

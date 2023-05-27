@@ -30,18 +30,18 @@ export const Room: FunctionComponent = () => {
   const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${id}`;
   const { lastMessage } = useWebSocket(socketUrl);
 
-  const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
+  const { apiMethodState, fetchData } = useApiMethod<RoomType>();
   const { process: { loading, error }, data: room } = apiMethodState;
 
-  const { apiMethodState: apiRoomStateMethodState, fetchData: fetchRoomState } = useApiMethod<RoomState, RoomType['id']>(roomsApiDeclaration.getState);
+  const { apiMethodState: apiRoomStateMethodState, fetchData: fetchRoomState } = useApiMethod<RoomState>();
   const { data: roomState } = apiRoomStateMethodState;
 
   useEffect(() => {
     if (!id) {
       throw new Error('Room id not found');
     }
-    fetchData(id);
-    fetchRoomState(id);
+    fetchData(roomsApiDeclaration.getById(id));
+    fetchRoomState(roomsApiDeclaration.getState(id));
   }, [id, fetchData, fetchRoomState]);
 
   useEffect(() => {

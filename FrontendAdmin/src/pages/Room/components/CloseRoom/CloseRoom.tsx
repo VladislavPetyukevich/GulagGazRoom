@@ -4,7 +4,6 @@ import Modal from 'react-modal';
 import { useApiMethod } from '../../../../hooks/useApiMethod';
 import { roomsApiDeclaration } from '../../../../apiDeclarations';
 import { Captions } from '../../../../constants';
-import { Room } from '../../../../types/room';
 
 import './CloseRoom.css';
 
@@ -14,7 +13,7 @@ export const CloseRoom: FunctionComponent = () => {
   const {
     apiMethodState,
     fetchData,
-  } = useApiMethod<unknown, Room['id']>(roomsApiDeclaration.close);
+  } = useApiMethod<unknown>({ noParseResponse: true });
   const {
     process: { loading, error },
   } = apiMethodState;
@@ -31,7 +30,7 @@ export const CloseRoom: FunctionComponent = () => {
     if (!id) {
       throw new Error('Room id not found');
     }
-    fetchData(id);
+    fetchData(roomsApiDeclaration.close(id));
     setModalOpen(false);
   }, [id, fetchData]);
 

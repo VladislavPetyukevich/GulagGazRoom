@@ -3,7 +3,7 @@ import { Captions } from '../../../../constants';
 import { ReactionsList } from '../../../../components/ReactionsList/ReactionsList';
 import { useApiMethod } from '../../../../hooks/useApiMethod';
 import { Reaction } from '../../../../types/reaction';
-import { PaginationUrlParams, SendGasBody, SendReactionBody, reactionsApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../../../apiDeclarations';
+import { reactionsApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../../../apiDeclarations';
 import { Room } from '../../../../types/room';
 import { Loader } from '../../../../components/Loader/Loader';
 
@@ -46,7 +46,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const {
     apiMethodState: apiReactionsState,
     fetchData: fetchReactions,
-  } = useApiMethod<Reaction[], PaginationUrlParams>(reactionsApiDeclaration.getPage);
+  } = useApiMethod<Reaction[]>();
   const {
     process: { loading: loadingReactions, error: errorReactions },
     data: reactions,
@@ -55,7 +55,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const {
     apiMethodState: apiRoomReactionState,
     fetchData: sendRoomReaction,
-  } = useApiMethod<unknown, SendReactionBody>(roomReactionApiDeclaration.send);
+  } = useApiMethod<unknown>();
   const {
     process: { loading: loadingRoomReaction, error: errorRoomReaction },
   } = apiRoomReactionState;
@@ -63,36 +63,36 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const {
     apiMethodState: apiSendGasState,
     fetchData: sendRoomGas,
-  } = useApiMethod<unknown, SendGasBody>(roomsApiDeclaration.sendGasEvent);
+  } = useApiMethod<unknown>({ noParseResponse: true });
   const {
     process: { loading: loadingRoomGas, error: errorRoomGas },
   } = apiSendGasState;
 
   useEffect(() => {
-    fetchReactions({
+    fetchReactions(reactionsApiDeclaration.getPage({
       PageSize: reactionsPageSize,
       PageNumber: reactionsPageNumber,
-    });
+    }));
   }, [fetchReactions]);
 
   const handleReactionClick = useCallback((reaction: Reaction) => {
     if (!room) {
       throw new Error('Error sending reaction. Room not found.');
     }
-    sendRoomReaction({
+    sendRoomReaction(roomReactionApiDeclaration.send({
       reactionId: reaction.id,
       roomId: room.id,
-    });
+    }));
   }, [room, sendRoomReaction]);
 
   const handleGasReactionClick = useCallback((reaction: Reaction) => {
     if (!room) {
       throw new Error('Error sending reaction. Room not found.');
     }
-    sendRoomGas({
+    sendRoomGas(roomsApiDeclaration.sendGasEvent({
       roomId: room.id,
       type: (reaction as GasReaction).type.eventType,
-    });
+    }));
   }, [room, sendRoomGas]);
 
   if (errorReactions) {

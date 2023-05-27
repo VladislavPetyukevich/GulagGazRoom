@@ -67,8 +67,8 @@ const createFetchUrl = (apiContract: ApiContract) => {
   if (apiContract.method === 'GET' && apiContract.urlParams) {
     const params =
       Object.entries(apiContract.urlParams)
-        .map(([paramName, paramValue]) => `${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}`)
-        .join('&');
+      .map(([paramName, paramValue]) => `${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}`)
+      .join('&');
     return `${REACT_APP_BACKEND_URL}${apiContract.baseUrl}?${params}`;
   }
   return `${REACT_APP_BACKEND_URL}${apiContract.baseUrl}`;
@@ -87,38 +87,13 @@ const createFetchRequestInit = (apiContract: ApiContract) => {
   };
 };
 
-type AnyObject = Record<string, any>;
-
-const getResponseContent = async (response: Response): Promise<AnyObject | string> => {
-  const contentType = response.headers.get('content-type');
-  if (!contentType || !contentType.includes('application/json')) {
-    return await response.text();
-  }
-  return await response.json();
-};
-
-const getResponseError = (
-  response: Response,
-  responseContent: AnyObject | string,
-  apiContract: ApiContract
-) => {
-  if (
-    typeof responseContent === 'string' ||
-    !responseContent.message
-  ) {
-    return `${apiContract.method} ${apiContract.baseUrl} ${response.status}`;
-  }
-  return responseContent.message;
-}
-
-export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractCall: (data: RequestData) => ApiContract) => {
+export const useApiMethod = <ResponseData>(options?: { noParseResponse?: boolean }) => {
   const [apiMethodState, dispatch] = useReducer(apiMethodReducer, initialState);
   const navidate = useNavigate();
   const { deleteCommunist } = useCommunist();
 
-  const fetchData = useCallback(async (requestData: RequestData) => {
+  const fetchData = useCallback(async (apiContract: ApiContract) => {
     dispatch({ name: 'startLoad' });
-    const apiContract = apiContractCall(requestData);
     try {
       const response = await fetch(
         createFetchUrl(apiContract),
@@ -129,12 +104,13 @@ export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractC
         navidate(pathnames.home);
         return;
       }
-
-      const responseData = await getResponseContent(response);
       if (!response.ok) {
-        const errorMessage = getResponseError(response, responseData, apiContract);
-        throw new Error(errorMessage);
+        throw new Error(`${apiContract.method} ${apiContract.baseUrl} ${response.status}`);
       }
+      const responseData =
+        options?.noParseResponse ?
+        response :
+        await response.json();
       dispatch({ name: 'setData', payload: responseData });
     } catch (err: any) {
       dispatch({
@@ -142,7 +118,7 @@ export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractC
         payload: err.message || `Failed to fetch ${apiContract.method} ${apiContract.baseUrl}`,
       });
     }
-  }, [apiContractCall, deleteCommunist, navidate]);
+  }, [options?.noParseResponse, deleteCommunist, navidate]);
 
   return {
     apiMethodState: apiMethodState as ApiMethodState<ResponseData>,

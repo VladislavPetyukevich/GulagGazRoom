@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PaginationUrlParams, roomsApiDeclaration } from '../../apiDeclarations';
+import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
@@ -21,16 +21,16 @@ export const Rooms: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const { apiMethodState, fetchData } = useApiMethod<Room[], PaginationUrlParams>(roomsApiDeclaration.getPage);
+  const { apiMethodState, fetchData } = useApiMethod<Room[]>();
   const { process: { loading, error }, data: rooms } = apiMethodState;
   const loaders = Array.from({ length: pageSize }, () => ({ height: '6.05rem' }));
   const roomsSafe = rooms || [];
 
   useEffect(() => {
-    fetchData({
+    fetchData(roomsApiDeclaration.getPage({
       PageSize: pageSize,
       PageNumber: pageNumber,
-    });
+    }));
   }, [fetchData, pageNumber]);
 
   const handleNextPage = useCallback(() => {

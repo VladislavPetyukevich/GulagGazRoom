@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
-import { PaginationUrlParams, questionsApiDeclaration } from '../../apiDeclarations';
+import { questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
@@ -20,9 +20,9 @@ export const Questions: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[], PaginationUrlParams>(questionsApiDeclaration.getPage);
+  const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[]>();
   const { process: { loading, error }, data: questions } = questionsState;
-  const { apiMethodState: updatingQuestionState, fetchData: fetchUpdateQuestion } = useApiMethod<Question['id'], Question>(questionsApiDeclaration.update);
+  const { apiMethodState: updatingQuestionState, fetchData: fetchUpdateQuestion } = useApiMethod<Question['id']>();
   const {
     process: { loading: updatingLoading, error: updatingError },
     data: updatedQuestionId,
@@ -31,18 +31,18 @@ export const Questions: FunctionComponent = () => {
   const questionsSafe = questions || [];
 
   useEffect(() => {
-    fetchQuestios({
+    fetchQuestios(questionsApiDeclaration.getPage({
       PageNumber: pageNumber,
       PageSize: pageSize,
-    });
+    }));
   }, [fetchQuestios, pageNumber]);
 
   useEffect(() => {
     if (updatedQuestionId) {
-      fetchQuestios({
+      fetchQuestios(questionsApiDeclaration.getPage({
         PageNumber: pageNumber,
         PageSize: pageSize,
-      });
+      }));
     }
   }, [updatedQuestionId, pageNumber, fetchQuestios]);
 
@@ -74,10 +74,10 @@ export const Questions: FunctionComponent = () => {
       console.error('handleEditingQuestionSubmit without editingQuestion');
       return;
     }
-    fetchUpdateQuestion({
+    fetchUpdateQuestion(questionsApiDeclaration.update({
       id: editingQuestion.id,
       value: editingQuestion.value,
-    });
+    }));
     setEditingQuestion(null);
   }, [editingQuestion, fetchUpdateQuestion]);
 

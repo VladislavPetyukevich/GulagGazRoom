@@ -1,12 +1,17 @@
+using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
+using System.Text;
 using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
-using Interview.Backend.WebSocket.ConnectListener;
 using Interview.Backend.WebSocket.UserByRoom;
-using Interview.Domain;
 using Interview.Domain.Connections;
+using Interview.Domain.Events;
+using Interview.Domain.Events.Events;
+using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Service;
 using Microsoft.AspNetCore.Mvc;
+using NSpecifications;
 
 namespace Interview.Backend.WebSocket;
 
@@ -29,16 +34,8 @@ public class WebSocketController : ControllerBase
     [ApiExplorerSettings(IgnoreApi = true)]
     public async Task ExecuteWebSocket()
     {
-        if (!HttpContext.WebSockets.IsWebSocketRequest)
+        if (!TryGetUser(out var user))
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            return;
-        }
-
-        var user = HttpContext.User.ToUser();
-        if (user == null)
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             return;
         }
 
@@ -48,19 +45,13 @@ public class WebSocketController : ControllerBase
         (Guid RoomId, Guid UserId, string TwitchChannel)? connectionDetail = null;
         try
         {
-            if (!HttpContext.Request.Query.TryGetValue("roomId", out var roomIdentityString))
+            var roomIdentity = await ParseRoomIdAsync(webSocket, ct);
+            if (roomIdentity is null)
             {
-                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", ct);
                 return;
             }
 
-            if (!Guid.TryParse(roomIdentityString, out var roomIdentity))
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", ct);
-                return;
-            }
-
-            var (_, isFailure, dbRoom) = await _roomService.AddParticipantAsync(roomIdentity, user.Id, ct);
+            var (_, isFailure, dbRoom) = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
 
             if (isFailure || dbRoom == null)
             {
@@ -81,6 +72,10 @@ public class WebSocketController : ControllerBase
                 // ignore
             }
         }
+        catch (OperationCanceledException)
+        {
+            // ignore
+        }
         catch (Exception e)
         {
             await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
@@ -92,6 +87,146 @@ public class WebSocketController : ControllerBase
                 var (roomId, userId, twitchChannel) = connectionDetail.Value;
                 _connectUserSource.Disconnect(roomId, userId, twitchChannel);
             }
+        }
+    }
+
+    [Route("/code")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task SendCode()
+    {
+        if (!TryGetUser(out var user))
+        {
+            return;
+        }
+
+        var ct = HttpContext.RequestAborted;
+        using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+
+        try
+        {
+            var roomIdentity = await ParseRoomIdAsync(webSocket, ct);
+            if (roomIdentity is null)
+            {
+                return;
+            }
+
+            var roomRepository = HttpContext.RequestServices.GetRequiredService<IRoomRepository>();
+            var hasRoom = await roomRepository.HasAsync(new Spec<Room>(room => room.Id == roomIdentity), ct);
+            if (!hasRoom)
+            {
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.InvalidPayloadData,
+                    $"Not found room by id '{roomIdentity}'",
+                    ct);
+                return;
+            }
+
+            var participantRepository = HttpContext.RequestServices.GetRequiredService<IRoomParticipantRepository>();
+            var roomParticipant = await participantRepository.FindByRoomIdAndUserId(roomIdentity.Value, user.Id, ct);
+            if (roomParticipant is null)
+            {
+                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Not found room participant", ct);
+                return;
+            }
+
+            if (roomParticipant.Type != RoomParticipantType.Examinee &&
+                roomParticipant.Type != RoomParticipantType.Expert)
+            {
+                await webSocket.CloseAsync(
+                    WebSocketCloseStatus.InvalidPayloadData,
+                    "Not enough rights to send an event.",
+                    ct);
+                return;
+            }
+
+            string code;
+            using (var buffer = new PoolItem(8192))
+            {
+                using var ms = new MemoryStream();
+                WebSocketReceiveResult result;
+                do
+                {
+                    result = await webSocket.ReceiveAsync(buffer.Buffer, CancellationToken.None);
+                    ms.Write(buffer.Buffer, 0, result.Count);
+                }
+                while (!result.EndOfMessage);
+
+                ms.Seek(0, SeekOrigin.Begin);
+
+                using var reader = new StreamReader(ms, Encoding.UTF8);
+                code = await reader.ReadToEndAsync(ct);
+            }
+
+            var eventDispatcher = HttpContext.RequestServices.GetRequiredService<IRoomEventDispatcher>();
+            await eventDispatcher.WriteAsync(new RoomEvent(roomIdentity.Value, EventType.ChangeCodeEditor, code), ct);
+
+            try
+            {
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, ct);
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // ignore
+        }
+        catch (Exception e)
+        {
+            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
+        }
+    }
+
+    private async Task<Guid?> ParseRoomIdAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken ct)
+    {
+        if (!HttpContext.Request.Query.TryGetValue("roomId", out var roomIdentityString))
+        {
+            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", ct);
+            return null;
+        }
+
+        if (!Guid.TryParse(roomIdentityString, out var roomIdentity))
+        {
+            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", ct);
+            return null;
+        }
+
+        return roomIdentity;
+    }
+
+    private bool TryGetUser([NotNullWhen(true)] out User? user)
+    {
+        if (!HttpContext.WebSockets.IsWebSocketRequest)
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            user = null;
+            return false;
+        }
+
+        user = HttpContext.User.ToUser();
+        if (user == null)
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return false;
+        }
+
+        return true;
+    }
+
+    private class PoolItem : IDisposable
+    {
+        public byte[] Buffer { get; }
+
+        public PoolItem(int size)
+        {
+            Buffer = ArrayPool<byte>.Shared.Rent(size);
+        }
+
+        public void Dispose()
+        {
+            ArrayPool<byte>.Shared.Return(Buffer);
         }
     }
 }

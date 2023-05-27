@@ -1,6 +1,4 @@
-using System.Linq.Expressions;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
@@ -11,7 +9,6 @@ using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
-using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Questions;
 using Interview.Infrastructure.RoomQuestionReactions;
 using Interview.Infrastructure.RoomQuestions;
@@ -381,7 +378,7 @@ public class RoomServiceTest
             }
         };
 
-        var analyticsResult = await roomService.GetAnalyticsAsync(room1.Id);
+        var analyticsResult = await roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(room1.Id));
 
         Assert.True(analyticsResult.IsSuccess);
 
@@ -390,303 +387,215 @@ public class RoomServiceTest
         serviceResult.Value.Should().BeEquivalentTo(expectAnalytics);
     }
 
-    public static IEnumerable<object[]> GetAnalyticsSummary_Should_Return_Valid_AnalyticsSummary_By_RoomId_Data
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new AnalyticsSummaryTestData(new List<AnalyticsSummaryTestDataUser>
-                {
-                    new("User1", RoomParticipantType.Viewer, new AnalyticsSummaryTestDataQuestion("Test 1", 1), new AnalyticsSummaryTestDataQuestion("Test 1", 1)),
-                    new("User2", RoomParticipantType.Viewer, new AnalyticsSummaryTestDataQuestion("Test 1", 2), new AnalyticsSummaryTestDataQuestion("Test 1", 0)),
-                    new("Expert1", RoomParticipantType.Expert, new AnalyticsSummaryTestDataQuestion("Test 1", 0), new AnalyticsSummaryTestDataQuestion("Test 1", 2)),
-                    new("Expert2", RoomParticipantType.Expert, new AnalyticsSummaryTestDataQuestion("Test 1", 1), new AnalyticsSummaryTestDataQuestion("Test 1", 1)),
-
-                    new("User1", RoomParticipantType.Viewer, new AnalyticsSummaryTestDataQuestion("Test 2", 2), new AnalyticsSummaryTestDataQuestion("Test 2", 1)),
-                    new("User2", RoomParticipantType.Viewer, new AnalyticsSummaryTestDataQuestion("Test 2", 3), new AnalyticsSummaryTestDataQuestion("Test 2", 1)),
-                    new("Expert1", RoomParticipantType.Expert, new AnalyticsSummaryTestDataQuestion("Test 2", 0), new AnalyticsSummaryTestDataQuestion("Test 2", 2)),
-                    new("Expert2", RoomParticipantType.Expert, new AnalyticsSummaryTestDataQuestion("Test 2", 0), new AnalyticsSummaryTestDataQuestion("Test 2", 5)),
-
-                    new("User1", RoomParticipantType.Viewer, new AnalyticsSummaryTestDataQuestion("Test 3", 11), new AnalyticsSummaryTestDataQuestion("Test 3", 2)),
-                    new("Expert1", RoomParticipantType.Expert, new AnalyticsSummaryTestDataQuestion("Test 3", 2), new AnalyticsSummaryTestDataQuestion("Test 3", 0)),
-                }, new AnalyticsSummary
-                {
-                    Questions = new List<AnalyticsSummaryQuestion>
-                    {
-                        new()
-                        {
-                            Id = Guid.Empty,
-                            Value = "Test 1",
-                            Experts = new List<AnalyticsSummaryExpert>
-                            {
-                                new()
-                                {
-                                    Nickname = "Expert1",
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 2,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                },
-                                new()
-                                {
-                                    Nickname = "Expert2",
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 1,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 1,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                }
-                            },
-                            Viewers = new List<AnalyticsSummaryViewer>
-                            {
-                                new()
-                                {
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 1,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 1,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                },
-                                new()
-                                {
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 2,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                    }
-                                }
-                            }
-                        },
-                        new()
-                        {
-                            Id = Guid.Empty,
-                            Value = "Test 2",
-                            Experts = new List<AnalyticsSummaryExpert>
-                            {
-                                new()
-                                {
-                                    Nickname = "Expert1",
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 2,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                },
-                                new()
-                                {
-                                    Nickname = "Expert2",
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 5,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                }
-                            },
-                            Viewers = new List<AnalyticsSummaryViewer>
-                            {
-                                new()
-                                {
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 2,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 1,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                },
-                                new()
-                                {
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 3,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 1,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                }
-                            }
-                        },
-                        new()
-                        {
-                            Id = Guid.Empty,
-                            Value = "Test 3",
-                            Experts = new List<AnalyticsSummaryExpert>
-                            {
-                                new()
-                                {
-                                    Nickname = "Expert1",
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 2,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                    }
-                                },
-                            },
-                            Viewers = new List<AnalyticsSummaryViewer>
-                            {
-                                new()
-                                {
-                                    ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                                    {
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 11,
-                                            Type = ReactionType.Like.Name,
-                                        },
-                                        new()
-                                        {
-                                            Id = Guid.Empty,
-                                            Count = 2,
-                                            Type = ReactionType.Dislike.Name,
-                                        },
-                                    }
-                                }
-                            }
-                        },
-                    }
-                })
-            };
-        }
-    }
-
-    [MemberData(nameof(GetAnalyticsSummary_Should_Return_Valid_AnalyticsSummary_By_RoomId_Data))]
-    [Theory(DisplayName = "GetAnalyticsSummary should return valid analytics by roomId")]
-    public async Task GetAnalyticsSummary_Should_Return_Valid_AnalyticsSummary_By_RoomId(AnalyticsSummaryTestData testData)
+    [Fact(DisplayName = "GetAnalytics should return valid analytics by roomId and userId")]
+    public async Task GetAnalytics_Should_Return_Valid_Analytics_By_RoomId_And_UserId()
     {
         var testSystemClock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
+
+        var room1 = new Room(DefaultRoomName, DefaultRoomName);
+
+        appDbContext.Rooms.Add(room1);
+        appDbContext.Rooms.Add(new Room(DefaultRoomName + "2", DefaultRoomName + "2"));
+
+        var questions = new Question[]
+        {
+            new("V1") { Id = Guid.Parse("527A0279-4364-4940-BE4E-8DBEC08BA96C") },
+            new("V2") { Id = Guid.Parse("537A0279-4364-4940-BE4E-8DBEC08BA96C") },
+            new("V3") { Id = Guid.Parse("547A0279-4364-4940-BE4E-8DBEC08BA96C") },
+            new("V4") { Id = Guid.Parse("557A0279-4364-4940-BE4E-8DBEC08BA96C") },
+            new("V5") { Id = Guid.Parse("567A0279-4364-4940-BE4E-8DBEC08BA96C") },
+            new("V6") { Id = Guid.Parse("577A0279-4364-4940-BE4E-8DBEC08BA96C") }
+        };
+        appDbContext.Questions.AddRange(questions);
+
+        var users = new User[]
+        {
+            new("u1", "v1") { Id = Guid.Parse("587A0279-4364-4940-BE4E-8DBEC08BA96C"), Roles = { appDbContext.Roles.Find(RoleName.User.Id)! } },
+            new("u2", "v2") { Id = Guid.Parse("597A0279-4364-4940-BE4E-8DBEC08BA96C"), Roles = { appDbContext.Roles.Find(RoleName.Admin.Id)! } },
+            new("u3", "v3") { Id = Guid.Parse("5A7A0279-4364-4940-BE4E-8DBEC08BA96C"), Roles = { appDbContext.Roles.Find(RoleName.User.Id)! } },
+            new("u4", "v4") { Id = Guid.Parse("5B7A0279-4364-4940-BE4E-8DBEC08BA96C"), Roles = { appDbContext.Roles.Find(RoleName.User.Id)! } },
+            new("u5", "v5") { Id = Guid.Parse("5C7A0279-4364-4940-BE4E-8DBEC08BA96C"), Roles = { appDbContext.Roles.Find(RoleName.User.Id)! } },
+        };
+        appDbContext.Users.AddRange(users);
+        await appDbContext.SaveChangesAsync();
+
+        var roomQuestion = new RoomQuestion[]
+        {
+            new() { Id = Guid.Parse("B15AA6D4-FA7B-49CB-AFA2-EA4F900F2258"), Question = questions[0], Room = room1, State = RoomQuestionState.Open },
+            new() { Id = Guid.Parse("B25AA6D4-FA7B-49CB-AFA2-EA4F900F2258"), Question = questions[1], Room = room1, State = RoomQuestionState.Closed },
+            new() { Id = Guid.Parse("B35AA6D4-FA7B-49CB-AFA2-EA4F900F2258"), Question = questions[2], Room = room1, State = RoomQuestionState.Closed },
+            new() { Id = Guid.Parse("B45AA6D4-FA7B-49CB-AFA2-EA4F900F2258"), Question = questions[3], Room = room1, State = RoomQuestionState.Active },
+        };
+        appDbContext.RoomQuestions.AddRange(roomQuestion);
+
+        var roomParticipants = new RoomParticipant[]
+        {
+            new(users[0], room1, RoomParticipantType.Examinee) { Id = Guid.Parse("C15AA6D4-FA7B-49CB-AFA2-EA4F900F2258") },
+            new(users[1], room1, RoomParticipantType.Expert) { Id = Guid.Parse("C25AA6D4-FA7B-49CB-AFA2-EA4F900F2258") },
+            new(users[2], room1, RoomParticipantType.Viewer) { Id = Guid.Parse("C35AA6D4-FA7B-49CB-AFA2-EA4F900F2258") },
+            new(users[3], room1, RoomParticipantType.Viewer) { Id = Guid.Parse("C45AA6D4-FA7B-49CB-AFA2-EA4F900F2258") },
+        };
+        appDbContext.RoomParticipants.AddRange(roomParticipants);
+        await appDbContext.SaveChangesAsync();
+
+        var like = appDbContext.Reactions.Find(ReactionType.Like.Id) ?? throw new Exception("Unexpected state");
+        var dislike = appDbContext.Reactions.Find(ReactionType.Dislike.Id) ?? throw new Exception("Unexpected state");
+
+        var questionReactions = new RoomQuestionReaction[]
+        {
+            new()
+            {
+                Id = Guid.Parse("D15AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[0],
+                Reaction = like,
+                Sender = users[1],
+            },
+            new()
+            {
+                Id = Guid.Parse("D25AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[0],
+                Reaction = like,
+                Sender = users[1],
+            },
+            new()
+            {
+                Id = Guid.Parse("D35AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[0],
+                Reaction = like,
+                Sender = users[2],
+            },
+            new()
+            {
+                Id = Guid.Parse("D45AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[0],
+                Reaction = dislike,
+                Sender = users[3],
+            },
+
+            new()
+            {
+                Id = Guid.Parse("D55AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[1],
+                Reaction = dislike,
+                Sender = users[1],
+            },
+            new()
+            {
+                Id = Guid.Parse("D65AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[1],
+                Reaction = like,
+                Sender = users[2],
+            },
+            new()
+            {
+                Id = Guid.Parse("D75AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
+                RoomQuestion = roomQuestion[1],
+                Reaction = dislike,
+                Sender = users[3],
+            },
+        };
+        appDbContext.RoomQuestionReactions.AddRange(questionReactions);
+        await appDbContext.SaveChangesAsync();
+
         var roomRepository = new RoomRepository(appDbContext);
         var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
 
-        var questions = testData.Users.Select(e => e.Likes.Value)
-            .Concat(testData.Users.Select(e => e.Dislikes.Value))
-            .Distinct()
-            .ToDictionary(e => e, value => new Question(value));
-        appDbContext.Questions.AddRange(questions.Values);
+        var expectAnalytics = new Analytics
+        {
+            Reactions = new List<Analytics.AnalyticsReactionSummary>()
+            {
+                new()
+                {
+                    Id = ReactionType.Like.Id, Type = ReactionType.Like.Name, Count = 4
+                },
+                new()
+                {
+                    Id = ReactionType.Dislike.Id, Type = ReactionType.Dislike.Name, Count = 3
+                },
+            },
+            Questions = new List<Analytics.AnalyticsQuestion>()
+            {
+                new()
+                {
+                    Id = questions[0].Id,
+                    Value = questions[0].Value,
+                    Status = RoomQuestionState.Open.Name,
+                    Users = new List<Analytics.AnalyticsUser>()
+                    {
+                        new()
+                        {
+                            Id = users[1].Id,
+                            Nickname = users[1].Nickname,
+                            Avatar = users[1].Avatar ?? string.Empty,
+                            ParticipantType = RoomParticipantType.Expert.Name,
+                            Reactions = new List<Analytics.AnalyticsReaction>()
+                            {
+                                new() { Id = ReactionType.Like.Id, Type = ReactionType.Like.Name, CreatedAt = like.CreateDate },
+                                new() { Id = ReactionType.Like.Id, Type = ReactionType.Like.Name, CreatedAt = like.CreateDate },
+                            },
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>()
+                            {
+                                new()
+                                {
+                                    Id = ReactionType.Like.Id,
+                                    Type = ReactionType.Like.Name,
+                                    Count = 2,
+                                }
+                            },
+                        },
+                    }
+                },
+                new()
+                {
+                    Id = questions[1].Id,
+                    Value = questions[1].Value,
+                    Status = RoomQuestionState.Closed.Name,
+                    Users = new List<Analytics.AnalyticsUser>()
+                    {
+                        new()
+                        {
+                            Id = users[1].Id,
+                            Nickname = users[1].Nickname,
+                            Avatar = users[1].Avatar ?? string.Empty,
+                            ParticipantType = RoomParticipantType.Expert.Name,
+                            Reactions = new List<Analytics.AnalyticsReaction>()
+                            {
+                                new() { Id = ReactionType.Dislike.Id, Type = ReactionType.Dislike.Name, CreatedAt = dislike.CreateDate },
+                            },
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>()
+                            {
+                                new()
+                                {
+                                    Id = ReactionType.Dislike.Id,
+                                    Type = ReactionType.Dislike.Name,
+                                    Count = 1,
+                                }
+                            },
+                        },
+                    }
+                },
+                new()
+                {
+                    Id = questions[2].Id,
+                    Value = questions[2].Value,
+                    Status = RoomQuestionState.Closed.Name,
+                },
+                new()
+                {
+                    Id = questions[3].Id,
+                    Value = questions[3].Value,
+                    Status = RoomQuestionState.Active.Name,
+                }
+            }
+        };
 
-        var users = testData.Users.Select(e => e.Nickname).Distinct()
-            .ToDictionary(e => e, e => new User(e, e));
-        appDbContext.Users.AddRange(users.Values);
-        appDbContext.SaveChanges();
-
-        var room = CreateWithData(DefaultRoomName);
-
-        var analyticsResult = await roomService.GetAnalyticsSummaryAsync(room.Id);
+        var analyticsResult = await roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(room1.Id, new List<Guid> { users[1].Id }));
 
         Assert.True(analyticsResult.IsSuccess);
 
         var serviceResult = analyticsResult.Value;
         serviceResult.Should().NotBeNull();
-        serviceResult.Value.Questions.Should().HaveSameCount(testData.ExpectResult.Questions)
-            .And.BeEquivalentTo(testData.ExpectResult.Questions, config =>
-            {
-                Expression<Func<IMemberInfo, bool>> predicate = info => info.Type == typeof(Guid) && info.Name == "Id";
-                return config.Excluding(predicate);
-            });
-
-        Room CreateWithData(string name)
-        {
-            var room = new Room(name, name);
-            var reactions = appDbContext.Reactions.ToDictionary(e => e.Type, e => e);
-            appDbContext.Rooms.Add(room);
-            appDbContext.SaveChanges();
-
-            var roomQuestions = questions.Values.Select(e => new RoomQuestion { Room = room, Question = e, State = RoomQuestionState.Closed })
-                .ToDictionary(e => e.Question, e => e);
-            appDbContext.RoomQuestions.AddRange(roomQuestions.Values);
-            appDbContext.SaveChanges();
-
-            foreach (var analyticsSummaryTestDataUsers in testData.Users.GroupBy(e => (e.Nickname, e.Type)))
-            {
-                var (nickname, type) = analyticsSummaryTestDataUsers.Key;
-                var user = users[nickname];
-                var participant = new RoomParticipant(user, room, type);
-                appDbContext.RoomParticipants.Add(participant);
-                foreach (var data in analyticsSummaryTestDataUsers)
-                {
-                    var likes = Enumerable.Range(0, data.Likes.ReactionCount).Select(_ => new RoomQuestionReaction
-                    {
-                        RoomQuestion = roomQuestions[questions[data.Likes.Value]],
-                        Reaction = reactions[ReactionType.Like],
-                        Sender = user,
-                    });
-                    appDbContext.RoomQuestionReactions.AddRange(likes);
-
-                    var dislikes = Enumerable.Range(0, data.Dislikes.ReactionCount).Select(_ => new RoomQuestionReaction
-                    {
-                        RoomQuestion = roomQuestions[questions[data.Dislikes.Value]],
-                        Reaction = reactions[ReactionType.Dislike],
-                        Sender = user,
-                    });
-                    appDbContext.RoomQuestionReactions.AddRange(dislikes);
-                }
-            }
-
-            appDbContext.SaveChanges();
-            return room;
-        }
+        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics);
     }
-
-    public record AnalyticsSummaryTestData(List<AnalyticsSummaryTestDataUser> Users, AnalyticsSummary ExpectResult);
-    public record AnalyticsSummaryTestDataQuestion(string Value, int ReactionCount);
-    public record AnalyticsSummaryTestDataUser(string Nickname, RoomParticipantType Type, AnalyticsSummaryTestDataQuestion Likes, AnalyticsSummaryTestDataQuestion Dislikes);
 }

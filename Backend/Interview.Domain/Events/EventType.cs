@@ -49,4 +49,19 @@ public enum EventType
     /// The event is triggered when room question is created
     /// </summary>
     AddRoomQuestion,
+
+    /// <summary>
+    /// The event is triggered when enable code editor for room
+    /// </summary>
+    EnableCodeEditor,
+
+    /// <summary>
+    /// The event is triggered when disable code editor for room
+    /// </summary>
+    DisableCodeEditor,
+
+    /// <summary>
+    /// The event is triggered when change code editor for room
+    /// </summary>
+    ChangeCodeEditor,
 }

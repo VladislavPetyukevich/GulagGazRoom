@@ -28,11 +28,11 @@ public class Analytics
 
     public class AnalyticsReactionSummary
     {
-        public required Guid Id { get; set; }
+        public Guid Id { get; set; }
 
-        public required string Type { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
 
-        public required int Count { get; set; }
+        public int Count { get; set; }
     }
 
     public class AnalyticsUser

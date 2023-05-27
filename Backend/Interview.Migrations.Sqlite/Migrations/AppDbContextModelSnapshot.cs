@@ -70,16 +70,16 @@ namespace Interview.Migrations.Sqlite.Migrations
                         new
                         {
                             Id = new Guid("48bfc63a-9498-4438-9211-d2c29d6b3a93"),
-                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Type = "Dislike",
-                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("d9a79bbb-5cbb-43d4-80fb-c490e91c333c"),
-                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Type = "Like",
-                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -179,42 +179,6 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("RoomQuestions");
                 });
 
-            modelBuilder.Entity("Interview.Domain.RoomReviews.RoomReview", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Review")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SeRoomReviewState")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RoomReview");
-                });
-
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
                 {
                     b.Property<Guid>("Id")
@@ -247,6 +211,29 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.RoomConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CodeEditorContent")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EnableCodeEditor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoomConfiguration");
+                });
+
             modelBuilder.Entity("Interview.Domain.Users.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -272,16 +259,16 @@ namespace Interview.Migrations.Sqlite.Migrations
                         new
                         {
                             Id = new Guid("ab45cf57-aa1c-11ed-970f-98dc442de35a"),
-                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Admin",
-                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("ab45a82b-aa1c-11ed-abe8-f2b335a02ee9"),
-                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "User",
-                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -395,23 +382,13 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("Interview.Domain.RoomReviews.RoomReview", b =>
+            modelBuilder.Entity("Interview.Domain.Rooms.RoomConfiguration", b =>
                 {
-                    b.HasOne("Interview.Domain.Rooms.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
+                    b.HasOne("Interview.Domain.Rooms.Room", null)
+                        .WithOne("Configuration")
+                        .HasForeignKey("Interview.Domain.Rooms.RoomConfiguration", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Interview.Domain.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -431,6 +408,8 @@ namespace Interview.Migrations.Sqlite.Migrations
 
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
                 {
+                    b.Navigation("Configuration");
+
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
