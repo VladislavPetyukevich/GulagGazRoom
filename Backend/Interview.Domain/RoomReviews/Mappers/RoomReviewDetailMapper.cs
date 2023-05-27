@@ -15,7 +15,7 @@ namespace Interview.Domain.RoomReviews.Mappers
             RoomId = review.Room!.Id,
             UserId = review.User!.Id,
             Review = review.Review,
-            State = review.SeRoomReviewState.EnumValue,
+            State = review.SeRoomReviewState.Name,
         });
     }
 }
