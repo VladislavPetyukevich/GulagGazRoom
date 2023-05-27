@@ -387,8 +387,8 @@ public class RoomServiceTest
         serviceResult.Value.Should().BeEquivalentTo(expectAnalytics);
     }
 
-    [Fact(DisplayName = "GetAnalytics should return valid analytics by roomId and userId")]
-    public async Task GetAnalytics_Should_Return_Valid_Analytics_By_RoomId_And_UserId()
+    [Fact(DisplayName = "GetAnalyticsSummary should return valid analytics by roomId")]
+    public async Task GetAnalyticsSummary_Should_Return_Valid_Analytics_By_RoomId()
     {
         var testSystemClock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(testSystemClock);
@@ -501,40 +501,20 @@ public class RoomServiceTest
         var roomRepository = new RoomRepository(appDbContext);
         var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext));
 
-        var expectAnalytics = new Analytics
+        var expectAnalytics = new AnalyticsSummary
         {
-            Reactions = new List<Analytics.AnalyticsReactionSummary>()
-            {
-                new()
-                {
-                    Id = ReactionType.Like.Id, Type = ReactionType.Like.Name, Count = 4
-                },
-                new()
-                {
-                    Id = ReactionType.Dislike.Id, Type = ReactionType.Dislike.Name, Count = 3
-                },
-            },
-            Questions = new List<Analytics.AnalyticsQuestion>()
+            Questions = new List<AnalyticsSummaryQuestion>
             {
                 new()
                 {
                     Id = questions[0].Id,
                     Value = questions[0].Value,
-                    Status = RoomQuestionState.Open.Name,
-                    Users = new List<Analytics.AnalyticsUser>()
+                    Experts = new List<AnalyticsSummaryExpert>
                     {
                         new()
                         {
-                            Id = users[1].Id,
                             Nickname = users[1].Nickname,
-                            Avatar = users[1].Avatar ?? string.Empty,
-                            ParticipantType = RoomParticipantType.Expert.Name,
-                            Reactions = new List<Analytics.AnalyticsReaction>()
-                            {
-                                new() { Id = ReactionType.Like.Id, Type = ReactionType.Like.Name, CreatedAt = like.CreateDate },
-                                new() { Id = ReactionType.Like.Id, Type = ReactionType.Like.Name, CreatedAt = like.CreateDate },
-                            },
-                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>()
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
                             {
                                 new()
                                 {
@@ -542,28 +522,35 @@ public class RoomServiceTest
                                     Type = ReactionType.Like.Name,
                                     Count = 2,
                                 }
-                            },
-                        },
+                            }
+                        }
+                    },
+                    Viewers = new List<AnalyticsSummaryViewer>
+                    {
+                        new()
+                        {
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
+                            {
+                                new()
+                                {
+                                    Id = ReactionType.Like.Id,
+                                    Type = ReactionType.Like.Name,
+                                    Count = 2,
+                                }
+                            }
+                        }
                     }
                 },
                 new()
                 {
                     Id = questions[1].Id,
                     Value = questions[1].Value,
-                    Status = RoomQuestionState.Closed.Name,
-                    Users = new List<Analytics.AnalyticsUser>()
+                    Experts = new List<AnalyticsSummaryExpert>
                     {
                         new()
                         {
-                            Id = users[1].Id,
                             Nickname = users[1].Nickname,
-                            Avatar = users[1].Avatar ?? string.Empty,
-                            ParticipantType = RoomParticipantType.Expert.Name,
-                            Reactions = new List<Analytics.AnalyticsReaction>()
-                            {
-                                new() { Id = ReactionType.Dislike.Id, Type = ReactionType.Dislike.Name, CreatedAt = dislike.CreateDate },
-                            },
-                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>()
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
                             {
                                 new()
                                 {
@@ -571,26 +558,43 @@ public class RoomServiceTest
                                     Type = ReactionType.Dislike.Name,
                                     Count = 1,
                                 }
-                            },
-                        },
-                    }
+                            }
+                        }
+                    },
+                    Viewers = new List<AnalyticsSummaryViewer>
+                    {
+                        new()
+                        {
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
+                            {
+                                new()
+                                {
+                                    Id = ReactionType.Dislike.Id,
+                                    Type = ReactionType.Dislike.Name,
+                                    Count = 1,
+                                }
+                            }
+                        }
+                    },
                 },
                 new()
                 {
                     Id = questions[2].Id,
                     Value = questions[2].Value,
-                    Status = RoomQuestionState.Closed.Name,
+                    Experts = new List<AnalyticsSummaryExpert>(),
+                    Viewers = new List<AnalyticsSummaryViewer>(),
                 },
                 new()
                 {
                     Id = questions[3].Id,
                     Value = questions[3].Value,
-                    Status = RoomQuestionState.Active.Name,
-                }
+                    Experts = new List<AnalyticsSummaryExpert>(),
+                    Viewers = new List<AnalyticsSummaryViewer>(),
+                },
             }
         };
 
-        var analyticsResult = await roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(room1.Id, new List<Guid> { users[1].Id }));
+        var analyticsResult = await roomService.GetAnalyticsSummaryAsync(new RoomAnalyticsRequest(room1.Id));
 
         Assert.True(analyticsResult.IsSuccess);
 

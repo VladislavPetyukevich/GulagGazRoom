@@ -165,7 +165,7 @@ public class ServiceConfigurator
 
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-            options.CustomSchemaIds(type => type.ToString());
+            options.CustomSchemaIds(type => (type.FullName ?? type.Name).Replace("+", "_"));
 
             var swaggerOption = _configuration.GetSection(nameof(SwaggerOption)).Get<SwaggerOption>() ??
                          throw new InvalidOperationException(nameof(SwaggerOption));
