@@ -1,15 +1,14 @@
-namespace Interview.Domain.RoomReviews.Records
+namespace Interview.Domain.RoomReviews.Records;
+
+public class RoomReviewDetail
 {
-    public class RoomReviewDetail
-    {
-        public Guid? Id { get; init; }
+    public required Guid Id { get; init; }
 
-        public Guid? UserId { get; init; }
+    public required Guid UserId { get; init; }
 
-        public Guid? RoomId { get; init; }
+    public required Guid RoomId { get; init; }
 
-        public string? Review { get; init; } = string.Empty;
+    public required string? Review { get; init; }
 
-        public string? State { get; init; }
-    }
+    public required string State { get; init; }
 }
