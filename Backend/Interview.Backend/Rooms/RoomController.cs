@@ -144,6 +144,11 @@ public class RoomController : ControllerBase
         return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
     }
 
+    /// <summary>
+    /// Get analytics by room.
+    /// </summary>
+    /// <param name="id">Room id.</param>
+    /// <returns>Analytics.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpGet("{id:guid}/analytics")]
     [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
@@ -153,20 +158,25 @@ public class RoomController : ControllerBase
         return _roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(id), HttpContext.RequestAborted).ToResponseAsync();
     }
 
+    /// <summary>
+    /// Get analytics  by room.
+    /// </summary>
+    /// <param name="id">Room id.</param>
+    /// <returns>Analytics.</returns>
     [Authorize]
     [HttpGet("{id:guid}/analytics/summary")]
-    [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AnalyticsSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
-    public Task<ActionResult<Analytics>> GetAnalyticsSummary(Guid id)
+    public Task<ActionResult<AnalyticsSummary>> GetAnalyticsSummary(Guid id)
     {
         var user = User.ToUser();
         if (user == null)
         {
-            return Task.FromResult<ActionResult<Analytics>>(Unauthorized());
+            return Task.FromResult<ActionResult<AnalyticsSummary>>(Unauthorized());
         }
 
-        var request = new RoomAnalyticsRequest(id, new[] { user.Id });
-        return _roomService.GetAnalyticsAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        var request = new RoomAnalyticsRequest(id);
+        return _roomService.GetAnalyticsSummaryAsync(request, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]
