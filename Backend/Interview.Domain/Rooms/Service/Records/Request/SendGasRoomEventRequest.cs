@@ -1,9 +1,9 @@
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 
-namespace Interview.Domain.Rooms.Service.Records;
+namespace Interview.Domain.Rooms.Service.Records.Request;
 
-public sealed class SendGasRoomEventRequest
+public sealed class SendGasRoomEventRequest : IEventRequest
 {
     public Guid RoomId { get; }
 
@@ -18,7 +18,7 @@ public sealed class SendGasRoomEventRequest
         Type = type;
     }
 
-    public GasRoomEvent ToRoomEvent() => new GasRoomEvent(this);
+    public IRoomEvent ToRoomEvent() => new GasRoomEvent(this);
 
     /// <summary>
     /// Request events.

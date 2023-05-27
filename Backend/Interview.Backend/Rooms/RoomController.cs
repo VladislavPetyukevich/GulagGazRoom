@@ -120,7 +120,28 @@ public class RoomController : ControllerBase
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
-        return _roomService.SendGasEventAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
+    /// Sending code editor event to room.
+    /// </summary>
+    /// <param name="request">Request.</param>
+    /// <returns>Ok message.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPost("event/codeEditor")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public Task<ActionResult> SendCodeEditorEvent(CodeEditorRoomEventApiRequest request)
+    {
+        var user = User.ToUser();
+        if (user == null)
+        {
+            return Task.FromResult<ActionResult>(Unauthorized());
+        }
+
+        var sendRequest = request.ToDomainRequest(user.Id);
+        return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.Manager)]

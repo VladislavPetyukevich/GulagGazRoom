@@ -148,7 +148,7 @@ public sealed class RoomService
         return currentRoom;
     }
 
-    public async Task<Result<ServiceResult, ServiceError>> SendGasEventAsync(SendGasRoomEventRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ServiceResult, ServiceError>> SendEventRequestAsync(IEventRequest request, CancellationToken cancellationToken = default)
     {
         var currentRoom = await _roomRepository.FindByIdAsync(request.RoomId, cancellationToken);
         if (currentRoom == null)
