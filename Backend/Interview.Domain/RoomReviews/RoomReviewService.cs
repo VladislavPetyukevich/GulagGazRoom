@@ -51,7 +51,7 @@ public class RoomReviewService
             return ServiceError.NotFound($"Room not found with id {request.RoomId}");
         }
 
-        if (room.Status.Equals(SERoomStatus.Active))
+        if (room.Status == SERoomStatus.Active)
         {
             return ServiceError.NotFound($"Room not found with id {request.RoomId}");
         }
@@ -77,7 +77,15 @@ public class RoomReviewService
         }
 
         roomReview.Review = request.Review;
-        roomReview.SeRoomReviewState = SERoomReviewState.FromName(request.State);
+
+        var state = SERoomReviewState.FromEnum(request.State);
+
+        if (state == null)
+        {
+            return ServiceError.NotFound($"State not found with value {request.State}");
+        }
+
+        roomReview.SeRoomReviewState = state;
 
         await _roomReviewRepository.UpdateAsync(roomReview, cancellationToken);
 

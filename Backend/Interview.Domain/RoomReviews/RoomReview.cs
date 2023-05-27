@@ -17,11 +17,11 @@ public class RoomReview : Entity
     {
     }
 
-    public User User { get; init; } = null!;
+    public User? User { get; set; }
 
-    public Room Room { get; init; } = null!;
+    public Room? Room { get; set; }
 
-    public string? Review { get; set; } = string.Empty;
+    public string Review { get; set; } = string.Empty;
 
     public SERoomReviewState SeRoomReviewState { get; set; } = null!;
 }

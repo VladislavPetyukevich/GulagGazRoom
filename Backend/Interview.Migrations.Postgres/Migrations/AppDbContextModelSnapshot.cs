@@ -75,16 +75,16 @@ namespace Interview.Migrations.Postgres.Migrations
                         new
                         {
                             Id = new Guid("48bfc63a-9498-4438-9211-d2c29d6b3a93"),
-                            CreateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Type = "Dislike",
-                            UpdateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("d9a79bbb-5cbb-43d4-80fb-c490e91c333c"),
-                            CreateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Type = "Like",
-                            UpdateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -194,12 +194,13 @@ namespace Interview.Migrations.Postgres.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Review")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("SERoomReviewState")
+                    b.Property<string>("SeRoomReviewState")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
@@ -276,16 +277,16 @@ namespace Interview.Migrations.Postgres.Migrations
                         new
                         {
                             Id = new Guid("ab45cf57-aa1c-11ed-970f-98dc442de35a"),
-                            CreateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Admin",
-                            UpdateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = new Guid("ab45a82b-aa1c-11ed-abe8-f2b335a02ee9"),
-                            CreateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "User",
-                            UpdateDate = new DateTime(2023, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            UpdateDate = new DateTime(2023, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 

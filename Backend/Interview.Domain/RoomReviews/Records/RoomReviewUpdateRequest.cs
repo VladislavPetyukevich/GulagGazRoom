@@ -2,7 +2,7 @@ namespace Interview.Domain.RoomReviews.Records;
 
 public class RoomReviewUpdateRequest
 {
-    public string? Review { get; set; }
+    public string Review { get; init; } = string.Empty;
 
-    public string? State { get; set; }
+    public EVRoomReviewState State { get; init; } = EVRoomReviewState.Open;
 }

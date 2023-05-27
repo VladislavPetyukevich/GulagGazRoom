@@ -72,7 +72,7 @@ public class RoomReviewController : ControllerBase
     /// <param name="request">User Request.</param>
     /// <returns>Review details.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPut("/{id:guid}")]
+    [HttpPut("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(RoomReviewDetail), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]

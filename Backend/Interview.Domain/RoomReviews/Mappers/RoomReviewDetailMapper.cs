@@ -12,10 +12,10 @@ namespace Interview.Domain.RoomReviews.Mappers
         public static readonly Mapper<RoomReview, RoomReviewDetail> Instance = new(review => new RoomReviewDetail
         {
             Id = review.Id,
-            RoomId = review.Room.Id,
-            UserId = review.User.Id,
+            RoomId = review.Room!.Id,
+            UserId = review.User!.Id,
             Review = review.Review,
-            State = review.SeRoomReviewState.Name,
+            State = review.SeRoomReviewState.EnumValue,
         });
     }
 }
