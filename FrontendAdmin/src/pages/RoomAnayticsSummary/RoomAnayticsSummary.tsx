@@ -6,7 +6,7 @@ import { Captions, pathnames } from '../../constants';
 import { Field } from '../../components/FieldsBlock/Field';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { roomsApiDeclaration } from '../../apiDeclarations';
-import { AnalyticsSummary } from '../../types/analytics';
+import { AnalyticsQuestionsExpert, AnalyticsSummary } from '../../types/analytics';
 import { Room as RoomType } from '../../types/room';
 import { SovietMark } from '../../components/SovietMark/SovietMark';
 
@@ -40,20 +40,30 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   }, [id, fetchData, fetchRoom]);
 
   useEffect(() => {
-    if (!data?.reactions) {
+    if (!data?.questions) {
       return;
     }
-    const getReactionByType = (reactionType: string) => data.reactions.find(reaction => reaction.type === reactionType);
-    const likeReaction = getReactionByType('Like');
-    const dislikeReaction = getReactionByType('Dislike');
-    if (!likeReaction || !dislikeReaction) {
+    const getExpertReactionsCount = (expert: AnalyticsQuestionsExpert, reactionType: string) =>
+      expert.reactionsSummary.find(reaction => reaction.type === reactionType)?.count || 0;
+
+    const expertReactionsSummary = data.questions.reduce((totalAcc, question) => {
+      if (!question.experts) {
+        return { ...totalAcc };
+      }
+      const expertSummary = question.experts.reduce((expertAcc, expert) => ({
+        likes: expertAcc.likes + getExpertReactionsCount(expert, 'Like'),
+        dislikes: expertAcc.dislikes + getExpertReactionsCount(expert, 'Dislike'),
+      }), { likes: 0, dislikes: 0 });
+      return {
+        likes: totalAcc.likes + expertSummary.likes,
+        dislikes: totalAcc.dislikes + expertSummary.dislikes,
+      }
+    }, { likes: 0, dislikes: 0 });
+    if (!expertReactionsSummary.likes || !expertReactionsSummary.dislikes) {
       setTotalMarkError(Captions.FailedToCalculateMark);
       return;
     }
-    setTotalLikesDislikes({
-      likes: likeReaction.count,
-      dislikes: likeReaction.count,
-    });
+    setTotalLikesDislikes(expertReactionsSummary);
   }, [data]);
 
   if (loading || roomLoading) {
@@ -107,12 +117,24 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
                     <td key={reaction}>{displayedReactionsView[reactionIndex]}</td>
                   ))}
                 </tr>
-                {question.users && question.users.map(user => (
-                  <tr key={user.id} className="user-row">
-                    <td>{user.nickname}</td>
+                {question.experts && question.experts.map(expert => (
+                  <tr key={`${question.id}${expert.id}`} className="user-row">
+                    <td>{expert.nickname}</td>
                     {displayedReactions.map(displayedReaction => (
-                      <td key={displayedReaction}>
-                        {user.reactionsSummary.find(
+                      <td key={`expert-${displayedReaction}`}>
+                        {expert.reactionsSummary.find(
+                          reactionSummary => reactionSummary.type === displayedReaction
+                        )?.count || 0}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                {question.viewers && question.viewers.map(viewer => (
+                  <tr key={`${question.id}-viewer`} className="user-row">
+                    <td>{Captions.Viewers}</td>
+                    {displayedReactions.map(displayedReaction => (
+                      <td key={`viewer-${displayedReaction}`}>
+                        {viewer.reactionsSummary.find(
                           reactionSummary => reactionSummary.type === displayedReaction
                         )?.count || 0}
                       </td>

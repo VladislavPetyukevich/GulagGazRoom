@@ -12,24 +12,21 @@ export interface AnalyticsQuestionsUserReaction {
   type: string;
 }
 
-export interface AnalyticsQuestionsUser extends User {
-  participantType: string;
-  reactions: AnalyticsQuestionsUserReaction[];
+export interface AnalyticsQuestionsExpert extends User {
+  nickname: string;
+  reactionsSummary: AnalyticsQuestionsUserReactionSummary[];
+}
+
+interface AnalyticsQuestionsViwer {
   reactionsSummary: AnalyticsQuestionsUserReactionSummary[];
 }
 
 export interface AnalyticsQuestions extends Question {
   status: string;
-  users: AnalyticsQuestionsUser[] | null;
-}
-
-interface AnalyticsReaction {
-  id: string;
-  type: string;
-  count: number;
+  viewers: AnalyticsQuestionsViwer[] | null;
+  experts: AnalyticsQuestionsExpert[] | null;
 }
 
 export interface AnalyticsSummary {
   questions: AnalyticsQuestions[];
-  reactions: AnalyticsReaction[];
 }

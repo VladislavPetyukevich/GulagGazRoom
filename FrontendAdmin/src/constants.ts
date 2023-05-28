@@ -22,6 +22,7 @@ export const enum Captions {
   LogOut = 'Закрой за мной дверь, я ухожу',
   EditParticipants = 'Редактировать звания',
   Viewer = 'Гражданский',
+  Viewers = 'Обычные граждане',
   Expert = 'Начальник',
   Examinee = 'Испытуемый',
   Save = 'Сохранить',
