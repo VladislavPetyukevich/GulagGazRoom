@@ -19,13 +19,12 @@ interface CreateRoomBody {
 export const roomsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Room/GetPage',
+    baseUrl: '/rooms',
     urlParams: pagination,
   }),
   getById: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Room/GetById',
-    urlParams: { id },
+    baseUrl: `/rooms/${id}`,
   }),
   getState: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
@@ -33,21 +32,21 @@ export const roomsApiDeclaration = {
   }),
   analyticsSummary: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: `/Room/${id}/analytics/summary`,
+    baseUrl: `/rooms/${id}/analytics/summary`,
   }),
   create: (body: CreateRoomBody): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/Room/Create',
+    baseUrl: '/rooms',
     body,
   }),
   sendGasEvent: (body: { roomId: Room['id'], type: 'GasOn' | 'GasOff'; }): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/Room/SendGasEvent',
+    baseUrl: '/rooms/event/gas',
     body,
   }),
   close: (id: Room['id']): ApiContractPatch => ({
     method: 'PATCH',
-    baseUrl: `/Room/Close?roomId=${id}`,
+    baseUrl: `/rooms/${id}/close`,
     body: {},
   }),
 };
