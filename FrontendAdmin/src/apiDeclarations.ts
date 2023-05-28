@@ -101,7 +101,7 @@ export const reactionsApiDeclaration = {
 export const roomReactionApiDeclaration = {
   send: (body: { reactionId: Reaction['id'], roomId: Room['id'] }): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/RoomReaction',
+    baseUrl: '/room-reactions',
     body,
   }),
 };
