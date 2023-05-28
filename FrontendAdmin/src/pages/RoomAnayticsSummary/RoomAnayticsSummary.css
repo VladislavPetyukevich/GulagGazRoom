@@ -1,3 +1,10 @@
+.room-anaytics-summary .anaytics-table {
+  width: 100%;
+  padding-top: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
 .room-anaytics-summary .question-cell {
   background-color: var(--form-bg);
 }
