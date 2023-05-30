@@ -42,10 +42,10 @@ export class Api {
 
   getRoomState(roomId: string) {
     return new Promise<RoomState>((resolve, reject) => {
-      fetch(`${this.url}/Room/GetRoomState?id=${roomId}`)
+      fetch(`${this.url}/rooms/${roomId}/state`)
         .then((response) => {
           if (!response.ok) {
-            return reject();
+            return reject(new Error('Failed to get room state'));
           }
           response.json().then(responseJson => {
             if (!this.checkIsRoomStateValid(responseJson)) {
@@ -93,7 +93,7 @@ export class Api {
       fetch(`${this.url}/questions/${questionId}`)
         .then((response) => {
           if (!response.ok) {
-            return reject();
+            return reject(new Error('Failed to get question'));
           }
           response.json().then(json => resolve(json.value));
         })

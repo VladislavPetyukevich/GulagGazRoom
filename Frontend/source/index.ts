@@ -195,7 +195,7 @@ async function init() {
     });
     await webSocketConnection.connect();
   } catch (err) {
-    alert(err);
+    alert(`Init error ${err}`);
   }
 }
 init();
