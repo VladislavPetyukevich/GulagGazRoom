@@ -255,13 +255,12 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                         new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, })
                     .ToList(),
                 RoomStatus = e.Status.EnumValue,
-                CodeEditorContent = e.Configuration == null ? null : e.Configuration.CodeEditorContent,
-                EnableCodeEditor = e.Configuration == null ? false : e.Configuration.EnableCodeEditor,
             })
             .FirstOrDefaultAsync(room => room.Id == roomId, cancellationToken: cancellationToken);
     }
 
     protected override IQueryable<Room> ApplyIncludes(DbSet<Room> set)
         => Set.Include(e => e.Participants)
-            .Include(e => e.Questions);
+            .Include(e => e.Questions)
+            .Include(e => e.Configuration);
 }

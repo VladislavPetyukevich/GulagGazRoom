@@ -16,6 +16,8 @@ public class RoomState
             Value = q.Question!.Value,
             State = q.State!,
         }).FirstOrDefault(q => q.State == RoomQuestionState.Active),
+        CodeEditorContent = room.Configuration == null ? null : room.Configuration.CodeEditorContent,
+        EnableCodeEditor = room.Configuration == null ? false : room.Configuration.EnableCodeEditor,
     });
 
     public Guid Id { get; set; }
@@ -27,4 +29,8 @@ public class RoomState
     public int LikeCount { get; set; }
 
     public int DislikeCount { get; set; }
+
+    public required bool EnableCodeEditor { get; set; }
+
+    public required string? CodeEditorContent { get; set; }
 }

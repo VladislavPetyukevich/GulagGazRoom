@@ -13,8 +13,4 @@ public class RoomDetail
     public List<RoomUserDetail>? Users { get; set; }
 
     public required EVRoomStatus RoomStatus { get; init; }
-
-    public required bool EnableCodeEditor { get; set; }
-
-    public required string? CodeEditorContent { get; set; }
 }
