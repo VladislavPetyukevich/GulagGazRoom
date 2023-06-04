@@ -1,6 +1,6 @@
 using Interview.Domain.Repository;
 
-namespace Interview.Domain.Rooms;
+namespace Interview.Domain.RoomConfigurations;
 
 public class RoomConfiguration : Entity
 {

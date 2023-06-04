@@ -1,5 +1,6 @@
 using Interview.Domain.Questions;
 using Interview.Domain.Repository;
+using Interview.Domain.RoomConfigurations;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
@@ -26,7 +27,7 @@ public class Room : Entity
 
     public SERoomStatus Status { get; internal set; }
 
-    public RoomConfiguration? Configuration { get; internal set; }
+    public RoomConfiguration? Configuration { get; set; }
 
     public List<RoomQuestion> Questions { get; set; } = new();
 

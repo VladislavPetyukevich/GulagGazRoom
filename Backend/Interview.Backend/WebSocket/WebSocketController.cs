@@ -8,6 +8,7 @@ using Interview.Backend.WebSocket.UserByRoom;
 using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
+using Interview.Domain.RoomConfigurations;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -139,26 +140,30 @@ public class WebSocketController : ControllerBase
                 return;
             }
 
-            string code;
-            using (var buffer = new PoolItem(8192))
+            while (!webSocket.ShouldCloseWebSocket())
             {
-                using var ms = new MemoryStream();
-                WebSocketReceiveResult result;
-                do
+                string code;
+                using (var buffer = new PoolItem(8192))
                 {
-                    result = await webSocket.ReceiveAsync(buffer.Buffer, CancellationToken.None);
-                    ms.Write(buffer.Buffer, 0, result.Count);
+                    using var ms = new MemoryStream();
+                    WebSocketReceiveResult result;
+                    do
+                    {
+                        result = await webSocket.ReceiveAsync(buffer.Buffer, CancellationToken.None);
+                        ms.Write(buffer.Buffer, 0, result.Count);
+                    }
+                    while (!result.EndOfMessage);
+
+                    ms.Seek(0, SeekOrigin.Begin);
+
+                    using var reader = new StreamReader(ms, Encoding.UTF8);
+                    code = await reader.ReadToEndAsync(ct);
                 }
-                while (!result.EndOfMessage);
 
-                ms.Seek(0, SeekOrigin.Begin);
-
-                using var reader = new StreamReader(ms, Encoding.UTF8);
-                code = await reader.ReadToEndAsync(ct);
+                var repository = HttpContext.RequestServices.GetRequiredService<IRoomConfigurationRepository>();
+                var request = new UpsertCodeStateRequest { CodeEditorContent = code, RoomId = roomIdentity.Value, };
+                await repository.UpsertCodeStateAsync(request, ct);
             }
-
-            var eventDispatcher = HttpContext.RequestServices.GetRequiredService<IRoomEventDispatcher>();
-            await eventDispatcher.WriteAsync(new RoomEvent(roomIdentity.Value, EventType.ChangeCodeEditor, code), ct);
 
             try
             {
@@ -175,7 +180,14 @@ public class WebSocketController : ControllerBase
         }
         catch (Exception e)
         {
-            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
+            try
+            {
+                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
+            }
+            catch
+            {
+                // ignore
+            }
         }
     }
 

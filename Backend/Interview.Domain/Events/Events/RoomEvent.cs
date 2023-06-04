@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Interview.Domain.Events.Events;
 
-public sealed class RoomEvent : RoomEvent<string>
+public class RoomEvent : RoomEvent<string>
 {
     public RoomEvent(Guid roomId, EventType type, string? value)
         : base(roomId, type, value)

@@ -70,19 +70,13 @@ public class EventSenderJob : BackgroundService
         }
     }
 
-    private static bool ShouldCloseWebSocket(UserSubscriber entry)
-    {
-        return entry.WebSocket.State is WebSocketState.Aborted or WebSocketState.Closed or WebSocketState.CloseReceived or WebSocketState.CloseSent ||
-               entry.WebSocket.CloseStatus.HasValue;
-    }
-
     private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, string eventAsStr)
     {
         await Parallel.ForEachAsync(users, stoppingToken, async (entry, token) =>
         {
             try
             {
-                if (ShouldCloseWebSocket(entry))
+                if (entry.WebSocket.ShouldCloseWebSocket())
                 {
                     try
                     {

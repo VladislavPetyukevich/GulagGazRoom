@@ -12,6 +12,7 @@ using Interview.Infrastructure.Database.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Internal;
+using RoomConfiguration = Interview.Domain.RoomConfigurations.RoomConfiguration;
 
 namespace Interview.Infrastructure.Database;
 
@@ -42,6 +43,8 @@ public class AppDbContext : DbContext
     public DbSet<RoomQuestion> RoomQuestions { get; private set; } = null!;
 
     public DbSet<RoomQuestionReaction> RoomQuestionReactions { get; private set; } = null!;
+
+    public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
 
     public override int SaveChanges()
     {
