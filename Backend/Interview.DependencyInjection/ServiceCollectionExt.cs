@@ -39,7 +39,7 @@ public static class ServiceCollectionExt
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomChangeEntityProcessor>();
+        self.AddSingleton<IChangeEntityProcessor, RoomConfigurationChangeEntityProcessor>();
 
         self.AddSingleton<IConnectUserSource, ConnectUserSource>();
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();

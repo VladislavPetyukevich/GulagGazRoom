@@ -6,26 +6,24 @@ using Interview.Domain.Rooms;
 
 namespace Interview.Domain.Events.ChangeEntityProcessors
 {
-    public class RoomChangeEntityProcessor : IChangeEntityProcessor
+    public class RoomConfigurationChangeEntityProcessor : IChangeEntityProcessor
     {
         private readonly IRoomEventDispatcher _eventDispatcher;
 
-        public RoomChangeEntityProcessor(IRoomEventDispatcher eventDispatcher)
+        public RoomConfigurationChangeEntityProcessor(IRoomEventDispatcher eventDispatcher)
         {
             _eventDispatcher = eventDispatcher;
         }
 
         public async ValueTask ProcessAddedAsync(IReadOnlyCollection<Entity> entities, CancellationToken cancellationToken)
         {
-            foreach (var entity in entities.OfType<Room>())
+            foreach (var entity in entities.OfType<RoomConfiguration>())
             {
-                var e = CreateEvent(entity, null);
-                if (e is null)
+                var @event = CreateEvent(entity, null);
+                if (@event is not null)
                 {
-                    continue;
+                    await _eventDispatcher.WriteAsync(@event, cancellationToken);
                 }
-
-                await _eventDispatcher.WriteAsync(e, cancellationToken);
             }
         }
 
@@ -33,31 +31,27 @@ namespace Interview.Domain.Events.ChangeEntityProcessors
         {
             foreach (var (originalEntity, currentEntity) in entities)
             {
-                if (originalEntity is not Room original || currentEntity is not Room current)
+                switch (originalEntity)
                 {
-                    continue;
-                }
+                    case RoomConfiguration originalC when currentEntity is RoomConfiguration currentC:
+                        {
+                            var e = CreateEvent(currentC, originalC);
+                            if (e is not null)
+                            {
+                                await _eventDispatcher.WriteAsync(e, cancellationToken);
+                            }
 
-                var e = CreateEvent(current, original);
-                if (e is null)
-                {
-                    continue;
+                            break;
+                        }
                 }
-
-                await _eventDispatcher.WriteAsync(e, cancellationToken);
             }
         }
 
-        private static IRoomEvent? CreateEvent(Room current, Room? original)
+        private static IRoomEvent? CreateEvent(RoomConfiguration current, RoomConfiguration? original)
         {
-            if (current.Configuration is null)
+            if (original is null || original.CodeEditorContent != current.CodeEditorContent)
             {
-                return null;
-            }
-
-            if (original?.Configuration is null || original.Configuration.CodeEditorContent != current.Configuration.CodeEditorContent)
-            {
-                return new ChangeCodeEditorRoomEvent(current.Id, current.Configuration.CodeEditorContent);
+                return new ChangeCodeEditorRoomEvent(current.Id, current.CodeEditorContent);
             }
 
             return null;
