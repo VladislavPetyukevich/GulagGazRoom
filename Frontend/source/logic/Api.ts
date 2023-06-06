@@ -1,9 +1,15 @@
-interface RoomState {
+export interface RoomState {
   activeQuestion: {
     value: string;
   };
   likeCount: number;
   dislikeCount: number;
+  enableCodeEditor: boolean;
+  codeEditorContent: string | null;
+}
+
+interface User {
+  roles: string[];
 }
 
 interface Admin {
@@ -15,6 +21,8 @@ interface ApiProps {
   url: string;
 }
 
+export const notAuthenticatedError = 'Not authenticated';
+
 export class Api {
   communist: string;
   url: string;
@@ -24,19 +32,19 @@ export class Api {
     this.url = props.url;
   }
 
-  checkAuthorization() {
-    return new Promise<void>((resolve, reject) => {
+  getUserSelf() {
+    return new Promise<User>((resolve, reject) => {
       if (!this.communist) {
-        return reject('Not authenticated');
+        return reject(notAuthenticatedError);
       }
       fetch(`${this.url}/users/self`)
         .then((response) => {
-          if (response.ok) {
-            return resolve();
+          if (!response.ok) {
+            return reject(notAuthenticatedError);
           }
-          return reject('Not authenticated');
+          response.json().then(resolve);
         })
-        .catch(() => reject('Not authenticated'));
+        .catch(() => reject(notAuthenticatedError));
     });
   }
 

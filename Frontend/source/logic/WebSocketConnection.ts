@@ -9,6 +9,7 @@ export class WebSocketConnection {
   url: string;
   communist: string;
   roomId: string;
+  webSocket?: WebSocket;
   onMessage: (ev: MessageEvent<any>) => void;
 
   constructor(props: WebSocketWebSocketConnectionProps) {
@@ -21,14 +22,21 @@ export class WebSocketConnection {
   connect() {
     return new Promise<void>((resolve, reject) => {
       const socketUrl = `${this.url}?Authorization=${this.communist}&roomId=${this.roomId}`;
-      const webSocket = new WebSocket(socketUrl);
-      webSocket.onmessage = this.onMessage;
-      webSocket.onopen = () => resolve();
-      webSocket.onclose = () => {
-        const message = 'webSocket connection closed';
+      this.webSocket = new WebSocket(socketUrl);
+      this.webSocket.onmessage = this.onMessage;
+      this.webSocket.onopen = () => resolve();
+      this.webSocket.onclose = () => {
+        const message = `webSocket connection closed: ${this.url}`;
         alert(message);
         reject(message);
       }
     });
+  }
+
+  send(data: string) {
+    if (!this.webSocket) {
+      return;
+    }
+    this.webSocket.send(data);
   }
 }

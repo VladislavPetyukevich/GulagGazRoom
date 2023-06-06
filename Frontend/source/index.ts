@@ -4,7 +4,7 @@ import {
   REACT_APP_WS_URL,
 } from './logic/env';
 import { HTMLElements } from './logic/HTMLElements';
-import { Api } from './logic/Api';
+import { Api, RoomState, notAuthenticatedError } from './logic/Api';
 import { WebSocketConnection } from './logic/WebSocketConnection';
 import { Communist } from './logic/Communist';
 import { Settings } from './logic/Settings';
@@ -26,7 +26,6 @@ const htmlElements = new HTMLElements({
 });
 
 const codeEditor = new CodeEditor(htmlElements.editorContainer);
-// codeEditor.show();
 
 function updateAudioVolume(value: number) {
   if (!threeShooter) {
@@ -82,7 +81,6 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
   return function (event: MessageEvent<any>) {
     try {
       const dataParsed = JSON.parse(event.data);
-      console.log('dataParsed: ', dataParsed);
       switch (dataParsed.Type) {
         case 'ChatMessage':
           const message = `${dataParsed.Value.Nickname}:\n${dataParsed.Value.Message}`;
@@ -99,6 +97,15 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
           break;
         case 'GasOff':
           threeShooter.onPlayerActionStart('gasDisable');
+          break;
+        case 'EnableCodeEditor':
+          codeEditor.show();
+          break;
+        case 'DisableCodeEditor':
+          codeEditor.hide();
+          break;
+        case 'ChangeCodeEditor':
+          codeEditor.setValue(dataParsed.Value || '');
           break;
         case 'ChangeRoomQuestionState':
           if (dataParsed.Value.NewState !== 'Active') {
@@ -159,6 +166,15 @@ function addThreeShooterEventHandlers(threeShooter: ThreeShooter) {
   loadSetting();
 }
 
+function updateCodeEditor(roomState: RoomState) {
+  if (roomState.codeEditorContent) {
+    codeEditor.setValue(roomState.codeEditorContent);
+  }
+  if (roomState.enableCodeEditor) {
+    codeEditor.show();
+  }
+}
+
 async function init() {
   if (!REACT_APP_WS_URL) {
     throw new Error('REACT_APP_WS_URL are not defined');
@@ -168,15 +184,12 @@ async function init() {
     throw new Error('roomId not found in url params');
   }
   try {
-    await api.checkAuthorization();
-  } catch {
-    htmlElements.displayAuthentication();
-    return;
-  }
-  try {
+    const userSelf = await api.getUserSelf();
+    const selfAdmin = userSelf.roles.includes('Admin');
     const admins = await api.getAdmins();
     adminsId = admins.map(admin => admin.id);
     const roomState = await api.getRoomState(roomId);
+    updateCodeEditor(roomState);
     const rendererSize = htmlElements.getRendererSize();
     const threeShooterProps = {
       renderContainer: htmlElements.renderContainer,
@@ -194,12 +207,30 @@ async function init() {
     const webSocketConnection = new WebSocketConnection({
       communist: communistValue,
       roomId,
-      url: REACT_APP_WS_URL,
+      url: `${REACT_APP_WS_URL}/ws`,
       onMessage: createWebSocketMessagehandler(threeShooter),
     });
     await webSocketConnection.connect();
+
+    if (selfAdmin) {
+      const codeEditorwebSocketConnection = new WebSocketConnection({
+        communist: communistValue,
+        roomId,
+        url: `${REACT_APP_WS_URL}/code`,
+        onMessage: (event: MessageEvent<any>) => {
+          console.log('message: ', JSON.parse(event.data));
+        },
+      });
+      await codeEditorwebSocketConnection.connect();
+      codeEditor.onChange = code => codeEditorwebSocketConnection.send(code);
+    }
   } catch (err) {
+    if (err === notAuthenticatedError) {
+      htmlElements.displayAuthentication();
+      return;
+    }
     alert(`Init error ${err}`);
+    console.error(err);
   }
 }
 init();

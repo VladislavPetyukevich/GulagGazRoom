@@ -27,7 +27,7 @@ export const Room: FunctionComponent = () => {
   const { getCommunist } = useCommunist();
   const communist = getCommunist();
   let { id } = useParams();
-  const socketUrl = `${REACT_APP_WS_URL}?Authorization=${communist}&roomId=${id}`;
+  const socketUrl = `${REACT_APP_WS_URL}/ws?Authorization=${communist}&roomId=${id}`;
   const { lastMessage } = useWebSocket(socketUrl);
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);

@@ -21,6 +21,11 @@ export interface SendGasBody {
   type: 'GasOn' | 'GasOff';
 }
 
+export interface SendCodeEditorBody {
+  roomId: Room['id'];
+  type: 'EnableCodeEditor' | 'DisableCodeEditor';
+}
+
 export const roomsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
@@ -33,7 +38,7 @@ export const roomsApiDeclaration = {
   }),
   getState: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
-    baseUrl: `/Room/GetRoomState?id=${id}`,
+    baseUrl: `/rooms/${id}/state`,
   }),
   analyticsSummary: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
@@ -47,6 +52,11 @@ export const roomsApiDeclaration = {
   sendGasEvent: (body: SendGasBody): ApiContractPost => ({
     method: 'POST',
     baseUrl: '/rooms/event/gas',
+    body,
+  }),
+  sendCodeEditorEvent: (body: SendCodeEditorBody): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/rooms/event/codeEditor',
     body,
   }),
   close: (id: Room['id']): ApiContractPatch => ({
