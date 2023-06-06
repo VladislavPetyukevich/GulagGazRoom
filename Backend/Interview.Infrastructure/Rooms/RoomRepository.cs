@@ -232,6 +232,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 Users = e.Participants.Select(participant =>
                         new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, })
                     .ToList(),
+                RoomStatus = e.Status.EnumValue,
             })
             .OrderBy(e => e.Id)
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
