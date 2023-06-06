@@ -62,6 +62,19 @@ public class UserController : ControllerBase
         return _userService.FindByRoleAsync(pageRequest.PageNumber, pageRequest.PageSize, role, HttpContext.RequestAborted);
     }
 
+    [Authorize(policy: GulagSecurePolicy.User)]
+    [HttpGet("admins")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<IPagedList<UserDetail>> FindAdmins([FromQuery] PageRequest pageRequest)
+    {
+        return _userService.FindByRoleAsync(pageRequest.PageNumber, pageRequest.PageSize, RoleNameType.Admin, HttpContext.RequestAborted);
+    }
+
     [Authorize]
     [HttpGet("self")]
     [Produces("application/json")]
