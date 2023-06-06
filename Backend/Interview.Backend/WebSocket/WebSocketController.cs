@@ -160,6 +160,11 @@ public class WebSocketController : ControllerBase
                     code = await reader.ReadToEndAsync(ct);
                 }
 
+                if (webSocket.ShouldCloseWebSocket())
+                {
+                    break;
+                }
+
                 var repository = HttpContext.RequestServices.GetRequiredService<IRoomConfigurationRepository>();
                 var request = new UpsertCodeStateRequest { CodeEditorContent = code, RoomId = roomIdentity.Value, };
                 await repository.UpsertCodeStateAsync(request, ct);
