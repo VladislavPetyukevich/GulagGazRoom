@@ -68,7 +68,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                     })
                     .ToList(),
                 Viewers = reactionQuestions
-                    .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Expert)
+                    .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Viewer)
                     .GroupBy(e => e.Sender!.Id)
                     .Select(e => new AnalyticsSummaryViewer
                     {
