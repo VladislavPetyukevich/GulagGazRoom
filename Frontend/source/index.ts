@@ -9,6 +9,7 @@ import { WebSocketConnection } from './logic/WebSocketConnection';
 import { Communist } from './logic/Communist';
 import { Settings } from './logic/Settings';
 import { CodeEditor } from './logic/CodeEditor';
+import { Speech } from './logic/Speech';
 
 let threeShooter: ThreeShooter | null = null;
 
@@ -26,10 +27,17 @@ const htmlElements = new HTMLElements({
 });
 
 const codeEditor = new CodeEditor(htmlElements.editorContainer);
+let speech: Speech | undefined;
+try {
+  speech = new Speech();
+} catch { }
 
 function updateAudioVolume(value: number) {
   if (!threeShooter) {
     return;
+  }
+  if (speech) {
+    speech.setVolume(value / 10);
   }
   var newVolume = value / 10;
   threeShooter.updateAudioVolume(newVolume);
@@ -77,6 +85,10 @@ if (!roomId) {
 const paramsFov = parseInt(urlParams.get('fov') || '');
 const paramsMuted = !!urlParams.get('muted');
 
+function checkIsMessageFromToilet(message: string) {
+  return message.toLowerCase().startsWith('голос с параши');
+}
+
 function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
   return function (event: MessageEvent<any>) {
     try {
@@ -84,6 +96,9 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
       switch (dataParsed.Type) {
         case 'ChatMessage':
           const message = `${dataParsed.Value.Nickname}:\n${dataParsed.Value.Message}`;
+          if (speech && checkIsMessageFromToilet(String(dataParsed.Value.Message))) {
+            speech.speak(dataParsed.Value.Message);
+          }
           threeShooter.onPlayerActionStart('chatMessage', message);
           break;
         case 'ReactionLike':
