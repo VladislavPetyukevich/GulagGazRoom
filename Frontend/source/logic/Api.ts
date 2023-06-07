@@ -86,7 +86,7 @@ export class Api {
 
   getAdmins() {
     return new Promise<Admin[]>((resolve, reject) => {
-      fetch(`${this.url}/users/role/Admin?PageSize=30&PageNumber=1`)
+      fetch(`${this.url}/users/admins?PageSize=30&PageNumber=1`)
         .then((response) => {
           if (!response.ok) {
             return reject('Cannot get admins');
