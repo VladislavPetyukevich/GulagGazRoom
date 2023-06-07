@@ -13,4 +13,6 @@ public class RoomPageDetail
     public List<RoomQuestionDetail>? Questions { get; set; }
 
     public List<RoomUserDetail>? Users { get; set; }
+
+    public required EVRoomStatus RoomStatus { get; init; }
 }
