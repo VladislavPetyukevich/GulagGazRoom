@@ -59,6 +59,7 @@ export const enum Captions {
   LikeTable = '👍',
   DislikeTable = '👎',
   Question = 'Вопрос',
+  Summary = 'Отчёт',
   QuestionsSummary = 'Отчётики на вопросики',
   FailedToCalculateMark = 'Ошибка при подсчёте оценки',
   RoomAnayticsSummary = 'Официальный отчет заседания',

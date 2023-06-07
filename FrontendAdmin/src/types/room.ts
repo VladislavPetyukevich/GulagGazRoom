@@ -7,6 +7,7 @@ export interface Room {
   twitchChannel: string;
   questions: Question[];
   users: User[];
+  roomStatus: 'Active' | 'Close';
 }
 
 export interface RoomState {

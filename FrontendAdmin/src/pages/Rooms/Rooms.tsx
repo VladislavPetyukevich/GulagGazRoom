@@ -41,12 +41,19 @@ export const Rooms: FunctionComponent = () => {
     setPageNumber(pageNumber - 1);
   }, [pageNumber]);
 
+  const getRoomLink = useCallback((room: Room) => {
+    if (room.roomStatus === 'Close') {
+      return pathnames.roomAnalyticsSummary.replace(':id', room.id);
+    }
+    return `${pathnames.rooms}/${room.id}`;
+  }, []);
+
   const createRoomItem = useCallback((room: Room) => {
     return (
       <li key={room.id}>
         <Field>
-          <Link to={`${pathnames.rooms}/${room.id}`} className='room-link'>
-            {room.name}
+          <Link to={getRoomLink(room)} className='room-link'>
+            {`${room.name}${room.roomStatus === 'Close' ? ` (${Captions.Summary})` : ''}`}
           </Link>
           <div className="room-users">
             <span>Участники: </span>
@@ -57,13 +64,10 @@ export const Rooms: FunctionComponent = () => {
               {Captions.EditParticipants}
             </Link>
           )}
-          <div>
-            <Link to={pathnames.roomAnalyticsSummary.replace(':id', room.id)}>roomAnalyticsSummary</Link>
-          </div>
         </Field>
       </li>
     );
-  }, [admin]);
+  }, [admin, getRoomLink]);
 
   return (
     <MainContentWrapper>
