@@ -9,6 +9,7 @@ import { roomsApiDeclaration } from '../../apiDeclarations';
 import { AnalyticsQuestionsExpert, AnalyticsSummary } from '../../types/analytics';
 import { Room as RoomType } from '../../types/room';
 import { SovietMark } from '../../components/SovietMark/SovietMark';
+import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 
 import './RoomAnayticsSummary.css';
 
@@ -30,6 +31,11 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
   const [totalLikesDislikes, setTotalLikesDislikes] = useState({ likes: 0, dislikes: 0 });
   const [totalMarkError, setTotalMarkError] = useState('');
+  const loaders = [
+    {},
+    { height: '3.5rem' },
+    {},
+  ];
 
   useEffect(() => {
     if (!id) {
@@ -66,18 +72,6 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     setTotalLikesDislikes(expertReactionsSummary);
   }, [data]);
 
-  if (loading || roomLoading) {
-    return (
-      <div>Loading...</div>
-    );
-  }
-
-  if (error || roomError) {
-    return (
-      <div>Error: {error}</div>
-    );
-  }
-
   return (
     <MainContentWrapper className="room-anaytics-summary">
       <HeaderWithLink
@@ -87,65 +81,73 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         linkCaption="<"
         linkFloat="left"
       />
-      <Field>
-        <h3>{room?.name}</h3>
-      </Field>
-      <Field>
-        <h3>Чёткость ответа:</h3>
-        <div>
-          {totalMarkError ? totalMarkError : (<SovietMark {...totalLikesDislikes} />)}
-        </div>
-      </Field>
-      <Field>
-        <h3>{Captions.QuestionsSummary}:</h3>
-        <table className='anaytics-table'>
-          <thead>
-            <tr>
-              <th>{Captions.Question}</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.questions.map(question => (
-              <Fragment key={question.id}>
+      <ProcessWrapper
+        loading={loading || roomLoading}
+        error={error || roomError}
+        loaders={loaders}
+      >
+        <>
+          <Field>
+            <h3>{room?.name}</h3>
+          </Field>
+          <Field>
+            <h3>Чёткость ответа:</h3>
+            <div>
+              {totalMarkError ? totalMarkError : (<SovietMark {...totalLikesDislikes} />)}
+            </div>
+          </Field>
+          <Field>
+            <h3>{Captions.QuestionsSummary}:</h3>
+            <table className='anaytics-table'>
+              <thead>
                 <tr>
-                  <td className="question-cell">
-                    {question.value}
-                  </td>
-                  {displayedReactions.map((reaction, reactionIndex) => (
-                    <td key={reaction}>{displayedReactionsView[reactionIndex]}</td>
-                  ))}
+                  <th>{Captions.Question}</th>
+                  <th></th>
+                  <th></th>
                 </tr>
-                {question.experts && question.experts.map(expert => (
-                  <tr key={`${question.id}${expert.id}`} className="user-row">
-                    <td>{expert.nickname}</td>
-                    {displayedReactions.map(displayedReaction => (
-                      <td key={`expert-${displayedReaction}`}>
-                        {expert.reactionsSummary.find(
-                          reactionSummary => reactionSummary.type === displayedReaction
-                        )?.count || 0}
+              </thead>
+              <tbody>
+                {data?.questions.map(question => (
+                  <Fragment key={question.id}>
+                    <tr>
+                      <td className="question-cell">
+                        {question.value}
                       </td>
+                      {displayedReactions.map((reaction, reactionIndex) => (
+                        <td key={reaction}>{displayedReactionsView[reactionIndex]}</td>
+                      ))}
+                    </tr>
+                    {question.experts && question.experts.map(expert => (
+                      <tr key={`${question.id}${expert.id}`} className="user-row">
+                        <td>{expert.nickname}</td>
+                        {displayedReactions.map(displayedReaction => (
+                          <td key={`expert-${displayedReaction}`}>
+                            {expert.reactionsSummary.find(
+                              reactionSummary => reactionSummary.type === displayedReaction
+                            )?.count || 0}
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-                {question.viewers && question.viewers.map(viewer => (
-                  <tr key={`${question.id}-viewer`} className="user-row">
-                    <td>{Captions.Viewers}</td>
-                    {displayedReactions.map(displayedReaction => (
-                      <td key={`viewer-${displayedReaction}`}>
-                        {viewer.reactionsSummary.find(
-                          reactionSummary => reactionSummary.type === displayedReaction
-                        )?.count || 0}
-                      </td>
+                    {question.viewers && question.viewers.map(viewer => (
+                      <tr key={`${question.id}-viewer`} className="user-row">
+                        <td>{Captions.Viewers}</td>
+                        {displayedReactions.map(displayedReaction => (
+                          <td key={`viewer-${displayedReaction}`}>
+                            {viewer.reactionsSummary.find(
+                              reactionSummary => reactionSummary.type === displayedReaction
+                            )?.count || 0}
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
+                  </Fragment>
                 ))}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </Field>
+              </tbody>
+            </table>
+          </Field>
+        </>
+      </ProcessWrapper>
     </MainContentWrapper>
   );
 };
