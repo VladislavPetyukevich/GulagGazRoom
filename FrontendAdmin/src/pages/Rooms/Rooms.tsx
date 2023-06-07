@@ -23,7 +23,7 @@ export const Rooms: FunctionComponent = () => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
   const { apiMethodState, fetchData } = useApiMethod<Room[], PaginationUrlParams>(roomsApiDeclaration.getPage);
   const { process: { loading, error }, data: rooms } = apiMethodState;
-  const loaders = Array.from({ length: pageSize }, () => ({ height: '6.05rem' }));
+  const loaders = Array.from({ length: pageSize }, () => ({ height: '4.46rem' }));
   const roomsSafe = rooms || [];
 
   useEffect(() => {
