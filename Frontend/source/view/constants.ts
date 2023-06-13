@@ -7,14 +7,10 @@ import floorTextureFile from '@/assets/floor.png';
 import gasTextureFile from '@/assets/smoke.png';
 import damage from './assets/damage.mp3';
 import buzz from './assets/buzz.mp3';
-import lightFlick1 from './assets/lightFlick1.mp3';
-import lightFlick2 from './assets/lightFlick2.mp3';
-import lightFlick3 from './assets/lightFlick3.mp3';
-import lightFlick4 from './assets/lightFlick4.mp3';
-import like from './assets/like.mp3';
-import dislike from './assets/dislike.mp3';
+import lightFlicks from './assets/lightFlicks.mp3';
 import gazBeat1 from './assets/gazBeat1.mp3';
 import gazBeat2 from './assets/gazBeat2.mp3';
+import gulagVox from './assets/gulagVox.mp3';
 
 export const DEFAULT_FOV = 105;
 
@@ -72,12 +68,35 @@ export const gameTextures = {
 export const gameSounds = {
   damage,
   buzz,
-  lightFlick1,
-  lightFlick2,
-  lightFlick3,
-  lightFlick4,
-  like,
-  dislike,
+  lightFlicks,
   gazBeat1,
   gazBeat2,
+  gulagVox,
+};
+
+export const audioSlices = {
+  like: {
+    bufferName: 'gulagVox',
+    start: 0.0, end: 1.65, volume: 0.3,
+  },
+  dislike: {
+    bufferName: 'gulagVox',
+    start: 7.77, end: 8.59, volume: 0.25,
+  },
+  lightFlick1: {
+    bufferName: 'lightFlicks',
+    start: 0.05, end: 0.39, volume: 0.5,
+  },
+  lightFlick2: {
+    bufferName: 'lightFlicks',
+    start: 0.39, end: 0.6, volume: 0.5,
+  },
+  lightFlick3: {
+    bufferName: 'lightFlicks',
+    start: 0.6, end: 0.91, volume: 0.5,
+  },
+  lightFlick4: {
+    bufferName: 'lightFlicks',
+    start: 0.91, end: 1.22, volume: 0.5,
+  },
 };

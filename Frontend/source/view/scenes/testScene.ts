@@ -21,6 +21,7 @@ import { EntitiesPool } from './Spawner/EntitiesPool';
 import { PlayerAction, PlayerActionListener, PlayerActionName, playerActions } from '@/PlayerActions';
 import { Stats } from './Stats';
 import { audioStore } from '@/core/loaders';
+import { AudioSlices } from './AudioSlices';
 
 interface LightEffect {
   colorHex: number;
@@ -59,11 +60,9 @@ export class TestScene extends BasicScene {
   gasEnabled: boolean;
   lightEffects: Record<LightEffectName, LightEffect>;
   buzzSound: Audio;
-  lightFlickAudios: Audio[];
-  likeAudio: Audio;
-  dislikeAudio: Audio;
   gasAudios: Audio[];
   gasAudioIndex: number;
+  audioSlices: AudioSlices;
   stats: Stats;
   tvMain?: TV;
   tvChat?: TV;
@@ -202,12 +201,6 @@ export class TestScene extends BasicScene {
         duration: 100,
       },
     };
-    this.lightFlickAudios = [];
-    for (let i = 1; i <= 4; i++) {
-      this.lightFlickAudios.push(
-        this.createAudio(`lightFlick${i}`)
-      );
-    }
 
     this.gasAudioIndex = 0;
     this.gasAudios = [];
@@ -217,13 +210,9 @@ export class TestScene extends BasicScene {
       this.gasAudios.push(gasAudio);
     }
 
-    this.likeAudio = new Audio(this.audioListener);
-    this.likeAudio.setBuffer(audioStore.getSound('like'));
-    this.likeAudio.setVolume(0.2);
-
-    this.dislikeAudio = new Audio(this.audioListener);
-    this.dislikeAudio.setBuffer(audioStore.getSound('dislike'));
-    this.dislikeAudio.setVolume(0.3);
+    this.audioSlices = new AudioSlices({
+      audioListener: this.audioListener,
+    });
 
     this.gasEnabled = false;
     this.actions = {
@@ -305,9 +294,14 @@ export class TestScene extends BasicScene {
   }
 
   playRandomLightFlickSound() {
-    const flickAudioIndex = randomNumbers.getRandomInRange(0, this.lightFlickAudios.length - 1);
-    const flickAudio = this.lightFlickAudios[flickAudioIndex];
-    this.playAudio(flickAudio);
+    const flickAduioNames: ['lightFlick1', 'lightFlick2', 'lightFlick3', 'lightFlick4',] = [
+      'lightFlick1',
+      'lightFlick2',
+      'lightFlick3',
+      'lightFlick4',
+    ];
+    const flickAduioName = flickAduioNames[randomNumbers.getRandomInRange(0, flickAduioNames.length - 1)];
+    this.playAudio(this.audioSlices.getAudio(flickAduioName));
   }
 
   lightFlick() {
@@ -388,7 +382,7 @@ export class TestScene extends BasicScene {
 
   onLike = (action: PlayerAction) => {
     if (this.checkAdminAction(action)) {
-      this.playAudio(this.likeAudio);
+      this.playAudio(this.audioSlices.getAudio('like'));
     }
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
@@ -396,7 +390,7 @@ export class TestScene extends BasicScene {
 
   onDislike = (action: PlayerAction) => {
     if (this.checkAdminAction(action)) {
-      this.playAudio(this.dislikeAudio);
+      this.playAudio(this.audioSlices.getAudio('dislike'));
     }
     this.stats.increaseCount('dislike');
     this.startTvStatsAnimation('👎');
