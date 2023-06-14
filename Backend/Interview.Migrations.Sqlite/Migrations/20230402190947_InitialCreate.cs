@@ -173,6 +173,7 @@ namespace Interview.Migrations.Sqlite.Migrations
                     ReactionId = table.Column<Guid>(type: "TEXT", nullable: false),
                     RoomQuestionId = table.Column<Guid>(type: "TEXT", nullable: false),
                     SenderId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Payload = table.Column<string>(type: "TEXT", maxLength: 128, nullable: true),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },

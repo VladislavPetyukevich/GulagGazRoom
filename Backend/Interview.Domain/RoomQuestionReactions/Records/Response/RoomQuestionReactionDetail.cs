@@ -7,4 +7,6 @@ public class RoomQuestionReactionDetail
     public Guid Reaction { get; set; }
 
     public Guid Question { get; set; }
+
+    public string Payload { get; set; }
 }

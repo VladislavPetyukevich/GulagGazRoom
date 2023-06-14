@@ -21,5 +21,7 @@ public class RoomQuestionReactionTypeConfiguration : EntityTypeConfigurationBase
         builder.HasOne<User>(roomQuestionReaction => roomQuestionReaction.Sender)
             .WithMany()
             .IsRequired();
+
+        builder.Property(roomQuestionReaction => roomQuestionReaction.Payload).HasMaxLength(128);
     }
 }

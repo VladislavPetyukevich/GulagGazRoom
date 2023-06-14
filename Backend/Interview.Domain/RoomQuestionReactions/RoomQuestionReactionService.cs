@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.Errors;
 using Interview.Domain.Reactions;
+using Interview.Domain.Repository;
 using Interview.Domain.RoomQuestionReactions.Records;
 using Interview.Domain.RoomQuestionReactions.Records.Response;
 using Interview.Domain.RoomQuestions;
@@ -71,6 +72,7 @@ public class RoomQuestionReactionService
             RoomQuestion = roomQuestion,
             Reaction = reaction,
             Sender = user,
+            Payload = request.Payload,
         };
 
         await _roomQuestionReactionRepository.CreateAsync(questionReaction, cancellationToken);
@@ -80,6 +82,7 @@ public class RoomQuestionReactionService
             RoomId = request.RoomId,
             Question = roomQuestion.Question!.Id,
             Reaction = reaction.Id,
+            Payload = request.Payload,
         });
     }
 }

@@ -36,9 +36,9 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
 
     private IRoomEvent CreateEvent(RoomQuestionReaction entity, EventType type)
     {
-        return new RoomEvent<RoomEventUserPayload>(
+        return new RoomEvent<RoomEventUserTextPayload>(
             entity.RoomQuestion!.Room!.Id,
             type,
-            new RoomEventUserPayload(entity.Sender!.Id));
+            new RoomEventUserTextPayload(entity.Sender!.Id, entity.Payload!));
     }
 }
