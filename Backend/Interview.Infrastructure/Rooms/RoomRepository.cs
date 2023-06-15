@@ -47,41 +47,42 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 .Where(e => e.RoomQuestion!.Question!.Id == question.Id)
                 .ToList();
 
+            var viewers = reactionQuestions
+                .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Viewer)
+                .GroupBy(e => e.Sender!.Id)
+                .Select(e => new AnalyticsSummaryViewer
+                {
+                    ReactionsSummary = e.GroupBy(t => (t.Reaction!.Id, t.Reaction.Type))
+                        .Select(t => new Analytics.AnalyticsReactionSummary
+                        {
+                            Id = t.Key.Id, Type = t.Key.Type.Name, Count = t.Count(),
+                        })
+                        .ToList(),
+                })
+                .ToList();
+
+            var experts = reactionQuestions
+                .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Expert)
+                .GroupBy(e => (e.Sender!.Id, e.Sender!.Nickname))
+                .Select(e => new AnalyticsSummaryExpert
+                {
+                    Nickname = e.Key.Nickname,
+                    ReactionsSummary = e.GroupBy(t => (t.Reaction!.Id, t.Reaction.Type))
+                        .Select(t => new Analytics.AnalyticsReactionSummary
+                        {
+                            Id = t.Key.Id,
+                            Type = t.Key.Type.Name,
+                            Count = t.Count(),
+                        })
+                        .ToList(),
+                })
+                .ToList();
             summary.Questions.Add(new AnalyticsSummaryQuestion
             {
                 Id = question.Id,
                 Value = question.Value,
-                Experts = reactionQuestions
-                    .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Expert)
-                    .GroupBy(e => (e.Sender!.Id, e.Sender!.Nickname))
-                    .Select(e => new AnalyticsSummaryExpert
-                    {
-                        Nickname = e.Key.Nickname,
-                        ReactionsSummary = e.GroupBy(t => (t.Reaction!.Id, t.Reaction.Type))
-                            .Select(t => new Analytics.AnalyticsReactionSummary
-                            {
-                                Id = t.Key.Id,
-                                Type = t.Key.Type.Name,
-                                Count = t.Count(),
-                            })
-                            .ToList(),
-                    })
-                    .ToList(),
-                Viewers = reactionQuestions
-                    .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Viewer)
-                    .GroupBy(e => e.Sender!.Id)
-                    .Select(e => new AnalyticsSummaryViewer
-                    {
-                        ReactionsSummary = e.GroupBy(t => (t.Reaction!.Id, t.Reaction.Type))
-                            .Select(t => new Analytics.AnalyticsReactionSummary
-                            {
-                                Id = t.Key.Id,
-                                Type = t.Key.Type.Name,
-                                Count = t.Count(),
-                            })
-                            .ToList(),
-                    })
-                    .ToList(),
+                Experts = experts,
+                Viewers = viewers,
             });
         }
 
