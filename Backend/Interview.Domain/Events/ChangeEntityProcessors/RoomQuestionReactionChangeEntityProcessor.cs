@@ -18,14 +18,7 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
     {
         foreach (var entity in entities.OfType<RoomQuestionReaction>())
         {
-            if (entity.Reaction!.Type == ReactionType.Like)
-            {
-                await _eventDispatcher.WriteAsync(CreateEvent(entity, EventType.ReactionLike), cancellationToken);
-            }
-            else if (entity.Reaction.Type == ReactionType.Dislike)
-            {
-                await _eventDispatcher.WriteAsync(CreateEvent(entity, EventType.ReactionDislike), cancellationToken);
-            }
+            await _eventDispatcher.WriteAsync(CreateEvent(entity), cancellationToken);
         }
     }
 
@@ -34,11 +27,24 @@ public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
         return ValueTask.CompletedTask;
     }
 
-    private IRoomEvent CreateEvent(RoomQuestionReaction entity, EventType type)
+    private IRoomEvent CreateEvent(RoomQuestionReaction entity)
     {
-        return new RoomEvent<RoomEventUserPayload>(
+        return new RoomEvent<RoomQuestionReactionPayload>(
             entity.RoomQuestion!.Room!.Id,
-            type,
-            new RoomEventUserPayload(entity.Sender!.Id));
+            entity.Reaction!.Type.EventType,
+            new RoomQuestionReactionPayload(entity.Sender!.Id, entity.Payload));
+    }
+
+    private sealed class RoomQuestionReactionPayload
+    {
+        public Guid UserId { get; }
+
+        public string? Payload { get; }
+
+        public RoomQuestionReactionPayload(Guid userId, string? payload)
+        {
+            UserId = userId;
+            Payload = payload;
+        }
     }
 }

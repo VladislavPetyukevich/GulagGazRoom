@@ -484,7 +484,7 @@ public class RoomServiceTest
             {
                 Id = Guid.Parse("D65AA6D4-FA7B-49CB-AFA2-EA4F900F2258"),
                 RoomQuestion = roomQuestion[1],
-                Reaction = like,
+                Reaction = dislike,
                 Sender = users[2],
             },
             new()
@@ -535,7 +535,19 @@ public class RoomServiceTest
                                 {
                                     Id = ReactionType.Like.Id,
                                     Type = ReactionType.Like.Name,
-                                    Count = 2,
+                                    Count = 1,
+                                }
+                            }
+                        },
+                        new()
+                        {
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
+                            {
+                                new()
+                                {
+                                    Id = ReactionType.Dislike.Id,
+                                    Type = ReactionType.Dislike.Name,
+                                    Count = 1,
                                 }
                             }
                         }
@@ -563,6 +575,18 @@ public class RoomServiceTest
                     },
                     Viewers = new List<AnalyticsSummaryViewer>
                     {
+                        new()
+                        {
+                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
+                            {
+                                new()
+                                {
+                                    Id = ReactionType.Dislike.Id,
+                                    Type = ReactionType.Dislike.Name,
+                                    Count = 1,
+                                }
+                            }
+                        },
                         new()
                         {
                             ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
