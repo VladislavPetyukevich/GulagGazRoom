@@ -16,4 +16,6 @@ public class RoomQuestionReaction : Entity
     public RoomQuestion? RoomQuestion { get; set; }
 
     public User? Sender { get; set; }
+
+    public string? Payload { get; set; }
 }

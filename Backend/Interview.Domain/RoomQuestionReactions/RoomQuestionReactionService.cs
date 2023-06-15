@@ -71,6 +71,7 @@ public class RoomQuestionReactionService
             RoomQuestion = roomQuestion,
             Reaction = reaction,
             Sender = user,
+            Payload = request.Payload,
         };
 
         await _roomQuestionReactionRepository.CreateAsync(questionReaction, cancellationToken);
