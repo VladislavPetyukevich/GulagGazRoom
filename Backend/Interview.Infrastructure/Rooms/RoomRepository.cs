@@ -55,7 +55,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                     ReactionsSummary = e.GroupBy(t => (t.Reaction!.Id, t.Reaction.Type))
                         .Select(t => new Analytics.AnalyticsReactionSummary
                         {
-                            Id = t.Key.Id, Type = t.Key.Type.Name, Count = t.Count(),
+                            Id = t.Key.Id,
+                            Type = t.Key.Type.Name,
+                            Count = t.Count(),
                         })
                         .ToList(),
                 })
