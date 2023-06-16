@@ -188,4 +188,14 @@ public class RoomController : ControllerBase
     {
         return _roomService.CloseRoomAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
+
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPatch("{id:guid}/startReview")]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public Task<ActionResult> StartReviewRoom(Guid id)
+    {
+        return _roomService.StartReviewRoomAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+    }
 }
