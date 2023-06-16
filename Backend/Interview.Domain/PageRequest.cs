@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Interview.Domain;
 
-namespace Interview.Backend.Shared;
+namespace Interview.Domain;
 
 public class PageRequest
 {
