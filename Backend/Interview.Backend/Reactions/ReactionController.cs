@@ -1,5 +1,5 @@
 using Interview.Backend.Auth;
-using Interview.Backend.Shared;
+using Interview.Domain;
 using Interview.Domain.Reactions.Records;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

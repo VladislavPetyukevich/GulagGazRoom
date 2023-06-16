@@ -1,6 +1,6 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
-using Interview.Backend.Shared;
+using Interview.Domain;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;

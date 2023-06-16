@@ -5,6 +5,7 @@ using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
+using NSpecifications;
 using X.PagedList;
 
 namespace Interview.Domain.RoomReviews;
@@ -28,10 +29,19 @@ public class RoomReviewService
     }
 
     public Task<IPagedList<RoomReviewDetail>> FindPageAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        RoomReviewPageRequest request,
+        CancellationToken cancellationToken = default)
     {
-        return _roomReviewRepository
-            .GetPageDetailedAsync(RoomReviewDetailMapper.Instance, pageNumber, pageSize, cancellationToken);
+        var specification = request.Filter.RoomId is null
+            ? Spec<RoomReview>.Any
+            : new Spec<RoomReview>(review => review.Room!.Id == request.Filter.RoomId);
+
+        return _roomReviewRepository.GetPageDetailedAsync(
+            specification,
+            RoomReviewDetailMapper.Instance,
+            request.Page.PageNumber,
+            request.Page.PageSize,
+            cancellationToken);
     }
 
     public async Task<Result<ServiceResult<RoomReviewDetail>, ServiceError>> CreateAsync(
@@ -51,9 +61,9 @@ public class RoomReviewService
             return ServiceError.NotFound($"Room not found with id {request.RoomId}");
         }
 
-        if (room.Status == SERoomStatus.Active)
+        if (room.Status != SERoomStatus.Review)
         {
-            return ServiceError.NotFound($"Room not found with id {request.RoomId}");
+            return ServiceError.Error("Room should be in Review status");
         }
 
         var roomReview = new RoomReview(user, room, SERoomReviewState.Open)
