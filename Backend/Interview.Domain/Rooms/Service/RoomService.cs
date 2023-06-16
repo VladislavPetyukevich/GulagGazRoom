@@ -191,6 +191,24 @@ public sealed class RoomService
         return ServiceResult.Ok();
     }
 
+    public async Task<Result<ServiceResult, ServiceError>> StartReviewRoomAsync(Guid roomId, CancellationToken cancellationToken)
+    {
+        var currentRoom = await _roomRepository.FindByIdAsync(roomId, cancellationToken);
+        if (currentRoom == null)
+        {
+            return ServiceError.NotFound($"Room not found by id {roomId}");
+        }
+
+        if (currentRoom.Status == SERoomStatus.Review)
+        {
+            return ServiceError.Error("Room already reviewed");
+        }
+
+        currentRoom.Status = SERoomStatus.Review;
+        await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
+        return ServiceResult.Ok();
+    }
+
     public async Task<Result<ServiceResult<RoomState>, ServiceError>> GetRoomStateAsync(Guid roomId, CancellationToken cancellationToken = default)
     {
         var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, RoomState.Mapper, cancellationToken);
