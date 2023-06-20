@@ -12,7 +12,7 @@ import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
 import { RoomState, Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
-import { CloseRoom } from './components/CloseRoom/CloseRoom';
+import { RoomActionModal } from './components/RoomActionModal/RoomActionModal';
 import { Twitch } from './components/Twitch/Twitch';
 import { Interviewee } from './components/Interviewee/Interviewee';
 import { Reactions } from './components/Reactions/Reactions';
@@ -35,6 +35,14 @@ export const Room: FunctionComponent = () => {
 
   const { apiMethodState: apiRoomStateMethodState, fetchData: fetchRoomState } = useApiMethod<RoomState, RoomType['id']>(roomsApiDeclaration.getState);
   const { data: roomState } = apiRoomStateMethodState;
+
+  const {
+    apiMethodState: apiRoomCloseMethodState,
+    fetchData: fetchRoomClose,
+  } = useApiMethod<unknown, RoomType['id']>(roomsApiDeclaration.close);
+  const {
+    process: { loading: roomCloseLoading, error: roomCloseError },
+  } = apiRoomCloseMethodState;
 
   useEffect(() => {
     if (!id) {
@@ -70,6 +78,13 @@ export const Room: FunctionComponent = () => {
     );
   }, [id]);
 
+  const handleCloseRoom = useCallback(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    fetchRoomClose(id);
+  }, [id, fetchRoomClose]);
+
   const loaders = [
     {},
     {},
@@ -101,7 +116,11 @@ export const Room: FunctionComponent = () => {
           </Field>
           {admin && (
             <Field>
-              <CloseRoom />
+              <RoomActionModal
+                loading={roomCloseLoading}
+                error={roomCloseError}
+                onAction={handleCloseRoom}
+              />
             </Field>
           )}
           <Field className="reactions-field">

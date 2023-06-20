@@ -1,23 +1,21 @@
 import { FunctionComponent, useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import Modal from 'react-modal';
-import { useApiMethod } from '../../../../hooks/useApiMethod';
-import { roomsApiDeclaration } from '../../../../apiDeclarations';
 import { Captions } from '../../../../constants';
-import { Room } from '../../../../types/room';
 
-import './CloseRoom.css';
+import './RoomActionModal.css';
 
-export const CloseRoom: FunctionComponent = () => {
-  const { id } = useParams();
+interface RoomActionModalProps {
+  loading: boolean;
+  error: string | null;
+  onAction: () => void;
+}
+
+export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
+  loading,
+  error,
+  onAction,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const {
-    apiMethodState,
-    fetchData,
-  } = useApiMethod<unknown, Room['id']>(roomsApiDeclaration.close);
-  const {
-    process: { loading, error },
-  } = apiMethodState;
 
   const handleOpenModal = useCallback(() => {
     setModalOpen(true);
@@ -27,13 +25,10 @@ export const CloseRoom: FunctionComponent = () => {
     setModalOpen(false);
   }, []);
 
-  const handleCloseRoom = useCallback(() => {
-    if (!id) {
-      throw new Error('Room id not found');
-    }
-    fetchData(id);
-    setModalOpen(false);
-  }, [id, fetchData]);
+  const onCallAction = useCallback(() => {
+    handleCloseModal();
+    onAction();
+  }, [handleCloseModal, onAction]);
 
   if (loading) {
     return (<div>{Captions.CloseRoomLoading}...</div>);
@@ -62,7 +57,7 @@ export const CloseRoom: FunctionComponent = () => {
           <button onClick={handleCloseModal}>X</button>
         </div>
         <div className="close-room-modal-content">
-          <button onClick={handleCloseRoom}>{Captions.Yes}</button>
+          <button onClick={onCallAction}>{Captions.Yes}</button>
           <button onClick={handleCloseModal}>{Captions.No}</button>
         </div>
       </Modal>
