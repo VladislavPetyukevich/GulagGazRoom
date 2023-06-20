@@ -74,14 +74,36 @@ export const gameSounds = {
   gulagVox,
 };
 
+const voxVolume = 0.15;
+
 export const audioSlices = {
-  like: {
+  like1: {
     bufferName: 'gulagVox',
-    start: 0.0, end: 1.65, volume: 0.3,
+    start: 0.0, end: 1.65, volume: voxVolume,
   },
-  dislike: {
+  dislike1: {
     bufferName: 'gulagVox',
-    start: 7.77, end: 8.59, volume: 0.25,
+    start: 7.77, end: 8.59, volume: voxVolume,
+  },
+  dislike2: {
+    bufferName: 'gulagVox',
+    start: 5.08, end: 6.76, volume: voxVolume,
+  },
+  dislike3: {
+    bufferName: 'gulagVox',
+    start: 1.66, end: 3.43, volume: voxVolume,
+  },
+  dislike4: {
+    bufferName: 'gulagVox',
+    start: 3.57, end: 5.03, volume: voxVolume,
+  },
+  dislike5: {
+    bufferName: 'gulagVox',
+    start: 6.83, end: 7.67, volume: voxVolume,
+  },
+  dislike6: {
+    bufferName: 'gulagVox',
+    start: 8.74, end: 9.67, volume: voxVolume,
   },
   lightFlick1: {
     bufferName: 'lightFlicks',

@@ -6,6 +6,7 @@ import { Reaction } from '../../../../types/reaction';
 import { PaginationUrlParams, SendCodeEditorBody, SendGasBody, SendReactionBody, reactionsApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../../../apiDeclarations';
 import { Room } from '../../../../types/room';
 import { Loader } from '../../../../components/Loader/Loader';
+import { useAdditionalReactions } from '../../hooks/useAdditionalReactions';
 
 const reactionsPageSize = 30;
 const reactionsPageNumber = 1;
@@ -100,6 +101,20 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
     process: { loading: loadingRoomCodeEditor, error: errorRoomCodeEditor },
   } = apiSendCodeEditorState;
 
+  const reactionsSafe = reactions || [];
+  const additionalReactionsLike = useAdditionalReactions({
+    reactions: reactionsSafe,
+    eventTypeAdditionalNames: {
+      ReactionLike: ['like1'],
+    },
+  });
+  const additionalReactionsDisLike = useAdditionalReactions({
+    reactions: reactionsSafe,
+    eventTypeAdditionalNames: {
+      ReactionDislike: ['dislike1', 'dislike2', 'dislike3', 'dislike4', 'dislike5'],
+    },
+  });
+
   useEffect(() => {
     fetchReactions({
       PageSize: reactionsPageSize,
@@ -114,6 +129,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
     sendRoomReaction({
       reactionId: reaction.id,
       roomId: room.id,
+      payload: reaction.type.name,
     });
   }, [room, sendRoomReaction]);
 
@@ -151,10 +167,18 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   return (
     <div>
       <div className="reaction-wrapper">
-        <span>{Captions.Reactions}:</span>
+        <span>{Captions.LikeReactions}</span>
         <ReactionsList
           sortOrder={-1}
-          reactions={reactions || []}
+          reactions={additionalReactionsLike}
+          onClick={handleReactionClick}
+        />
+      </div>
+      <div className="reaction-wrapper">
+        <span>{Captions.DislikeReactions}</span>
+        <ReactionsList
+          sortOrder={-1}
+          reactions={additionalReactionsDisLike}
           onClick={handleReactionClick}
         />
       </div>

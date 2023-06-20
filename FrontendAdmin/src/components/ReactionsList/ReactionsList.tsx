@@ -4,8 +4,13 @@ import { Reaction } from '../../types/reaction';
 import './ReactionsList.css';
 
 const reactionNameReplaces: Record<string, string> = {
-  Like: '👍',
-  Dislike: '👎',
+  like1: '👍',
+  dislike1: '😬',
+  dislike2: '🙄',
+  dislike3: '😏',
+  dislike4: '🤥',
+  dislike5: '💩',
+  dislike6: '❓',
 }
 
 interface ReactionsListProps {
@@ -37,7 +42,7 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
         })
         .map(reaction => (
           <button
-            key={reaction.id}
+            key={`${reaction.id}${reaction.type.name}`}
             className='reaction'
             onClick={handleReactionClick(reaction)}
           >

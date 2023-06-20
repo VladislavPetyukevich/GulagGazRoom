@@ -21,7 +21,7 @@ import { EntitiesPool } from './Spawner/EntitiesPool';
 import { PlayerAction, PlayerActionListener, PlayerActionName, playerActions } from '@/PlayerActions';
 import { Stats } from './Stats';
 import { audioStore } from '@/core/loaders';
-import { AudioSlices } from './AudioSlices';
+import { AudioSlices, SliceName } from './AudioSlices';
 
 interface LightEffect {
   colorHex: number;
@@ -68,6 +68,9 @@ export class TestScene extends BasicScene {
   tvChat?: TV;
   tvStats?: TV;
   tvStatsAnimationInProgress: boolean;
+  flickAduioNames: ['lightFlick1', 'lightFlick2', 'lightFlick3', 'lightFlick4',];
+  likeAduioNames: ['like1'];
+  dislikeAduioNames: ['dislike1', 'dislike2', 'dislike3', 'dislike4', 'dislike5'];
 
   constructor(props: TestSceneProps) {
     super(props);
@@ -214,6 +217,23 @@ export class TestScene extends BasicScene {
       audioListener: this.audioListener,
     });
 
+    this.flickAduioNames = [
+      'lightFlick1',
+      'lightFlick2',
+      'lightFlick3',
+      'lightFlick4',
+    ];
+    this.likeAduioNames = [
+      'like1',
+    ];
+    this.dislikeAduioNames = [
+      'dislike1',
+      'dislike2',
+      'dislike3',
+      'dislike4',
+      'dislike5',
+    ];
+
     this.gasEnabled = false;
     this.actions = {
       gasEnable: this.onGasEnable,
@@ -293,20 +313,14 @@ export class TestScene extends BasicScene {
     }, effect.duration);
   }
 
-  playRandomLightFlickSound() {
-    const flickAduioNames: ['lightFlick1', 'lightFlick2', 'lightFlick3', 'lightFlick4',] = [
-      'lightFlick1',
-      'lightFlick2',
-      'lightFlick3',
-      'lightFlick4',
-    ];
-    const flickAduioName = flickAduioNames[randomNumbers.getRandomInRange(0, flickAduioNames.length - 1)];
-    this.playAudio(this.audioSlices.getAudio(flickAduioName));
+  playRandomAudioSlice(names: SliceName[]) {
+    const name = names[randomNumbers.getRandomInRange(0, names.length - 1)];
+    this.playAudio(this.audioSlices.getAudio(name));
   }
 
   lightFlick() {
     this.createLightEffect(this.lightEffects.flick);
-    this.playRandomLightFlickSound();
+    this.playRandomAudioSlice(this.flickAduioNames);
   }
 
   update(delta: number) {
@@ -381,16 +395,23 @@ export class TestScene extends BasicScene {
   }
 
   onLike = (action: PlayerAction) => {
-    if (this.checkAdminAction(action)) {
-      this.playAudio(this.audioSlices.getAudio('like'));
+    if (action.payload === 'like1') {
+      this.playRandomAudioSlice(this.likeAduioNames);
     }
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
   }
 
   onDislike = (action: PlayerAction) => {
-    if (this.checkAdminAction(action)) {
-      this.playAudio(this.audioSlices.getAudio('dislike'));
+    if (
+      (action.payload === 'dislike1') ||
+      (action.payload === 'dislike2') ||
+      (action.payload === 'dislike3') ||
+      (action.payload === 'dislike4') ||
+      (action.payload === 'dislike5') ||
+      (action.payload === 'dislike6')
+    ) {
+      this.playAudio(this.audioSlices.getAudio(action.payload));
     }
     this.stats.increaseCount('dislike');
     this.startTvStatsAnimation('👎');

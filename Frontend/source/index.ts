@@ -102,10 +102,10 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
           threeShooter.onPlayerActionStart('chatMessage', message);
           break;
         case 'ReactionLike':
-          threeShooter.onPlayerActionStart('like', adminsId.includes(dataParsed.Value.UserId) ? 'admin' : undefined);
+          threeShooter.onPlayerActionStart('like', dataParsed.Value.Payload);
           break;
         case 'ReactionDislike':
-          threeShooter.onPlayerActionStart('dislike', adminsId.includes(dataParsed.Value.UserId) ? 'admin' : undefined);
+          threeShooter.onPlayerActionStart('dislike', dataParsed.Value.Payload);
           break;
         case 'GasOn':
           threeShooter.onPlayerActionStart('gasEnable');

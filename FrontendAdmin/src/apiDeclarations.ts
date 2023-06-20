@@ -126,6 +126,7 @@ export const reactionsApiDeclaration = {
 export interface SendReactionBody {
   reactionId: Reaction['id'];
   roomId: Room['id'];
+  payload: string;
 }
 
 export const roomReactionApiDeclaration = {

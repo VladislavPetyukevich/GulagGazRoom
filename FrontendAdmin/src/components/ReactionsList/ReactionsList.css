@@ -1,5 +1,6 @@
 .reactions-list .reaction {
   margin-right: 5px;
+  padding: 5px 10px;
 }
 
 .reactions-list .reaction:last-child {

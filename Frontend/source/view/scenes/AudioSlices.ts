@@ -5,9 +5,14 @@ import {
 import { audioStore } from '@/core/loaders';
 import { audioSlices } from '@/constants';
 
-type SliceName =
-  'like' |
-  'dislike' |
+export type SliceName =
+  'like1' |
+  'dislike1' |
+  'dislike2' |
+  'dislike3' |
+  'dislike4' |
+  'dislike5' |
+  'dislike6' |
   'lightFlick1' |
   'lightFlick2' |
   'lightFlick3' |
@@ -34,8 +39,13 @@ export class AudioSlices {
     this.slicesInfo = audioSlices;
 
     this.slices = {
-      like: this.createAudio('like'),
-      dislike: this.createAudio('dislike'),
+      like1: this.createAudio('like1'),
+      dislike1: this.createAudio('dislike1'),
+      dislike2: this.createAudio('dislike2'),
+      dislike3: this.createAudio('dislike3'),
+      dislike4: this.createAudio('dislike4'),
+      dislike5: this.createAudio('dislike5'),
+      dislike6: this.createAudio('dislike6'),
       lightFlick1: this.createAudio('lightFlick1'),
       lightFlick2: this.createAudio('lightFlick2'),
       lightFlick3: this.createAudio('lightFlick3'),
