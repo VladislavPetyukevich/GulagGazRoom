@@ -64,6 +64,11 @@ export const roomsApiDeclaration = {
     baseUrl: `/rooms/${id}/close`,
     body: {},
   }),
+  startReview: (id: Room['id']): ApiContractPatch => ({
+    method: 'PATCH',
+    baseUrl: `/rooms/${id}/startReview`,
+    body: {},
+  }),
 };
 
 export interface ChangeActiveQuestionBody {

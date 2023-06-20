@@ -44,6 +44,14 @@ export const Room: FunctionComponent = () => {
     process: { loading: roomCloseLoading, error: roomCloseError },
   } = apiRoomCloseMethodState;
 
+  const {
+    apiMethodState: apiRoomStartReviewMethodState,
+    fetchData: fetchRoomStartReview,
+  } = useApiMethod<unknown, RoomType['id']>(roomsApiDeclaration.startReview);
+  const {
+    process: { loading: roomStartReviewLoading, error: roomStartReviewError },
+  } = apiRoomStartReviewMethodState;
+
   useEffect(() => {
     if (!id) {
       throw new Error('Room id not found');
@@ -85,6 +93,13 @@ export const Room: FunctionComponent = () => {
     fetchRoomClose(id);
   }, [id, fetchRoomClose]);
 
+  const handleStartReviewRoom = useCallback(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    fetchRoomStartReview(id);
+  }, [id, fetchRoomStartReview]);
+
   const loaders = [
     {},
     {},
@@ -117,9 +132,22 @@ export const Room: FunctionComponent = () => {
           {admin && (
             <Field>
               <RoomActionModal
+                title={Captions.CloseRoomModalTitle}
+                openButtonCaption={Captions.CloseRoom}
                 loading={roomCloseLoading}
                 error={roomCloseError}
                 onAction={handleCloseRoom}
+              />
+            </Field>
+          )}
+          {admin && (
+            <Field>
+              <RoomActionModal
+                title={Captions.StartReviewRoomModalTitle}
+                openButtonCaption={Captions.StartReviewRoom}
+                loading={roomStartReviewLoading}
+                error={roomStartReviewError}
+                onAction={handleStartReviewRoom}
               />
             </Field>
           )}

@@ -5,12 +5,16 @@ import { Captions } from '../../../../constants';
 import './RoomActionModal.css';
 
 interface RoomActionModalProps {
+  title: string;
+  openButtonCaption: string;
   loading: boolean;
   error: string | null;
   onAction: () => void;
 }
 
 export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
+  title,
+  openButtonCaption,
   loading,
   error,
   onAction,
@@ -43,7 +47,7 @@ export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
       <button
         onClick={handleOpenModal}
       >
-        {Captions.CloseRoom}
+        {openButtonCaption}
       </button>
       <Modal
         isOpen={modalOpen}
@@ -53,7 +57,7 @@ export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
         onRequestClose={handleCloseModal}
       >
         <div className="close-room-modal-header">
-          <h3>{Captions.CloseRoomModalTitle}</h3>
+          <h3>{title}</h3>
           <button onClick={handleCloseModal}>X</button>
         </div>
         <div className="close-room-modal-content">
