@@ -90,12 +90,14 @@ export const Room: FunctionComponent = () => {
         <>
           <Field className='room-title'>
             <h2>{Captions.Room}: {room?.name}</h2>
-            <button
-              className="copy-link-button"
-              onClick={handleCopyRoomLink}
-            >
-              {Captions.CopyRoomLink}
-            </button>
+            {admin && (
+              <button
+                className="copy-link-button"
+                onClick={handleCopyRoomLink}
+              >
+                {Captions.CopyRoomLink}
+              </button>
+            )}
           </Field>
           {admin && (
             <Field>
