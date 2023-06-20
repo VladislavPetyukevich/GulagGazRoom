@@ -97,9 +97,11 @@ export const Room: FunctionComponent = () => {
               {Captions.CopyRoomLink}
             </button>
           </Field>
-          <Field>
-            <CloseRoom />
-          </Field>
+          {admin && (
+            <Field>
+              <CloseRoom />
+            </Field>
+          )}
           <Field className="reactions-field">
             {admin && (
               <ActiveQuestion
