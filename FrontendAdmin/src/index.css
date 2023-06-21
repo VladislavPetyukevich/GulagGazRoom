@@ -73,6 +73,12 @@ table td {
   background-color: var(--form-bg);
 }
 
+textarea {
+  font-size: 1.0rem;
+  color: var(--text);
+  background-color: var(--wrap-bg);
+}
+
 h2 {
   margin: 0px;
   font-size: 1.25rem;
