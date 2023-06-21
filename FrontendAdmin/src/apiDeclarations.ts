@@ -1,7 +1,7 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
 import { Question, QuestionState } from './types/question';
 import { Reaction } from './types/reaction';
-import { Room } from './types/room';
+import { Room, RoomReview } from './types/room';
 import { User } from './types/user';
 
 export interface PaginationUrlParams {
@@ -153,5 +153,40 @@ export const roomParticipantApiDeclaration = {
     method: 'PATCH',
     baseUrl: '/ChangeParticipantStatus',
     body,
+  }),
+};
+
+export interface AddRoomReviewBody {
+  roomId: Room['id'],
+  review: string;
+}
+
+export interface GetRoomReviewsParams {
+  'Page.PageSize': number;
+  'Page.PageNumber': number;
+  'Filter.RoomId': Room['id'],
+}
+
+export interface UpdateRoomReviewsParams {
+  id: RoomReview['id'];
+  review: RoomReview['review'];
+  state: RoomReview['state'];
+}
+
+export const roomReviewApiDeclaration = {
+  addReview: (body: AddRoomReviewBody): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/room-reviews',
+    body,
+  }),
+  getPage: (params: GetRoomReviewsParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/room-reviews',
+    urlParams: params,
+  }),
+  update: (params: UpdateRoomReviewsParams): ApiContractPut => ({
+    method: 'PUT',
+    baseUrl: `/room-reviews/${params.id}`,
+    body: { review: params.review, state: params.state },
   }),
 };

@@ -7,18 +7,21 @@ export interface ApiContractGet {
 export interface ApiContractPost {
   method: 'POST';
   baseUrl: string;
+  urlParams?: object;
   body: any;
 }
 
 export interface ApiContractPut {
   method: 'PUT';
   baseUrl: string;
+  urlParams?: object;
   body: any;
 }
 
 export interface ApiContractPatch {
   method: 'PATCH';
   baseUrl: string;
+  urlParams?: object;
   body: any;
 }
 

@@ -10,6 +10,7 @@ import { AnalyticsQuestionsExpert, AnalyticsSummary } from '../../types/analytic
 import { Room as RoomType } from '../../types/room';
 import { SovietMark } from '../../components/SovietMark/SovietMark';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
+import { RoomReviews } from './components/RoomReviews/RoomReviews';
 
 import './RoomAnayticsSummary.css';
 
@@ -146,6 +147,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
               </tbody>
             </table>
           </Field>
+          <RoomReviews roomId={id || ''} />
         </>
       </ProcessWrapper>
     </MainContentWrapper>

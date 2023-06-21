@@ -14,6 +14,13 @@ import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 
 import './Rooms.css';
 
+const roomStatusCaption: Record<Room['roomStatus'], string> = {
+  New: Captions.RoomStatusNew,
+  Active: Captions.RoomStatusActive,
+  Review: Captions.RoomStatusReview,
+  Close: Captions.RoomStatusClose,
+};
+
 const pageSize = 10;
 const initialPageNumber = 1;
 
@@ -41,19 +48,19 @@ export const Rooms: FunctionComponent = () => {
     setPageNumber(pageNumber - 1);
   }, [pageNumber]);
 
-  const getRoomLink = useCallback((room: Room) => {
-    if (room.roomStatus === 'Close') {
-      return pathnames.roomAnalyticsSummary.replace(':id', room.id);
-    }
-    return `${pathnames.rooms}/${room.id}`;
-  }, []);
-
   const createRoomItem = useCallback((room: Room) => {
+    const roomSummary =
+      room.roomStatus === 'Review' ||
+      room.roomStatus === 'Close';
+    const roomLink = roomSummary ?
+      pathnames.roomAnalyticsSummary.replace(':id', room.id) :
+      `${pathnames.rooms}/${room.id}`;
+
     return (
       <li key={room.id}>
         <Field>
-          <Link to={getRoomLink(room)} className='room-link'>
-            {`${room.name}${room.roomStatus === 'Close' ? ` (${Captions.Summary})` : ''}`}
+          <Link to={roomLink} className='room-link'>
+            {`${room.name} (${roomStatusCaption[room.roomStatus]})`}
           </Link>
           <div className="room-users">
             <span>Участники: </span>
@@ -67,7 +74,7 @@ export const Rooms: FunctionComponent = () => {
         </Field>
       </li>
     );
-  }, [admin, getRoomLink]);
+  }, [admin]);
 
   return (
     <MainContentWrapper>

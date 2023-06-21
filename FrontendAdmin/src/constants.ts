@@ -80,6 +80,15 @@ export const enum Captions {
   CloseRoomLoading = 'Закрытие комнаты',
   Yes = 'Так точно ✔️',
   No = 'Никак нет! ❌',
+  Status = 'Статус',
+  RoomStatusNew = 'Готовимся. Прогрев паяльников',
+  RoomStatusActive = 'Идёт заседание',
+  RoomStatusReview = 'На карандаше',
+  RoomStatusClose = 'Санитарный час',
+  Reviews = 'Доносы',
+  AddReview = 'Написать донос',
+  AddReviewPlaceholder = 'Писать донос сюда',
+  Send = 'Отправить',
 };
 
 export const toastSuccessOptions = {

@@ -64,7 +64,7 @@ const apiMethodReducer = (state: ApiMethodState, action: ApiMethodAction): ApiMe
 const unauthorizedHttpCode = 401;
 
 const createFetchUrl = (apiContract: ApiContract) => {
-  if (apiContract.method === 'GET' && apiContract.urlParams) {
+  if (apiContract.urlParams) {
     const params =
       Object.entries(apiContract.urlParams)
         .map(([paramName, paramValue]) => `${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}`)
