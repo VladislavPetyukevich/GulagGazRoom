@@ -5,6 +5,7 @@ using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Roles;
 using NSpecifications;
 using X.PagedList;
 
@@ -77,13 +78,29 @@ public class RoomReviewService
     }
 
     public async Task<Result<ServiceResult<RoomReviewDetail>, ServiceError>> UpdateAsync(
-        Guid id, RoomReviewUpdateRequest request, CancellationToken cancellationToken = default)
+        Guid id, Guid userId, RoomReviewUpdateRequest request, CancellationToken cancellationToken = default)
     {
-        var roomReview = await _roomReviewRepository.FindByIdAsync(id, cancellationToken);
+        var user = await _userRepository.FindByIdDetailedAsync(userId, cancellationToken);
+
+        if (user == null)
+        {
+            return ServiceError.NotFound($"User not found with id {userId}");
+        }
+
+        var roomReview = await _roomReviewRepository.FindByIdDetailedAsync(id, cancellationToken);
 
         if (roomReview == null)
         {
             return ServiceError.NotFound($"Review not found with id {id}");
+        }
+
+        var admin = user.Roles.Any(r => r.Name == RoleName.Admin);
+        var ownRoomReview = roomReview.User?.Id == userId;
+        var canUpdate = admin || ownRoomReview;
+
+        if (!canUpdate)
+        {
+            return ServiceError.Error("Cannot edit this room review");
         }
 
         roomReview.Review = request.Review;
