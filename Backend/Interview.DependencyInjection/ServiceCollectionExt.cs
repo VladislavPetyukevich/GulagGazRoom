@@ -41,6 +41,7 @@ public static class ServiceCollectionExt
         self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, RoomQuestionChangeEntityProcessor>();
         self.AddSingleton<IChangeEntityProcessor, RoomConfigurationChangeEntityProcessor>();
+        self.AddSingleton<IChangeEntityProcessor, RoomChangeEntityProcessor>();
 
         self.AddSingleton<IConnectUserSource, ConnectUserSource>();
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
