@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using Interview.Domain.RoomReviews.Mappers;
 using Interview.Domain.RoomReviews.Records;
+using Interview.Domain.RoomReviews.Specification;
 using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
@@ -80,13 +81,6 @@ public class RoomReviewService
     public async Task<Result<ServiceResult<RoomReviewDetail>, ServiceError>> UpdateAsync(
         Guid id, Guid userId, RoomReviewUpdateRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.FindByIdDetailedAsync(userId, cancellationToken);
-
-        if (user == null)
-        {
-            return ServiceError.NotFound($"User not found with id {userId}");
-        }
-
         var roomReview = await _roomReviewRepository.FindByIdDetailedAsync(id, cancellationToken);
 
         if (roomReview == null)
@@ -94,9 +88,9 @@ public class RoomReviewService
             return ServiceError.NotFound($"Review not found with id {id}");
         }
 
-        var admin = user.Roles.Any(r => r.Name == RoleName.Admin);
         var ownRoomReview = roomReview.User?.Id == userId;
-        var canUpdate = admin || ownRoomReview;
+        var isAdmin = await _userRepository.HasDetailedAsync(new UserByRoleSpecification(RoleName.Admin), cancellationToken);
+        var canUpdate = ownRoomReview || isAdmin;
 
         if (!canUpdate)
         {
