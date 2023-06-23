@@ -4,6 +4,7 @@ using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.RoomReviews.Records;
+using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Domain.ServiceResults.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ public class RoomReviewController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<IPagedList<RoomReviewDetail>> FindPage([FromQuery] RoomReviewPageRequest request)
+    public Task<IPagedList<RoomReviewPageDetail>> FindPage([FromQuery] RoomReviewPageRequest request)
     {
         return _roomReviewService.FindPageAsync(request, HttpContext.RequestAborted);
     }
