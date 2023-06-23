@@ -1,12 +1,12 @@
-import { FunctionComponent, useCallback, useContext, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import toast from 'react-hot-toast';
 import { roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { REACT_APP_INTERVIEW_FRONTEND_URL, REACT_APP_WS_URL } from '../../config';
-import { Captions } from '../../constants';
+import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
@@ -29,20 +29,14 @@ export const Room: FunctionComponent = () => {
   let { id } = useParams();
   const socketUrl = `${REACT_APP_WS_URL}/ws?Authorization=${communist}&roomId=${id}`;
   const { lastMessage } = useWebSocket(socketUrl);
+  const [roomInReview, setRoomInReview] = useState(false);
+  const [reactionsVisible, setReactionsVisible] = useState(false);
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
   const { process: { loading, error }, data: room } = apiMethodState;
 
   const { apiMethodState: apiRoomStateMethodState, fetchData: fetchRoomState } = useApiMethod<RoomState, RoomType['id']>(roomsApiDeclaration.getState);
   const { data: roomState } = apiRoomStateMethodState;
-
-  const {
-    apiMethodState: apiRoomCloseMethodState,
-    fetchData: fetchRoomClose,
-  } = useApiMethod<unknown, RoomType['id']>(roomsApiDeclaration.close);
-  const {
-    process: { loading: roomCloseLoading, error: roomCloseError },
-  } = apiRoomCloseMethodState;
 
   const {
     apiMethodState: apiRoomStartReviewMethodState,
@@ -61,37 +55,55 @@ export const Room: FunctionComponent = () => {
   }, [id, fetchData, fetchRoomState]);
 
   useEffect(() => {
+    if (!room) {
+      return;
+    }
+    if (room.roomStatus !== 'New') {
+      setReactionsVisible(true);
+    }
+  }, [room]);
+
+  useEffect(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
     if (!lastMessage || !auth?.nickname) {
       return;
     }
     try {
       const parsedData = JSON.parse(lastMessage?.data);
-      if (parsedData?.Type !== 'ChatMessage') {
-        return;
-      }
-      const message = parsedData?.Value?.Message;
-      const nickname = parsedData?.Value?.Nickname;
-      if (typeof message !== 'string') {
-        return;
-      }
-      if (message.includes(auth.nickname)) {
-        toast(`${nickname}: ${message}`, { icon: '💬' });
+      switch (parsedData?.Type) {
+        case 'ChatMessage':
+          const message = parsedData?.Value?.Message;
+          const nickname = parsedData?.Value?.Nickname;
+          if (typeof message !== 'string') {
+            return;
+          }
+          if (message.includes(auth.nickname)) {
+            toast(`${nickname}: ${message}`, { icon: '💬' });
+          }
+          break;
+        case 'ChangeRoomStatus':
+          const newStatus: RoomType['roomStatus'] = 'New';
+          const reviewStatus: RoomType['roomStatus'] = 'Review';
+          if (parsedData?.Value === reviewStatus) {
+            setRoomInReview(true);
+          }
+          if (parsedData?.Value !== newStatus) {
+            setReactionsVisible(true);
+          }
+          break;
+        default:
+          break;
       }
     } catch { }
-  }, [auth, lastMessage]);
+  }, [id, auth, lastMessage]);
 
   const handleCopyRoomLink = useCallback(() => {
     navigator.clipboard.writeText(
       `${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${id}`
     );
   }, [id]);
-
-  const handleCloseRoom = useCallback(() => {
-    if (!id) {
-      throw new Error('Room id not found');
-    }
-    fetchRoomClose(id);
-  }, [id, fetchRoomClose]);
 
   const handleStartReviewRoom = useCallback(() => {
     if (!id) {
@@ -107,6 +119,10 @@ export const Room: FunctionComponent = () => {
     { height: '600px' },
     { height: '800px' }
   ];
+
+  if (roomInReview && id) {
+    return <Navigate to={pathnames.roomAnalyticsSummary.replace(':id', id)} replace />;
+  }
 
   return (
     <MainContentWrapper className="room-page">
@@ -132,17 +148,6 @@ export const Room: FunctionComponent = () => {
           {admin && (
             <Field>
               <RoomActionModal
-                title={Captions.CloseRoomModalTitle}
-                openButtonCaption={Captions.CloseRoom}
-                loading={roomCloseLoading}
-                error={roomCloseError}
-                onAction={handleCloseRoom}
-              />
-            </Field>
-          )}
-          {admin && (
-            <Field>
-              <RoomActionModal
                 title={Captions.StartReviewRoomModalTitle}
                 openButtonCaption={Captions.StartReviewRoom}
                 loading={roomStartReviewLoading}
@@ -159,10 +164,15 @@ export const Room: FunctionComponent = () => {
                 lastWebSocketMessage={lastMessage}
               />
             )}
-            <Reactions
-              admin={admin}
-              room={room}
-            />
+            {reactionsVisible && (
+              <Reactions
+                admin={admin}
+                room={room}
+              />
+            )}
+            {!reactionsVisible && (
+              <div>{Captions.WaitingRoom}</div>
+            )}
           </Field>
           <Field className="twitch-embed-field">
             <Twitch

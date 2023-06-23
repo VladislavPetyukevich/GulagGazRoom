@@ -1,4 +1,4 @@
-import React, { Fragment, FunctionComponent, useEffect, useState } from 'react';
+import React, { Fragment, FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
@@ -11,10 +11,15 @@ import { Room as RoomType } from '../../types/room';
 import { SovietMark } from '../../components/SovietMark/SovietMark';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { RoomReviews } from './components/RoomReviews/RoomReviews';
+import { AuthContext } from '../../context/AuthContext';
+import { checkAdmin } from '../../utils/checkAdmin';
+import { RoomActionModal } from '../Room/components/RoomActionModal/RoomActionModal';
 
 import './RoomAnayticsSummary.css';
 
 export const RoomAnayticsSummary: FunctionComponent = () => {
+  const auth = useContext(AuthContext);
+  const admin = checkAdmin(auth);
   let { id } = useParams();
   const { apiMethodState, fetchData } = useApiMethod<AnalyticsSummary, RoomType['id']>(roomsApiDeclaration.analyticsSummary);
   const { data, process: { loading, error } } = apiMethodState;
@@ -27,6 +32,14 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     process: { loading: roomLoading, error: roomError },
     data: room,
   } = roomApiMethodState;
+
+  const {
+    apiMethodState: apiRoomCloseMethodState,
+    fetchData: fetchRoomClose,
+  } = useApiMethod<unknown, RoomType['id']>(roomsApiDeclaration.close);
+  const {
+    process: { loading: roomCloseLoading, error: roomCloseError },
+  } = apiRoomCloseMethodState;
 
   const displayedReactions = ['Like', 'Dislike'];
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
@@ -73,6 +86,13 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     setTotalLikesDislikes(expertReactionsSummary);
   }, [data]);
 
+  const handleCloseRoom = useCallback(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    fetchRoomClose(id);
+  }, [id, fetchRoomClose]);
+
   return (
     <MainContentWrapper className="room-anaytics-summary">
       <HeaderWithLink
@@ -88,6 +108,17 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         loaders={loaders}
       >
         <>
+        {admin && (
+            <Field>
+              <RoomActionModal
+                title={Captions.CloseRoomModalTitle}
+                openButtonCaption={Captions.CloseRoom}
+                loading={roomCloseLoading}
+                error={roomCloseError}
+                onAction={handleCloseRoom}
+              />
+            </Field>
+          )}
           <Field>
             <h3>{room?.name}</h3>
           </Field>
