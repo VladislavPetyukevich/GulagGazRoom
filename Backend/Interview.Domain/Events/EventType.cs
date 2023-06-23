@@ -64,4 +64,9 @@ public enum EventType
     /// The event is triggered when change code editor for room
     /// </summary>
     ChangeCodeEditor,
+
+    /// <summary>
+    /// The event is triggered when room status is changed
+    /// </summary>
+    ChangeRoomStatus,
 }
