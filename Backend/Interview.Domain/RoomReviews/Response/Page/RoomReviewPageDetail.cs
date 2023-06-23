@@ -7,7 +7,7 @@ public class RoomReviewPageDetail
 {
     public Guid Id { get; set; }
 
-    public Guid? RoomId { get; set; }
+    public Guid RoomId { get; set; }
 
     public RoomUserDetail? User { get; set; }
 
