@@ -11,10 +11,13 @@ public class RoomReviewPageRequest
     public required RoomReviewPageRequestFilter Filter { get; init; } = new RoomReviewPageRequestFilter
     {
         RoomId = null,
+        State = null,
     };
 }
 
 public class RoomReviewPageRequestFilter
 {
     public required Guid? RoomId { get; init; }
+
+    public required EVRoomReviewState? State { get; init; }
 }
