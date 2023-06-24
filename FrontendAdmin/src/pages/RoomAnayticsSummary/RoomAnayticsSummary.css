@@ -6,9 +6,9 @@
 }
 
 .room-anaytics-summary .question-cell {
-  background-color: var(--form-bg);
+  background-color: var(--active);
 }
 
 .room-anaytics-summary .user-row td {
-  background-color: var(--page-bg);
+  background-color: var(--form-bg);
 }

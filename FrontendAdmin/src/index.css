@@ -1,6 +1,6 @@
 :root {
   --text: #d2deab;
-  --form-bg: #7b1712;
+  --form-bg: #3d2e2d;
   --wrap-bg: #000000;
   --active: #b9221c;
   --shadow: #100908;
@@ -27,6 +27,7 @@ body {
 }
 
 button {
+  color: var(--text);
   background-color: var(--form-bg);
   border: none;
   padding: 5px 30px;
@@ -35,17 +36,16 @@ button {
   display: inline-block;
   cursor: pointer;
   transition: 0.3s;
-  border: 1px solid var(--bg);
 }
 
 button:hover {
-  background-color: var(--active);
+  background-color: #7D110E;
 }
 
 button:disabled,
 button[disabled] {
-  background-color: var(--bg);
-  color: var(--shadow);
+  background-color: #0C0909;
+  color: var(--wrap-bg);
 }
 
 a {
@@ -66,11 +66,11 @@ table td, th {
 }
 
 table th {
-  background-color: var(--bg);
+  background-color: var(--active);
 }
 
 table td {
-  background-color: var(--form-bg);
+  background-color: var(--active);
 }
 
 textarea {
