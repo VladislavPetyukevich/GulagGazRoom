@@ -32,9 +32,17 @@ public class RoomReviewService
         RoomReviewPageRequest request,
         CancellationToken cancellationToken = default)
     {
-        var specification = request.Filter.RoomId is null
-            ? Spec<RoomReview>.Any
-            : new Spec<RoomReview>(review => review.Room!.Id == request.Filter.RoomId);
+        var specification = Spec<RoomReview>.Any;
+        if (request.Filter.RoomId is not null)
+        {
+            specification &= new Spec<RoomReview>(review => review.Room!.Id == request.Filter.RoomId);
+        }
+
+        if (request.Filter.State is not null)
+        {
+            var state = SERoomReviewState.FromEnum(request.Filter.State.Value);
+            specification &= new Spec<RoomReview>(review => review.SeRoomReviewState == state);
+        }
 
         return _roomReviewRepository.GetPageDetailedAsync(
             specification,
