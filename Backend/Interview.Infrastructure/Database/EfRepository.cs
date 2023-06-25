@@ -22,6 +22,11 @@ public abstract class EfRepository<T> : IRepository<T>
         return ApplyNonDetail(Set).AsNoTracking().AnyAsync(specification.Expression, cancellationToken);
     }
 
+    public Task<bool> HasDetailedAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
+    {
+        return ApplyIncludes(Set).AsNoTracking().AnyAsync(specification.Expression, cancellationToken);
+    }
+
     public Task CreateAsync(T entity, CancellationToken cancellationToken = default)
     {
         Set.Add(entity);

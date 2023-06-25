@@ -8,6 +8,8 @@ public interface IRepository<T>
 {
     Task<bool> HasAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
 
+    Task<bool> HasDetailedAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
+
     Task CreateAsync(T entity, CancellationToken cancellationToken = default);
 
     Task<T?> FindFirstOrDefaultAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);

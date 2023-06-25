@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using Interview.Domain.Repository.Specification;
 using Interview.Domain.RoomReviews.Mappers;
 using Interview.Domain.RoomReviews.Records;
 using Interview.Domain.Rooms;
@@ -6,6 +7,8 @@ using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Roles;
+using Interview.Domain.Users.Specification;
 using NSpecifications;
 using X.PagedList;
 
@@ -84,13 +87,25 @@ public class RoomReviewService
     }
 
     public async Task<Result<ServiceResult<RoomReviewDetail>, ServiceError>> UpdateAsync(
-        Guid id, RoomReviewUpdateRequest request, CancellationToken cancellationToken = default)
+        Guid id, Guid userId, RoomReviewUpdateRequest request, CancellationToken cancellationToken = default)
     {
-        var roomReview = await _roomReviewRepository.FindByIdAsync(id, cancellationToken);
+        var roomReview = await _roomReviewRepository.FindByIdDetailedAsync(id, cancellationToken);
 
         if (roomReview == null)
         {
             return ServiceError.NotFound($"Review not found with id {id}");
+        }
+
+        var ownRoomReview = roomReview.User?.Id == userId;
+        var userByIdSpecification = new EntityByIdSpecification<User>(userId);
+        var userByRoleSpecification = new UserByRoleSpecification(RoleName.Admin);
+        var adminByIdSpecification = userByIdSpecification & userByRoleSpecification;
+        var isAdmin = await _userRepository.HasDetailedAsync(adminByIdSpecification, cancellationToken);
+        var canUpdate = ownRoomReview || isAdmin;
+
+        if (!canUpdate)
+        {
+            return ServiceError.Error("Cannot edit this room review");
         }
 
         roomReview.Review = request.Review;

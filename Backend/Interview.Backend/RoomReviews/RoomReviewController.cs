@@ -45,7 +45,7 @@ public class RoomReviewController : ControllerBase
     /// </summary>
     /// <param name="request">User Request.</param>
     /// <returns>Review details.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(RoomReviewDetail), StatusCodes.Status201Created)]
@@ -72,7 +72,7 @@ public class RoomReviewController : ControllerBase
     /// <param name="id">Id review.</param>
     /// <param name="request">User Request.</param>
     /// <returns>Review details.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPut("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(RoomReviewDetail), StatusCodes.Status201Created)]
@@ -82,7 +82,14 @@ public class RoomReviewController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<ActionResult<RoomReviewDetail>> Update([FromRoute] Guid id, [FromBody] RoomReviewUpdateRequest request)
     {
-        return _roomReviewService.UpdateAsync(id, request, HttpContext.RequestAborted)
+        var user = HttpContext.User.ToUser();
+
+        if (user == null)
+        {
+            return Task.FromResult(ServiceError.Error("Current user not found").ToActionResult<RoomReviewDetail>());
+        }
+
+        return _roomReviewService.UpdateAsync(id, user.Id, request, HttpContext.RequestAborted)
             .ToResponseAsync();
     }
 }
