@@ -11,12 +11,12 @@ import { Room } from '../pages/Room/Room';
 import { Session } from '../pages/Session/Session';
 import { RoomParticipants } from '../pages/RoomParticipants/RoomParticipants';
 import { ProtectedRoute } from './ProtectedRoute';
-import { User } from '../types/user';
+import { UserAuth } from '../types/user';
 import { Terms } from '../pages/Terms/Terms';
 import { RoomAnayticsSummary } from '../pages/RoomAnayticsSummary/RoomAnayticsSummary';
 
 interface AppRoutesProps {
-  user: User | null;
+  user: UserAuth | null;
 }
 
 export const AppRoutes: FunctionComponent<AppRoutesProps> = ({

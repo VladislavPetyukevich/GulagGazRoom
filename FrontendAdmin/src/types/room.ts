@@ -20,8 +20,8 @@ export interface RoomState {
 
 export interface RoomReview {
   id: string;
-  userId: User['id'];
+  user: User;
   roomId: Room['id'],
   review: string;
-  state: string;
+  state: 'Open' | 'Closed';
 }

@@ -93,6 +93,18 @@ export const RoomReviews: FunctionComponent<RoomReviewsProps> = ({ roomId }) => 
     setEditingRoomReview(roomReview);
   }, []);
 
+  const handleRoomReviewEditClose = useCallback(() => {
+    setEditingRoomReview(null);
+  }, []);
+
+  const handleRoomReviewDelete = useCallback((roomReview: RoomReview) => () => {
+    fetchUpdateRoomReview({
+      id: roomReview.id,
+      review: roomReview.review,
+      state: 'Closed',
+    });
+  }, [fetchUpdateRoomReview]);
+
   const handleEditingRoomReviewValueChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
     if (!editingRoomReview) {
       console.error('handleEditingRoomReviewValueChange without editingRoomReview');
@@ -131,17 +143,35 @@ export const RoomReviews: FunctionComponent<RoomReviewsProps> = ({ roomId }) => 
           >
             ✔️
           </button>
+          <button
+            className="roomReview-delete-button"
+            onClick={handleRoomReviewEditClose}
+          >
+            ✖
+          </button>
         </div>
       ) : (
         <div className="roomReview-item">
-          <div>{roomReview.review}</div>
-          {admin && (
-            <button
-              className="roomReview-edit-button"
-              onClick={handleRoomReviewEdit(roomReview)}
-            >
-              🖊️
-            </button>
+          <div className='roomReview-item-review'>
+            <div>{roomReview.review}</div>
+            <div className='roomReview-item-review-user'>
+              {Captions.WithLove}, {roomReview.user.nickname}.
+            </div>
+          </div>
+          {(admin || auth?.identity === roomReview.user.id) && (
+            <>
+              <button
+                onClick={handleRoomReviewEdit(roomReview)}
+              >
+                🖊️
+              </button>
+              <button
+                className="roomReview-delete-button"
+                onClick={handleRoomReviewDelete(roomReview)}
+              >
+                ❌
+              </button>
+            </>
           )}
         </div>
       )}
@@ -149,8 +179,11 @@ export const RoomReviews: FunctionComponent<RoomReviewsProps> = ({ roomId }) => 
     </li>
   ), [
     admin,
+    auth?.identity,
     editingRoomReview,
+    handleRoomReviewDelete,
     handleRoomReviewEdit,
+    handleRoomReviewEditClose,
     handleEditingRoomReviewValueChange,
     handleEditingRoomReviewSubmit,
   ]);
@@ -190,19 +223,17 @@ export const RoomReviews: FunctionComponent<RoomReviewsProps> = ({ roomId }) => 
             onNextClick={handleNextPage}
           />
         </Field>
-        {admin && (
-          <Field>
-            <div className='roomReview'>
-              <form onSubmit={handleSubmit}>
-                <label htmlFor="reviewText">{Captions.AddReview}:</label>
-                <textarea id="reviewText" placeholder={Captions.AddReviewPlaceholder} name={valueFieldName}></textarea>
-                {addRoomReviewLoading && (<div>Sending room review...</div>)}
-                {addRoomReviewError && (<div>Error sending room review</div>)}
-                <SubmitField caption={Captions.Send} />
-              </form>
-            </div>
-          </Field>
-        )}
+        <Field>
+          <div className='roomReview'>
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="reviewText">{Captions.AddReview}:</label>
+              <textarea id="reviewText" placeholder={Captions.AddReviewPlaceholder} name={valueFieldName}></textarea>
+              {addRoomReviewLoading && (<div>Sending room review...</div>)}
+              {addRoomReviewError && (<div>Error sending room review</div>)}
+              <SubmitField caption={Captions.Send} />
+            </form>
+          </div>
+        </Field>
       </>
     </ProcessWrapper>
   );

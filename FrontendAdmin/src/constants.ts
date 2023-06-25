@@ -90,6 +90,7 @@ export const enum Captions {
   AddReview = 'Написать донос',
   AddReviewPlaceholder = 'Писать донос сюда',
   Send = 'Отправить',
+  WithLove = 'С любовью',
 };
 
 export const toastSuccessOptions = {
