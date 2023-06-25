@@ -89,7 +89,10 @@ public class RoomReviewService
         }
 
         var ownRoomReview = roomReview.User?.Id == userId;
-        var isAdmin = await _userRepository.HasDetailedAsync(new UserByRoleSpecification(RoleName.Admin), cancellationToken);
+        var userByIdSpecification = new EntityByIdSpeification<User>(userId);
+        var userByRoleSpecification = new UserByRoleSpecification(RoleName.Admin);
+        var adminByIdSpecification = userByIdSpecification & userByRoleSpecification;
+        var isAdmin = await _userRepository.HasDetailedAsync(adminByIdSpecification, cancellationToken);
         var canUpdate = ownRoomReview || isAdmin;
 
         if (!canUpdate)
