@@ -1,8 +1,7 @@
-using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using NSpecifications;
 
-namespace Interview.Domain.RoomReviews.Specification;
+namespace Interview.Domain.Users.Specification;
 
 public sealed class UserByRoleSpecification : Spec<User>
 {

@@ -1,12 +1,13 @@
 using CSharpFunctionalExtensions;
+using Interview.Domain.Repository.Specification;
 using Interview.Domain.RoomReviews.Mappers;
 using Interview.Domain.RoomReviews.Records;
-using Interview.Domain.RoomReviews.Specification;
 using Interview.Domain.Rooms;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
+using Interview.Domain.Users.Specification;
 using NSpecifications;
 using X.PagedList;
 
@@ -89,7 +90,7 @@ public class RoomReviewService
         }
 
         var ownRoomReview = roomReview.User?.Id == userId;
-        var userByIdSpecification = new EntityByIdSpeification<User>(userId);
+        var userByIdSpecification = new EntityByIdSpecification<User>(userId);
         var userByRoleSpecification = new UserByRoleSpecification(RoleName.Admin);
         var adminByIdSpecification = userByIdSpecification & userByRoleSpecification;
         var isAdmin = await _userRepository.HasDetailedAsync(adminByIdSpecification, cancellationToken);
