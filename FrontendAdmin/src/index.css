@@ -66,11 +66,11 @@ table td, th {
 }
 
 table th {
-  background-color: var(--active);
+  background-color: var(--bg);
 }
 
 table td {
-  background-color: var(--active);
+  background-color: var(--bg);
 }
 
 textarea {
