@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.RoomReviews.Mappers;
 using Interview.Domain.RoomReviews.Records;
 using Interview.Domain.Rooms;
+using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
@@ -28,7 +29,7 @@ public class RoomReviewService
         _roomRepository = roomRepository;
     }
 
-    public Task<IPagedList<RoomReviewDetail>> FindPageAsync(
+    public Task<IPagedList<RoomReviewPageDetail>> FindPageAsync(
         RoomReviewPageRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -44,9 +45,7 @@ public class RoomReviewService
             specification &= new Spec<RoomReview>(review => review.SeRoomReviewState == state);
         }
 
-        return _roomReviewRepository.GetPageDetailedAsync(
-            specification,
-            RoomReviewDetailMapper.Instance,
+        return _roomReviewRepository.GetDetailedPageAsync(
             request.Page.PageNumber,
             request.Page.PageSize,
             cancellationToken);
