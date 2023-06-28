@@ -8,14 +8,12 @@ import { ChangeActiveQuestionBody, GetRoomQuestionsBody, roomQuestionApiDeclarat
 
 export interface ActiveQuestionProps {
   room: Room | null;
-  placeHolder: string | null;
-  lastWebSocketMessage: MessageEvent<any> | null;
+  placeHolder?: string;
 }
 
 export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
   room,
   placeHolder,
-  lastWebSocketMessage,
 }) => {
   const [showClosedQuestions, setShowClosedQuestions] = useState(false);
 
@@ -44,25 +42,6 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
       State: 'Open',
     })
   }, [room, getRoomOpenQuestions]);
-
-  useEffect(() => {
-    if (!room?.id) {
-      return;
-    }
-    try {
-      const parsedData = JSON.parse(lastWebSocketMessage?.data);
-      if (parsedData.Type !== 'ChangeRoomQuestionState') {
-        return;
-      }
-      if (parsedData.Value.NewState !== 'Active') {
-        return;
-      }
-      getRoomOpenQuestions({
-        RoomId: room.id,
-        State: 'Open',
-      });
-    } catch { }
-  }, [room, lastWebSocketMessage, getRoomOpenQuestions]);
 
   const handleShowClosedQuestions: MouseEventHandler<HTMLInputElement> = useCallback((e) => {
     setShowClosedQuestions(e.currentTarget.checked);
