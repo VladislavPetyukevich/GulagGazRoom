@@ -29,6 +29,26 @@ public class RoomParticipantService
         _userRepository = userRepository;
     }
 
+    public async Task<Result<ServiceResult<RoomParticipantDetail>, ServiceError>> GetParticipantAsync(
+    RoomParticipantGetRequest request,
+    CancellationToken cancellationToken = default)
+    {
+        var participant = await _roomParticipantRepository.FindByRoomIdAndUserId(request.RoomId, request.UserId, cancellationToken);
+
+        if (participant == null)
+        {
+            return ServiceError.Error($"The user not found in the room");
+        }
+
+        return ServiceResult.Ok(new RoomParticipantDetail
+        {
+            Id = participant.Id,
+            RoomId = participant.Room.Id,
+            UserId = participant.User.Id,
+            UserType = participant.Type.Name,
+        });
+    }
+
     public async Task<Result<ServiceResult<RoomParticipantDetail>, ServiceError>> ChangeParticipantStatusAsync(
         RoomParticipantChangeStatusRequest request,
         CancellationToken cancellationToken = default)

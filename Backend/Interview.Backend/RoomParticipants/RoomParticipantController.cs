@@ -17,6 +17,17 @@ namespace Interview.Backend.RoomParticipants
             _roomParticipantService = roomParticipantService;
         }
 
+        [Authorize(policy: GulagSecurePolicy.User)]
+        [HttpGet(nameof(GetParticipant))]
+        [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+        public Task<ActionResult<RoomParticipantDetail>> GetParticipant(
+            [FromQuery] RoomParticipantGetRequest request)
+        {
+            return _roomParticipantService.GetParticipantAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        }
+
         [Authorize(policy: GulagSecurePolicy.Manager)]
         [HttpPost(nameof(CreateParticipant))]
         [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
