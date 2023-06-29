@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useContext } from 'react';
+import React, { FunctionComponent, ReactNode, useContext } from 'react';
 import { NavLink, useLocation, matchPath } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
@@ -9,7 +9,7 @@ import { checkAdmin } from '../../utils/checkAdmin';
 
 interface MenuItem {
   path: string;
-  name: string;
+  content: ReactNode;
 }
 
 const createMenuItem = (item: MenuItem, isActive: boolean) => (  
@@ -18,7 +18,7 @@ const createMenuItem = (item: MenuItem, isActive: boolean) => (
     to={item.path}
     className="field-wrap"
   >
-    {item.name}
+    {item.content}
   </NavLink>
 );
 
@@ -28,15 +28,30 @@ export const NavMenu: FunctionComponent = () => {
   const location = useLocation()
   const isPathActive = (pathname: string) => !!matchPath(pathname, location.pathname);
 
+  const userContent = auth ?
+    (
+      <div className='nav-menu-user-content'>
+                {auth.avatar && (
+          <img
+            src={auth.avatar}
+            className='nav-menu-user-avatar'
+            alt={`${auth.nickname} avatar`}
+          />
+        )}
+        {auth.nickname}
+      </div>
+    ) :
+    (Captions.UnauthorizedMessage);
+
   const items: MenuItem[] = admin ? [
-    { path: pathnames.home, name: Captions.HomePageName },
-    { path: pathnames.rooms, name: Captions.RoomsPageName },
-    { path: pathnames.questions, name: Captions.QuestionsPageName },
-    { path: pathnames.session, name: auth?.nickname || Captions.UnauthorizedMessage },
+    { path: pathnames.home, content: Captions.HomePageName },
+    { path: pathnames.rooms, content: Captions.RoomsPageName },
+    { path: pathnames.questions, content: Captions.QuestionsPageName },
+    { path: pathnames.session, content: userContent },
   ] : [
-    { path: pathnames.home, name: Captions.HomePageName },
-    { path: pathnames.rooms, name: Captions.RoomsPageName },
-    { path: pathnames.session, name: auth?.nickname || Captions.UnauthorizedMessage },
+    { path: pathnames.home, content: Captions.HomePageName },
+    { path: pathnames.rooms, content: Captions.RoomsPageName },
+    { path: pathnames.session, content: userContent },
   ];
 
   return (
