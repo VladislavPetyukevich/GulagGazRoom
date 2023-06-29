@@ -37,7 +37,8 @@ public class RoomParticipantService
 
         if (participant == null)
         {
-            return ServiceError.Error($"The user not found in the room");
+            return ServiceError.NotFound($"Participant with userId found in the room" +
+                                        $"Room id = {request.RoomId} User id = {request.UserId}");
         }
 
         return ServiceResult.Ok(new RoomParticipantDetail
