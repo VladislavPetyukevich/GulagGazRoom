@@ -9,11 +9,19 @@ export interface RoomState {
 }
 
 interface User {
+  identity: string;
   roles: string[];
 }
 
 interface Admin {
   id: string;
+}
+
+interface Participant {
+  id: string;
+  roomId: string;
+  userId: string;
+  userType: 'Viewer' | 'Expert' | 'Examinee';
 }
 
 interface ApiProps {
@@ -106,5 +114,17 @@ export class Api {
           response.json().then(json => resolve(json.value));
         })
     });
+  }
+
+  getParticipant(roomId: string, userId: string) {
+    return new Promise<Participant | void>((resolve, reject) => {
+      fetch(`${this.url}/GetParticipant?RoomId=${roomId}&UserId=${userId}`)
+        .then((response) => {
+          if (!response.ok) {
+            return reject(new Error('Failed to get participant'));
+          }
+          response.json().then(json => resolve(json));
+        })
+    }).catch(() => { });
   }
 }

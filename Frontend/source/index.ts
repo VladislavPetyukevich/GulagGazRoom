@@ -63,8 +63,6 @@ function saveSettings() {
   settings.save(settingsData);
 }
 
-let adminsId: string[] = [];
-
 const communistValue = new Communist().get();
 
 if (!REACT_APP_BACKEND_URL) {
@@ -200,9 +198,7 @@ async function init() {
   }
   try {
     const userSelf = await api.getUserSelf();
-    const selfAdmin = userSelf.roles.includes('Admin');
-    const admins = await api.getAdmins();
-    adminsId = admins.map(admin => admin.id);
+    const participant = await api.getParticipant(roomId, userSelf.identity);
     const roomState = await api.getRoomState(roomId);
     updateCodeEditor(roomState);
     const rendererSize = htmlElements.getRendererSize();
@@ -227,7 +223,9 @@ async function init() {
     });
     await webSocketConnection.connect();
 
-    if (selfAdmin) {
+    const canWriteCode = !!participant && participant.userType !== 'Viewer';
+    codeEditor.setReadonly(!canWriteCode);
+    if (canWriteCode) {
       const codeEditorwebSocketConnection = new WebSocketConnection({
         communist: communistValue,
         roomId,

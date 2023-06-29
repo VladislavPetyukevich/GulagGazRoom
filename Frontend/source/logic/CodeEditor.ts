@@ -49,4 +49,8 @@ export class CodeEditor {
       this.editor.setPosition(cursorPosition);
     }
   }
+
+  setReadonly(value: boolean) {
+    this.editor.updateOptions({ readOnly: value });
+  }
 }
