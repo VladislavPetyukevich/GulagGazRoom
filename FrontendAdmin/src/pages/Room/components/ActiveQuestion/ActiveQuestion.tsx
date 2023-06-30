@@ -6,6 +6,8 @@ import { useApiMethod } from '../../../../hooks/useApiMethod';
 import { Question } from '../../../../types/question';
 import { ChangeActiveQuestionBody, GetRoomQuestionsBody, roomQuestionApiDeclaration } from '../../../../apiDeclarations';
 
+import './ActiveQuestion.css';
+
 export interface ActiveQuestionProps {
   room: Room | null;
   placeHolder?: string;
@@ -58,7 +60,7 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
   }, [room, sendRoomActiveQuestion]);
 
   return (
-    <div>
+    <div className='active-question-container'>
       <span>{Captions.ShowClosedQuestions}</span>
       <input type="checkbox" onClick={handleShowClosedQuestions} />
       <ActiveQuestionSelector
