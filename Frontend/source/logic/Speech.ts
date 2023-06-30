@@ -8,8 +8,6 @@ export class Speech {
     }
     this.lang = 'ru-RU';
     this.speechSynthesisUtterance = new SpeechSynthesisUtterance();
-    this.speechSynthesisUtterance.rate = 1.5;
-    this.speechSynthesisUtterance.pitch = 2.0;
     setTimeout(() => {
       const voice = this.findVoice();
       if (!voice) {
