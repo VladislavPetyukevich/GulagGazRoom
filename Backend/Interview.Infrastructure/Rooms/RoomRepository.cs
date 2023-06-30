@@ -233,7 +233,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                     .Select(question => new RoomQuestionDetail { Id = question!.Id, Value = question.Value, })
                     .ToList(),
                 Users = e.Participants.Select(participant =>
-                        new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, })
+                        new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, Avatar = participant.User.Avatar })
                     .ToList(),
                 RoomStatus = e.Status.EnumValue,
             })
