@@ -3,9 +3,9 @@ import { NavLink, useLocation, matchPath } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
 import { Captions, pathnames } from '../../constants';
+import { checkAdmin } from '../../utils/checkAdmin';
 
 import './NavMenu.css';
-import { checkAdmin } from '../../utils/checkAdmin';
 
 interface MenuItem {
   path: string;

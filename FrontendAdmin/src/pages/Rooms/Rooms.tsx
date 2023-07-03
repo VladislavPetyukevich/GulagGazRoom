@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import { Tooltip } from 'react-tooltip'
 import { Link } from 'react-router-dom';
 import { PaginationUrlParams, roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
@@ -13,6 +14,8 @@ import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 
 import './Rooms.css';
+
+const userTooltipId = 'user-tooltip';
 
 const roomStatusCaption: Record<Room['roomStatus'], string> = {
   New: Captions.RoomStatusNew,
@@ -66,8 +69,23 @@ export const Rooms: FunctionComponent = () => {
             {roomStatusCaption[room.roomStatus]}
           </div>
           <div className="room-users">
-            <span>Участники: </span>
-            {room.users.map(user => user.nickname).join(', ')}
+            <span>Участники ({room.users.length}):&nbsp;</span>
+            {room.users.map((user, index, usersArr) => (
+              <span key={user.id}>
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    className="room-users-avatar"
+                    alt={`${user.nickname} avatar`}
+                    data-tooltip-id={userTooltipId}
+                    data-tooltip-content={user.nickname}
+                  />
+                ) : (
+                  <span>{user.nickname}</span>
+                )}
+                {index < usersArr.length - 1 ? (<>,&nbsp;</>) : ''}
+              </span>
+            ))}
           </div>
           {admin && (
             <Link to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}>
@@ -94,6 +112,7 @@ export const Rooms: FunctionComponent = () => {
         loaders={loaders}
       >
         <>
+          <Tooltip id={userTooltipId} />
           <ul className="rooms-list">
             {roomsSafe.map(createRoomItem)}
           </ul>

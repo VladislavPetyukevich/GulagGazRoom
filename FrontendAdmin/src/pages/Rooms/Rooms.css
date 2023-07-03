@@ -9,5 +9,18 @@
 }
 
 .rooms-list .room-users {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
   font-size: 0.75rem;
+}
+
+.rooms-list .room-users-avatar {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  object-fit: contain;
 }
