@@ -107,8 +107,8 @@ export const questionsApiDeclaration = {
   }),
   update: (question: Question): ApiContractPut => ({
     method: 'PUT',
-    baseUrl: '/questions',
-    body: question,
+    baseUrl: `/questions/${question.id}`,
+    body: { value: question.value },
   }),
 };
 
