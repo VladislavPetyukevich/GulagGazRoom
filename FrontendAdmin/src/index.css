@@ -73,7 +73,7 @@ table td {
   background-color: var(--bg);
 }
 
-textarea {
+textarea, input[type="text"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);

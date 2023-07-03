@@ -87,6 +87,7 @@ export const Questions: FunctionComponent = () => {
         <Field className="question-item">
           <input
             type="text"
+            className="question-item-new-value"
             value={editingQuestion.value}
             onChange={handleEditingQuestionValueChange}
           />
