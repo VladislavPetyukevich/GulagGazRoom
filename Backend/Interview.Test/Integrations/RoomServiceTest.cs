@@ -536,21 +536,15 @@ public class RoomServiceTest
                                     Id = ReactionType.Like.Id,
                                     Type = ReactionType.Like.Name,
                                     Count = 1,
-                                }
-                            }
-                        },
-                        new()
-                        {
-                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                            {
+                                },
                                 new()
                                 {
                                     Id = ReactionType.Dislike.Id,
                                     Type = ReactionType.Dislike.Name,
                                     Count = 1,
                                 }
-                            }
-                        }
+                            },
+                        },
                     }
                 },
                 new()
@@ -583,38 +577,12 @@ public class RoomServiceTest
                                 {
                                     Id = ReactionType.Dislike.Id,
                                     Type = ReactionType.Dislike.Name,
-                                    Count = 1,
-                                }
-                            }
-                        },
-                        new()
-                        {
-                            ReactionsSummary = new List<Analytics.AnalyticsReactionSummary>
-                            {
-                                new()
-                                {
-                                    Id = ReactionType.Dislike.Id,
-                                    Type = ReactionType.Dislike.Name,
-                                    Count = 1,
-                                }
+                                    Count = 2,
+                                },
                             }
                         }
                     },
-                },
-                new()
-                {
-                    Id = questions[2].Id,
-                    Value = questions[2].Value,
-                    Experts = new List<AnalyticsSummaryExpert>(),
-                    Viewers = new List<AnalyticsSummaryViewer>(),
-                },
-                new()
-                {
-                    Id = questions[3].Id,
-                    Value = questions[3].Value,
-                    Experts = new List<AnalyticsSummaryExpert>(),
-                    Viewers = new List<AnalyticsSummaryViewer>(),
-                },
+                }
             }
         };
 
