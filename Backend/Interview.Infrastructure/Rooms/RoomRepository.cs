@@ -79,6 +79,13 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                         .ToList(),
                 })
                 .ToList();
+
+            var noReactions = viewers.Count == 0 && experts.Count == 0;
+            if (noReactions)
+            {
+                continue;
+            }
+
             summary.Questions.Add(new AnalyticsSummaryQuestion
             {
                 Id = question.Id,
