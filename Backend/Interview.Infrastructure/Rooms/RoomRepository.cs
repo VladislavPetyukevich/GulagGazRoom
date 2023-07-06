@@ -49,7 +49,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
 
             var viewers = reactionQuestions
                 .Where(e => participants[e.Sender!.Id] == RoomParticipantType.Viewer)
-                .GroupBy(e => e.Sender!.Id)
+                .GroupBy(e => participants[e.Sender!.Id])
                 .Select(e => new AnalyticsSummaryViewer
                 {
                     ReactionsSummary = e.GroupBy(t => (t.Reaction!.Id, t.Reaction.Type))
@@ -79,6 +79,13 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                         .ToList(),
                 })
                 .ToList();
+
+            var noReactions = viewers.Count == 0 && experts.Count == 0;
+            if (noReactions)
+            {
+                continue;
+            }
+
             summary.Questions.Add(new AnalyticsSummaryQuestion
             {
                 Id = question.Id,
