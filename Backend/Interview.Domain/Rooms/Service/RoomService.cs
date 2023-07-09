@@ -65,11 +65,18 @@ public sealed class RoomService
             return ServiceError.Error($"Not found questions with id [{questionsNotFound}]");
         }
 
-        var users = await _userRepository.FindByIdsAsync(request.Users, cancellationToken);
-        var usersNotFound = FindNotFoundEntityIds(request.Users, users);
-        if (!string.IsNullOrEmpty(usersNotFound))
+        var experts = await _userRepository.FindByIdsAsync(request.Experts, cancellationToken);
+        var expertsNotFound = FindNotFoundEntityIds(request.Experts, experts);
+        if (!string.IsNullOrEmpty(expertsNotFound))
         {
-            return ServiceError.Error($"Not found users with id [{usersNotFound}]");
+            return ServiceError.Error($"Not found experts with id [{expertsNotFound}]");
+        }
+
+        var examinees = await _userRepository.FindByIdsAsync(request.Examinees, cancellationToken);
+        var examineesNotFound = FindNotFoundEntityIds(request.Examinees, examinees);
+        if (!string.IsNullOrEmpty(examineesNotFound))
+        {
+            return ServiceError.Error($"Not found examinees with id [{examineesNotFound}]");
         }
 
         var twitchChannel = request.TwitchChannel?.Trim();
@@ -83,11 +90,17 @@ public sealed class RoomService
             new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
 
         room.Questions.AddRange(roomQuestions);
-        var participants = users
-            .Select(user => new RoomParticipant(user, room, RoomParticipantType.Viewer))
+
+        var participantsExperts = experts
+            .Select(user => new RoomParticipant(user, room, RoomParticipantType.Expert))
             .ToList();
 
-        room.Participants.AddRange(participants);
+        var participantsExaminees = examinees
+            .Select(user => new RoomParticipant(user, room, RoomParticipantType.Examinee))
+            .ToList();
+
+        room.Participants.AddRange(participantsExperts);
+        room.Participants.AddRange(participantsExaminees);
         await _roomRepository.CreateAsync(room, cancellationToken);
         return ServiceResult.Created(room);
     }

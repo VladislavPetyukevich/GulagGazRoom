@@ -8,5 +8,7 @@ public sealed class RoomCreateRequest
 
     public HashSet<Guid> Questions { get; set; } = new();
 
-    public HashSet<Guid> Users { get; set; } = new();
+    public HashSet<Guid> Experts { get; set; } = new();
+
+    public HashSet<Guid> Examinees { get; set; } = new();
 }
