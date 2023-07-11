@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using Interview.Domain.Events;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
+using Interview.Domain.Repository;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestionReactions.Mappers;
@@ -58,18 +59,22 @@ public sealed class RoomService
             return ServiceError.Error("Room name should not be empty");
         }
 
-        var questions = await _questionRepository.FindByIdsAsync(request.Questions, cancellationToken);
-        var questionsNotFound = FindNotFoundEntityIds(request.Questions, questions);
-        if (!string.IsNullOrEmpty(questionsNotFound))
+        var questions = await FindByIdsOrErrorAsync(_questionRepository, request.Questions, "questions", cancellationToken);
+        if (questions.IsFailure)
         {
-            return ServiceError.Error($"Not found questions with id [{questionsNotFound}]");
+            return questions.Error;
         }
 
-        var users = await _userRepository.FindByIdsAsync(request.Users, cancellationToken);
-        var usersNotFound = FindNotFoundEntityIds(request.Users, users);
-        if (!string.IsNullOrEmpty(usersNotFound))
+        var experts = await FindByIdsOrErrorAsync(_userRepository, request.Experts, "experts", cancellationToken);
+        if (experts.IsFailure)
         {
-            return ServiceError.Error($"Not found users with id [{usersNotFound}]");
+            return experts.Error;
+        }
+
+        var examinees = await FindByIdsOrErrorAsync(_userRepository, request.Examinees, "examinees", cancellationToken);
+        if (examinees.IsFailure)
+        {
+            return examinees.Error;
         }
 
         var twitchChannel = request.TwitchChannel?.Trim();
@@ -79,15 +84,21 @@ public sealed class RoomService
         }
 
         var room = new Room(name, twitchChannel);
-        var roomQuestions = questions.Select(question =>
+        var roomQuestions = questions.Value.Select(question =>
             new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
 
         room.Questions.AddRange(roomQuestions);
-        var participants = users
-            .Select(user => new RoomParticipant(user, room, RoomParticipantType.Viewer))
+
+        var participantsExperts = experts.Value
+            .Select(user => new RoomParticipant(user, room, RoomParticipantType.Expert))
             .ToList();
 
-        room.Participants.AddRange(participants);
+        var participantsExaminees = examinees.Value
+            .Select(user => new RoomParticipant(user, room, RoomParticipantType.Examinee))
+            .ToList();
+
+        room.Participants.AddRange(participantsExperts);
+        room.Participants.AddRange(participantsExaminees);
         await _roomRepository.CreateAsync(room, cancellationToken);
         return ServiceResult.Created(room);
     }
@@ -252,5 +263,22 @@ public sealed class RoomService
         var notFoundEntityIds = guids.Except(collection.Select(entity => entity.Id));
 
         return string.Join(", ", notFoundEntityIds);
+    }
+
+    private async Task<Result<List<T>, ServiceError>> FindByIdsOrErrorAsync<T>(
+        IRepository<T> repository,
+        ICollection<Guid> ids,
+        string entityName,
+        CancellationToken cancellationToken)
+        where T : Entity
+    {
+        var entities = await repository.FindByIdsAsync(ids, cancellationToken);
+        var notFoundEntities = FindNotFoundEntityIds(ids, entities);
+        if (!string.IsNullOrEmpty(notFoundEntities))
+        {
+            return ServiceError.Error($"Not found {entityName} with id [{notFoundEntities}]");
+        }
+
+        return entities;
     }
 }
