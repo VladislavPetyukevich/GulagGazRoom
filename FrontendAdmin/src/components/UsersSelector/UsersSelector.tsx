@@ -11,12 +11,14 @@ const pageSize = 10;
 const initialPageNumber = 1;
 
 interface UsersSelectorProps {
+  uniqueKey: string;
   selected: User[];
   onSelect: (user: User) => void;
   onUnselect: (user: User) => void;
 }
 
 export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
+  uniqueKey,
   selected,
   onSelect,
   onUnselect,
@@ -56,16 +58,16 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
 
   const createUserItem = useCallback((user: User) => (
     <li key={user.id}>
-      <label htmlFor={`input-${user.id}`}>{user.nickname}</label>
+      <label htmlFor={`input-${uniqueKey}-${user.id}`}>{user.nickname}</label>
       <input
-        id={`input-${user.id}`}
+        id={`input-${uniqueKey}-${user.id}`}
         type="checkbox"
         value={user.id}
         checked={selected.some(que => que.id === user.id)}
         onChange={handleCheckboxChange}
       />
     </li>
-  ), [selected, handleCheckboxChange]);
+  ), [selected, uniqueKey, handleCheckboxChange]);
 
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);

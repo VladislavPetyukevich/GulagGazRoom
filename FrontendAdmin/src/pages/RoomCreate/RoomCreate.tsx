@@ -24,7 +24,8 @@ export const RoomCreate: FunctionComponent = () => {
   const { apiMethodState, fetchData } = useApiMethod<string, CreateRoomBody>(roomsApiDeclaration.create);
   const { process: { loading, error }, data: createdRoomId } = apiMethodState;
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [selectedExperts, setSelectedExperts] = useState<User[]>([]);
+  const [selectedExaminees, setSelectedExaminees] = useState<User[]>([]);
 
   useEffect(() => {
     if (!createdRoomId) {
@@ -56,9 +57,10 @@ export const RoomCreate: FunctionComponent = () => {
       name: roomName,
       twitchChannel: roomTwitchChannel,
       questions: selectedQuestions.map(question => question.id),
-      users: selectedUsers.map(user => user.id),
+      experts: selectedExperts.map(user => user.id),
+      examinees: selectedExaminees.map(user => user.id),
     });
-  }, [selectedQuestions, selectedUsers, fetchData]);
+  }, [selectedQuestions, selectedExperts, selectedExaminees, fetchData]);
 
   const handleQuestionSelect = useCallback((question: Question) => {
     setSelectedQuestions([...selectedQuestions, question]);
@@ -71,16 +73,27 @@ export const RoomCreate: FunctionComponent = () => {
     setSelectedQuestions(newSelectedQuestions);
   }, [selectedQuestions]);
 
-  const handleUserSelect = useCallback((user: User) => {
-    setSelectedUsers([...selectedUsers, user]);
-  }, [selectedUsers]);
+  const handleExpertSelect = useCallback((user: User) => {
+    setSelectedExperts([...selectedExperts, user]);
+  }, [selectedExperts]);
 
-  const handleUserUnSelect = useCallback((user: User) => {
-    const newSelectedUsers = selectedUsers.filter(
+  const handleExpertUnSelect = useCallback((user: User) => {
+    const newSelectedUsers = selectedExperts.filter(
       usr => usr.id !== user.id
     );
-    setSelectedUsers(newSelectedUsers);
-  }, [selectedUsers]);
+    setSelectedExperts(newSelectedUsers);
+  }, [selectedExperts]);
+
+  const handleExamineeSelect = useCallback((user: User) => {
+    setSelectedExaminees([...selectedExaminees, user]);
+  }, [selectedExaminees]);
+
+  const handleExamineeUnSelect = useCallback((user: User) => {
+    const newSelectedUsers = selectedExaminees.filter(
+      usr => usr.id !== user.id
+    );
+    setSelectedExaminees(newSelectedUsers);
+  }, [selectedExaminees]);
 
   const renderStatus = useCallback(() => {
     if (error) {
@@ -131,12 +144,22 @@ export const RoomCreate: FunctionComponent = () => {
           />
           <div>Users:</div>
           <div className="items-selected">
-            Selected: {selectedUsers.map(user => user.nickname).join(', ')}
+            Experts: {selectedExperts.map(user => user.nickname).join(', ')}
           </div>
           <UsersSelector
-            selected={selectedUsers}
-            onSelect={handleUserSelect}
-            onUnselect={handleUserUnSelect}
+            uniqueKey='Experts'
+            selected={selectedExperts}
+            onSelect={handleExpertSelect}
+            onUnselect={handleExpertUnSelect}
+          />
+          <div className="items-selected">
+            Examinees: {selectedExaminees.map(user => user.nickname).join(', ')}
+          </div>
+           <UsersSelector
+            uniqueKey='Examinees'
+            selected={selectedExaminees}
+            onSelect={handleExamineeSelect}
+            onUnselect={handleExamineeUnSelect}
           />
         </Field>
         <SubmitField caption="Create" />

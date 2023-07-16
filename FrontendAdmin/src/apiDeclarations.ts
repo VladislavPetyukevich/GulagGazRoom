@@ -13,7 +13,8 @@ export interface CreateRoomBody {
   name: string;
   twitchChannel: string;
   questions: Array<Question['id']>;
-  users: Array<User['id']>;
+  experts: Array<User['id']>;
+  examinees: Array<User['id']>;
 }
 
 export interface SendGasBody {
