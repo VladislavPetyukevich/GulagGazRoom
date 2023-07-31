@@ -21,10 +21,10 @@ public class ReactionController : ControllerBase
     }
 
     /// <summary>
-    /// Getting a list of reactions
+    /// Getting a list of reactions.
     /// </summary>
-    /// <param name="request">Page Parameters</param>
-    /// <returns>List of reactions</returns>
+    /// <param name="request">Page Parameters.</param>
+    /// <returns>List of reactions.</returns>
     [HttpGet]
     [Authorize(policy: GulagSecurePolicy.User)]
     [ProducesResponseType(typeof(IPagedList<ReactionDetail>), StatusCodes.Status200OK)]
