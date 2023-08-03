@@ -28,9 +28,12 @@ public class AuthController : ControllerBase
             return Results.BadRequest($"Not found service authorization with id ${scheme}");
         }
 
+        var redirectUriFragment = new Uri(redirectUri).Fragment;
+        var redirectUriWithoutFragment = redirectUri.Replace(redirectUriFragment, string.Empty);
+
         var authorizationService = _oAuthDispatcher.GetAuthService(scheme);
         _logger.LogInformation("Get {AuthService} by {scheme}", authorizationService.GetType().Name, scheme);
-        if (!authorizationService.AvailableLoginRedirects.Contains(redirectUri))
+        if (!authorizationService.AvailableLoginRedirects.Contains(redirectUriWithoutFragment))
         {
             _logger.LogWarning("Redirect link {redirectUri} is not available", redirectUri);
             return Results.BadRequest($"Redirect link {redirectUri} is not available");
