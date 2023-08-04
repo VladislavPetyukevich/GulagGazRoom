@@ -13,6 +13,7 @@ using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Users;

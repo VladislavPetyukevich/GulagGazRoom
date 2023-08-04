@@ -7,7 +7,7 @@ using Interview.Domain.Users.Roles;
 using NSpecifications;
 using X.PagedList;
 
-namespace Interview.Domain.Users;
+namespace Interview.Domain.Users.Service;
 
 public sealed class UserService
 {

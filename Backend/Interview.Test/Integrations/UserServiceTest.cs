@@ -2,6 +2,7 @@ using System.Runtime.Serialization;
 using FluentAssertions;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
+using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 
