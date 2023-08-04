@@ -4,15 +4,8 @@ using Microsoft.Extensions.Internal;
 
 namespace Interview.Infrastructure.Database.Configurations;
 
-public class RoleTypeConfiguration : EntityTypeConfigurationBase<Role>
+public class RoleConfiguration : EntityTypeConfigurationBase<Role>
 {
-    private readonly ISystemClock _clock;
-
-    public RoleTypeConfiguration(ISystemClock clock)
-    {
-        _clock = clock;
-    }
-
     protected override void ConfigureCore(EntityTypeBuilder<Role> builder)
     {
         builder.Property(e => e.Name)
@@ -27,7 +20,7 @@ public class RoleTypeConfiguration : EntityTypeConfigurationBase<Role>
         };
         foreach (var role in roles)
         {
-            role.UpdateCreateDate(_clock.UtcNow.Date);
+            role.UpdateCreateDate(new DateTime(2023, 08, 01));
         }
 
         builder.HasData(roles);

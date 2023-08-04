@@ -6,13 +6,6 @@ namespace Interview.Infrastructure.Database.Configurations;
 
 public class ReactionConfiguration : EntityTypeConfigurationBase<Reaction>
 {
-    private readonly ISystemClock _clock;
-
-    public ReactionConfiguration(ISystemClock clock)
-    {
-        _clock = clock;
-    }
-
     protected override void ConfigureCore(EntityTypeBuilder<Reaction> builder)
     {
         builder.Property(question => question.Type)
@@ -31,7 +24,7 @@ public class ReactionConfiguration : EntityTypeConfigurationBase<Reaction>
 
         foreach (var entity in entities)
         {
-            entity.UpdateCreateDate(_clock.UtcNow.Date);
+            entity.UpdateCreateDate(new DateTime(2023, 08, 01));
         }
 
         builder.HasData(entities);

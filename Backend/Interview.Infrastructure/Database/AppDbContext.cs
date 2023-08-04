@@ -64,9 +64,7 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly, type => type != typeof(RoleTypeConfiguration) && type != typeof(ReactionConfiguration));
-        modelBuilder.ApplyConfiguration(new RoleTypeConfiguration(SystemClock));
-        modelBuilder.ApplyConfiguration(new ReactionConfiguration(SystemClock));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 
     private readonly struct SaveCookie : IDisposable, IAsyncDisposable
