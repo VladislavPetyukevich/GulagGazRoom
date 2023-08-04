@@ -1,20 +1,19 @@
 import React, { FunctionComponent, ReactElement } from 'react';
-import { RouteProps, Navigate, } from 'react-router-dom';
+import { RouteProps, Navigate, useLocation, } from 'react-router-dom';
 import { pathnames } from '../constants';
 
 type PrivateRouteProps = RouteProps & {
   allowed: boolean;
-  redirectPathname?: keyof typeof pathnames;
   children: ReactElement<any, any> | null;
 };
 
 export const ProtectedRoute: FunctionComponent<PrivateRouteProps> = ({
   allowed,
-  redirectPathname = 'home',
   children,
 }) => {
+  const location = useLocation();
   if (!allowed) {
-    return <Navigate to={pathnames[redirectPathname]} replace />;
+    return <Navigate to={pathnames.home.replace(':redirect?', encodeURIComponent(location.pathname))} replace />;
   }
 
   return children;

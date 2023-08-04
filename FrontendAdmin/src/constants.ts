@@ -1,5 +1,5 @@
 export const pathnames = {
-  home: '/',
+  home: '/:redirect?',
   rooms: '/rooms',
   roomsCreate: '/rooms/create',
   roomsParticipants: '/rooms/participants/:id',

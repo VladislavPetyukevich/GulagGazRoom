@@ -44,7 +44,7 @@ export const Terms: FunctionComponent = () => {
       <HeaderWithLink
         title={Captions.TermsOfUsage}
         linkVisible={true}
-        path={pathnames.home}
+        path={pathnames.home.replace(':redirect?', '')}
         linkCaption="<"
         linkFloat="left"
       />

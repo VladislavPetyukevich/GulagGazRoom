@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { REACT_APP_BACKEND_URL } from '../../config';
@@ -10,6 +10,11 @@ import './Home.css';
 
 export const Home: FunctionComponent = () => {
   const auth = useContext(AuthContext);
+  const { redirect } = useParams();
+
+  if (auth && redirect) {
+    return <Navigate to={redirect} replace />;
+  }
 
   return (
     <MainContentWrapper className="home">

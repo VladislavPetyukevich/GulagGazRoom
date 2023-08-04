@@ -113,7 +113,7 @@ const getResponseError = (
 
 export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractCall: (data: RequestData) => ApiContract) => {
   const [apiMethodState, dispatch] = useReducer(apiMethodReducer, initialState);
-  const navidate = useNavigate();
+  const navigate = useNavigate();
   const { deleteCommunist } = useCommunist();
 
   const fetchData = useCallback(async (requestData: RequestData) => {
@@ -126,7 +126,7 @@ export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractC
       );
       if (response.status === unauthorizedHttpCode) {
         deleteCommunist();
-        navidate(pathnames.home);
+        navigate(pathnames.home.replace(':redirect?', ''));
         return;
       }
 
@@ -142,7 +142,7 @@ export const useApiMethod = <ResponseData, RequestData = AnyObject>(apiContractC
         payload: err.message || `Failed to fetch ${apiContract.method} ${apiContract.baseUrl}`,
       });
     }
-  }, [apiContractCall, deleteCommunist, navidate]);
+  }, [apiContractCall, deleteCommunist, navigate]);
 
   return {
     apiMethodState: apiMethodState as ApiMethodState<ResponseData>,
