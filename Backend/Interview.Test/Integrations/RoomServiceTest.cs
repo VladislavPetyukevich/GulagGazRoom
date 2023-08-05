@@ -384,7 +384,7 @@ public class RoomServiceTest
 
         var serviceResult = analyticsResult.Value;
         serviceResult.Should().NotBeNull();
-        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics, e => 
+        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics, e =>
             e
                 .For(e => e.Questions)
                 .For(e => e.Users)
