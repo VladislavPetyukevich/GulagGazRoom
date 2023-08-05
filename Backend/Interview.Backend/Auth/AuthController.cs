@@ -28,9 +28,7 @@ public class AuthController : ControllerBase
             return Results.BadRequest($"Not found service authorization with id ${scheme}");
         }
 
-        var redirectUriFragment = new Uri(redirectUri).Fragment;
-        var redirectUriWithoutFragment = redirectUri.Replace(redirectUriFragment, string.Empty);
-
+        var redirectUriWithoutFragment = GetDomain(redirectUri);
         var authorizationService = _oAuthDispatcher.GetAuthService(scheme);
         _logger.LogInformation("Get {AuthService} by {scheme}", authorizationService.GetType().Name, scheme);
         if (!authorizationService.AvailableLoginRedirects.Contains(redirectUriWithoutFragment))
@@ -48,5 +46,18 @@ public class AuthController : ControllerBase
         var signIn = Results.Challenge(authenticationProperties, authenticationSchemes: new List<string> { scheme });
         _logger.LogDebug("After change");
         return signIn;
+
+        static string GetDomain(string uri)
+        {
+            try
+            {
+                var typedUri = new Uri(uri);
+                return typedUri.Scheme + "://" + typedUri.Authority;
+            }
+            catch
+            {
+                return uri;
+            }
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Interview.Backend.Auth;
 using Interview.Backend.Errors;
 using Interview.Backend.WebSocket.Configuration;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -55,6 +56,18 @@ public class MiddlewareConfigurator
 
         _app.UseAuthentication();
         _app.UseAuthorization();
+        _app.Use((context, func) =>
+        {
+            var upsertUser = context.User.ToUser();
+            if (upsertUser is null)
+            {
+                return func();
+            }
+
+            var userAccessor = context.RequestServices.GetRequiredService<IEditableCurrentUserAccessor>();
+            userAccessor.SetUser(upsertUser);
+            return func();
+        });
 
         _app.UseSwagger();
         _app.UseSwaggerUI();

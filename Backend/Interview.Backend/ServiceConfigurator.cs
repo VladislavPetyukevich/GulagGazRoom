@@ -12,6 +12,7 @@ using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
+using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -174,5 +175,9 @@ public class ServiceConfigurator
                 options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);
             }
         });
+
+        serviceCollection.AddScoped<IEditableCurrentUserAccessor, CurrentUserAccessor>();
+        serviceCollection.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
+        serviceCollection.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
     }
 }
