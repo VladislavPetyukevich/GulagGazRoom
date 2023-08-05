@@ -1,4 +1,7 @@
 using FluentAssertions;
+using Interview.Domain.Questions;
+using Interview.Domain.RoomQuestions;
+using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Domain.Users.Service;
@@ -16,20 +19,30 @@ public class AppDbContextTest
         var clock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(clock);
 
-        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
-
-        var user = new User("Dima", "1");
-        user.UpdateCreateDate(clock.UtcNow.DateTime);
-        var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
-
-        upsertUser.Id.Should().NotBe(Guid.Empty);
-
-        var savedUser = new User(upsertUser.Id, "Dima", "1");
-        savedUser.UpdateCreateDate(clock.UtcNow.DateTime);
-        var role = new Role(RoleName.User);
-        role.UpdateCreateDate(clock.UtcNow.DateTime);
-        savedUser.Roles.Add(role);
-
-        upsertUser.Should().BeEquivalentTo(savedUser);
+        var room = new Room("Test room", "1234")
+        {
+            Questions = new List<RoomQuestion>
+            {
+                new RoomQuestion
+                {
+                    Question = new Question("Value 1"),
+                    State = RoomQuestionState.Active,
+                }
+            }
+        };
+        appDbContext.Add(room);
+        appDbContext.SaveChanges();
+        
+        room.Id.Should().NotBe(Guid.Empty);
+        room.CreateDate.Should().Be(clock.UtcNow.DateTime);
+        room.UpdateDate.Should().Be(clock.UtcNow.DateTime);
+        
+        room.Questions[0].Id.Should().NotBe(Guid.Empty);
+        room.Questions[0].CreateDate.Should().Be(clock.UtcNow.DateTime);
+        room.Questions[0].UpdateDate.Should().Be(clock.UtcNow.DateTime);
+        
+        room.Questions[0].Question!.Id.Should().NotBe(Guid.Empty);
+        room.Questions[0].Question!.CreateDate.Should().Be(clock.UtcNow.DateTime);
+        room.Questions[0].Question!.UpdateDate.Should().Be(clock.UtcNow.DateTime);
     }
 }

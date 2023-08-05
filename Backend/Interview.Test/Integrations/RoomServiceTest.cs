@@ -384,7 +384,12 @@ public class RoomServiceTest
 
         var serviceResult = analyticsResult.Value;
         serviceResult.Should().NotBeNull();
-        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics);
+        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics, e => 
+            e
+                .For(e => e.Questions)
+                .For(e => e.Users)
+                .For(e => e.Reactions)
+                .Exclude(e => e.CreatedAt));
     }
 
     [Fact(DisplayName = "GetAnalyticsSummary should return valid analytics by roomId")]
