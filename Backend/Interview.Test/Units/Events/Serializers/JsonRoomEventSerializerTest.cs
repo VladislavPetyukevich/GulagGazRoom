@@ -15,26 +15,26 @@ namespace Interview.Test.Units.Events.Serializers
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"GasOn"}""",
-                    new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), EventType.GasOn, null)
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Type1"}""",
+                    new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Type1", null)
                 };
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"GasOn","Value":"Hello world"}""",
-                    new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), EventType.GasOn, "Hello world")
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Type2","Value":"Hello world"}""",
+                    new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Type2", "Hello world")
                 };
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"GasOn"}""",
-                    new RoomEvent<RoomEventUserPayload>(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), EventType.GasOn, null)
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"EventType3"}""",
+                    new RoomEvent<RoomEventUserPayload>(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "EventType3", null)
                 };
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"GasOn","Value":{"UserId":"81ad40ec-c89d-11ed-ac80-9acce9101761"}}""",
-                    new RoomEvent<RoomEventUserPayload>(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), EventType.GasOn, new RoomEventUserPayload(Guid.Parse("81ad40ec-c89d-11ed-ac80-9acce9101761")))
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"EventType4","Value":{"UserId":"81ad40ec-c89d-11ed-ac80-9acce9101761"}}""",
+                    new RoomEvent<RoomEventUserPayload>(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "EventType4", new RoomEventUserPayload(Guid.Parse("81ad40ec-c89d-11ed-ac80-9acce9101761"), null))
                 };
             }
         }

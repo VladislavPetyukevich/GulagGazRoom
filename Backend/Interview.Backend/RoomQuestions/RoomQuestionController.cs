@@ -24,7 +24,7 @@ public class RoomQuestionController : ControllerBase
     /// </summary>
     /// <param name="request">User Request.</param>
     /// <returns>Data of the current question, room, status.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPut("active-question")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]
@@ -42,7 +42,7 @@ public class RoomQuestionController : ControllerBase
     /// </summary>
     /// <param name="request">User Request.</param>
     /// <returns>Data of the current question, room, status.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]

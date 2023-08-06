@@ -4,6 +4,7 @@ using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Events.Service;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
@@ -53,6 +54,7 @@ public static class ServiceCollectionExt
         self.AddScoped<QuestionService>();
         self.AddScoped<RoomReviewService>();
         self.AddScoped<RoomParticipantService>();
+        self.AddScoped<AppEventService>();
         self.AddScoped<RoomQuestionService>();
         self.AddScoped<RoomQuestionReactionService>();
         self.AddScoped<ReactionService>();

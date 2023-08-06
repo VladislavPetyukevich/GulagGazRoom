@@ -25,7 +25,7 @@ public class UserController : ControllerBase
         _userClaimService = userClaimService;
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -37,7 +37,7 @@ public class UserController : ControllerBase
         return _userService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpGet("nickname/{nickname}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -50,7 +50,7 @@ public class UserController : ControllerBase
         return _userService.FindByNicknameAsync(nickname, HttpContext.RequestAborted).ToResponseAsync();
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpGet("role/{role}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -63,7 +63,7 @@ public class UserController : ControllerBase
         return _userService.FindByRoleAsync(pageRequest.PageNumber, pageRequest.PageSize, role, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize(policy: SecurePolicy.User)]
     [HttpGet("admins")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]

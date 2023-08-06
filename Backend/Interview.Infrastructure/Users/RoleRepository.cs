@@ -11,5 +11,5 @@ public class RoleRepository : EfRepository<Role>, IRoleRepository
     {
     }
 
-    protected override IQueryable<Role> ApplyIncludes(DbSet<Role> set) => set;
+    protected override IQueryable<Role> ApplyDetailed(DbSet<Role> set) => set;
 }

@@ -1,3 +1,5 @@
+using Interview.Domain;
+using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
@@ -45,6 +47,8 @@ public class AppDbContext : DbContext
     public DbSet<RoomQuestionReaction> RoomQuestionReactions { get; private set; } = null!;
 
     public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
+
+    public DbSet<AppEvent> Events { get; private set; } = null!;
 
     public override int SaveChanges()
     {

@@ -11,7 +11,7 @@ public abstract class EfNonArchiveRepository<T> : EfRepository<T>, INonArchiveRe
     {
     }
 
-    protected override IQueryable<T> ApplyIncludes(DbSet<T> set) => set.Where(it => !it.IsArchived);
+    protected override IQueryable<T> ApplyDetailed(DbSet<T> set) => set.Where(it => !it.IsArchived);
 
     protected override IQueryable<T> ApplyNonDetail(DbSet<T> set) => set.Where(it => !it.IsArchived);
 }

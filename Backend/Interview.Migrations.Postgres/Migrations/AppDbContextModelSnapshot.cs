@@ -22,6 +22,46 @@ namespace Interview.Migrations.Postgres.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AppEventRole", b =>
+                {
+                    b.Property<Guid>("AppEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RolesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AppEventId", "RolesId");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("AppEventRole");
+                });
+
+            modelBuilder.Entity("Interview.Domain.AppEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Type")
+                        .IsUnique();
+
+                    b.ToTable("AppEvent");
+                });
+
             modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
                 {
                     b.Property<Guid>("Id")
@@ -359,6 +399,21 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RoleUser");
+                });
+
+            modelBuilder.Entity("AppEventRole", b =>
+                {
+                    b.HasOne("Interview.Domain.AppEvent", null)
+                        .WithMany()
+                        .HasForeignKey("AppEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Interview.Domain.Users.Roles.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Interview.Domain.RoomConfigurations.RoomConfiguration", b =>

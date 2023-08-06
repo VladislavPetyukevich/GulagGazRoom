@@ -1,5 +1,3 @@
-using Interview.Domain.Errors;
-
 namespace Interview.Domain.ServiceResults.Errors;
 
 public class ServiceError : IEquatable<ServiceError>
@@ -11,11 +9,13 @@ public class ServiceError : IEquatable<ServiceError>
         Message = message;
     }
 
+    public static ServiceError AccessDenied(string message = "") => new AccessDeniedServiceError(string.IsNullOrEmpty(message) ? "The user does not have enough permissions." : message);
+
     public static ServiceError NotFound(string message) => new NotFoundServiceError(message);
 
     public static ServiceError Error(string message) => new ServiceError(message);
 
-    public virtual TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError)
+    public virtual TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError, Func<AccessDeniedServiceError, TRes> accessDeniedError)
         => appError(this);
 
     public bool Equals(ServiceError? other)

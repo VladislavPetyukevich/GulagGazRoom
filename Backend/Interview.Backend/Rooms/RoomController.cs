@@ -6,8 +6,10 @@ using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
+using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using X.PagedList;
 
 namespace Interview.Backend.Rooms;
@@ -74,7 +76,7 @@ public class RoomController : ControllerBase
     /// </summary>
     /// <param name="room">Room.</param>
     /// <returns>Created room.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPost("")]
     [ProducesResponseType(typeof(Guid), 201)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
@@ -89,7 +91,7 @@ public class RoomController : ControllerBase
     /// <param name="id">Room id.</param>
     /// <param name="request">Request.</param>
     /// <returns>Ok message.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
@@ -103,45 +105,24 @@ public class RoomController : ControllerBase
     }
 
     /// <summary>
-    /// Sending gas event to room.
+    /// Sending event to room.
     /// </summary>
     /// <param name="request">Request.</param>
     /// <returns>Ok message.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPost("event/gas")]
+    [Authorize]
+    [HttpPost("event")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    public Task<ActionResult> SendGasEvent(SendGasRoomEventApiRequest request)
+    public async Task<ActionResult> SendEvent(RoomEventApiRequest request)
     {
         var user = User.ToUser();
         if (user == null)
         {
-            return Task.FromResult<ActionResult>(Unauthorized());
+            return Unauthorized();
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
-        return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
-    }
-
-    /// <summary>
-    /// Sending code editor event to room.
-    /// </summary>
-    /// <param name="request">Request.</param>
-    /// <returns>Ok message.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPost("event/codeEditor")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    public Task<ActionResult> SendCodeEditorEvent(CodeEditorRoomEventApiRequest request)
-    {
-        var user = User.ToUser();
-        if (user == null)
-        {
-            return Task.FromResult<ActionResult>(Unauthorized());
-        }
-
-        var sendRequest = request.ToDomainRequest(user.Id);
-        return _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
+        return await _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted).ToResponseAsync();
     }
 
     /// <summary>
@@ -149,7 +130,7 @@ public class RoomController : ControllerBase
     /// </summary>
     /// <param name="id">Room id.</param>
     /// <returns>Analytics.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpGet("{id:guid}/analytics")]
     [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -179,7 +160,7 @@ public class RoomController : ControllerBase
         return _roomService.GetAnalyticsSummaryAsync(request, HttpContext.RequestAborted).ToResponseAsync();
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPatch("{id:guid}/close")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -189,7 +170,7 @@ public class RoomController : ControllerBase
         return _roomService.CloseRoomAsync(id, HttpContext.RequestAborted).ToResponseAsync();
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPatch("{id:guid}/startReview")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]

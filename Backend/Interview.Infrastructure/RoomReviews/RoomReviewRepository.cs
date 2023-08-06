@@ -31,7 +31,7 @@ public class RoomReviewRepository : EfRepository<RoomReview>, IRoomReviewReposit
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
-    protected override IQueryable<RoomReview> ApplyIncludes(DbSet<RoomReview> set)
+    protected override IQueryable<RoomReview> ApplyDetailed(DbSet<RoomReview> set)
     {
         return set
             .Include(it => it.Room)

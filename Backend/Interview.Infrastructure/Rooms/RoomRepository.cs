@@ -270,7 +270,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .FirstOrDefaultAsync(room => room.Id == roomId, cancellationToken: cancellationToken);
     }
 
-    protected override IQueryable<Room> ApplyIncludes(DbSet<Room> set)
+    protected override IQueryable<Room> ApplyDetailed(DbSet<Room> set)
         => Set.Include(e => e.Participants)
             .Include(e => e.Questions)
             .Include(e => e.Configuration);

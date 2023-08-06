@@ -24,7 +24,7 @@ public class RoomParticipantController : ControllerBase
     /// </summary>
     /// <param name="request">Page Parameters.</param>
     /// <returns>List of room participants.</returns>
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize(policy: SecurePolicy.User)]
     [HttpGet]
     [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
@@ -40,7 +40,7 @@ public class RoomParticipantController : ControllerBase
     /// </summary>
     /// <param name="request">Data for adding a participant to a room.</param>
     /// <returns>Data about the added participant to the room.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPost]
     [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -58,7 +58,7 @@ public class RoomParticipantController : ControllerBase
     /// </summary>
     /// <param name="request">Data changes in the status of a room participant.</param>
     /// <returns>Information about the participant of the room.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPatch]
     [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]

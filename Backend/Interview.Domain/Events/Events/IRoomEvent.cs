@@ -4,7 +4,7 @@ public interface IRoomEvent
 {
     Guid RoomId { get; }
 
-    EventType Type { get; }
+    string Type { get; }
 }
 
 public interface IRoomEvent<out T> : IRoomEvent

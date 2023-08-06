@@ -28,4 +28,6 @@ public sealed class RoleName : SmartEnum<RoleName>
     }
 
     public Guid Id { get; }
+
+    public RoleNameType EnumValue => (RoleNameType)Value;
 }

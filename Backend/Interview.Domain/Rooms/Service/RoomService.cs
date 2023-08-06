@@ -8,19 +8,20 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestionReactions.Mappers;
 using Interview.Domain.RoomQuestionReactions.Specifications;
 using Interview.Domain.RoomQuestions;
-using Interview.Domain.Rooms.Service.Records;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Users;
+using NSpecifications;
 using Entity = Interview.Domain.Repository.Entity;
 
 namespace Interview.Domain.Rooms.Service;
 
 public sealed class RoomService
 {
+    private readonly IAppEventRepository _eventRepository;
     private readonly IRoomRepository _roomRepository;
     private readonly IRoomQuestionRepository _roomQuestionRepository;
     private readonly IQuestionRepository _questionRepository;
@@ -34,13 +35,15 @@ public sealed class RoomService
         IQuestionRepository questionRepository,
         IUserRepository userRepository,
         IRoomEventDispatcher roomEventDispatcher,
-        IRoomQuestionReactionRepository roomQuestionReactionRepository)
+        IRoomQuestionReactionRepository roomQuestionReactionRepository,
+        IAppEventRepository eventRepository)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
         _userRepository = userRepository;
         _roomEventDispatcher = roomEventDispatcher;
         _roomQuestionReactionRepository = roomQuestionReactionRepository;
+        _eventRepository = eventRepository;
         _roomQuestionRepository = roomQuestionRepository;
     }
 
@@ -161,16 +164,29 @@ public sealed class RoomService
 
     public async Task<Result<ServiceResult, ServiceError>> SendEventRequestAsync(IEventRequest request, CancellationToken cancellationToken = default)
     {
+        var eventSpecification = new Spec<AppEvent>(e => e.Type == request.Type);
+        var dbEvent = await _eventRepository.FindFirstOrDefaultAsync(eventSpecification, cancellationToken);
+        if (dbEvent is null)
+        {
+            return ServiceError.NotFound($"Event not found by type {request.Type}");
+        }
+
         var currentRoom = await _roomRepository.FindByIdAsync(request.RoomId, cancellationToken);
         if (currentRoom == null)
         {
             return ServiceError.NotFound($"Room not found by id {request.RoomId}");
         }
 
-        var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
+        var user = await _userRepository.FindByIdDetailedAsync(request.UserId, cancellationToken);
         if (user == null)
         {
             return ServiceError.NotFound($"User not found by id {request.UserId}");
+        }
+
+        var userRoles = user.Roles.Select(e => e.Id).ToHashSet();
+        if (dbEvent.Roles.Any(e => !userRoles.Contains(e.Id)))
+        {
+            return ServiceError.AccessDenied();
         }
 
         await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);

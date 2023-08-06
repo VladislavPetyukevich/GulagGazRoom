@@ -14,7 +14,7 @@ public class RoomParticipantRepository : EfRepository<RoomParticipant>, IRoomPar
     public Task<RoomParticipant?> FindByRoomIdAndUserId(
         Guid roomId, Guid userId, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .Where(participant => participant.Room.Id == roomId && participant.User.Id == userId)
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -22,11 +22,11 @@ public class RoomParticipantRepository : EfRepository<RoomParticipant>, IRoomPar
     public Task<bool> IsExistsByRoomIdAndUserIdAsync(
         Guid roomId, Guid userId, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .AnyAsync(participant => participant.Room.Id == roomId && participant.User.Id == userId, cancellationToken);
     }
 
-    protected override IQueryable<RoomParticipant> ApplyIncludes(DbSet<RoomParticipant> set) => set
+    protected override IQueryable<RoomParticipant> ApplyDetailed(DbSet<RoomParticipant> set) => set
         .Include(participant => participant.Room)
         .Include(participant => participant.User);
 }

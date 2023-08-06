@@ -16,13 +16,13 @@ public class UserRepository : EfRepository<User>, IUserRepository
 
     public Task<User?> FindByNicknameAsync(string nickname, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .FirstOrDefaultAsync(user => user.Nickname == nickname, cancellationToken);
     }
 
     public Task<List<User>> GetByRoleAsync(RoleName roleName, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .Where(e => e.Roles.Any(r => r.Name == roleName))
             .ToListAsync(cancellationToken);
     }
@@ -34,17 +34,17 @@ public class UserRepository : EfRepository<User>, IUserRepository
         RoleName roleName,
         CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .Where(e => e.Roles.Any(r => r.Name == roleName))
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public Task<User?> FindByTwitchIdentityAsync(string twitchIdentity, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .FirstOrDefaultAsync(user => user.TwitchIdentity == twitchIdentity, cancellationToken);
     }
 
-    protected override IQueryable<User> ApplyIncludes(DbSet<User> set)
+    protected override IQueryable<User> ApplyDetailed(DbSet<User> set)
         => set.Include(e => e.Roles);
 }

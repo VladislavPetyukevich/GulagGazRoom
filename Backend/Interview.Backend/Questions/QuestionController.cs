@@ -41,7 +41,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="pageRequest">Page params.</param>
     /// <returns>Deleted question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpGet("archived")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -77,7 +77,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="request">The object with the question data for which you need to create.</param>
     /// <returns>The object of the new question.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status201Created)]
@@ -96,7 +96,7 @@ public class QuestionController : ControllerBase
     /// <param name="id">ID of the of question.</param>
     /// <param name="request">The object with the question data for which you need to update.</param>
     /// <returns>Updated question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPut("{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -115,7 +115,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="id">ID of the of question.</param>
     /// <returns>Archived question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPatch("{id:guid}/archive")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -133,7 +133,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="id">ID of the of question.</param>
     /// <returns>Deleted question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPatch("{id:guid}/unarchive")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -151,7 +151,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="id">ID of the of question.</param>
     /// <returns>Deleted question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpDelete("{id:guid}/permanently")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]

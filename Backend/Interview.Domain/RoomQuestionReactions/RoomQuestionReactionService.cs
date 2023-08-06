@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using Interview.Domain.Errors;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomQuestionReactions.Records;
 using Interview.Domain.RoomQuestionReactions.Records.Response;

@@ -4,7 +4,7 @@ namespace Interview.Domain.Events.Events;
 
 public class RoomEvent : RoomEvent<string>
 {
-    public RoomEvent(Guid roomId, EventType type, string? value)
+    public RoomEvent(Guid roomId, string type, string? value)
         : base(roomId, type, value)
     {
     }
@@ -15,11 +15,11 @@ public class RoomEvent<T> : IRoomEvent<T>
 {
     public Guid RoomId { get; }
 
-    public EventType Type { get; }
+    public string Type { get; }
 
     public T? Value { get; }
 
-    public RoomEvent(Guid roomId, EventType type, T? value)
+    public RoomEvent(Guid roomId, string type, T? value)
     {
         RoomId = roomId;
         Type = type;

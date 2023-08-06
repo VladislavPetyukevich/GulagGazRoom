@@ -16,5 +16,5 @@ public class ReactionRepository : EfRepository<Reaction>, IReactionRepository
         return Set.FirstOrDefaultAsync(e => e.Type == reactionType, cancellationToken);
     }
 
-    protected override IQueryable<Reaction> ApplyIncludes(DbSet<Reaction> set) => Set;
+    protected override IQueryable<Reaction> ApplyDetailed(DbSet<Reaction> set) => Set;
 }

@@ -9,7 +9,7 @@ public interface IMapper<TIn, TOut>
     TOut Map(TIn input);
 }
 
-public sealed class Mapper<TIn, TOut> : IMapper<TIn, TOut>
+public class Mapper<TIn, TOut> : IMapper<TIn, TOut>
 {
     private readonly Lazy<Func<TIn, TOut>> _lazyFunc;
 

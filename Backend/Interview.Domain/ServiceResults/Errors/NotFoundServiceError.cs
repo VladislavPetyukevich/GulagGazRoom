@@ -1,6 +1,4 @@
-using Interview.Domain.ServiceResults.Errors;
-
-namespace Interview.Domain.Errors;
+namespace Interview.Domain.ServiceResults.Errors;
 
 public sealed class NotFoundServiceError : ServiceError
 {
@@ -9,6 +7,6 @@ public sealed class NotFoundServiceError : ServiceError
     {
     }
 
-    public override TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError)
+    public override TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError, Func<AccessDeniedServiceError, TRes> accessDeniedError)
         => notFoundError(this);
 }

@@ -31,14 +31,14 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
 
     public Task<RoomQuestion?> FindFirstByQuestionIdAndRoomIdAsync(Guid questionId, Guid roomId, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .FirstOrDefaultAsync(
                 roomQuestion => roomQuestion.Room!.Id == roomId && roomQuestion.Question!.Id == questionId, cancellationToken);
     }
 
     public Task<RoomQuestion?> FindFirstByRoomAndStateAsync(Guid roomId, RoomQuestionState roomQuestionState, CancellationToken cancellationToken = default)
     {
-        return ApplyIncludes(Set)
+        return ApplyDetailed(Set)
             .FirstOrDefaultAsync(
                 roomQuestion => roomQuestion.Room!.Id == roomId && roomQuestion.State == roomQuestionState, cancellationToken);
     }
@@ -52,7 +52,7 @@ public class RoomQuestionRepository : EfRepository<RoomQuestion>, IRoomQuestionR
                 roomQuestion => roomQuestion.Room!.Id == roomId && roomQuestion.State!.Name == roomQuestionState.Name, cancellationToken);
     }
 
-    protected override IQueryable<RoomQuestion> ApplyIncludes(DbSet<RoomQuestion> set) => Set
+    protected override IQueryable<RoomQuestion> ApplyDetailed(DbSet<RoomQuestion> set) => Set
         .Include(roomQuestion => roomQuestion.Question)
         .Include(roomQuestion => roomQuestion.Room);
 }
