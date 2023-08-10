@@ -118,7 +118,7 @@ public class ServiceConfigurator
         {
             _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
             {
-                var address = context?.Connection?.RemoteIpAddress;
+                var address = context.Connection.RemoteIpAddress;
                 if (address is not null && !IPAddress.IsLoopback(address))
                 {
                     return RateLimitPartition.GetFixedWindowLimiter(address, key => new()

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("oauth.json", true);
 builder.Configuration.AddEnvironmentVariables("INTERVIEW_BACKEND_");
 
 // Add services to the container.
