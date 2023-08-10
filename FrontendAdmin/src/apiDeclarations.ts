@@ -124,7 +124,7 @@ export const usersApiDeclaration = {
 export const reactionsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/Reaction/GetPage',
+    baseUrl: '/reactions',
     urlParams: pagination,
   }),
 };

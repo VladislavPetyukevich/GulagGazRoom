@@ -105,13 +105,25 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const additionalReactionsLike = useAdditionalReactions({
     reactions: reactionsSafe,
     eventTypeAdditionalNames: {
-      ReactionLike: ['like1'],
+      ReactionLike: ['like1', 'like2'],
     },
   });
   const additionalReactionsDisLike = useAdditionalReactions({
     reactions: reactionsSafe,
     eventTypeAdditionalNames: {
-      ReactionDislike: ['dislike1', 'dislike2', 'dislike3', 'dislike4', 'dislike5'],
+      ReactionDislike: [
+        'dislike1',
+        'dislike2',
+        'dislike3',
+        'dislike4',
+        'dislike5',
+        'dislike6',
+        'dislike7',
+        'dislike8',
+        'dislike9',
+        'dislike10',
+        'dislike11',
+      ],
     },
   });
 
