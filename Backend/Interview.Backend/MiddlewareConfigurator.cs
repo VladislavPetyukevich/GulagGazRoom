@@ -18,7 +18,7 @@ public class MiddlewareConfigurator
     public void AddMiddlewares()
     {
         _app.UseMiddleware<ExceptionMiddleware>();
-
+        _app.UseForwardedHeaders();
         if (_app.Environment.IsPreProduction() || _app.Environment.IsProduction())
         {
             _app.UseHsts();
