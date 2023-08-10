@@ -99,10 +99,10 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
           }
           threeShooter.onPlayerActionStart('chatMessage', message);
           break;
-        case 'ReactionLike':
+        case 'Like':
           threeShooter.onPlayerActionStart('like', dataParsed.Value.Payload);
           break;
-        case 'ReactionDislike':
+        case 'Dislike':
           threeShooter.onPlayerActionStart('dislike', dataParsed.Value.Payload);
           break;
         case 'GasOn':

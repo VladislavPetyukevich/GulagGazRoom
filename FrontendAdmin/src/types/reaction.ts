@@ -1,7 +1,7 @@
 export interface Reaction {
   id: string;
   type: {
-    eventType: string,
+    id: string;
     name: string,
     value: number,
   };
