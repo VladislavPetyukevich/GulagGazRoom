@@ -5,12 +5,18 @@ import './ReactionsList.css';
 
 const reactionNameReplaces: Record<string, string> = {
   like1: '👍',
+  like2: '👋',
   dislike1: '😬',
   dislike2: '🙄',
   dislike3: '😏',
   dislike4: '🤥',
   dislike5: '💩',
   dislike6: '❓',
+  dislike7: '🌐',
+  dislike8: '🍌',
+  dislike9: '📄',
+  dislike10: '😢',
+  dislike11: '🦍',
 }
 
 interface ReactionsListProps {

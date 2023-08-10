@@ -7,12 +7,18 @@ import { audioSlices } from '@/constants';
 
 export type SliceName =
   'like1' |
+  'like2' |
   'dislike1' |
   'dislike2' |
   'dislike3' |
   'dislike4' |
   'dislike5' |
   'dislike6' |
+  'dislike7' |
+  'dislike8' |
+  'dislike9' |
+  'dislike10' |
+  'dislike11' |
   'lightFlick1' |
   'lightFlick2' |
   'lightFlick3' |
@@ -40,12 +46,18 @@ export class AudioSlices {
 
     this.slices = {
       like1: this.createAudio('like1'),
+      like2: this.createAudio('like2'),
       dislike1: this.createAudio('dislike1'),
       dislike2: this.createAudio('dislike2'),
       dislike3: this.createAudio('dislike3'),
       dislike4: this.createAudio('dislike4'),
       dislike5: this.createAudio('dislike5'),
       dislike6: this.createAudio('dislike6'),
+      dislike7: this.createAudio('dislike7'),
+      dislike8: this.createAudio('dislike8'),
+      dislike9: this.createAudio('dislike9'),
+      dislike10: this.createAudio('dislike10'),
+      dislike11: this.createAudio('dislike11'),
       lightFlick1: this.createAudio('lightFlick1'),
       lightFlick2: this.createAudio('lightFlick2'),
       lightFlick3: this.createAudio('lightFlick3'),
