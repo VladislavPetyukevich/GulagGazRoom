@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Infrastructure.Database;
 
@@ -12,7 +12,7 @@ public interface IPooledDbContextInterceptor<in TContext>
 
 public sealed class DefaultAppDbContextPooledDbContextInterceptor : IPooledDbContextInterceptor<AppDbContext>
 {
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public DefaultAppDbContextPooledDbContextInterceptor(IServiceProvider serviceProvider)
     {
