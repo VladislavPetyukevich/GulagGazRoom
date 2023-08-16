@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -13,6 +14,7 @@ using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
 using Interview.Infrastructure.Users;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -108,12 +110,15 @@ public class ServiceConfigurator
         serviceCollection.AddSingleton<UserClaimService>();
 
         serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
-
+        serviceCollection.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        });
         serviceCollection.AddRateLimiter(_ =>
         {
             _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
             {
-                var address = context?.Connection?.RemoteIpAddress;
+                var address = context.Connection.RemoteIpAddress;
                 if (address is not null && !IPAddress.IsLoopback(address))
                 {
                     return RateLimitPartition.GetFixedWindowLimiter(address, key => new()

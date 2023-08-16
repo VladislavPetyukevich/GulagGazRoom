@@ -41,6 +41,14 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     process: { loading: roomCloseLoading, error: roomCloseError },
   } = apiRoomCloseMethodState;
 
+  const {
+    apiMethodState: apiRoomStartReviewMethodState,
+    fetchData: fetchRoomStartReview,
+  } = useApiMethod<unknown, RoomType['id']>(roomsApiDeclaration.startReview);
+  const {
+    process: { loading: roomStartReviewLoading, error: roomStartReviewError },
+  } = apiRoomStartReviewMethodState;
+
   const displayedReactions = ['Like', 'Dislike'];
   const displayedReactionsView = [Captions.LikeTable, Captions.DislikeTable];
   const [totalLikesDislikes, setTotalLikesDislikes] = useState({ likes: 0, dislikes: 0 });
@@ -93,6 +101,13 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
     fetchRoomClose(id);
   }, [id, fetchRoomClose]);
 
+  const handleStartReviewRoom = useCallback(() => {
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    fetchRoomStartReview(id);
+  }, [id, fetchRoomStartReview]);
+
   return (
     <MainContentWrapper className="room-anaytics-summary">
       <HeaderWithLink
@@ -108,7 +123,7 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         loaders={loaders}
       >
         <>
-        {admin && (
+        {!!(admin && room?.roomStatus === 'Review') && (
             <Field>
               <RoomActionModal
                 title={Captions.CloseRoomModalTitle}
@@ -116,6 +131,17 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
                 loading={roomCloseLoading}
                 error={roomCloseError}
                 onAction={handleCloseRoom}
+              />
+            </Field>
+          )}
+          {!!(admin && room?.roomStatus === 'Close') && (
+            <Field>
+              <RoomActionModal
+                title={Captions.StartReviewRoomModalTitle}
+                openButtonCaption={Captions.StartReviewRoom}
+                loading={roomStartReviewLoading}
+                error={roomStartReviewError}
+                onAction={handleStartReviewRoom}
               />
             </Field>
           )}

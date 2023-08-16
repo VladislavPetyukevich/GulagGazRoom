@@ -81,6 +81,10 @@ export const audioSlices = {
     bufferName: 'gulagVox',
     start: 0.0, end: 1.65, volume: voxVolume,
   },
+  like2: {
+    bufferName: 'gulagVox',
+    start: 17.21, end: 18.42, volume: voxVolume,
+  },
   dislike1: {
     bufferName: 'gulagVox',
     start: 7.77, end: 8.59, volume: voxVolume,
@@ -104,6 +108,26 @@ export const audioSlices = {
   dislike6: {
     bufferName: 'gulagVox',
     start: 8.74, end: 9.67, volume: voxVolume,
+  },
+  dislike7: {
+    bufferName: 'gulagVox',
+    start: 9.80, end: 13.97, volume: voxVolume,
+  },
+  dislike8: {
+    bufferName: 'gulagVox',
+    start: 13.97, end: 15.36, volume: voxVolume,
+  },
+  dislike9: {
+    bufferName: 'gulagVox',
+    start: 15.36, end: 17.18, volume: voxVolume,
+  },
+  dislike10: {
+    bufferName: 'gulagVox',
+    start: 18.57, end: 20.27, volume: voxVolume,
+  },
+  dislike11: {
+    bufferName: 'gulagVox',
+    start: 20.30, end: 22.31, volume: voxVolume,
   },
   lightFlick1: {
     bufferName: 'lightFlicks',

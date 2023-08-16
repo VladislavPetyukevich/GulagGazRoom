@@ -395,8 +395,11 @@ export class TestScene extends BasicScene {
   }
 
   onLike = (action: PlayerAction) => {
-    if (action.payload === 'like1') {
-      this.playRandomAudioSlice(this.likeAduioNames);
+    if (
+      action.payload === 'like1' ||
+      action.payload === 'like2'
+    ) {
+      this.playAudio(this.audioSlices.getAudio(action.payload));
     }
     this.stats.increaseCount('like');
     this.startTvStatsAnimation('👍');
@@ -404,12 +407,17 @@ export class TestScene extends BasicScene {
 
   onDislike = (action: PlayerAction) => {
     if (
-      (action.payload === 'dislike1') ||
-      (action.payload === 'dislike2') ||
-      (action.payload === 'dislike3') ||
-      (action.payload === 'dislike4') ||
-      (action.payload === 'dislike5') ||
-      (action.payload === 'dislike6')
+      action.payload === 'dislike1' ||
+      action.payload === 'dislike2' ||
+      action.payload === 'dislike3' ||
+      action.payload === 'dislike4' ||
+      action.payload === 'dislike5' ||
+      action.payload === 'dislike6' ||
+      action.payload === 'dislike7' ||
+      action.payload === 'dislike8' ||
+      action.payload === 'dislike9' ||
+      action.payload === 'dislike10' ||
+      action.payload === 'dislike11'
     ) {
       this.playAudio(this.audioSlices.getAudio(action.payload));
     }

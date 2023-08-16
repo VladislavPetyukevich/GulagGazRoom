@@ -13,16 +13,16 @@ const reactionsPageNumber = 1;
 
 interface GasReaction extends Reaction {
   type: {
-    id: string;
-    name: 'GasOn' | 'GasOff';
+    eventType: 'GasOn' | 'GasOff';
+    name: string;
     value: number;
   }
 }
 
 interface CodeEditorReaction extends Reaction {
   type: {
-    id: string;
-    name: 'EnableCodeEditor' | 'DisableCodeEditor';
+    eventType: 'EnableCodeEditor' | 'DisableCodeEditor';
+    name: string;
     value: number;
   }
 }
@@ -30,15 +30,15 @@ interface CodeEditorReaction extends Reaction {
 const gasReactions: GasReaction[] = [{
   id: 'gasReactionOnId',
   type: {
-    id: 'GasOn',
-    name: 'GasOn',
+    eventType: 'GasOn',
+    name: `${Captions.On} 🤿`,
     value: 0,
   }
 }, {
   id: 'gasReactionOffId',
   type: {
-    id: 'GasOff',
-    name: 'GasOff',
+    eventType: 'GasOff',
+    name: `${Captions.Off} 👌`,
     value: 0,
   }
 }];
@@ -46,15 +46,15 @@ const gasReactions: GasReaction[] = [{
 const codeEditorReactions: CodeEditorReaction[] = [{
   id: 'codeEditorReactionOnId',
   type: {
-    id: 'EnableCodeEditor',
-    name: 'EnableCodeEditor',
+    eventType: 'EnableCodeEditor',
+    name: `${Captions.On} 📜`,
     value: 0,
   }
 }, {
   id: 'codeEditorReactionOffId',
   type: {
-    id: 'DisableCodeEditor',
-    name: 'DisableCodeEditor',
+    eventType: 'DisableCodeEditor',
+    name: `${Captions.Off} 🧻`,
     value: 0,
   }
 }];
@@ -105,13 +105,25 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const additionalReactionsLike = useAdditionalReactions({
     reactions: reactionsSafe,
     eventTypeAdditionalNames: {
-      Like: ['like1'],
+      ReactionLike: ['like1', 'like2'],
     },
   });
   const additionalReactionsDisLike = useAdditionalReactions({
     reactions: reactionsSafe,
     eventTypeAdditionalNames: {
-      Dislike: ['dislike1', 'dislike2', 'dislike3', 'dislike4', 'dislike5'],
+      ReactionDislike: [
+        'dislike1',
+        'dislike2',
+        'dislike3',
+        'dislike4',
+        'dislike5',
+        'dislike6',
+        'dislike7',
+        'dislike8',
+        'dislike9',
+        'dislike10',
+        'dislike11',
+      ],
     },
   });
 
@@ -132,6 +144,26 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
       payload: reaction.type.name,
     });
   }, [room, sendRoomReaction]);
+
+  const handleGasReactionClick = useCallback((reaction: Reaction) => {
+    if (!room) {
+      throw new Error('Error sending reaction. Room not found.');
+    }
+    sendRoomGas({
+      roomId: room.id,
+      type: (reaction as GasReaction).type.eventType,
+    });
+  }, [room, sendRoomGas]);
+
+  const handleCodeEditorReactionClick = useCallback((reaction: Reaction) => {
+    if (!room) {
+      throw new Error('Error sending reaction. Room not found.');
+    }
+    sendRoomCodeEditor({
+      roomId: room.id,
+      type: (reaction as CodeEditorReaction).type.eventType,
+    });
+  }, [room, sendRoomCodeEditor]);
 
   if (errorReactions) {
     return (
@@ -168,7 +200,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
           <ReactionsList
             sortOrder={1}
             reactions={gasReactions}
-            onClick={handleReactionClick}
+            onClick={handleGasReactionClick}
           />
         </div>
       )}
@@ -178,7 +210,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
           <ReactionsList
             sortOrder={1}
             reactions={codeEditorReactions}
-            onClick={handleReactionClick}
+            onClick={handleCodeEditorReactionClick}
           />
         </div>
       )}

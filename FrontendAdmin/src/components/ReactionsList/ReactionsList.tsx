@@ -2,20 +2,21 @@ import React, { FunctionComponent, useCallback } from 'react';
 import { Reaction } from '../../types/reaction';
 
 import './ReactionsList.css';
-import { Captions } from '../../constants';
 
 const reactionNameReplaces: Record<string, string> = {
   like1: '👍',
+  like2: '👋',
   dislike1: '😬',
   dislike2: '🙄',
   dislike3: '😏',
   dislike4: '🤥',
   dislike5: '💩',
   dislike6: '❓',
-  GasOn: `${Captions.On} 🤿`,
-  GasOff: `${Captions.Off} 👌`,
-  EnableCodeEditor: `${Captions.On} 📜`,
-  DisableCodeEditor: `${Captions.Off} 🧻`,
+  dislike7: '🌐',
+  dislike8: '🍌',
+  dislike9: '📄',
+  dislike10: '😢',
+  dislike11: '🦍',
 }
 
 interface ReactionsListProps {
