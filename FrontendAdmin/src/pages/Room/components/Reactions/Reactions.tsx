@@ -13,16 +13,16 @@ const reactionsPageNumber = 1;
 
 interface GasReaction extends Reaction {
   type: {
-    eventType: 'GasOn' | 'GasOff';
-    name: string;
+    id: string;
+    name: 'GasOn' | 'GasOff';
     value: number;
   }
 }
 
 interface CodeEditorReaction extends Reaction {
   type: {
-    eventType: 'EnableCodeEditor' | 'DisableCodeEditor';
-    name: string;
+    id: string;
+    name: 'EnableCodeEditor' | 'DisableCodeEditor';
     value: number;
   }
 }
@@ -30,15 +30,15 @@ interface CodeEditorReaction extends Reaction {
 const gasReactions: GasReaction[] = [{
   id: 'gasReactionOnId',
   type: {
-    eventType: 'GasOn',
-    name: `${Captions.On} 🤿`,
+    id: 'GasOn',
+    name: 'GasOn',
     value: 0,
   }
 }, {
   id: 'gasReactionOffId',
   type: {
-    eventType: 'GasOff',
-    name: `${Captions.Off} 👌`,
+    id: 'GasOff',
+    name: 'GasOff',
     value: 0,
   }
 }];
@@ -46,15 +46,15 @@ const gasReactions: GasReaction[] = [{
 const codeEditorReactions: CodeEditorReaction[] = [{
   id: 'codeEditorReactionOnId',
   type: {
-    eventType: 'EnableCodeEditor',
-    name: `${Captions.On} 📜`,
+    id: 'EnableCodeEditor',
+    name: 'EnableCodeEditor',
     value: 0,
   }
 }, {
   id: 'codeEditorReactionOffId',
   type: {
-    eventType: 'DisableCodeEditor',
-    name: `${Captions.Off} 🧻`,
+    id: 'DisableCodeEditor',
+    name: 'DisableCodeEditor',
     value: 0,
   }
 }];
@@ -105,13 +105,13 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const additionalReactionsLike = useAdditionalReactions({
     reactions: reactionsSafe,
     eventTypeAdditionalNames: {
-      ReactionLike: ['like1', 'like2'],
+      Like: ['like1', 'like2'],
     },
   });
   const additionalReactionsDisLike = useAdditionalReactions({
     reactions: reactionsSafe,
     eventTypeAdditionalNames: {
-      ReactionDislike: [
+      Dislike: [
         'dislike1',
         'dislike2',
         'dislike3',
@@ -144,26 +144,6 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
       payload: reaction.type.name,
     });
   }, [room, sendRoomReaction]);
-
-  const handleGasReactionClick = useCallback((reaction: Reaction) => {
-    if (!room) {
-      throw new Error('Error sending reaction. Room not found.');
-    }
-    sendRoomGas({
-      roomId: room.id,
-      type: (reaction as GasReaction).type.eventType,
-    });
-  }, [room, sendRoomGas]);
-
-  const handleCodeEditorReactionClick = useCallback((reaction: Reaction) => {
-    if (!room) {
-      throw new Error('Error sending reaction. Room not found.');
-    }
-    sendRoomCodeEditor({
-      roomId: room.id,
-      type: (reaction as CodeEditorReaction).type.eventType,
-    });
-  }, [room, sendRoomCodeEditor]);
 
   if (errorReactions) {
     return (
@@ -200,7 +180,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
           <ReactionsList
             sortOrder={1}
             reactions={gasReactions}
-            onClick={handleGasReactionClick}
+            onClick={handleReactionClick}
           />
         </div>
       )}
@@ -210,7 +190,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
           <ReactionsList
             sortOrder={1}
             reactions={codeEditorReactions}
-            onClick={handleCodeEditorReactionClick}
+            onClick={handleReactionClick}
           />
         </div>
       )}
