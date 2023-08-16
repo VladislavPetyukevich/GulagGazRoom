@@ -22,6 +22,8 @@ public class AppDbContext : DbContext
 
     public IChangeEntityProcessor[] ChangeEntityProcessors { get; set; }
 
+    public IPooledDbContextInterceptor<AppDbContext> Interceptor { get; set; } = null!;
+
     public AppDbContext(DbContextOptions options, IEnumerable<IChangeEntityProcessor>? processors)
         : base(options)
     {
