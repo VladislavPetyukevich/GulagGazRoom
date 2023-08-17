@@ -31,7 +31,7 @@ public static class ServiceCollectionExt
 #pragma warning disable EF1001
         self.AddSingleton<IDbContextPool<AppDbContext>, AppDbContextPool<AppDbContext>>();
         self.AddScoped<IScopedDbContextLease<AppDbContext>, AppScopedDbContextLease<AppDbContext>>();
-        self.AddScoped<IPooledDbContextInterceptor<AppDbContext>, DefaultAppDbContextPooledDbContextInterceptor>();
+        self.AddScoped<IPooledDbContextInterceptor<AppDbContext>, UserAccessorDbContextInterceptor>();
 #pragma warning restore EF1001
         self.AddDbContextPool<AppDbContext>(option.DbConfigurator);
 

@@ -1,4 +1,5 @@
 using Interview.Domain.Events.ChangeEntityProcessors;
+using Interview.Domain.Users;
 using Interview.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,8 @@ public class TestAppDbContextFactory
 
         var context = new AppDbContext(option.Options, Array.Empty<IChangeEntityProcessor>())
         {
-            SystemClock = clock
+            SystemClock = clock,
+            LazyCurrentUserAccessor = () => null
         };
         context.Database.EnsureCreated();
         return context;

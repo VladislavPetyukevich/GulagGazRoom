@@ -1,5 +1,4 @@
 using Interview.Domain.Users;
-using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,31 +10,24 @@ public interface IPooledDbContextInterceptor<in TContext>
     void OnCreate(TContext dbContext);
 
     void OnReturn(TContext dbContext);
-
-    IServiceProvider GetServiceProvider();
 }
 
-public sealed class DefaultAppDbContextPooledDbContextInterceptor : IPooledDbContextInterceptor<AppDbContext>
+public class UserAccessorDbContextInterceptor : IPooledDbContextInterceptor<AppDbContext>
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public DefaultAppDbContextPooledDbContextInterceptor(IServiceProvider serviceProvider)
+    public UserAccessorDbContextInterceptor(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
 
     public void OnCreate(AppDbContext dbContext)
     {
-        dbContext.Interceptor = this;
+        dbContext.LazyCurrentUserAccessor = () => _serviceProvider.GetService<ICurrentUserAccessor>();
     }
 
     public void OnReturn(AppDbContext dbContext)
     {
-        dbContext.Interceptor = null!;
-    }
-
-    public IServiceProvider GetServiceProvider()
-    {
-        return _serviceProvider;
+        dbContext.LazyCurrentUserAccessor = null!;
     }
 }

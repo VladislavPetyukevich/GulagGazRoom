@@ -22,7 +22,7 @@ public class AppDbContext : DbContext
 
     public IChangeEntityProcessor[] ChangeEntityProcessors { get; set; }
 
-    public IPooledDbContextInterceptor<AppDbContext> Interceptor { get; set; } = null!;
+    public Func<ICurrentUserAccessor?> LazyCurrentUserAccessor { get; set; }
 
     public AppDbContext(DbContextOptions options, IEnumerable<IChangeEntityProcessor>? processors)
         : base(options)
@@ -85,13 +85,7 @@ public class AppDbContext : DbContext
             foreach (var entity in FilterByState(EntityState.Added))
             {
                 entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
-
-                var userAccessor = db.Interceptor.GetServiceProvider().GetService<ICurrentUserAccessor>();
-
-                if (userAccessor is not null)
-                {
-                    entity.CreatedById = userAccessor.UserId;
-                }
+                entity.CreatedById = db.LazyCurrentUserAccessor.Invoke()?.UserId;
             }
 
             foreach (var entity in FilterByState(EntityState.Modified))
