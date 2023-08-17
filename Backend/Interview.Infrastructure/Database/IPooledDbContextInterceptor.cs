@@ -1,4 +1,7 @@
+using Interview.Domain.Users;
+using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Interview.Infrastructure.Database;
 
@@ -8,6 +11,8 @@ public interface IPooledDbContextInterceptor<in TContext>
     void OnCreate(TContext dbContext);
 
     void OnReturn(TContext dbContext);
+
+    IServiceProvider GetServiceProvider();
 }
 
 public sealed class DefaultAppDbContextPooledDbContextInterceptor : IPooledDbContextInterceptor<AppDbContext>
@@ -27,5 +32,10 @@ public sealed class DefaultAppDbContextPooledDbContextInterceptor : IPooledDbCon
     public void OnReturn(AppDbContext dbContext)
     {
         dbContext.Interceptor = null!;
+    }
+
+    public IServiceProvider GetServiceProvider()
+    {
+        return _serviceProvider;
     }
 }

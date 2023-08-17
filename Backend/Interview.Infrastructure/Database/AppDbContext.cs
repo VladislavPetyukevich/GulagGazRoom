@@ -8,9 +8,9 @@ using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
-using Interview.Infrastructure.Database.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using RoomConfiguration = Interview.Domain.RoomConfigurations.RoomConfiguration;
 
@@ -56,7 +56,9 @@ public class AppDbContext : DbContext
         }
     }
 
-    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
     {
         await using (new SaveCookie(this, cancellationToken))
         {
@@ -83,6 +85,13 @@ public class AppDbContext : DbContext
             foreach (var entity in FilterByState(EntityState.Added))
             {
                 entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
+
+                var userAccessor = db.Interceptor.GetServiceProvider().GetService<ICurrentUserAccessor>();
+
+                if (userAccessor is not null)
+                {
+                    entity.CreatedById = userAccessor.UserId;
+                }
             }
 
             foreach (var entity in FilterByState(EntityState.Modified))
@@ -113,8 +122,10 @@ public class AppDbContext : DbContext
 
             foreach (var processor in _db.ChangeEntityProcessors)
             {
-                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
-                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
+                    .GetResult();
+                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
+                    .GetResult();
             }
         }
 

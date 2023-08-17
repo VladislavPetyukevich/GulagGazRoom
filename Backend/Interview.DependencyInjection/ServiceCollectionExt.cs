@@ -69,6 +69,11 @@ public static class ServiceCollectionExt
                 .AsImplementedInterfaces();
         });
 
+        self.AddScoped<CurrentUserAccessor>();
+        self.AddScoped<IEditableCurrentUserAccessor>(provider => provider.GetRequiredService<CurrentUserAccessor>());
+        self.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
+        self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
+
         return self;
     }
 }

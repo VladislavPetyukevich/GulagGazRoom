@@ -12,6 +12,10 @@ public abstract class EntityTypeConfigurationBase<T> : IEntityTypeConfiguration<
     {
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedOnAdd();
+        builder.HasOne(entity => entity.CreatedBy)
+            .WithMany()
+            .HasForeignKey(entity => entity.CreatedById);
+
         ConfigureCore(builder);
     }
 

@@ -1,10 +1,8 @@
-using System.Reflection;
 using Interview.Backend;
 
 using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("oauth.json", true);
@@ -24,7 +22,9 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 using (var serviceScope = app.Services.CreateScope())
 {
     var appDbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+
     appDbContext.Database.Migrate();
+
     var testUserId = Guid.Parse("b5a05f34-e44d-11ed-b49f-e8e34e3377ec");
     if (app.Environment.IsDevelopment() && !appDbContext.Users.Any(e => e.Id == testUserId))
     {
