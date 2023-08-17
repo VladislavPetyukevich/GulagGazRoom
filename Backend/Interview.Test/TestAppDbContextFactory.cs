@@ -3,6 +3,7 @@ using Interview.Domain.Users;
 using Interview.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 
 namespace Interview.Test;
@@ -18,10 +19,13 @@ public class TestAppDbContextFactory
             sqliteConnection
         );
 
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
+
         var context = new AppDbContext(option.Options, Array.Empty<IChangeEntityProcessor>())
         {
             SystemClock = clock,
-            LazyCurrentUserAccessor = () => null
+            LazyCurrentUserAccessor = new LazyCurrentUserAccessor(serviceCollection.BuildServiceProvider())
         };
         context.Database.EnsureCreated();
         return context;

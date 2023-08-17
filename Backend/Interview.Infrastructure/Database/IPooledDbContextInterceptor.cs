@@ -23,11 +23,26 @@ public class UserAccessorDbContextInterceptor : IPooledDbContextInterceptor<AppD
 
     public void OnCreate(AppDbContext dbContext)
     {
-        dbContext.LazyCurrentUserAccessor = () => _serviceProvider.GetService<ICurrentUserAccessor>();
+        dbContext.LazyCurrentUserAccessor = new LazyCurrentUserAccessor(_serviceProvider);
     }
 
     public void OnReturn(AppDbContext dbContext)
     {
         dbContext.LazyCurrentUserAccessor = null!;
     }
+}
+
+public sealed class LazyCurrentUserAccessor : ICurrentUserAccessor
+{
+    private readonly Lazy<ICurrentUserAccessor> _root;
+
+    public LazyCurrentUserAccessor(IServiceProvider serviceProvider)
+    {
+        _root = new Lazy<ICurrentUserAccessor>(
+            () => serviceProvider.GetRequiredService<ICurrentUserAccessor>());
+    }
+
+    public Guid? UserId => _root.Value.UserId;
+
+    public User? UserDetailed => _root.Value.UserDetailed;
 }
