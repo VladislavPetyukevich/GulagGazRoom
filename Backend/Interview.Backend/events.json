@@ -5,6 +5,10 @@
       "Roles": [
         "User",
         "Admin"
+      ],
+      "ParticipantTypes": [
+        "Expert",
+        "Examinee"
       ]
     }
   ]

@@ -28,6 +28,7 @@ public sealed class RoomService
     private readonly IUserRepository _userRepository;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly IRoomQuestionReactionRepository _roomQuestionReactionRepository;
+    private readonly IRoomParticipantRepository _roomParticipantRepository;
 
     public RoomService(
         IRoomRepository roomRepository,
@@ -36,7 +37,8 @@ public sealed class RoomService
         IUserRepository userRepository,
         IRoomEventDispatcher roomEventDispatcher,
         IRoomQuestionReactionRepository roomQuestionReactionRepository,
-        IAppEventRepository eventRepository)
+        IAppEventRepository eventRepository,
+        IRoomParticipantRepository roomParticipantRepository)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
@@ -44,6 +46,7 @@ public sealed class RoomService
         _roomEventDispatcher = roomEventDispatcher;
         _roomQuestionReactionRepository = roomQuestionReactionRepository;
         _eventRepository = eventRepository;
+        _roomParticipantRepository = roomParticipantRepository;
         _roomQuestionRepository = roomQuestionRepository;
     }
 
@@ -184,9 +187,23 @@ public sealed class RoomService
         }
 
         var userRoles = user.Roles.Select(e => e.Id).ToHashSet();
-        if (dbEvent.Roles.Any(e => !userRoles.Contains(e.Id)))
+        if (dbEvent.Roles is not null && dbEvent.Roles.Count > 0 && dbEvent.Roles.All(e => !userRoles.Contains(e.Id)))
         {
-            return ServiceError.AccessDenied();
+            return ServiceError.AccessDenied("The user does not have the required role");
+        }
+
+        if (dbEvent.ParticipantTypes is not null && dbEvent.ParticipantTypes.Count > 0)
+        {
+            var participantType = await _roomParticipantRepository.FindByRoomIdAndUserId(request.RoomId, request.UserId, cancellationToken);
+            if (participantType is null)
+            {
+                return ServiceError.NotFound($"Not found participant type by room id {request.RoomId} and user id {request.UserId}");
+            }
+
+            if (dbEvent.ParticipantTypes.All(e => e != participantType.Type))
+            {
+                return ServiceError.AccessDenied("The user does not have the required participant type");
+            }
         }
 
         await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);

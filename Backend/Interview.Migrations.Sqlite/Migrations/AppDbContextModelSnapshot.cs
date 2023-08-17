@@ -32,13 +32,16 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("AppEventRole");
                 });
 
-            modelBuilder.Entity("Interview.Domain.AppEvent", b =>
+            modelBuilder.Entity("Interview.Domain.Events.AppEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ParticipantTypes")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
@@ -398,7 +401,7 @@ namespace Interview.Migrations.Sqlite.Migrations
 
             modelBuilder.Entity("AppEventRole", b =>
                 {
-                    b.HasOne("Interview.Domain.AppEvent", null)
+                    b.HasOne("Interview.Domain.Events.AppEvent", null)
                         .WithMany()
                         .HasForeignKey("AppEventId")
                         .OnDelete(DeleteBehavior.Cascade)

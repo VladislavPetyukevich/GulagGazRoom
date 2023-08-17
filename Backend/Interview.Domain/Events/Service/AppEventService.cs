@@ -65,7 +65,7 @@ public class AppEventService
 
         var requestedRoleIds = request.Roles.Select(e => RoleName.FromValue((int)e).Id).ToList();
         var roles = await _roleRepository.FindByIdsAsync(requestedRoleIds, cancellationToken);
-        var newEvent = new AppEvent { Type = type, Roles = roles, };
+        var newEvent = new AppEvent { Type = type, Roles = roles, ParticipantTypes = AppEvent.ParseParticipantTypes(type, request.ParticipantTypes) };
         await _eventRepository.CreateAsync(newEvent, cancellationToken);
         return ServiceResult.Created(newEvent.Id);
     }
@@ -101,6 +101,11 @@ public class AppEventService
             var requestedRoleIds = request.Roles.Select(e => RoleName.FromValue((int)e).Id).ToList();
             var roles = await _roleRepository.FindByIdsAsync(requestedRoleIds, cancellationToken);
             existingEvent.Roles = roles;
+        }
+
+        if (request.ParticipantTypes is not null && request.ParticipantTypes.Count > 0)
+        {
+            existingEvent.ParticipantTypes = AppEvent.ParseParticipantTypes(request.Type ?? existingEvent.Type, request.ParticipantTypes);
         }
 
         await _eventRepository.UpdateAsync(existingEvent, cancellationToken);

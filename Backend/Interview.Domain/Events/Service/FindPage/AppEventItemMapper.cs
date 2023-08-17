@@ -9,7 +9,8 @@ namespace Interview.Domain.Events.Service.FindPage
             {
                 Id = e.Id,
                 Type = e.Type,
-                Roles = e.Roles.Select(e => e.Name.EnumValue).ToList(),
+                Roles = e.Roles!.Select(e => e.Name.EnumValue).ToList(),
+                ParticipantTypes = e.ParticipantTypes == null ? new List<string>() : e.ParticipantTypes.Select(e => e.Name).ToList(),
             })
         {
         }
