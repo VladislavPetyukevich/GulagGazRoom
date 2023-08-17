@@ -1,0 +1,11 @@
+﻿{
+  "InitialEvents": [
+    {
+      "Type": "CodeEditor",
+      "Roles": [
+        "User",
+        "Admin"
+      ]
+    }
+  ]
+}

@@ -50,7 +50,7 @@ public class AppDbContext : DbContext
 
     public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
 
-    public DbSet<AppEvent> Events { get; private set; } = null!;
+    public DbSet<AppEvent> AppEvent { get; private set; } = null!;
 
     public override int SaveChanges()
     {

@@ -1,6 +1,6 @@
 using System.Reflection;
 using Interview.Backend;
-
+using Interview.Backend.AppEvents;
 using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("oauth.json", true);
+builder.Configuration.AddJsonFile("events.json", true);
 builder.Configuration.AddEnvironmentVariables("INTERVIEW_BACKEND_");
 
 // Add services to the container.
@@ -39,6 +40,9 @@ using (var serviceScope = app.Services.CreateScope())
         });
         appDbContext.SaveChanges();
     }
+
+    var applier = new EventApplier(app.Configuration);
+    await applier.ApplyEventsAsync(appDbContext, CancellationToken.None);
 }
 
 var middlewareConfigurator = new MiddlewareConfigurator(app);
