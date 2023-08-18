@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using Interview.Domain.Errors;
 using Interview.Domain.RoomParticipants.Records;
 using Interview.Domain.RoomParticipants.Records.Request;
 using Interview.Domain.RoomParticipants.Records.Response;

@@ -1,3 +1,5 @@
+using Interview.Domain.Users.Roles;
+
 namespace Interview.Domain.Users;
 
 public interface ICurrentUserAccessor
@@ -6,20 +8,15 @@ public interface ICurrentUserAccessor
 
     User? UserDetailed { get; }
 
-    Guid GetUserIdOrThrow()
+    bool HasId(Guid? id)
     {
-        return UserId ?? throw new InvalidOperationException("Unable to find current user.");
+        return UserId == id;
     }
 
-    bool HasUserId()
-    {
-        return UserId is not null && UserId != Guid.Empty;
-    }
+    bool HasRole(RoleName roleName) =>
+        UserDetailed is not null && UserDetailed.Roles.Exists(it => it.Name == roleName);
 
-    User GetUserDetailOrThrow()
-    {
-        return UserDetailed ?? throw new InvalidOperationException("Unable to find current user.");
-    }
+    bool IsAdmin() => HasRole(RoleName.Admin);
 }
 
 public interface IEditableCurrentUserAccessor : ICurrentUserAccessor

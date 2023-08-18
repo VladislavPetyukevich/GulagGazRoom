@@ -74,6 +74,9 @@ public static class ServiceCollectionExt
         self.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
         self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
 
+        self.AddScoped<IEntityModifyPreProcessor, AccessEntityModifyPreProcessor>();
+        self.AddScoped<IEntityAdditionPreProcessor, OwnerAdditionEntityPreProcessor>();
+
         return self;
     }
 }

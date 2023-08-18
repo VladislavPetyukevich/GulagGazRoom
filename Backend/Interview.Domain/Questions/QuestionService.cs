@@ -72,7 +72,14 @@ public class QuestionService
 
         entity.Value = request.Value;
 
-        await _questionRepository.UpdateAsync(entity, cancellationToken);
+        try
+        {
+            await _questionRepository.UpdateAsync(entity, cancellationToken);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return ServiceError.Forbidden("No access rights to edit the record");
+        }
 
         return ServiceResult.Ok(new QuestionItem { Id = entity.Id, Value = entity.Value, });
     }

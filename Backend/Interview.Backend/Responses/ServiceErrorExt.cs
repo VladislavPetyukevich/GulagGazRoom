@@ -16,10 +16,17 @@ namespace Interview.Backend.Responses
                 appError => new BadRequestObjectResult(new MessageResponse
                 {
                     Message = appError.Message,
+                    Code = 400,
                 }),
                 notFoundError => new NotFoundObjectResult(new MessageResponse
                 {
                     Message = notFoundError.Message,
+                    Code = 404,
+                }),
+                forbiddenError => new ForbiddenObjectResult(new MessageResponse
+                {
+                    Message = forbiddenError.Message,
+                    Code = 403,
                 }));
         }
     }

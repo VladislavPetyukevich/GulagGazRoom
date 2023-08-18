@@ -31,7 +31,11 @@ namespace Interview.Backend.Errors
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             await context.Response.WriteAsJsonAsync(
-                new MessageResponse { Message = "Internal Server Error.", },
+                new MessageResponse
+                {
+                    Message = "Internal Server Error.",
+                    Code = 500,
+                },
                 context.RequestAborted);
         }
     }

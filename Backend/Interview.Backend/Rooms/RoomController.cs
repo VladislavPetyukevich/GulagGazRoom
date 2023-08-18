@@ -52,6 +52,7 @@ public class RoomController : ControllerBase
         return room is null ? NotFound(new MessageResponse
         {
             Message = $"Not found room by id {id}",
+            Code = 404,
         }) : Ok(room);
     }
 

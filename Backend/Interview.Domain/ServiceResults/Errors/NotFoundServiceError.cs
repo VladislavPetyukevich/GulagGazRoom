@@ -9,6 +9,6 @@ public sealed class NotFoundServiceError : ServiceError
     {
     }
 
-    public override TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError)
+    public override TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError, Func<ForbiddenError, TRes> forbiddenError)
         => notFoundError(this);
 }

@@ -1,4 +1,5 @@
 using Interview.Domain.Users;
+using Interview.Domain.Users.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,26 +24,30 @@ public class UserAccessorDbContextInterceptor : IPooledDbContextInterceptor<AppD
 
     public void OnCreate(AppDbContext dbContext)
     {
-        dbContext.LazyCurrentUserAccessor = new LazyCurrentUserAccessor(_serviceProvider);
+        dbContext.LazyPreProcessors = new LazyPreProcessors(_serviceProvider);
     }
 
     public void OnReturn(AppDbContext dbContext)
     {
-        dbContext.LazyCurrentUserAccessor = null!;
+        dbContext.LazyPreProcessors = null!;
     }
 }
 
-public sealed class LazyCurrentUserAccessor : ICurrentUserAccessor
+public sealed class LazyPreProcessors
 {
-    private readonly Lazy<ICurrentUserAccessor> _root;
+    private readonly Lazy<List<IEntityAdditionPreProcessor>> _addPreProcessors;
 
-    public LazyCurrentUserAccessor(IServiceProvider serviceProvider)
+    private readonly Lazy<List<IEntityModifyPreProcessor>> _modifyPreProcessors;
+
+    public LazyPreProcessors(IServiceProvider serviceProvider)
     {
-        _root = new Lazy<ICurrentUserAccessor>(
-            () => serviceProvider.GetRequiredService<ICurrentUserAccessor>());
+        _addPreProcessors = new Lazy<List<IEntityAdditionPreProcessor>>(
+            () => serviceProvider.GetServices<IEntityAdditionPreProcessor>().ToList());
+        _modifyPreProcessors = new Lazy<List<IEntityModifyPreProcessor>>(
+            () => serviceProvider.GetServices<IEntityModifyPreProcessor>().ToList());
     }
 
-    public Guid? UserId => _root.Value.UserId;
+    public List<IEntityAdditionPreProcessor> AddPreProcessors => _addPreProcessors.Value;
 
-    public User? UserDetailed => _root.Value.UserDetailed;
+    public List<IEntityModifyPreProcessor> ModifyPreProcessors => _modifyPreProcessors.Value;
 }

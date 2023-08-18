@@ -10,7 +10,6 @@ using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using RoomConfiguration = Interview.Domain.RoomConfigurations.RoomConfiguration;
 
@@ -22,7 +21,7 @@ public class AppDbContext : DbContext
 
     public IChangeEntityProcessor[] ChangeEntityProcessors { get; set; }
 
-    public LazyCurrentUserAccessor LazyCurrentUserAccessor { get; set; }
+    public LazyPreProcessors LazyPreProcessors { get; set; }
 
     public AppDbContext(DbContextOptions options, IEnumerable<IChangeEntityProcessor>? processors)
         : base(options)
@@ -82,29 +81,39 @@ public class AppDbContext : DbContext
         {
             _db = db;
             _cancellationToken = cancellationToken;
+
+            var addPreProcessors = db.LazyPreProcessors.AddPreProcessors;
+
             foreach (var entity in FilterByState(EntityState.Added))
             {
                 entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
-                entity.CreatedById = db.LazyCurrentUserAccessor?.UserId;
+
+                addPreProcessors.ForEach(preProcessor => preProcessor.Notify(entity));
             }
+
+            var modifyPreProcessors = db.LazyPreProcessors.ModifyPreProcessors;
 
             foreach (var entity in FilterByState(EntityState.Modified))
             {
                 entity.UpdateUpdateDate(db.SystemClock.UtcNow.DateTime);
+
+                modifyPreProcessors.ForEach(preProcessor => preProcessor.Notify(entity));
             }
 
-            if (db.ChangeEntityProcessors.Length > 0)
+            if (db.ChangeEntityProcessors.Length <= 0)
             {
-                _addedEntities = FilterByState(EntityState.Added).ToList();
-
-                _modifiedEntities = FilterEntryByState(EntityState.Modified)
-                    .Select(e =>
-                    {
-                        var original = (Entity)e.OriginalValues.ToObject();
-                        return (original, e.Entity);
-                    })
-                    .ToList();
+                return;
             }
+
+            _addedEntities = FilterByState(EntityState.Added).ToList();
+
+            _modifiedEntities = FilterEntryByState(EntityState.Modified)
+                .Select(e =>
+                {
+                    var original = (Entity)e.OriginalValues.ToObject();
+                    return (original, e.Entity);
+                })
+                .ToList();
         }
 
         public void Dispose()

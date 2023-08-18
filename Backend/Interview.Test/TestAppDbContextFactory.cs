@@ -25,7 +25,7 @@ public class TestAppDbContextFactory
         var context = new AppDbContext(option.Options, Array.Empty<IChangeEntityProcessor>())
         {
             SystemClock = clock,
-            LazyCurrentUserAccessor = new LazyCurrentUserAccessor(serviceCollection.BuildServiceProvider())
+            LazyPreProcessors = new LazyPreProcessors(serviceCollection.BuildServiceProvider())
         };
         context.Database.EnsureCreated();
         return context;
