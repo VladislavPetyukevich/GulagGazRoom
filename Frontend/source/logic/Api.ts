@@ -118,7 +118,7 @@ export class Api {
 
   getParticipant(roomId: string, userId: string) {
     return new Promise<Participant | void>((resolve, reject) => {
-      fetch(`${this.url}/GetParticipant?RoomId=${roomId}&UserId=${userId}`)
+      fetch(`${this.url}/room-participants?RoomId=${roomId}&UserId=${userId}`)
         .then((response) => {
           if (!response.ok) {
             return reject(new Error('Failed to get participant'));
