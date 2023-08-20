@@ -7,4 +7,6 @@ public class QuestionItem
     public Guid Id { get; init; }
 
     public string Value { get; init; } = string.Empty;
+
+    public required List<string> Tags { get; init; }
 }

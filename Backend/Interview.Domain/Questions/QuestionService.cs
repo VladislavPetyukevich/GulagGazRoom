@@ -16,14 +16,75 @@ public class QuestionService
 
     private readonly ArchiveService<Question> _archiveService;
 
+    private readonly IQuestionTagRepository _questionTagRepository;
+
     public QuestionService(
         IQuestionRepository questionRepository,
         IQuestionNonArchiveRepository questionNonArchiveRepository,
-        ArchiveService<Question> archiveService)
+        ArchiveService<Question> archiveService,
+        IQuestionTagRepository questionTagRepository)
     {
         _questionRepository = questionRepository;
         _questionNonArchiveRepository = questionNonArchiveRepository;
         _archiveService = archiveService;
+        _questionTagRepository = questionTagRepository;
+    }
+
+    public Task<IPagedList<QuestionTagItem>> FindTagsPageAsync(
+        string? value, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    {
+        value = value?.Trim();
+        var mapper =
+            new Mapper<QuestionTag, QuestionTagItem>(
+                question => new QuestionTagItem { Id = question.Id, Value = question.Value, });
+        var specification = !string.IsNullOrWhiteSpace(value) ?
+            new Spec<QuestionTag>(spec => spec.Value.Contains(value)) :
+            Spec<QuestionTag>.Any;
+        return _questionTagRepository.GetPageAsync(specification, mapper, pageNumber, pageSize, cancellationToken);
+    }
+
+    public async Task<Result<ServiceResult<QuestionTagItem>, ServiceError>> CreateTagAsync(QuestionTagEditRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Value))
+        {
+            return ServiceError.Error("Tag should not be empty");
+        }
+
+        request.Value = request.Value.Trim();
+        var hasTag = await _questionTagRepository.HasAsync(new Spec<QuestionTag>(e => e.Value == request.Value), cancellationToken);
+        if (hasTag)
+        {
+            return ServiceError.Error($"Already exists tag '{request.Value}'");
+        }
+
+        var tag = new QuestionTag { Value = request.Value, };
+        await _questionTagRepository.CreateAsync(tag, cancellationToken);
+        return ServiceResult.Created(new QuestionTagItem { Id = tag.Id, Value = request.Value, });
+    }
+
+    public async Task<Result<ServiceResult<QuestionTagItem>, ServiceError>> UpdateTagAsync(Guid id, QuestionTagEditRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Value))
+        {
+            return ServiceError.Error("Tag should not be empty");
+        }
+
+        request.Value = request.Value.Trim();
+        var hasTag = await _questionTagRepository.HasAsync(new Spec<QuestionTag>(e => e.Value == request.Value), cancellationToken);
+        if (hasTag)
+        {
+            return ServiceError.Error($"Already exists tag '{request.Value}'");
+        }
+
+        var tag = await _questionTagRepository.FindByIdAsync(id, cancellationToken);
+        if (tag is null)
+        {
+            return ServiceError.NotFound($"Not found tag by id '{id}'");
+        }
+
+        tag.Value = request.Value;
+        await _questionTagRepository.UpdateAsync(tag, cancellationToken);
+        return ServiceResult.Ok(new QuestionTagItem { Id = tag.Id, Value = request.Value, });
     }
 
     public Task<IPagedList<QuestionItem>> FindPageAsync(
@@ -31,7 +92,7 @@ public class QuestionService
     {
         var mapper =
             new Mapper<Question, QuestionItem>(
-                question => new QuestionItem { Id = question.Id, Value = question.Value });
+                question => new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
         return _questionNonArchiveRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
     }
 
@@ -42,6 +103,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
+            Tags = question.Tags.Select(e => e.Value).ToList(),
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
@@ -53,11 +115,21 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
-        var result = new Question(request.Value);
+        var tags = await _questionTagRepository.FindByIdsAsync(request.Tags, cancellationToken);
+        var notFoundTags = string.Join(",", request.Tags.Except(tags.Select(e => e.Id)));
+        if (!string.IsNullOrWhiteSpace(notFoundTags))
+        {
+            return ServiceError.NotFound($"Not found tags: [{notFoundTags}]");
+        }
+
+        var result = new Question(request.Value)
+        {
+            Tags = tags,
+        };
 
         await _questionRepository.CreateAsync(result, cancellationToken);
 
-        return ServiceResult.Created(new QuestionItem { Id = result.Id, Value = result.Value, });
+        return ServiceResult.Created(new QuestionItem { Id = result.Id, Value = result.Value, Tags = result.Tags.Select(e => e.Value).ToList(), });
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
@@ -70,11 +142,20 @@ public class QuestionService
             return ServiceError.NotFound($"Question not found with id={id}");
         }
 
+        var tags = await _questionTagRepository.FindByIdsAsync(request.Tags, cancellationToken);
+        var notFoundTags = string.Join(",", request.Tags.Except(tags.Select(e => e.Id)));
+        if (!string.IsNullOrWhiteSpace(notFoundTags))
+        {
+            return ServiceError.NotFound($"Not found tags: [{notFoundTags}]");
+        }
+
         entity.Value = request.Value;
+        entity.Tags.Clear();
+        entity.Tags.AddRange(tags);
 
         await _questionRepository.UpdateAsync(entity, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem { Id = entity.Id, Value = entity.Value, });
+        return ServiceResult.Ok(new QuestionItem { Id = entity.Id, Value = entity.Value, Tags = entity.Tags.Select(e => e.Value).ToList(), });
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
@@ -87,7 +168,7 @@ public class QuestionService
             return ServiceError.NotFound($"Not found question with id [{id}]");
         }
 
-        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value });
+        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
     }
 
     /// <summary>
@@ -108,14 +189,14 @@ public class QuestionService
 
         await _questionRepository.DeletePermanentlyAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, });
+        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
     }
 
     public Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         return _archiveService.ArchiveAsync(id, cancellationToken)
-            .Map(q => ServiceResult.Ok(new QuestionItem { Id = q.Value.Id, Value = q.Value.Value, }));
+            .Map(q => ServiceResult.Ok(new QuestionItem { Id = q.Value.Id, Value = q.Value.Value, Tags = q.Value.Tags.Select(e => e.Value).ToList(), }));
     }
 
     public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
@@ -123,6 +204,6 @@ public class QuestionService
     {
         return _archiveService.UnarchiveAsync(id, cancellationToken)
             .Map(question =>
-                ServiceResult.Ok(new QuestionItem { Id = question.Value.Id, Value = question.Value.Value, }));
+                ServiceResult.Ok(new QuestionItem { Id = question.Value.Id, Value = question.Value.Value, Tags = question.Value.Tags.Select(e => e.Value).ToList(), }));
     }
 }

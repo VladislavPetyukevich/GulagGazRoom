@@ -30,7 +30,8 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
         var archiveService = new ArchiveService<Question>(questionRepository);
-        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService);
+        var tagRepository = new QuestionTagRepository(appDbContext);
+        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
         var foundQuestion = await questionService.FindByIdAsync(question.Id);
 
@@ -48,7 +49,8 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
         var archiveService = new ArchiveService<Question>(questionRepository);
-        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService);
+        var tagRepository = new QuestionTagRepository(appDbContext);
+        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
         var foundQuestion = await questionService.FindByIdAsync(Guid.NewGuid());
 
@@ -98,7 +100,8 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
         var archiveService = new ArchiveService<Question>(questionRepository);
-        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService);
+        var tagRepository = new QuestionTagRepository(appDbContext);
+        var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
         var result = await questionService.DeletePermanentlyAsync(question.Id);
 

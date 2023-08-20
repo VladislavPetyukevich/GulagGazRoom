@@ -48,6 +48,8 @@ public class AppDbContext : DbContext
 
     public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
 
+    public DbSet<QuestionTag> QuestionTag { get; private set; } = null!;
+
     public override int SaveChanges()
     {
         using (new SaveCookie(this, CancellationToken.None))

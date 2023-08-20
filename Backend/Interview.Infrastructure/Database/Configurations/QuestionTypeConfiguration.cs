@@ -10,5 +10,8 @@ public class QuestionTypeConfiguration : EntityTypeConfigurationBase<Question>
     {
         builder.Property(question => question.Value).IsRequired().HasMaxLength(128);
         builder.Property(question => question.IsArchived).IsRequired().HasDefaultValue(false);
+        builder
+            .HasMany(e => e.Tags)
+            .WithMany();
     }
 }

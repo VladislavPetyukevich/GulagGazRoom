@@ -37,6 +37,62 @@ public class QuestionController : ControllerBase
     }
 
     /// <summary>
+    /// Getting a available tags page.
+    /// </summary>
+    /// <param name="value">Tag value.</param>
+    /// <param name="request">Page Parameters.</param>
+    /// <returns>A page of questions with metadata about the pages.</returns>
+    [Authorize]
+    [HttpGet("tag")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(IPagedList<QuestionTagItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<IPagedList<QuestionTagItem>> GetTagPage([FromQuery] string? value, [FromQuery] PageRequest request)
+    {
+        return _questionService.FindTagsPageAsync(value, request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+    }
+
+    /// <summary>
+    /// Creating a new tag.
+    /// </summary>
+    /// <param name="request">Tag edit request.</param>
+    /// <returns>The object of the new question.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPost("tag")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(QuestionTagItem), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionTagItem>> CreateTag(QuestionTagEditRequest request)
+    {
+        return _questionService.CreateTagAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
+    /// Updating the tag by ID.
+    /// </summary>
+    /// <param name="id">ID of the of tag.</param>
+    /// <param name="request">The object with the tag data for which you need to update.</param>
+    /// <returns>Updated question object.</returns>
+    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [HttpPut("tag/{id:guid}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(QuestionTagItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public Task<ActionResult<QuestionTagItem>> UpdateTag(Guid id, QuestionTagEditRequest request)
+    {
+        return _questionService.UpdateTagAsync(id, request, HttpContext.RequestAborted).ToResponseAsync();
+    }
+
+    /// <summary>
     /// Getting a list of archived questions.
     /// </summary>
     /// <param name="pageRequest">Page params.</param>
