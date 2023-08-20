@@ -22,6 +22,7 @@ public class QuestionController : ControllerBase
     /// <summary>
     /// Getting a Question page.
     /// </summary>
+    /// <param name="tags">Search for questions by tag.</param>
     /// <param name="request">Page Parameters.</param>
     /// <returns>A page of questions with metadata about the pages.</returns>
     [Authorize]
@@ -31,9 +32,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<IPagedList<QuestionItem>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<QuestionItem>> GetPage([FromQuery] HashSet<Guid> tags, [FromQuery] PageRequest request)
     {
-        return _questionService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+        return _questionService.FindPageAsync(tags, request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
     /// <summary>

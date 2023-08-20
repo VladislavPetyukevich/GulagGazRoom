@@ -88,12 +88,15 @@ public class QuestionService
     }
 
     public Task<IPagedList<QuestionItem>> FindPageAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken)
+        HashSet<Guid> tags, int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
         var mapper =
             new Mapper<Question, QuestionItem>(
                 question => new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
-        return _questionNonArchiveRepository.GetPageDetailedAsync(mapper, pageNumber, pageSize, cancellationToken);
+        var spec = tags.Count == 0
+            ? Spec.Any<Question>()
+            : new Spec<Question>(e => e.Tags.Any(e => tags.Contains(e.Id)));
+        return _questionNonArchiveRepository.GetPageDetailedAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
     }
 
     public Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
