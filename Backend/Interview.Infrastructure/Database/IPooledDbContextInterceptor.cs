@@ -1,3 +1,4 @@
+using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Microsoft.EntityFrameworkCore;
@@ -24,30 +25,30 @@ public class UserAccessorDbContextInterceptor : IPooledDbContextInterceptor<AppD
 
     public void OnCreate(AppDbContext dbContext)
     {
-        dbContext.LazyPreProcessors = new LazyPreProcessors(_serviceProvider);
+        dbContext.Processors = new LazyPreProcessors(_serviceProvider);
     }
 
     public void OnReturn(AppDbContext dbContext)
     {
-        dbContext.LazyPreProcessors = null!;
+        dbContext.Processors = null!;
     }
 }
 
 public sealed class LazyPreProcessors
 {
-    private readonly Lazy<List<IEntityAdditionPreProcessor>> _addPreProcessors;
+    private readonly Lazy<List<IEntityPreProcessor>> _preProcessors;
 
-    private readonly Lazy<List<IEntityModifyPreProcessor>> _modifyPreProcessors;
+    private readonly Lazy<List<IEntityPostProcessor>> _postProcessors;
 
     public LazyPreProcessors(IServiceProvider serviceProvider)
     {
-        _addPreProcessors = new Lazy<List<IEntityAdditionPreProcessor>>(
-            () => serviceProvider.GetServices<IEntityAdditionPreProcessor>().ToList());
-        _modifyPreProcessors = new Lazy<List<IEntityModifyPreProcessor>>(
-            () => serviceProvider.GetServices<IEntityModifyPreProcessor>().ToList());
+        _preProcessors = new Lazy<List<IEntityPreProcessor>>(
+            () => serviceProvider.GetServices<IEntityPreProcessor>().ToList());
+        _postProcessors = new Lazy<List<IEntityPostProcessor>>(
+            () => serviceProvider.GetServices<IEntityPostProcessor>().ToList());
     }
 
-    public List<IEntityAdditionPreProcessor> AddPreProcessors => _addPreProcessors.Value;
+    public List<IEntityPreProcessor> PreProcessors => _preProcessors.Value;
 
-    public List<IEntityModifyPreProcessor> ModifyPreProcessors => _modifyPreProcessors.Value;
+    public List<IEntityPostProcessor> PostProcessors => _postProcessors.Value;
 }

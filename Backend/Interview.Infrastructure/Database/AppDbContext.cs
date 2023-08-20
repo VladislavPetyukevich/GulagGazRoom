@@ -19,14 +19,11 @@ public class AppDbContext : DbContext
 {
     public ISystemClock SystemClock { get; set; } = new SystemClock();
 
-    public IChangeEntityProcessor[] ChangeEntityProcessors { get; set; }
+    public LazyPreProcessors Processors { get; set; } = null!;
 
-    public LazyPreProcessors LazyPreProcessors { get; set; }
-
-    public AppDbContext(DbContextOptions options, IEnumerable<IChangeEntityProcessor>? processors)
+    public AppDbContext(DbContextOptions options)
         : base(options)
     {
-        ChangeEntityProcessors = processors?.ToArray() ?? Array.Empty<IChangeEntityProcessor>();
     }
 
     public DbSet<User> Users { get; private set; } = null!;
@@ -49,8 +46,9 @@ public class AppDbContext : DbContext
 
     public override int SaveChanges()
     {
-        using (new SaveCookie(this, CancellationToken.None))
+        using (var saveCookie = new SaveCookie(this, CancellationToken.None))
         {
+            saveCookie.NotifyPreProcessors();
             return base.SaveChanges();
         }
     }
@@ -59,8 +57,9 @@ public class AppDbContext : DbContext
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
-        await using (new SaveCookie(this, cancellationToken))
+        await using (var saveCookie = new SaveCookie(this, cancellationToken))
         {
+            await saveCookie.NotifyPreProcessorsAsync();
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }
@@ -77,36 +76,18 @@ public class AppDbContext : DbContext
         private readonly List<Entity>? _addedEntities;
         private readonly List<(Entity Original, Entity Current)>? _modifiedEntities;
 
+        private readonly List<IEntityPreProcessor> _preProcessors;
+        private readonly List<IEntityPostProcessor> _postProcessors;
+
         public SaveCookie(AppDbContext db, CancellationToken cancellationToken)
         {
             _db = db;
             _cancellationToken = cancellationToken;
 
-            var addPreProcessors = db.LazyPreProcessors.AddPreProcessors;
-
-            foreach (var entity in FilterByState(EntityState.Added))
-            {
-                entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
-
-                addPreProcessors.ForEach(preProcessor => preProcessor.Notify(entity));
-            }
-
-            var modifyPreProcessors = db.LazyPreProcessors.ModifyPreProcessors;
-
-            foreach (var entity in FilterByState(EntityState.Modified))
-            {
-                entity.UpdateUpdateDate(db.SystemClock.UtcNow.DateTime);
-
-                modifyPreProcessors.ForEach(preProcessor => preProcessor.Notify(entity));
-            }
-
-            if (db.ChangeEntityProcessors.Length <= 0)
-            {
-                return;
-            }
+            _preProcessors = _db.Processors.PreProcessors;
+            _postProcessors = _db.Processors.PostProcessors;
 
             _addedEntities = FilterByState(EntityState.Added).ToList();
-
             _modifiedEntities = FilterEntryByState(EntityState.Modified)
                 .Select(e =>
                 {
@@ -116,14 +97,56 @@ public class AppDbContext : DbContext
                 .ToList();
         }
 
-        public void Dispose()
+        public void NotifyPreProcessors()
         {
-            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
+            if (_preProcessors.Count == 0 || (_addedEntities == null && _modifiedEntities == null))
             {
                 return;
             }
 
-            foreach (var processor in _db.ChangeEntityProcessors)
+            foreach (var preProcessor in _preProcessors)
+            {
+                preProcessor.ProcessAddedAsync(Array.AsReadOnly<>(_addedEntities), _cancellationToken)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+
+                preProcessor.ProcessModifiedAsync(Array.AsReadOnly<>(_modifiedEntities), _cancellationToken)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+            }
+        }
+
+        public async ValueTask NotifyPreProcessorsAsync()
+        {
+            if (_preProcessors.Count == 0 || (_addedEntities == null && _modifiedEntities == null))
+            {
+                return;
+            }
+
+            foreach (var preProcessor in _preProcessors)
+            {
+                if (_addedEntities != null)
+                {
+                    await preProcessor.ProcessAddedAsync(_addedEntities, _cancellationToken);
+                }
+
+                if (_modifiedEntities != null)
+                {
+                    await preProcessor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_postProcessors.Count == 0 || _addedEntities == null || _modifiedEntities == null)
+            {
+                return;
+            }
+
+            foreach (var processor in _postProcessors)
             {
                 processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
                     .GetResult();
@@ -134,12 +157,12 @@ public class AppDbContext : DbContext
 
         public async ValueTask DisposeAsync()
         {
-            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
+            if (_postProcessors.Count == 0 || _addedEntities == null || _modifiedEntities == null)
             {
                 return;
             }
 
-            foreach (var processor in _db.ChangeEntityProcessors)
+            foreach (var processor in _postProcessors)
             {
                 await processor.ProcessAddedAsync(_addedEntities, _cancellationToken);
                 await processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);

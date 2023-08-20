@@ -6,7 +6,7 @@ using Interview.Domain.Rooms;
 
 namespace Interview.Domain.Events.ChangeEntityProcessors
 {
-    public class RoomChangeEntityProcessor : IChangeEntityProcessor
+    public class RoomChangeEntityProcessor : IEntityPostProcessor
     {
         private readonly IRoomEventDispatcher _eventDispatcher;
 
