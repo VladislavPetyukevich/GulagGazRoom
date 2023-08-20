@@ -1,6 +1,6 @@
 using Interview.Domain.Events.ChangeEntityProcessors;
-using Interview.Domain.Users;
 using Interview.Infrastructure.Database;
+using Interview.Infrastructure.Database.Processors;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,13 +20,13 @@ public class TestAppDbContextFactory
         );
 
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddScoped<ICurrentUserAccessor, CurrentUserAccessor>();
 
-        var context = new AppDbContext(option.Options, Array.Empty<IChangeEntityProcessor>())
+        var context = new AppDbContext(option.Options)
         {
             SystemClock = clock,
-            LazyPreProcessors = new LazyPreProcessors(serviceCollection.BuildServiceProvider())
+            Processors = new LazyPreProcessors(serviceCollection.BuildServiceProvider())
         };
+
         context.Database.EnsureCreated();
         return context;
     }

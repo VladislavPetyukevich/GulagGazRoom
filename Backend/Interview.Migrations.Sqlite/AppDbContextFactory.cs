@@ -12,7 +12,7 @@ namespace Interview.Migrations.Sqlite
         {
             var builder = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlite("Data Source=app.db", b => b.MigrationsAssembly(typeof(AppDbContextFactory).Assembly.FullName));
-            return new AppDbContext(builder.Options, Array.Empty<IChangeEntityProcessor>());
+            return new AppDbContext(builder.Options);
         }
     }
 }

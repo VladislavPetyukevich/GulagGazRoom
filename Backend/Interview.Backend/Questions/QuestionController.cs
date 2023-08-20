@@ -96,7 +96,7 @@ public class QuestionController : ControllerBase
     /// <param name="id">ID of the of question.</param>
     /// <param name="request">The object with the question data for which you need to update.</param>
     /// <returns>Updated question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: GulagSecurePolicy.User)]
     [HttpPut("{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]

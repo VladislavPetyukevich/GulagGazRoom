@@ -50,7 +50,7 @@ public class UserServiceTest
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
 
         var expectedUser = new User(entity.Id, user.Nickname, user.TwitchIdentity);
-        expectedUser.UpdateCreateDate(clock.UtcNow.DateTime);
+        expectedUser.UpdateCreateDate(user.CreateDate);
         expectedUser.Roles.AddRange(entity.Roles);
         upsertUser.Should().BeEquivalentTo(expectedUser);
     }

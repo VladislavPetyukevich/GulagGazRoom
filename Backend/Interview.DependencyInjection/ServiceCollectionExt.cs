@@ -16,6 +16,7 @@ using Interview.Domain.Users;
 using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
+using Interview.Infrastructure.Database.Processors;
 using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,11 +41,11 @@ public static class ServiceCollectionExt
         self.AddSingleton<ISystemClock, SystemClock>();
         self.AddSingleton(option.AdminUsers);
 
-        self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomQuestionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomConfigurationChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomChangeEntityProcessor>();
+        self.AddSingleton<IEntityPostProcessor, RoomQuestionReactionChangeEntityProcessor>();
+        self.AddSingleton<IEntityPostProcessor, QuestionChangeEntityProcessor>();
+        self.AddSingleton<IEntityPostProcessor, RoomQuestionChangeEntityProcessor>();
+        self.AddSingleton<IEntityPostProcessor, RoomConfigurationChangeEntityProcessor>();
+        self.AddSingleton<IEntityPostProcessor, RoomChangeEntityProcessor>();
 
         self.AddSingleton<IConnectUserSource, ConnectUserSource>();
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
@@ -74,8 +75,8 @@ public static class ServiceCollectionExt
         self.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
         self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
 
-        self.AddScoped<IEntityModifyPreProcessor, AccessEntityModifyPreProcessor>();
-        self.AddScoped<IEntityAdditionPreProcessor, OwnerAdditionEntityPreProcessor>();
+        self.AddScoped<IEntityPreProcessor, DateEntityPreProcessor>();
+        self.AddScoped<IEntityPreProcessor, AccessEntityActionPreProcessor>();
 
         return self;
     }

@@ -106,15 +106,21 @@ public class AppDbContext : DbContext
 
             foreach (var preProcessor in _preProcessors)
             {
-                preProcessor.ProcessAddedAsync(Array.AsReadOnly<>(_addedEntities), _cancellationToken)
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                if (_addedEntities != null)
+                {
+                    preProcessor.ProcessAddedAsync(_addedEntities, _cancellationToken)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
+                }
 
-                preProcessor.ProcessModifiedAsync(Array.AsReadOnly<>(_modifiedEntities), _cancellationToken)
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                if (_modifiedEntities != null)
+                {
+                    preProcessor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
+                }
             }
         }
 

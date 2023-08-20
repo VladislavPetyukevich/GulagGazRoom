@@ -3,6 +3,7 @@ using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
+using Interview.Infrastructure;
 using NSpecifications;
 using X.PagedList;
 
@@ -76,9 +77,9 @@ public class QuestionService
         {
             await _questionRepository.UpdateAsync(entity, cancellationToken);
         }
-        catch (UnauthorizedAccessException e)
+        catch (PermissionDinedException e)
         {
-            return ServiceError.Forbidden("No access rights to edit the record");
+            return ServiceError.Forbidden(e.Message);
         }
 
         return ServiceResult.Ok(new QuestionItem { Id = entity.Id, Value = entity.Value, });

@@ -21,7 +21,7 @@ public abstract class AbstractRepositoryTest<T, TRepository>
 
     protected AbstractRepositoryTest()
     {
-        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options, Enumerable.Empty<IChangeEntityProcessor>());
+        _databaseContext = new Mock<AppDbContext>(new DbContextOptionsBuilder().Options);
 
         _databaseSet = new Mock<DbSet<T>>();
 
