@@ -1,18 +1,18 @@
 using Interview.Domain.Repository;
+using Interview.Domain.RoomParticipants;
 
-namespace Interview.Domain.Events.Service.FindPage
+namespace Interview.Domain.Events.Service.FindPage;
+
+public sealed class AppEventItemParticipantTypeMapper : Mapper<AppEvent, AppEventItemParticipantType>
 {
-    public sealed class AppEventItemMapper : Mapper<AppEvent, AppEventItem>
-    {
-        public AppEventItemMapper()
-            : base(e => new AppEventItem
-            {
-                Id = e.Id,
-                Type = e.Type,
-                Roles = e.Roles!.Select(e => e.Name.EnumValue).ToList(),
-                ParticipantTypes = e.ParticipantTypes == null ? new List<string>() : e.ParticipantTypes.Select(e => e.Name).ToList(),
-            })
+    public AppEventItemParticipantTypeMapper()
+        : base(e => new AppEventItemParticipantType
         {
-        }
+            Id = e.Id,
+            Type = e.Type,
+            Roles = e.Roles!.Select(e => e.Name.EnumValue).ToList(),
+            ParticipantTypes = e.ParticipantTypes ?? new List<RoomParticipantType>(),
+        })
+    {
     }
 }

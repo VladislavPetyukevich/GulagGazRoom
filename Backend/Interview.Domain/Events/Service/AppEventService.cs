@@ -21,20 +21,23 @@ public class AppEventService
         _roleRepository = roleRepository;
     }
 
-    public Task<IPagedList<AppEventItem>> FindPageAsync(
+    public async Task<IPagedList<AppEventItem>> FindPageAsync(
         int pageNumber, int pageSize, CancellationToken cancellationToken)
     {
-        return _eventRepository.GetPageDetailedAsync(new AppEventItemMapper(), pageNumber, pageSize, cancellationToken);
+        var res = await _eventRepository.GetPageDetailedAsync(new AppEventItemParticipantTypeMapper(), pageNumber, pageSize, cancellationToken);
+        return new StaticPagedList<AppEventItem>(res.Select(e => e.ToAppEventItem()), res);
     }
 
-    public Task<AppEventItem?> FindByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<AppEventItem?> FindByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return _eventRepository.FindByIdDetailedAsync(id, new AppEventItemMapper(), cancellationToken);
+        var res = await _eventRepository.FindByIdDetailedAsync(id, new AppEventItemParticipantTypeMapper(), cancellationToken);
+        return res?.ToAppEventItem();
     }
 
-    public Task<AppEventItem?> FindByTypeAsync(string type, CancellationToken cancellationToken)
+    public async Task<AppEventItem?> FindByTypeAsync(string type, CancellationToken cancellationToken)
     {
-        return _eventRepository.FindFirstOrDefaultDetailedAsync(new Spec<AppEvent>(e => e.Type == type), new AppEventItemMapper(), cancellationToken);
+        var res = await _eventRepository.FindFirstOrDefaultDetailedAsync(new Spec<AppEvent>(e => e.Type == type), new AppEventItemParticipantTypeMapper(), cancellationToken);
+        return res?.ToAppEventItem();
     }
 
     public async Task<Result<ServiceResult<Guid>, ServiceError>> CreateAsync(
@@ -78,10 +81,10 @@ public class AppEventService
             return ServiceError.NotFound($"Not found event by id {id}");
         }
 
-        var mapper = new AppEventItemMapper();
+        var mapper = new AppEventItemParticipantTypeMapper();
         if (string.IsNullOrWhiteSpace(request.Type) && (request.Roles is null || request.Roles.Count == 0))
         {
-            return ServiceResult.Ok(mapper.Map(existingEvent));
+            return ServiceResult.Ok(mapper.Map(existingEvent).ToAppEventItem());
         }
 
         var type = request.Type?.Trim();
@@ -109,6 +112,6 @@ public class AppEventService
         }
 
         await _eventRepository.UpdateAsync(existingEvent, cancellationToken);
-        return ServiceResult.Ok(mapper.Map(existingEvent));
+        return ServiceResult.Ok(mapper.Map(existingEvent).ToAppEventItem());
     }
 }
