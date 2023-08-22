@@ -13,7 +13,6 @@ using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
-using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Database.Processors;
@@ -74,6 +73,8 @@ public static class ServiceCollectionExt
         self.AddScoped<IEditableCurrentUserAccessor>(provider => provider.GetRequiredService<CurrentUserAccessor>());
         self.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
         self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
+
+        self.AddScoped<ICurrentPermissionAccessor, CurrentPermissionAccessor>();
 
         self.AddScoped<IEntityPreProcessor, DateEntityPreProcessor>();
         self.AddScoped<IEntityPreProcessor, AccessEntityActionPreProcessor>();

@@ -318,6 +318,75 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Users.Permissions.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Resource")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("Type", "Resource")
+                        .IsUnique();
+
+                    b.ToTable("Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a151edb4-ea1b-401e-8294-02666c8a39f4"),
+                            CreateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Resource = "Question",
+                            Type = "write",
+                            UpdateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = new Guid("a8fc4913-7ddf-4a78-930f-e67af63ac436"),
+                            CreateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Resource = "Question",
+                            Type = "modify",
+                            UpdateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = new Guid("e3868093-af5c-477b-90de-95c04e857ce9"),
+                            CreateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Resource = "Reaction",
+                            Type = "write",
+                            UpdateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = new Guid("22e9e2a9-aeb2-4476-b548-dffdcbfe5d22"),
+                            CreateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Resource = "Reaction",
+                            Type = "modify",
+                            UpdateDate = new DateTime(2023, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
             modelBuilder.Entity("Interview.Domain.Users.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -394,6 +463,21 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.HasIndex("CreatedById");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("PermissionUser", b =>
+                {
+                    b.Property<Guid>("PermissionsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("PermissionsId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PermissionUser");
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -563,6 +647,15 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("CreatedBy");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Users.Permissions.Permission", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("Interview.Domain.Users.Roles.Role", b =>
                 {
                     b.HasOne("Interview.Domain.Users.User", "CreatedBy")
@@ -579,6 +672,21 @@ namespace Interview.Migrations.Postgres.Migrations
                         .HasForeignKey("CreatedById");
 
                     b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("PermissionUser", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Interview.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoleUser", b =>

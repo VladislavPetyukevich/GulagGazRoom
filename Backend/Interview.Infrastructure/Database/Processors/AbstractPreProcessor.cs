@@ -35,8 +35,8 @@ namespace Interview.Infrastructure.Database.Processors
             return ValueTask.CompletedTask;
         }
 
-        protected abstract void AddEntityHandler(Entity entity, CancellationToken cancellationToken);
+        protected abstract void AddEntityHandler(Entity entity, CancellationToken cancellationToken = default);
 
-        protected abstract void ModifyOriginalEntityHandler(Entity entity, CancellationToken cancellationToken);
+        protected abstract void ModifyOriginalEntityHandler(Entity entity, CancellationToken cancellationToken = default);
     }
 }

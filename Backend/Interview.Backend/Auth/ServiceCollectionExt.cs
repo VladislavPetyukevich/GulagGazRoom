@@ -1,6 +1,5 @@
 using Interview.Backend.Responses;
 using Interview.Backend.WebSocket.Configuration;
-using Interview.Domain.Users.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
@@ -22,7 +21,6 @@ public static class ServiceCollectionExt
                     context.Response.WriteAsJsonAsync(new MessageResponse
                     {
                         Message = "Forbidden",
-                        Code = 403,
                     });
                     return Task.CompletedTask;
                 };
@@ -32,7 +30,6 @@ public static class ServiceCollectionExt
                     context.Response.WriteAsJsonAsync(new MessageResponse
                     {
                         Message = "Unauthorized",
-                        Code = 401,
                     });
                     return Task.CompletedTask;
                 };

@@ -7,6 +7,7 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -43,6 +44,8 @@ public class AppDbContext : DbContext
     public DbSet<RoomQuestionReaction> RoomQuestionReactions { get; private set; } = null!;
 
     public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
+
+    public DbSet<Permission> Permissions { get; private set; } = null!;
 
     public override int SaveChanges()
     {

@@ -1,5 +1,6 @@
 using System.Net;
 using Interview.Backend.Responses;
+using Interview.Domain;
 
 namespace Interview.Backend.Errors;
 
@@ -25,7 +26,8 @@ public class ExceptionMiddleware
             await HandleExceptionAsync(httpContext, ex);
             if (httpContext.Response.StatusCode >= 500)
             {
-                _logger.LogError(ex, "Something went wrong: {Path} {Method}", httpContext.Request.Path, httpContext.Request.Method);
+                _logger.LogError(ex, "Something went wrong: {Path} {Method}", httpContext.Request.Path,
+                    httpContext.Request.Method);
             }
         }
     }
@@ -45,7 +47,7 @@ public class ExceptionMiddleware
                 AccessDeniedException => (HttpStatusCode.Forbidden, exception.Message),
                 NotFoundException => (HttpStatusCode.NotFound, exception.Message),
                 UserException => (HttpStatusCode.BadRequest, exception.Message),
-                _ => (HttpStatusCode.InsufficientStorage, "Internal Server Error.")
+                _ => (HttpStatusCode.InternalServerError, "Internal Server Error.")
             };
         }
     }

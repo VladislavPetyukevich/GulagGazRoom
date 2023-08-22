@@ -14,7 +14,12 @@ public sealed class CachedCurrentUserAccessor : IEditableCurrentUserAccessor
     {
         _root = root;
         _lazyUser = new Lazy<User?>(() =>
-            db.Users.AsNoTracking().Include(e => e.Roles).FirstOrDefault(e => e.Id == root.UserId));
+        {
+            return db.Users.AsNoTracking()
+                .Include(user => user.Roles)
+                .Include(user => user.Permissions)
+                .FirstOrDefault(user => user.Id == root.UserId);
+        });
     }
 
     public Guid? UserId => _root.UserId;

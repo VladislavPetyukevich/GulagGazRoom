@@ -1,3 +1,4 @@
+using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Roles;
 
 namespace Interview.Domain.Users;
@@ -17,6 +18,12 @@ public interface ICurrentUserAccessor
         UserDetailed is not null && UserDetailed.Roles.Exists(it => it.Name == roleName);
 
     bool IsAdmin() => HasRole(RoleName.Admin);
+
+    bool HasPermission(string permissionName, PermissionNameType permissionType)
+    {
+        return UserDetailed is not null &&
+            UserDetailed.Permissions.Any(it => it.Resource == permissionName && it.Type == permissionType);
+    }
 }
 
 public interface IEditableCurrentUserAccessor : ICurrentUserAccessor

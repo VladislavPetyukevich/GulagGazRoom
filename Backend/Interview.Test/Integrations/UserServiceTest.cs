@@ -2,7 +2,6 @@ using System.Runtime.Serialization;
 using FluentAssertions;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
-using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,24 +13,11 @@ public class UserServiceTest
     {
         get
         {
-            yield return new object[]
-            {
-                "Dima",
-                new AdminUsers(),
-                RoleName.User
-            };
+            yield return new object[] { "Dima", new AdminUsers(), RoleName.User };
 
             yield return new object[]
             {
-                "Dima",
-                new AdminUsers()
-                {
-                    TwitchNicknames = new []
-                    {
-                        "Dima"
-                    }
-                },
-                RoleName.Admin
+                "Dima", new AdminUsers() { TwitchNicknames = new[] { "Dima" } }, RoleName.Admin
             };
         }
     }
@@ -45,7 +31,8 @@ public class UserServiceTest
         appDbContext.Users.Add(entity);
         await appDbContext.SaveChangesAsync();
 
-        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
+        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext),
+            new AdminUsers(), new PermissionRepository(appDbContext));
         var user = new User("Dima", "1");
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
 
@@ -57,12 +44,15 @@ public class UserServiceTest
 
     [Theory(DisplayName = "'UpsertByTwitchIdentityAsync' when there is no such user in the database")]
     [MemberData(nameof(UpsertUsersWhenUserNotExistsInDatabaseData))]
-    public async Task UpsertUsersWhenUserNotExistsInDatabase(string nickname, AdminUsers adminUsers, RoleName expectedRoleName)
+    public async Task UpsertUsersWhenUserNotExistsInDatabase(string nickname, AdminUsers adminUsers,
+        RoleName expectedRoleName)
     {
         var clock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(clock);
         appDbContext.Users.Count().Should().Be(0);
-        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), adminUsers);
+        var userService =
+            new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), adminUsers,
+                new PermissionRepository(appDbContext));
         var user = new User(nickname, "1");
 
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
@@ -80,10 +70,12 @@ public class UserServiceTest
         appDbContext.Roles.RemoveRange(appDbContext.Roles);
         await appDbContext.SaveChangesAsync();
         appDbContext.Users.Count().Should().Be(0);
-        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), new AdminUsers());
+        var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext),
+            new AdminUsers(), new PermissionRepository(appDbContext));
         var user = new User("Dima", "1");
 
-        var error = await Assert.ThrowsAsync<InvalidOperationException>(async () => await userService.UpsertByTwitchIdentityAsync(user));
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await userService.UpsertByTwitchIdentityAsync(user));
 
         error.Message.Should().NotBeNull().And.NotBeEmpty();
     }

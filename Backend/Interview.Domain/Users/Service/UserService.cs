@@ -1,25 +1,29 @@
-using CSharpFunctionalExtensions;
 using Interview.Domain.Repository;
-using Interview.Domain.ServiceResults.Errors;
-using Interview.Domain.ServiceResults.Success;
+using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Records;
 using Interview.Domain.Users.Roles;
 using NSpecifications;
 using X.PagedList;
 
-namespace Interview.Domain.Users.Service;
+namespace Interview.Domain.Users;
 
 public sealed class UserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly AdminUsers _adminUsers;
+    private readonly IPermissionRepository _permissionRepository;
 
-    public UserService(IUserRepository userRepository, IRoleRepository roleRepository, AdminUsers adminUsers)
+    public UserService(
+        IUserRepository userRepository,
+        IRoleRepository roleRepository,
+        AdminUsers adminUsers,
+        IPermissionRepository permissionRepository)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _adminUsers = adminUsers;
+        _permissionRepository = permissionRepository;
     }
 
     public Task<IPagedList<UserDetail>> FindPageAsync(
@@ -37,34 +41,33 @@ public sealed class UserService
         return _userRepository.GetPageDetailedAsync(mapperUserDetail, pageNumber, pageSize, cancellationToken);
     }
 
-    public async Task<Result<ServiceResult<UserDetail>, ServiceError>> FindByNicknameAsync(
+    public async Task<UserDetail> FindByNicknameAsync(
         string nickname, CancellationToken cancellationToken = default)
     {
         var user = await _userRepository.FindByNicknameAsync(nickname, cancellationToken);
 
-        if (user == null)
+        if (user is null)
         {
-            return ServiceError.NotFound($"Not found user with nickname [{nickname}]");
+            throw new NotFoundException(ExceptionMessage.UserNotFoundByNickname(nickname));
         }
 
-        return ServiceResult.Ok(new UserDetail
+        return new UserDetail
         {
             Id = user.Id,
             Avatar = user.Avatar,
             Nickname = user.Nickname,
             Roles = user.Roles.Select(role => role.Name.Name).ToList(),
             TwitchIdentity = user.TwitchIdentity,
-        });
+        };
     }
 
-    public async Task<Result<User?>> GetByIdentityAsync(
-        Guid userIdentity, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdentityAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.FindByIdAsync(userIdentity, cancellationToken);
+        var user = await _userRepository.FindByIdAsync(id, cancellationToken);
 
-        if (user == null)
+        if (user is null)
         {
-            return Result.Failure<User?>($"User not found by identity {userIdentity}");
+            throw NotFoundException.Create<User>(id);
         }
 
         return user;
@@ -82,19 +85,25 @@ public sealed class UserService
         }
 
         var userRole = await GetUserRoleAsync(user.Nickname, cancellationToken);
-        if (userRole == null)
+
+        if (userRole is null)
         {
-            throw new InvalidOperationException("Not found \"User\" role");
+            throw new NotFoundException(ExceptionMessage.UserRoleNotFound());
         }
 
         var insertUser = new User(user.Nickname, user.TwitchIdentity) { Avatar = user.Avatar };
 
         insertUser.Roles.Add(userRole);
         await _userRepository.CreateAsync(insertUser, cancellationToken);
+
         return insertUser;
     }
 
-    public Task<IPagedList<UserDetail>> FindByRoleAsync(int pageNumber, int pageSize, RoleNameType roleNameType, CancellationToken cancellationToken = default)
+    public Task<IPagedList<UserDetail>> FindByRoleAsync(
+        int pageNumber,
+        int pageSize,
+        RoleNameType roleNameType,
+        CancellationToken cancellationToken = default)
     {
         var roleName = RoleName.FromValue((int)roleNameType);
 
@@ -109,6 +118,67 @@ public sealed class UserService
         });
 
         return _userRepository.GetPageAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
+    }
+
+    public async Task<Dictionary<string, List<PermissionItem>>> GetPermissionsAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var specification = new Spec<User>(userItem => userItem.Id == id);
+
+        var user = await _userRepository.FindFirstOrDefaultAsync(specification, cancellationToken);
+
+        if (user is null)
+        {
+            throw NotFoundException.Create<User>(id);
+        }
+
+        return await _userRepository.FindPermissionByUserId(id, cancellationToken);
+    }
+
+    public async Task<PermissionItem> ChangePermissionAsync(
+        Guid id,
+        PermissionModifyRequest permissionModifyRequest,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.FindByIdDetailedAsync(id, cancellationToken);
+
+        if (user is null)
+        {
+            throw NotFoundException.Create<User>(id);
+        }
+
+        var storagePermission =
+            await _permissionRepository.FindByIdAsync(permissionModifyRequest.Id, cancellationToken);
+
+        if (storagePermission is null)
+        {
+            throw NotFoundException.Create<Permission>(id);
+        }
+
+        var permission = user.Permissions.FirstOrDefault(permission => permission.Id == permissionModifyRequest.Id);
+
+        if (permission is not null && permissionModifyRequest.Activate)
+        {
+            throw new UserException("User already has this permission");
+        }
+
+        var containsPermission = false;
+
+        if (permissionModifyRequest.Activate && permission is null)
+        {
+            user.Permissions.Add(storagePermission);
+            containsPermission = true;
+        }
+        else if (permissionModifyRequest.Activate is not true && permission is not null)
+        {
+            user.Permissions.Remove(storagePermission);
+            containsPermission = false;
+        }
+
+        await _userRepository.UpdateAsync(user, cancellationToken);
+
+        return new PermissionItem(storagePermission.Id, storagePermission.Type.Name, containsPermission);
     }
 
     private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)
