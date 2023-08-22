@@ -1,4 +1,28 @@
 import * as monaco from 'monaco-editor';
+import { Captions } from './constants';
+
+const includedLanguagesId = [
+  'plaintext',
+  'c',
+  'cpp',
+  'csharp',
+  'css',
+  'go',
+  'html',
+  'java',
+  'javascript',
+  'kotlin',
+  'mysql',
+  'php',
+  'python',
+  'ruby',
+  'rust',
+  'sql',
+  'swift',
+  'typescript',
+  'xml',
+  'yaml',
+];
 
 export class CodeEditor {
   container: HTMLElement;
@@ -16,13 +40,17 @@ export class CodeEditor {
       noLib: true,
       allowNonTsExtensions: true,
     });
+    const languages =
+      monaco.languages.getLanguages()
+      .filter(language => includedLanguagesId.includes(language.id));
+
+    this.createLanguagesSelect(languages);
     this.editor = monaco.editor.create(container, {
       fontSize: 22,
       theme: 'vs-dark',
       automaticLayout: true,
       minimap: { enabled: false },
     });
-    this.createLanguagesSelect(monaco.languages.getLanguages());
     this.editor.onDidChangeModelContent(() => {
       if (this.ignoreChange) {
         this.ignoreChange = false;
@@ -56,7 +84,12 @@ export class CodeEditor {
   }
 
   createLanguagesSelect(languages: monaco.languages.ILanguageExtensionPoint[]) {
+    const languageSelectWrapper = document.createElement('div');
+    languageSelectWrapper.classList.add('language-select-wrapper');
+    languageSelectWrapper.appendChild(document.createTextNode(`${Captions.Language}:`));
+
     this.languageSelect = document.createElement('select');
+    this.languageSelect.classList.add('language-select');
     this.languageSelect.onchange = this.handleLanguageChange;
     for (let language of languages) {
       const option = document.createElement('option');
@@ -64,7 +97,8 @@ export class CodeEditor {
       option.value = language.id;
       this.languageSelect.appendChild(option);
     }
-    this.container.appendChild(this.languageSelect);
+    languageSelectWrapper.appendChild(this.languageSelect);
+    this.container.appendChild(languageSelectWrapper);
   }
 
   getLanguageDisplayName(language: monaco.languages.ILanguageExtensionPoint) {

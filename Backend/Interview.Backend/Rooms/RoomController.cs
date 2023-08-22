@@ -49,11 +49,12 @@ public class RoomController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var room = await _roomRepository.GetByIdAsync(id);
-        return room is null ? NotFound(new MessageResponse
+        if (room is null)
         {
-            Message = $"Not found room by id {id}",
-            Code = 404,
-        }) : Ok(room);
+            throw NotFoundException.Create<Room>(id);
+        }
+
+        return Ok(room);
     }
 
     /// <summary>

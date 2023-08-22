@@ -101,3 +101,18 @@ input[type=range]::-moz-range-thumb {
   background: white;
   cursor: pointer;
 }
+
+.language-select-wrapper {
+  background-color: #1E1E1E;
+  color: #C7D4CC;
+  font-size: 1.2rem;
+  padding: 0.25rem;
+  border-bottom: 1px solid #282828;
+}
+
+.language-select {
+  background-color: #3c3c3c;
+  color: #C7D4CC;
+  margin-left: 6px;
+  font-size: 1rem;
+}
