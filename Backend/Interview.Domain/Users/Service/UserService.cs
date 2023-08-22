@@ -163,6 +163,11 @@ public sealed class UserService
             throw new UserException("User already has this permission");
         }
 
+        if (permission is null && permissionModifyRequest.Activate is false)
+        {
+            throw new UserException("The user's permission is already disabled");
+        }
+
         var containsPermission = false;
 
         if (permissionModifyRequest.Activate && permission is null)
