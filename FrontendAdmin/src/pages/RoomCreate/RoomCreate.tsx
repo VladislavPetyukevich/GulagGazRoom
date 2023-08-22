@@ -142,19 +142,20 @@ export const RoomCreate: FunctionComponent = () => {
             onSelect={handleQuestionSelect}
             onUnselect={handleQuestionUnSelect}
           />
-          <div>Users:</div>
-          <div className="items-selected">
-            Experts: {selectedExperts.map(user => user.nickname).join(', ')}
-          </div>
+          <span>Experts: </span>
+          <span className="items-selected">
+            {selectedExperts.map(user => user.nickname).join(', ')}
+          </span>
           <UsersSelector
             uniqueKey='Experts'
             selected={selectedExperts}
             onSelect={handleExpertSelect}
             onUnselect={handleExpertUnSelect}
           />
-          <div className="items-selected">
-            Examinees: {selectedExaminees.map(user => user.nickname).join(', ')}
-          </div>
+          <span>Examinees:</span>
+          <span className="items-selected">
+            {selectedExaminees.map(user => user.nickname).join(', ')}
+          </span>
            <UsersSelector
             uniqueKey='Examinees'
             selected={selectedExaminees}
