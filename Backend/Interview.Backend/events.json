@@ -10,6 +10,17 @@
         "Expert",
         "Examinee"
       ]
+    },
+    {
+      "Type": "Gas",
+      "Roles": [
+        "User",
+        "Admin"
+      ],
+      "ParticipantTypes": [
+        "Expert",
+        "Viewer"
+      ]
     }
   ]
 }
