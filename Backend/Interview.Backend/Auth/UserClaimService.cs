@@ -43,15 +43,15 @@ namespace Interview.Backend.Auth
             }
 
             return Task.FromResult<UserClaim?>(new UserClaim
-                {
-                    Identity = typedId,
-                    Nickname = nickname.Value,
-                    Avatar = avatar.Value,
-                    Roles = claimList.Where(claim => claim.Type == ClaimTypes.Role)
+            {
+                Identity = typedId,
+                Nickname = nickname.Value,
+                Avatar = avatar.Value,
+                Roles = claimList.Where(claim => claim.Type == ClaimTypes.Role)
                         .Select(claim => claim.Value)
                         .ToList(),
-                    TwitchIdentity = externalId.Value,
-                })
+                TwitchIdentity = externalId.Value,
+            })
                 .WaitAsync(cancellationToken);
         }
     }

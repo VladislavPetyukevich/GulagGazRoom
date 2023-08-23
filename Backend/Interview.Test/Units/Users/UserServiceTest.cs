@@ -71,7 +71,7 @@ public class UserServiceTest
         _mockUserRepository.Verify(repository =>
                 repository.FindFirstOrDefaultAsync(It.IsAny<ISpecification<User>>(), It.IsAny<CancellationToken>()),
             Times.Once);
-        
+
         _mockUserRepository.Verify(repository =>
                 repository.FindPermissionByUserId(It.Is<Guid>(it => it == user.Id), It.IsAny<CancellationToken>()),
             Times.Once);
