@@ -4,9 +4,11 @@ namespace Interview.Domain.Users.Permissions;
 
 public enum PermissionType
 {
+#pragma warning disable SA1602
     Modify = 1,
 
     Write = 2,
+#pragma warning restore SA1602
 }
 
 public sealed class PermissionNameType : SmartEnum<PermissionNameType>
