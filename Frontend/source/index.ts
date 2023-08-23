@@ -105,17 +105,11 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
         case 'Dislike':
           threeShooter.onPlayerActionStart('dislike', dataParsed.Value.Payload);
           break;
-        case 'GasOn':
-          threeShooter.onPlayerActionStart('gasEnable');
+        case 'Gas':
+          threeShooter.onPlayerActionStart('gas');
           break;
-        case 'GasOff':
-          threeShooter.onPlayerActionStart('gasDisable');
-          break;
-        case 'EnableCodeEditor':
-          codeEditor.show();
-          break;
-        case 'DisableCodeEditor':
-          codeEditor.hide();
+        case 'CodeEditor':
+          codeEditor.switchVisibility();
           break;
         case 'ChangeCodeEditor':
           codeEditor.setValue(dataParsed.Value || '');
@@ -130,6 +124,7 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
             .catch(() => alert('Get new question error'));
           break;
         default:
+          console.error(`Cannot handle event type: ${dataParsed.Type}`)
           break;
       }
     } catch {

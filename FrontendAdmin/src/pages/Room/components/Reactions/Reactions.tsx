@@ -3,70 +3,35 @@ import { Captions } from '../../../../constants';
 import { ReactionsList } from '../../../../components/ReactionsList/ReactionsList';
 import { useApiMethod } from '../../../../hooks/useApiMethod';
 import { Reaction } from '../../../../types/reaction';
-import { PaginationUrlParams, SendCodeEditorBody, SendGasBody, SendReactionBody, reactionsApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../../../apiDeclarations';
+import { PaginationUrlParams, SendEventBody, SendReactionBody, eventApiDeclaration, reactionsApiDeclaration, roomReactionApiDeclaration, roomsApiDeclaration } from '../../../../apiDeclarations';
 import { Room } from '../../../../types/room';
+import { Event } from '../../../../types/event';
 import { Loader } from '../../../../components/Loader/Loader';
 import { useAdditionalReactions } from '../../hooks/useAdditionalReactions';
+import { ParticipantType } from '../../../../types/user';
 
 const reactionsPageSize = 30;
 const reactionsPageNumber = 1;
 
-interface GasReaction extends Reaction {
+const eventToReaction = (event: Event): Reaction => ({
+  id: event.id,
   type: {
-    id: string;
-    name: 'GasOn' | 'GasOff';
-    value: number;
-  }
-}
-
-interface CodeEditorReaction extends Reaction {
-  type: {
-    id: string;
-    name: 'EnableCodeEditor' | 'DisableCodeEditor';
-    value: number;
-  }
-}
-
-const gasReactions: GasReaction[] = [{
-  id: 'gasReactionOnId',
-  type: {
-    id: 'GasOn',
-    name: 'GasOn',
+    id: event.id,
+    name: event.type,
     value: 0,
   }
-}, {
-  id: 'gasReactionOffId',
-  type: {
-    id: 'GasOff',
-    name: 'GasOff',
-    value: 0,
-  }
-}];
-
-const codeEditorReactions: CodeEditorReaction[] = [{
-  id: 'codeEditorReactionOnId',
-  type: {
-    id: 'EnableCodeEditor',
-    name: 'EnableCodeEditor',
-    value: 0,
-  }
-}, {
-  id: 'codeEditorReactionOffId',
-  type: {
-    id: 'DisableCodeEditor',
-    name: 'DisableCodeEditor',
-    value: 0,
-  }
-}];
+});
 
 export interface ReactionsProps {
   room: Room | null;
-  admin: boolean;
+  roles: string[];
+  participantType: ParticipantType | null;
 }
 
 export const Reactions: FunctionComponent<ReactionsProps> = ({
   room,
-  admin,
+  roles,
+  participantType,
 }) => {
   const {
     apiMethodState: apiReactionsState,
@@ -86,20 +51,21 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   } = apiRoomReactionState;
 
   const {
-    apiMethodState: apiSendGasState,
-    fetchData: sendRoomGas,
-  } = useApiMethod<unknown, SendGasBody>(roomsApiDeclaration.sendGasEvent);
+    apiMethodState: apiGetEventState,
+    fetchData: fetchRoomEvents,
+  } = useApiMethod<Event[], PaginationUrlParams>(eventApiDeclaration.get);
   const {
-    process: { loading: loadingRoomGas, error: errorRoomGas },
-  } = apiSendGasState;
+    process: { loading: loadingRoomEvent, error: errorRoomEvent },
+    data: events,
+  } = apiGetEventState;
 
   const {
-    apiMethodState: apiSendCodeEditorState,
-    fetchData: sendRoomCodeEditor,
-  } = useApiMethod<unknown, SendCodeEditorBody>(roomsApiDeclaration.sendCodeEditorEvent);
+    apiMethodState: apiSendEventState,
+    fetchData: sendRoomEvent,
+  } = useApiMethod<unknown, SendEventBody>(roomsApiDeclaration.sendEvent);
   const {
-    process: { loading: loadingRoomCodeEditor, error: errorRoomCodeEditor },
-  } = apiSendCodeEditorState;
+    process: { loading: loadingSendRoomEvent, error: errorSendRoomEvent },
+  } = apiSendEventState;
 
   const reactionsSafe = reactions || [];
   const additionalReactionsLike = useAdditionalReactions({
@@ -127,12 +93,26 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
     },
   });
 
+  const eventsReationsFiltered =
+    !events ?
+      [] :
+      events
+        .filter(event =>
+          event.roles.some(role => roles.includes(role)) &&
+          event.participantTypes.includes(participantType)
+        )
+        .map(eventToReaction);
+
   useEffect(() => {
     fetchReactions({
       PageSize: reactionsPageSize,
       PageNumber: reactionsPageNumber,
     });
-  }, [fetchReactions]);
+    fetchRoomEvents({
+      PageSize: reactionsPageSize,
+      PageNumber: reactionsPageNumber,
+    });
+  }, [fetchReactions, fetchRoomEvents]);
 
   const handleReactionClick = useCallback((reaction: Reaction) => {
     if (!room) {
@@ -144,6 +124,16 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
       payload: reaction.type.name,
     });
   }, [room, sendRoomReaction]);
+
+  const handleEventClick = useCallback((event: Reaction) => {
+    if (!room) {
+      throw new Error('Error sending reaction. Room not found.');
+    }
+    sendRoomEvent({
+      roomId: room.id,
+      type: event.type.name,
+    });
+  }, [room, sendRoomEvent]);
 
   if (errorReactions) {
     return (
@@ -174,32 +164,20 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
           onClick={handleReactionClick}
         />
       </div>
-      {admin && (
-        <div className="reaction-wrapper">
-          <span>{Captions.Gas}:</span>
-          <ReactionsList
-            sortOrder={1}
-            reactions={gasReactions}
-            onClick={handleReactionClick}
-          />
-        </div>
-      )}
-      {admin && (
-        <div className="reaction-wrapper">
-          <span>{Captions.CodeEditor}:</span>
-          <ReactionsList
-            sortOrder={1}
-            reactions={codeEditorReactions}
-            onClick={handleReactionClick}
-          />
-        </div>
-      )}
+      <div className="reaction-wrapper">
+        <span>{Captions.Events}</span>
+        <ReactionsList
+          sortOrder={1}
+          reactions={eventsReationsFiltered}
+          onClick={handleEventClick}
+        />
+      </div>
       {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
       {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
-      {loadingRoomGas && <div>{Captions.SendingGasEvent}...</div>}
-      {errorRoomGas && <div>{Captions.ErrorSendingGasEvent}</div>}
-      {loadingRoomCodeEditor && <div>{Captions.SendingCodeEditorEvent}...</div>}
-      {errorRoomCodeEditor && <div>{Captions.ErrorSendingCodeEditorEvent}</div>}
+      {loadingRoomEvent && <div>{Captions.GetRoomEvent}...</div>}
+      {errorRoomEvent && <div>{Captions.ErrorGetRoomEvent}</div>}
+      {loadingSendRoomEvent && <div>{Captions.SendingRoomEvent}...</div>}
+      {errorSendRoomEvent && <div>{Captions.ErrorSendingRoomEvent}</div>}
     </div>
   );
 };

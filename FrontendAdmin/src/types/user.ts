@@ -3,7 +3,7 @@ export interface User {
   nickname: string;
   twitchIdentity: string;
   avatar?: string;
-  roles: string[];
+  roles: Role[];
 }
 
 export interface UserAuth {
@@ -13,3 +13,7 @@ export interface UserAuth {
   avatar?: string;
   roles: string[];
 }
+
+export type ParticipantType = 'Viewer' | 'Expert' | 'Examinee' | null;
+
+export type Role = 'User' | 'Admin';

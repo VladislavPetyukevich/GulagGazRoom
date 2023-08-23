@@ -2,7 +2,7 @@ import { FunctionComponent, useCallback, useContext, useEffect, useState } from 
 import { useParams, Navigate } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import toast from 'react-hot-toast';
-import { GetRoomQuestionsBody, roomQuestionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import { GetParticipantParams, GetRoomQuestionsBody, roomParticipantApiDeclaration, roomQuestionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { REACT_APP_INTERVIEW_FRONTEND_URL, REACT_APP_WS_URL } from '../../config';
@@ -10,7 +10,7 @@ import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
-import { Room as RoomType } from '../../types/room';
+import { RoomParticipant, Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { RoomActionModal } from './components/RoomActionModal/RoomActionModal';
 import { Twitch } from './components/Twitch/Twitch';
@@ -53,6 +53,14 @@ export const Room: FunctionComponent = () => {
     data: openRoomQuestions,
   } = apiOpenRoomQuestions;
 
+  const {
+    apiMethodState: apiParticipantState,
+    fetchData: fetchParticipantState,
+  } = useApiMethod<RoomParticipant, GetParticipantParams>(roomParticipantApiDeclaration.getRoomParticipant);
+  const {
+    data: participantState,
+  } = apiParticipantState;
+
   useEffect(() => {
     if (!id) {
       throw new Error('Room id not found');
@@ -63,6 +71,19 @@ export const Room: FunctionComponent = () => {
       State: 'Active',
     });
   }, [id, fetchData, getRoomOpenQuestions]);
+
+  useEffect(() => {
+    if (!auth?.identity) {
+      return;
+    }
+    if (!id) {
+      throw new Error('Room id not found');
+    }
+    fetchParticipantState({
+      roomId: id,
+      userId: auth.identity,
+    });
+  }, [id, auth?.identity, fetchParticipantState]);
 
   useEffect(() => {
     if (!room) {
@@ -201,8 +222,9 @@ export const Room: FunctionComponent = () => {
             )}
             {reactionsVisible && (
               <Reactions
-                admin={admin}
                 room={room}
+                roles={auth?.roles || []}
+                participantType={participantState?.userType || null}
               />
             )}
             {!reactionsVisible && (

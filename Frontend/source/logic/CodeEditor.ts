@@ -34,6 +34,15 @@ export class CodeEditor {
     });
   }
 
+  switchVisibility() {
+    const isVisible = this.container.style.visibility === 'visible';
+    if (isVisible) {
+      this.hide();
+    } else {
+      this.show()
+    }
+  }
+
   show() {
     this.container.style.visibility = 'visible';
   }

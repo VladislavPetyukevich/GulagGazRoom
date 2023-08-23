@@ -17,14 +17,9 @@ export interface CreateRoomBody {
   examinees: Array<User['id']>;
 }
 
-export interface SendGasBody {
+export interface SendEventBody {
   roomId: Room['id'];
-  type: 'GasOn' | 'GasOff';
-}
-
-export interface SendCodeEditorBody {
-  roomId: Room['id'];
-  type: 'EnableCodeEditor' | 'DisableCodeEditor';
+  type: string;
 }
 
 export const roomsApiDeclaration = {
@@ -50,14 +45,9 @@ export const roomsApiDeclaration = {
     baseUrl: '/rooms',
     body,
   }),
-  sendGasEvent: (body: SendGasBody): ApiContractPost => ({
+  sendEvent: (body: SendEventBody): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/rooms/event/gas',
-    body,
-  }),
-  sendCodeEditorEvent: (body: SendCodeEditorBody): ApiContractPost => ({
-    method: 'POST',
-    baseUrl: '/rooms/event/codeEditor',
+    baseUrl: '/rooms/event',
     body,
   }),
   close: (id: Room['id']): ApiContractPatch => ({
@@ -143,6 +133,11 @@ export const roomReactionApiDeclaration = {
   }),
 };
 
+export interface GetParticipantParams {
+  userId: Reaction['id'];
+  roomId: Room['id'];
+}
+
 export interface ChangeParticipantStatusBody {
   userId: Reaction['id'];
   roomId: Room['id'];
@@ -150,9 +145,14 @@ export interface ChangeParticipantStatusBody {
 }
 
 export const roomParticipantApiDeclaration = {
+  getRoomParticipant: (params: GetParticipantParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/room-participants',
+    urlParams: params,
+  }),
   changeParticipantStatus: (body: ChangeParticipantStatusBody): ApiContractPatch => ({
     method: 'PATCH',
-    baseUrl: '/ChangeParticipantStatus',
+    baseUrl: '/room-participants',
     body,
   }),
 };
@@ -189,5 +189,13 @@ export const roomReviewApiDeclaration = {
     method: 'PUT',
     baseUrl: `/room-reviews/${params.id}`,
     body: { review: params.review, state: params.state },
+  }),
+};
+
+export const eventApiDeclaration = {
+  get: (params: PaginationUrlParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/event',
+    urlParams: params,
   }),
 };

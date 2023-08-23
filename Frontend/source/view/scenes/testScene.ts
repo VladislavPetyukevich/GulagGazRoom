@@ -236,8 +236,7 @@ export class TestScene extends BasicScene {
 
     this.gasEnabled = false;
     this.actions = {
-      gasEnable: this.onGasEnable,
-      gasDisable: this.onGasDisable,
+      gas: this.onGasSwitch,
       newQuestion: this.onQuestion,
       like: this.onLike,
       dislike: this.onDislike,
@@ -338,7 +337,15 @@ export class TestScene extends BasicScene {
     }
   }
 
-  onGasEnable = () => {
+  onGasSwitch = () => {
+    if (this.gasEnabled) {
+      this.gasDisable();
+    } else {
+      this.gasEnable();
+    }
+  }
+
+  gasEnable() {
     if (this.gasEnabled) {
       return;
     }
@@ -347,7 +354,7 @@ export class TestScene extends BasicScene {
     this.disableEnableGas(true);
   }
 
-  onGasDisable = () => {
+  gasDisable() {
     if (!this.gasEnabled) {
       return;
     }
