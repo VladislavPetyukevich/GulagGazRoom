@@ -39,7 +39,7 @@ public class UserServiceTest
                 repository.FindByIdAsync(RoleName.User.Id, default))
             .Returns(() => Task.FromResult<Role?>(null));
 
-        var throwsAsync = await Assert.ThrowsAsync<InvalidOperationException>(
+        var throwsAsync = await Assert.ThrowsAsync<Domain.NotFoundException>(
             async () => await _userService.UpsertByTwitchIdentityAsync(user));
 
         throwsAsync.Message.Should().NotBeNull().And.NotBeEmpty();

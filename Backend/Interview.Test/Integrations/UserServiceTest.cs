@@ -74,7 +74,7 @@ public class UserServiceTest
             new AdminUsers(), new PermissionRepository(appDbContext));
         var user = new User("Dima", "1");
 
-        var error = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        var error = await Assert.ThrowsAsync<Domain.NotFoundException>(async () =>
             await userService.UpsertByTwitchIdentityAsync(user));
 
         error.Message.Should().NotBeNull().And.NotBeEmpty();
