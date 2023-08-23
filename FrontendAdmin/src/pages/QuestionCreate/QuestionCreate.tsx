@@ -1,6 +1,7 @@
-import React, { FormEvent, FunctionComponent, useCallback, useEffect } from 'react';
+import React, { ChangeEvent, FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { questionsApiDeclaration } from '../../apiDeclarations';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CreateQuestionBody, CreateTagBody, GetTagsParams, UpdateQuestionBody, questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
@@ -8,51 +9,150 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { Question } from '../../types/question';
+import { Question, Tag } from '../../types/question';
+import { QuestionTags } from './components/QuestionTags/QuestionTags';
 
 import './QuestionCreate.css';
 
 const valueFieldName = 'qestionText';
+const pageNumber = 1;
+const pageSize = 30;
 
-export const QuestionCreate: FunctionComponent = () => {
+export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) => {
   const {
     apiMethodState: questionState,
     fetchData: fetchCreateQuestion,
-  } = useApiMethod<Question['id'], Pick<Question, 'value'>>(questionsApiDeclaration.create);
+  } = useApiMethod<Question['id'], CreateQuestionBody>(questionsApiDeclaration.create);
   const { process: { loading, error }, data: createdQuestionId } = questionState;
+
+  const { apiMethodState: updatingQuestionState, fetchData: fetchUpdateQuestion } = useApiMethod<Question, UpdateQuestionBody>(questionsApiDeclaration.update);
+  const {
+    process: { loading: updatingLoading, error: updatingError },
+    data: updatedQuestionId,
+  } = updatingQuestionState;
+
+  const {
+    apiMethodState: getQuestionState,
+    fetchData: fetchQuestion,
+  } = useApiMethod<Question, Question['id']>(questionsApiDeclaration.get);
+  const { process: { loading: questionLoading, error: questionError }, data: question } = getQuestionState;
+
+  const {
+    apiMethodState: questionTagsState,
+    fetchData: fetchQuestionTags,
+  } = useApiMethod<Tag[], GetTagsParams>(questionsApiDeclaration.getTags);
+  const { process: { loading: tagsLoading, error: tagsError }, data: tags } = questionTagsState;
+
+  const {
+    apiMethodState: questionTagCreateState,
+    fetchData: fetchCreateQuestionTag,
+  } = useApiMethod<Tag, CreateTagBody>(questionsApiDeclaration.createTag);
+  const { process: { loading: createTagLoading, error: createTagError } } = questionTagCreateState;
+
+  const navigate = useNavigate();
+  let { id } = useParams();
+  const [questionValue, setQuestionValue] = useState('');
+  const [tagsSearchValue, setTagsSearchValue] = useState('');
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+
+  const totalLoading = loading || createTagLoading || updatingLoading || questionLoading;
+  const totalError = error || questionError || tagsError || updatingError || createTagError;
+
+  useEffect(() => {
+    if (!edit) {
+      return;
+    }
+    if (!id) {
+      throw new Error('Question id not found');
+    }
+    fetchQuestion(id);
+  }, [edit, id, fetchQuestion]);
+
+  useEffect(() => {
+    if (!question) {
+      return;
+    }
+    setQuestionValue(question.value);
+    setSelectedTags(question.tags);
+  }, [question]);
+
+  useEffect(() => {
+    fetchQuestionTags({
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      value: tagsSearchValue,
+    });
+  }, [tagsSearchValue, fetchQuestionTags]);
 
   useEffect(() => {
     if (!createdQuestionId) {
       return;
     }
     toast.success(Captions.QuestionCreatedSuccessfully, toastSuccessOptions);
-  }, [createdQuestionId]);
+    navigate(pathnames.questions);
+  }, [createdQuestionId, navigate]);
 
-  const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.target as HTMLFormElement;
-    const data = new FormData(form);
-    const qestionText = data.get(valueFieldName);
-    if (!qestionText) {
+  useEffect(() => {
+    if (!updatedQuestionId) {
       return;
     }
-    if (typeof qestionText !== 'string') {
-      throw new Error('qestionText field type error');
-    }
-    fetchCreateQuestion({
-      value: qestionText,
-    });
-  }, [fetchCreateQuestion]);
+    toast.success(Captions.QuestionUpdatedSuccessfully, toastSuccessOptions);
+    navigate(pathnames.questions);
+  }, [updatedQuestionId, navigate]);
 
-  const renderStatus = useCallback(() => {
-    if (error) {
+  const handleSelect = (tag: Tag) => {
+    setSelectedTags([...selectedTags, tag]);
+  };
+
+  const handleUnselect = (tag: Tag) => {
+    const newSelectedTags = selectedTags.filter(tg => tg.id !== tag.id);
+    setSelectedTags(newSelectedTags);
+  };
+
+  const handleTagSearch = (value: string) => {
+    setTagsSearchValue(value);
+  };
+
+  const handleTagCreate = (value: string) => {
+    fetchCreateQuestionTag({ value });
+  };
+
+  const handleQuestionValueChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuestionValue(event.target.value);
+  };
+
+  const handleSubmitCreate = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    fetchCreateQuestion({
+      value: questionValue,
+      tags: selectedTags.map(tag => tag.id),
+    });
+
+  }, [selectedTags, questionValue, fetchCreateQuestion]);
+
+  const handleSubmitEdit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!question) {
+      return;
+    }
+    fetchUpdateQuestion({
+      id: question.id,
+      value: questionValue,
+      tags: selectedTags.map(tag => tag.id),
+    });
+
+  }, [selectedTags, question, questionValue, fetchUpdateQuestion]);
+
+  const renderStatus = () => {
+    if (totalError) {
       return (
         <Field>
-          <div>{Captions.Error}: {error}</div>
+          <div>{Captions.Error}: {totalError}</div>
         </Field>
       );
     }
-    if (loading) {
+    if (totalLoading) {
       return (
         <Field>
           <Loader />
@@ -60,7 +160,7 @@ export const QuestionCreate: FunctionComponent = () => {
       );
     }
     return <></>;
-  }, [error, loading]);
+  };
 
   return (
     <MainContentWrapper className="question-create">
@@ -72,10 +172,22 @@ export const QuestionCreate: FunctionComponent = () => {
         linkFloat="left"
       />
       {renderStatus()}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={edit ? handleSubmitEdit : handleSubmitCreate}>
         <Field>
-          <label htmlFor="qestionText">{Captions.QuestionText}:</label>
-          <input id="qestionText" name={valueFieldName} type="text" />
+          <div><label htmlFor="qestionText">{Captions.QuestionText}:</label></div>
+          <input id="qestionText" name={valueFieldName} type="text" value={questionValue} onChange={handleQuestionValueChange} />
+        </Field>
+        <Field>
+          <QuestionTags
+            placeHolder={Captions.TagsPlaceholder}
+            loading={tagsLoading}
+            tags={tags || []}
+            selectedTags={selectedTags}
+            onSelect={handleSelect}
+            onUnselect={handleUnselect}
+            onSearch={handleTagSearch}
+            onCreate={handleTagCreate}
+          />
         </Field>
         <SubmitField caption={Captions.Create} />
       </form>

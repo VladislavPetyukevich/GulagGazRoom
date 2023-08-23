@@ -1,4 +1,5 @@
-import React, { ChangeEvent, FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PaginationUrlParams, questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
@@ -10,11 +11,14 @@ import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
+import { QuestionTagsView } from '../../components/QuestionTagsView/QuestionTagsView';
 
 import './Questions.css';
 
 const pageSize = 10;
 const initialPageNumber = 1;
+
+const fakeTags = Array.from({ length: 7 }, (_, index) => ({ id: `tag-${index}`, value: `Tag ${index}` }));
 
 export const Questions: FunctionComponent = () => {
   const auth = useContext(AuthContext);
@@ -22,12 +26,6 @@ export const Questions: FunctionComponent = () => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
   const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[], PaginationUrlParams>(questionsApiDeclaration.getPage);
   const { process: { loading, error }, data: questions } = questionsState;
-  const { apiMethodState: updatingQuestionState, fetchData: fetchUpdateQuestion } = useApiMethod<Question['id'], Question>(questionsApiDeclaration.update);
-  const {
-    process: { loading: updatingLoading, error: updatingError },
-    data: updatedQuestionId,
-  } = updatingQuestionState;
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const questionsSafe = questions || [];
 
   useEffect(() => {
@@ -37,15 +35,6 @@ export const Questions: FunctionComponent = () => {
     });
   }, [fetchQuestios, pageNumber]);
 
-  useEffect(() => {
-    if (updatedQuestionId) {
-      fetchQuestios({
-        PageNumber: pageNumber,
-        PageSize: pageSize,
-      });
-    }
-  }, [updatedQuestionId, pageNumber, fetchQuestios]);
-
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);
   }, [pageNumber]);
@@ -54,69 +43,25 @@ export const Questions: FunctionComponent = () => {
     setPageNumber(pageNumber - 1);
   }, [pageNumber]);
 
-  const handleQuestionEdit = useCallback((question: Question) => () => {
-    setEditingQuestion(question);
-  }, []);
-
-  const handleEditingQuestionValueChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    if (!editingQuestion) {
-      console.error('handleEditingQuestionValueChange without editingQuestion');
-      return;
-    }
-    setEditingQuestion({
-      ...editingQuestion,
-      value: event.target.value,
-    });
-  }, [editingQuestion]);
-
-  const handleEditingQuestionSubmit = useCallback(() => {
-    if (!editingQuestion) {
-      console.error('handleEditingQuestionSubmit without editingQuestion');
-      return;
-    }
-    fetchUpdateQuestion({
-      id: editingQuestion.id,
-      value: editingQuestion.value,
-    });
-    setEditingQuestion(null);
-  }, [editingQuestion, fetchUpdateQuestion]);
-
   const createQuestionItem = useCallback((question: Question) => (
     <li key={question.id}>
-      {question.id === editingQuestion?.id ? (
-        <Field className="question-item">
-          <input
-            type="text"
-            className="question-item-new-value"
-            value={editingQuestion.value}
-            onChange={handleEditingQuestionValueChange}
-          />
+      <Field className="question-item">
+        <span>{question.value}</span>
+        <Link to={pathnames.questionsEdit.replace(':id', question.id)}>
           <button
             className="question-edit-button"
-            onClick={handleEditingQuestionSubmit}
-          >
-            ✔️
-          </button>
-        </Field>
-      ) : (
-        <Field className="question-item">
-          <span>{question.value}</span>
-          <button
-            className="question-edit-button"
-            onClick={handleQuestionEdit(question)}
           >
             🖊️
           </button>
-        </Field>
-      )}
+        </Link>
+        <QuestionTagsView
+          placeHolder={Captions.NoTags}
+          tags={fakeTags}
+        />
+      </Field>
 
     </li>
-  ), [
-    editingQuestion,
-    handleQuestionEdit,
-    handleEditingQuestionValueChange,
-    handleEditingQuestionSubmit,
-  ]);
+  ), []);
 
   return (
     <MainContentWrapper>
@@ -128,8 +73,8 @@ export const Questions: FunctionComponent = () => {
         linkFloat="right"
       />
       <ProcessWrapper
-        loading={loading || updatingLoading}
-        error={error || updatingError}
+        loading={loading}
+        error={error}
         loaders={Array.from({ length: pageSize }, () => ({}))}
       >
         <>

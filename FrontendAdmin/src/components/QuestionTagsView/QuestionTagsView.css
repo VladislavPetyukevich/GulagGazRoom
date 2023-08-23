@@ -1,0 +1,12 @@
+.questionTags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.questionTags .tag-item {
+  border: 1px solid var(--active);
+  border-radius: 15px;
+  padding: 5px;
+  margin: 5px;
+}

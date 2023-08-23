@@ -95,21 +95,52 @@ export const roomQuestionApiDeclaration = {
   }),
 };
 
+export interface CreateQuestionBody {
+  value: string;
+  tags: string[];
+}
+
+export interface UpdateQuestionBody extends CreateQuestionBody {
+  id: string;
+}
+
+export interface GetTagsParams extends PaginationUrlParams {
+  value: string;
+}
+
+export interface CreateTagBody {
+  value: string;
+}
+
 export const questionsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
     baseUrl: '/questions',
     urlParams: pagination,
   }),
-  create: (question: Pick<Question, 'value'>): ApiContractPost => ({
+  get: (id: Question['id']): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: `/questions/${id}`,
+  }),
+  create: (question: CreateQuestionBody): ApiContractPost => ({
     method: 'POST',
     baseUrl: '/questions',
     body: question,
   }),
-  update: (question: Question): ApiContractPut => ({
+  update: (question: UpdateQuestionBody): ApiContractPut => ({
     method: 'PUT',
     baseUrl: `/questions/${question.id}`,
-    body: { value: question.value },
+    body: { value: question.value, tags: question.tags },
+  }),
+  getTags: (params: GetTagsParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/questions/tag',
+    urlParams: params,
+  }),
+  createTag: (body: CreateTagBody): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/questions/tag',
+    body,
   }),
 };
 

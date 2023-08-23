@@ -6,9 +6,19 @@
 .questions-list .question-item {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
   align-items: stretch;
+}
+
+.questions-list .questionTags {
+  width: 100%;
+  justify-content: center;
+}
+
+.questions-list .questionTags .tag-item {
+  border-color: var(--bg);
 }
 
 .questions-list .question-edit-button {
