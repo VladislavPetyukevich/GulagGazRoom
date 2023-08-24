@@ -47,7 +47,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     apiMethodState: questionTagCreateState,
     fetchData: fetchCreateQuestionTag,
   } = useApiMethod<Tag, CreateTagBody>(questionsApiDeclaration.createTag);
-  const { process: { loading: createTagLoading, error: createTagError } } = questionTagCreateState;
+  const { process: { loading: createTagLoading, error: createTagError }, data: createdQuestionTag } = questionTagCreateState;
 
   const navigate = useNavigate();
   let { id } = useParams();
@@ -82,7 +82,18 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
       PageSize: pageSize,
       value: tagsSearchValue,
     });
-  }, [tagsSearchValue, fetchQuestionTags]);
+  }, [createdQuestionTag, tagsSearchValue, fetchQuestionTags]);
+
+  useEffect(() => {
+    if (!createdQuestionTag) {
+      return;
+    }
+    fetchQuestionTags({
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      value: '',
+    });
+  }, [createdQuestionTag, fetchQuestionTags]);
 
   useEffect(() => {
     if (!createdQuestionId) {
