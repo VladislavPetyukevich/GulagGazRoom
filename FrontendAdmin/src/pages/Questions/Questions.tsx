@@ -75,7 +75,7 @@ export const Questions: FunctionComponent = () => {
       <ProcessWrapper
         loading={loading}
         error={error}
-        loaders={Array.from({ length: pageSize }, () => ({}))}
+        loaders={Array.from({ length: pageSize }, () => ({ height: '4.75rem' }))}
       >
         <>
           <ul className="questions-list">
