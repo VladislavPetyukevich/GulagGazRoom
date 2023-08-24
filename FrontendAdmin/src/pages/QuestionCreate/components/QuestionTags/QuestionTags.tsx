@@ -53,7 +53,8 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleCreate = () => {
+  const handleCreate: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
     onCreate(searchValue);
     setSearchValue('');
   };
