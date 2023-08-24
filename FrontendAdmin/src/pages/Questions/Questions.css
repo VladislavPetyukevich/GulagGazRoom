@@ -17,10 +17,6 @@
   justify-content: center;
 }
 
-.questions-list .questionTags .tag-item {
-  border-color: var(--bg);
-}
-
 .questions-list .question-edit-button {
   position: absolute;
   padding: 5px 10px;

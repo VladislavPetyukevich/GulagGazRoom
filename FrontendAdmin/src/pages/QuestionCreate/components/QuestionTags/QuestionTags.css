@@ -33,7 +33,7 @@
 }
 
 .questionTagsSelector-tools {
-  background-color: var(--form-bg);
+  background-color: var(--button-bg);
 }
 
 .questionTagsSelector-item {
