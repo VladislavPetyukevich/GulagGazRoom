@@ -13,6 +13,8 @@
 .nav-menu .field-wrap {
   display: inline-block;
   width: 100%;
+  border-radius: 0px;
+  margin-bottom: 0.5rem;
 }
 
 .nav-menu .active {
@@ -21,6 +23,8 @@
 
 .nav-menu .field-wrap:first-child {
   margin-left: -40px;
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
 }
 
 .nav-menu .field-wrap {
@@ -30,6 +34,8 @@
 
 .nav-menu .field-wrap:last-child {
   margin-right: -40px;
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
 }
 
 .nav-menu .nav-menu-user-content {
