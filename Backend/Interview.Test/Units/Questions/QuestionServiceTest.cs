@@ -1,5 +1,6 @@
 using Interview.Domain;
 using Interview.Domain.Questions;
+using Interview.Domain.Tags;
 using Moq;
 
 namespace Interview.Test.Units.Questions;
@@ -17,7 +18,7 @@ public class QuestionServiceTest
         _questionArchiveRepository = new Mock<IQuestionNonArchiveRepository>();
 
         var archiveService = new Mock<ArchiveService<Question>>(_questionRepository.Object);
-        var questionTag = new Mock<IQuestionTagRepository>();
+        var questionTag = new Mock<ITagRepository>();
 
         _questionService = new QuestionService(_questionRepository.Object, _questionArchiveRepository.Object, archiveService.Object, questionTag.Object);
     }

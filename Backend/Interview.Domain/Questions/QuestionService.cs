@@ -1,8 +1,11 @@
+using System.Globalization;
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
+using Interview.Domain.Tags;
+using Interview.Domain.Tags.Records.Response;
 using NSpecifications;
 using X.PagedList;
 
@@ -16,75 +19,18 @@ public class QuestionService
 
     private readonly ArchiveService<Question> _archiveService;
 
-    private readonly IQuestionTagRepository _questionTagRepository;
+    private readonly ITagRepository _tagRepository;
 
     public QuestionService(
         IQuestionRepository questionRepository,
         IQuestionNonArchiveRepository questionNonArchiveRepository,
         ArchiveService<Question> archiveService,
-        IQuestionTagRepository questionTagRepository)
+        ITagRepository tagRepository)
     {
         _questionRepository = questionRepository;
         _questionNonArchiveRepository = questionNonArchiveRepository;
         _archiveService = archiveService;
-        _questionTagRepository = questionTagRepository;
-    }
-
-    public Task<IPagedList<QuestionTagItem>> FindTagsPageAsync(
-        string? value, int pageNumber, int pageSize, CancellationToken cancellationToken)
-    {
-        value = value?.Trim();
-        var mapper =
-            new Mapper<QuestionTag, QuestionTagItem>(
-                question => new QuestionTagItem { Id = question.Id, Value = question.Value, });
-        var specification = !string.IsNullOrWhiteSpace(value) ?
-            new Spec<QuestionTag>(spec => spec.Value.Contains(value)) :
-            Spec<QuestionTag>.Any;
-        return _questionTagRepository.GetPageAsync(specification, mapper, pageNumber, pageSize, cancellationToken);
-    }
-
-    public async Task<Result<ServiceResult<QuestionTagItem>, ServiceError>> CreateTagAsync(QuestionTagEditRequest request, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(request.Value))
-        {
-            return ServiceError.Error("Tag should not be empty");
-        }
-
-        request.Value = request.Value.Trim();
-        var hasTag = await _questionTagRepository.HasAsync(new Spec<QuestionTag>(e => e.Value == request.Value), cancellationToken);
-        if (hasTag)
-        {
-            return ServiceError.Error($"Already exists tag '{request.Value}'");
-        }
-
-        var tag = new QuestionTag { Value = request.Value, };
-        await _questionTagRepository.CreateAsync(tag, cancellationToken);
-        return ServiceResult.Created(new QuestionTagItem { Id = tag.Id, Value = request.Value, });
-    }
-
-    public async Task<Result<ServiceResult<QuestionTagItem>, ServiceError>> UpdateTagAsync(Guid id, QuestionTagEditRequest request, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(request.Value))
-        {
-            return ServiceError.Error("Tag should not be empty");
-        }
-
-        request.Value = request.Value.Trim();
-        var hasTag = await _questionTagRepository.HasAsync(new Spec<QuestionTag>(e => e.Value == request.Value), cancellationToken);
-        if (hasTag)
-        {
-            return ServiceError.Error($"Already exists tag '{request.Value}'");
-        }
-
-        var tag = await _questionTagRepository.FindByIdAsync(id, cancellationToken);
-        if (tag is null)
-        {
-            return ServiceError.NotFound($"Not found tag by id '{id}'");
-        }
-
-        tag.Value = request.Value;
-        await _questionTagRepository.UpdateAsync(tag, cancellationToken);
-        return ServiceResult.Ok(new QuestionTagItem { Id = tag.Id, Value = request.Value, });
+        _tagRepository = tagRepository;
     }
 
     public Task<IPagedList<QuestionItem>> FindPageAsync(
@@ -92,7 +38,16 @@ public class QuestionService
     {
         var mapper =
             new Mapper<Question, QuestionItem>(
-                question => new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
+                question => new QuestionItem
+                {
+                    Id = question.Id,
+                    Value = question.Value,
+                    Tags = question.Tags.Select(e => new QuestionTagItem
+                    {
+                        Value = e.Tag.Value,
+                        HexColor = e.HexColor,
+                    }).ToList(),
+                });
         var spec = tags.Count == 0
             ? Spec.Any<Question>()
             : new Spec<Question>(e => e.Tags.Any(e => tags.Contains(e.Id)));
@@ -106,7 +61,11 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => e.Value).ToList(),
+            Tags = question.Tags.Select(e => new QuestionTagItem
+            {
+                Value = e.Tag.Value,
+                HexColor = e.HexColor,
+            }).ToList(),
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
@@ -118,21 +77,30 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
-        var tags = await _questionTagRepository.FindByIdsAsync(request.Tags, cancellationToken);
-        var notFoundTags = string.Join(",", request.Tags.Except(tags.Select(e => e.Id)));
-        if (!string.IsNullOrWhiteSpace(notFoundTags))
-        {
-            return ServiceError.NotFound($"Not found tags: [{notFoundTags}]");
-        }
-
         var result = new Question(request.Value)
         {
-            Tags = tags,
+            Tags = new List<QuestionTag>(),
         };
+        var tags = await EnsureValidTagsAsync(result, request.Tags, cancellationToken);
+        if (tags.IsFailure)
+        {
+            return tags.Error;
+        }
+
+        tags.Value.ForEach(e => result.Tags.Add(e));
 
         await _questionRepository.CreateAsync(result, cancellationToken);
 
-        return ServiceResult.Created(new QuestionItem { Id = result.Id, Value = result.Value, Tags = result.Tags.Select(e => e.Value).ToList(), });
+        return ServiceResult.Created(new QuestionItem
+        {
+            Id = result.Id,
+            Value = result.Value,
+            Tags = result.Tags.Select(e => new QuestionTagItem
+            {
+                Value = e.Tag.Value,
+                HexColor = e.HexColor,
+            }).ToList(),
+        });
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
@@ -145,20 +113,28 @@ public class QuestionService
             return ServiceError.NotFound($"Question not found with id={id}");
         }
 
-        var tags = await _questionTagRepository.FindByIdsAsync(request.Tags, cancellationToken);
-        var notFoundTags = string.Join(",", request.Tags.Except(tags.Select(e => e.Id)));
-        if (!string.IsNullOrWhiteSpace(notFoundTags))
+        var tags = await EnsureValidTagsAsync(entity, request.Tags, cancellationToken);
+        if (tags.IsFailure)
         {
-            return ServiceError.NotFound($"Not found tags: [{notFoundTags}]");
+            return tags.Error;
         }
 
         entity.Value = request.Value;
         entity.Tags.Clear();
-        entity.Tags.AddRange(tags);
+        entity.Tags.AddRange(tags.Value);
 
         await _questionRepository.UpdateAsync(entity, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem { Id = entity.Id, Value = entity.Value, Tags = entity.Tags.Select(e => e.Value).ToList(), });
+        return ServiceResult.Ok(new QuestionItem
+        {
+            Id = entity.Id,
+            Value = entity.Value,
+            Tags = entity.Tags.Select(e => new QuestionTagItem
+            {
+                Value = e.Tag.Value,
+                HexColor = e.HexColor,
+            }).ToList(),
+        });
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
@@ -171,7 +147,16 @@ public class QuestionService
             return ServiceError.NotFound($"Not found question with id [{id}]");
         }
 
-        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
+        return ServiceResult.Ok(new QuestionItem
+        {
+            Id = question.Id,
+            Value = question.Value,
+            Tags = question.Tags.Select(e => new QuestionTagItem
+            {
+                Value = e.Tag.Value,
+                HexColor = e.HexColor,
+            }).ToList(),
+        });
     }
 
     /// <summary>
@@ -192,14 +177,32 @@ public class QuestionService
 
         await _questionRepository.DeletePermanentlyAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem { Id = question.Id, Value = question.Value, Tags = question.Tags.Select(e => e.Value).ToList(), });
+        return ServiceResult.Ok(new QuestionItem
+        {
+            Id = question.Id,
+            Value = question.Value,
+            Tags = question.Tags.Select(e => new QuestionTagItem
+            {
+                Value = e.Tag.Value,
+                HexColor = e.HexColor,
+            }).ToList(),
+        });
     }
 
     public Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         return _archiveService.ArchiveAsync(id, cancellationToken)
-            .Map(q => ServiceResult.Ok(new QuestionItem { Id = q.Value.Id, Value = q.Value.Value, Tags = q.Value.Tags.Select(e => e.Value).ToList(), }));
+            .Map(q => ServiceResult.Ok(new QuestionItem
+            {
+                Id = q.Value.Id,
+                Value = q.Value.Value,
+                Tags = q.Value.Tags.Select(e => new QuestionTagItem
+                {
+                    Value = e.Tag.Value,
+                    HexColor = e.HexColor,
+                }).ToList(),
+            }));
     }
 
     public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
@@ -207,6 +210,43 @@ public class QuestionService
     {
         return _archiveService.UnarchiveAsync(id, cancellationToken)
             .Map(question =>
-                ServiceResult.Ok(new QuestionItem { Id = question.Value.Id, Value = question.Value.Value, Tags = question.Value.Tags.Select(e => e.Value).ToList(), }));
+                ServiceResult.Ok(new QuestionItem
+                {
+                    Id = question.Value.Id,
+                    Value = question.Value.Value,
+                    Tags = question.Value.Tags.Select(e => new QuestionTagItem
+                    {
+                        Value = e.Tag.Value,
+                        HexColor = e.HexColor,
+                    }).ToList(),
+                }));
+    }
+
+    private async Task<Result<List<QuestionTag>, ServiceError>> EnsureValidTagsAsync(Question question, IReadOnlyCollection<TagLinkRequest> tagsForCheck, CancellationToken cancellationToken)
+    {
+        var requestTags = tagsForCheck.Select(e => e.TagId).ToHashSet();
+        var tags = await _tagRepository.FindByIdsAsync(requestTags, cancellationToken);
+        requestTags.ExceptWith(tags.Select(e => e.Id));
+        var notFoundTags = string.Join(",", requestTags);
+        if (!string.IsNullOrWhiteSpace(notFoundTags))
+        {
+            return ServiceError.NotFound($"Not found tags: [{notFoundTags}]");
+        }
+
+        var notValidHex = tagsForCheck
+            .Where(e => !TagLink.IsValidColor(e.HexColor))
+            .Take(5);
+        var notValidHexStr = string.Join(", ", notValidHex.Select(e => e.TagId.ToString("N") + $" ({e.HexColor})"));
+        if (!string.IsNullOrWhiteSpace(notValidHexStr))
+        {
+            return ServiceError.Error($"The following tags have color set in the wrong format: [{notValidHexStr}]");
+        }
+
+        return tags.Join(
+                tagsForCheck,
+                tag => tag.Id,
+                tagRequest => tagRequest.TagId,
+                (tag, tagRequest) => new QuestionTag { TagId = tag.Id, Tag = tag, HexColor = tagRequest.HexColor, Question = question })
+            .ToList();
     }
 }

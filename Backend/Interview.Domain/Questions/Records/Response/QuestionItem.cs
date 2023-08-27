@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Interview.Domain.Tags;
+using Interview.Domain.Tags.Records.Response;
 
 namespace Interview.Domain.Questions.Records.Response;
 
@@ -8,5 +10,5 @@ public class QuestionItem
 
     public string Value { get; init; } = string.Empty;
 
-    public required List<string> Tags { get; init; }
+    public required List<QuestionTagItem> Tags { get; init; }
 }

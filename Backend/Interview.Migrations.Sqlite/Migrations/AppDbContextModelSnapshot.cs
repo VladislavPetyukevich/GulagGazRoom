@@ -44,31 +44,6 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("Interview.Domain.Questions.QuestionTag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Value")
-                        .IsUnique();
-
-                    b.ToTable("QuestionTag");
-                });
-
             modelBuilder.Entity("Interview.Domain.Reactions.Reaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -298,6 +273,31 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Value")
+                        .IsUnique();
+
+                    b.ToTable("Tag");
+                });
+
             modelBuilder.Entity("Interview.Domain.Users.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -364,21 +364,6 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("QuestionQuestionTag", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("TagsId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("QuestionId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("QuestionQuestionTag");
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -489,21 +474,6 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("QuestionQuestionTag", b =>
-                {
-                    b.HasOne("Interview.Domain.Questions.Question", null)
-                        .WithMany()
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Interview.Domain.Questions.QuestionTag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoleUser", b =>

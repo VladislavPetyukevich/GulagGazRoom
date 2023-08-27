@@ -6,6 +6,7 @@ using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
+using Interview.Domain.Tags;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Database.Configurations;
@@ -48,7 +49,7 @@ public class AppDbContext : DbContext
 
     public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
 
-    public DbSet<QuestionTag> QuestionTag { get; private set; } = null!;
+    public DbSet<Tag> Tag { get; private set; } = null!;
 
     public override int SaveChanges()
     {

@@ -7,6 +7,7 @@ using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Users;
 using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.Tags;
 using Microsoft.EntityFrameworkCore;
 
 namespace Interview.Test.Integrations;
@@ -30,7 +31,7 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
         var archiveService = new ArchiveService<Question>(questionRepository);
-        var tagRepository = new QuestionTagRepository(appDbContext);
+        var tagRepository = new TagRepository(appDbContext);
         var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
         var foundQuestion = await questionService.FindByIdAsync(question.Id);
@@ -49,7 +50,7 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
         var archiveService = new ArchiveService<Question>(questionRepository);
-        var tagRepository = new QuestionTagRepository(appDbContext);
+        var tagRepository = new TagRepository(appDbContext);
         var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
         var foundQuestion = await questionService.FindByIdAsync(Guid.NewGuid());
@@ -100,7 +101,7 @@ public class QuestionServiceTest
         var questionRepository = new QuestionRepository(appDbContext);
         var questionArchiveRepository = new QuestionNonArchiveRepository(appDbContext);
         var archiveService = new ArchiveService<Question>(questionRepository);
-        var tagRepository = new QuestionTagRepository(appDbContext);
+        var tagRepository = new TagRepository(appDbContext);
         var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
         var result = await questionService.DeletePermanentlyAsync(question.Id);

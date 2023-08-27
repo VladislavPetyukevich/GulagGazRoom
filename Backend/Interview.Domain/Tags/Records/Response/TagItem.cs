@@ -1,6 +1,6 @@
-namespace Interview.Domain.Questions.Records.Response;
+namespace Interview.Domain.Tags.Records.Response;
 
-public class QuestionTagItem
+public class TagItem
 {
     public required Guid Id { get; init; }
 

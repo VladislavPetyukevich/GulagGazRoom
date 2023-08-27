@@ -1,8 +1,10 @@
-using Interview.Domain.Repository;
+﻿using Interview.Domain.Tags;
 
 namespace Interview.Domain.Questions;
 
-public class QuestionTag : Entity
+public class QuestionTag : TagLink
 {
-    public string Value { get; internal set; } = string.Empty;
+    public Guid QuestionId { get; internal set; }
+
+    public Question? Question { get; internal set; }
 }
