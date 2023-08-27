@@ -10,5 +10,5 @@ public class QuestionItem
 
     public string Value { get; init; } = string.Empty;
 
-    public required List<QuestionTagItem> Tags { get; init; }
+    public required List<LinkedTagItem> Tags { get; init; }
 }

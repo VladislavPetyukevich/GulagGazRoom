@@ -1,6 +1,6 @@
 namespace Interview.Domain.Tags.Records.Response;
 
-public class QuestionTagItem
+public class LinkedTagItem
 {
     public required string Value { get; init; }
 

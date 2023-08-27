@@ -32,4 +32,6 @@ public class Room : Entity
     public List<RoomQuestion> Questions { get; set; } = new();
 
     public List<RoomParticipant> Participants { get; set; } = new();
+
+    public List<RoomTag> Tags { get; set; } = new();
 }

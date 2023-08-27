@@ -42,7 +42,7 @@ public class QuestionService
                 {
                     Id = question.Id,
                     Value = question.Value,
-                    Tags = question.Tags.Select(e => new QuestionTagItem
+                    Tags = question.Tags.Select(e => new LinkedTagItem
                     {
                         Value = e.Tag.Value,
                         HexColor = e.HexColor,
@@ -61,7 +61,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new QuestionTagItem
+            Tags = question.Tags.Select(e => new LinkedTagItem
             {
                 Value = e.Tag.Value,
                 HexColor = e.HexColor,
@@ -94,7 +94,7 @@ public class QuestionService
         {
             Id = result.Id,
             Value = result.Value,
-            Tags = result.Tags.Select(e => new QuestionTagItem
+            Tags = result.Tags.Select(e => new LinkedTagItem
             {
                 Value = e.Tag.Value,
                 HexColor = e.HexColor,
@@ -128,7 +128,7 @@ public class QuestionService
         {
             Id = entity.Id,
             Value = entity.Value,
-            Tags = entity.Tags.Select(e => new QuestionTagItem
+            Tags = entity.Tags.Select(e => new LinkedTagItem
             {
                 Value = e.Tag.Value,
                 HexColor = e.HexColor,
@@ -150,7 +150,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new QuestionTagItem
+            Tags = question.Tags.Select(e => new LinkedTagItem
             {
                 Value = e.Tag.Value,
                 HexColor = e.HexColor,
@@ -180,7 +180,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new QuestionTagItem
+            Tags = question.Tags.Select(e => new LinkedTagItem
             {
                 Value = e.Tag.Value,
                 HexColor = e.HexColor,
@@ -196,7 +196,7 @@ public class QuestionService
             {
                 Id = q.Value.Id,
                 Value = q.Value.Value,
-                Tags = q.Value.Tags.Select(e => new QuestionTagItem
+                Tags = q.Value.Tags.Select(e => new LinkedTagItem
                 {
                     Value = e.Tag.Value,
                     HexColor = e.HexColor,
@@ -213,7 +213,7 @@ public class QuestionService
                 {
                     Id = question.Value.Id,
                     Value = question.Value.Value,
-                    Tags = question.Value.Tags.Select(e => new QuestionTagItem
+                    Tags = question.Value.Tags.Select(e => new LinkedTagItem
                     {
                         Value = e.Tag.Value,
                         HexColor = e.HexColor,

@@ -53,6 +53,8 @@ public class AppDbContext : DbContext
 
     public DbSet<QuestionTag> QuestionTag { get; private set; } = null!;
 
+    public DbSet<RoomTag> RoomTag { get; private set; } = null!;
+
     public override int SaveChanges()
     {
         using (new SaveCookie(this, CancellationToken.None))

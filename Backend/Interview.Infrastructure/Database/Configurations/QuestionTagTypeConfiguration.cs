@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Interview.Infrastructure.Database.Configurations;
 
-public class QuestionTagTypeConfiguration : EntityTypeConfigurationBase<QuestionTag>
+public class QuestionTagTypeConfiguration : TagLinkTypeConfigurationBase<QuestionTag>
 {
     protected override void ConfigureCore(EntityTypeBuilder<QuestionTag> builder)
     {
@@ -12,10 +12,6 @@ public class QuestionTagTypeConfiguration : EntityTypeConfigurationBase<Question
             .WithMany(e => e.Tags)
             .HasForeignKey(e => e.QuestionId)
             .IsRequired();
-        builder.HasOne(e => e.Tag)
-            .WithMany(e => e.QuestionTags)
-            .HasForeignKey(e => e.TagId)
-            .IsRequired();
-        builder.Property(e => e.HexColor).IsRequired().HasMaxLength(6);
+        Configure(builder, e => e.QuestionTags);
     }
 }

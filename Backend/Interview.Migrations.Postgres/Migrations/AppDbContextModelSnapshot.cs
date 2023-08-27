@@ -310,6 +310,38 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.RoomTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("HexColor")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("RoomTag");
+                });
+
             modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -532,6 +564,25 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.RoomTag", b =>
+                {
+                    b.HasOne("Interview.Domain.Rooms.Room", "Room")
+                        .WithMany("Tags")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Interview.Domain.Tags.Tag", "Tag")
+                        .WithMany("RoomTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("Interview.Domain.Users.Roles.Role", null)
@@ -559,11 +610,15 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
+
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
                 {
                     b.Navigation("QuestionTags");
+
+                    b.Navigation("RoomTags");
                 });
 #pragma warning restore 612, 618
         }
