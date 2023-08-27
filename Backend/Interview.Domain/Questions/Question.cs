@@ -17,6 +17,5 @@ public class Question : ArchiveEntity
 
     public string Value { get; internal set; }
 
-    [NotMapped]
     public List<QuestionTag> Tags { get; internal set; } = new List<QuestionTag>();
 }

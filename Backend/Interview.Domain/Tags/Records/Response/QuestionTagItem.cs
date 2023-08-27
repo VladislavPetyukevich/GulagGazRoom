@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Tags.Records.Response;
+namespace Interview.Domain.Tags.Records.Response;
 
 public class QuestionTagItem
 {

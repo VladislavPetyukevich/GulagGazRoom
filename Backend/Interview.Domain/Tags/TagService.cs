@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using Interview.Domain.Questions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;

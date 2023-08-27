@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Tags;
+using Interview.Domain.Tags;
 
 namespace Interview.Domain.Questions;
 

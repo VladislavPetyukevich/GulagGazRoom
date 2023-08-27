@@ -44,6 +44,38 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("Questions");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Questions.QuestionTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HexColor")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("QuestionTag");
+                });
+
             modelBuilder.Entity("Interview.Domain.Reactions.Reaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -381,6 +413,25 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("RoleUser");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Questions.QuestionTag", b =>
+                {
+                    b.HasOne("Interview.Domain.Questions.Question", "Question")
+                        .WithMany("Tags")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Interview.Domain.Tags.Tag", "Tag")
+                        .WithMany("QuestionTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("Interview.Domain.RoomConfigurations.RoomConfiguration", b =>
                 {
                     b.HasOne("Interview.Domain.Rooms.Room", "Room")
@@ -491,6 +542,11 @@ namespace Interview.Migrations.Sqlite.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
+                {
+                    b.Navigation("Tags");
+                });
+
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
                 {
                     b.Navigation("Configuration");
@@ -498,6 +554,11 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
+                {
+                    b.Navigation("QuestionTags");
                 });
 #pragma warning restore 612, 618
         }

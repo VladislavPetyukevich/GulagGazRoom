@@ -11,13 +11,6 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
     {
     }
 
-    protected override IQueryable<Question> ApplyIncludes(DbSet<Question> set)
-    {
-        return set
-            .Include(e => e.Tags)
-            .ThenInclude(e => e.Tag);
-    }
-
     public async Task DeletePermanentlyAsync(Question entity, CancellationToken cancellationToken = default)
     {
         var transaction = await Db.Database.BeginTransactionAsync(cancellationToken);
@@ -35,5 +28,12 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
             .ExecuteDeleteAsync(cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
+    }
+
+    protected override IQueryable<Question> ApplyIncludes(DbSet<Question> set)
+    {
+        return set
+            .Include(e => e.Tags)
+            .ThenInclude(e => e.Tag);
     }
 }

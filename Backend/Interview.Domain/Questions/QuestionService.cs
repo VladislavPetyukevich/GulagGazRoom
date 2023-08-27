@@ -50,7 +50,7 @@ public class QuestionService
                 });
         var spec = tags.Count == 0
             ? Spec.Any<Question>()
-            : new Spec<Question>(e => e.Tags.Any(e => tags.Contains(e.Id)));
+            : new Spec<Question>(e => e.Tags.Any(e => tags.Contains(e.TagId)));
         return _questionNonArchiveRepository.GetPageDetailedAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
     }
 
@@ -77,17 +77,16 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
-        var result = new Question(request.Value)
-        {
-            Tags = new List<QuestionTag>(),
-        };
-        var tags = await EnsureValidTagsAsync(result, request.Tags, cancellationToken);
+        var tags = await EnsureValidTagsAsync(request.Tags, cancellationToken);
         if (tags.IsFailure)
         {
             return tags.Error;
         }
 
-        tags.Value.ForEach(e => result.Tags.Add(e));
+        var result = new Question(request.Value)
+        {
+            Tags = tags.Value,
+        };
 
         await _questionRepository.CreateAsync(result, cancellationToken);
 
@@ -113,7 +112,7 @@ public class QuestionService
             return ServiceError.NotFound($"Question not found with id={id}");
         }
 
-        var tags = await EnsureValidTagsAsync(entity, request.Tags, cancellationToken);
+        var tags = await EnsureValidTagsAsync(request.Tags, cancellationToken);
         if (tags.IsFailure)
         {
             return tags.Error;
@@ -222,7 +221,7 @@ public class QuestionService
                 }));
     }
 
-    private async Task<Result<List<QuestionTag>, ServiceError>> EnsureValidTagsAsync(Question question, IReadOnlyCollection<TagLinkRequest> tagsForCheck, CancellationToken cancellationToken)
+    private async Task<Result<List<QuestionTag>, ServiceError>> EnsureValidTagsAsync(IReadOnlyCollection<TagLinkRequest> tagsForCheck, CancellationToken cancellationToken)
     {
         var requestTags = tagsForCheck.Select(e => e.TagId).ToHashSet();
         var tags = await _tagRepository.FindByIdsAsync(requestTags, cancellationToken);
@@ -246,7 +245,7 @@ public class QuestionService
                 tagsForCheck,
                 tag => tag.Id,
                 tagRequest => tagRequest.TagId,
-                (tag, tagRequest) => new QuestionTag { TagId = tag.Id, Tag = tag, HexColor = tagRequest.HexColor, Question = question })
+                (tag, tagRequest) => new QuestionTag { TagId = tag.Id, HexColor = tagRequest.HexColor })
             .ToList();
     }
 }
