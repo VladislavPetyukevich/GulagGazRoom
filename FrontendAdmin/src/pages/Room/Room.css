@@ -15,12 +15,12 @@
 .room-page .room-title button {
   display: inline-block;
   position: absolute;
-  right: 25px;
+  right: 1.5rem;
 }
 
 .room-page .copy-link-button {
   position: absolute;
-  margin-left: 125px;
+  margin-left: 8rem;
 }
 
 .room-page .reactions-field {
@@ -35,7 +35,7 @@
 
 .room-page .reactions-field .reaction-wrapper {
   display: inline-block;
-  margin-left: 15px;
+  margin-left: 0.75rem;
 }
 
 .room-page .interviewee-frame-wrapper {

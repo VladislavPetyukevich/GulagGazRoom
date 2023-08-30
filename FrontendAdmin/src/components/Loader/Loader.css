@@ -13,9 +13,9 @@
 .loader {
   color: var(--loader-color);
   text-indent: -9999em;
-  margin: 5px 15px;
+  margin: 0.25rem 1rem;
   position: relative;
-  font-size: 4px;
+  font-size: 0.25rem;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);

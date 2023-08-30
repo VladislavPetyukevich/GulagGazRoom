@@ -32,7 +32,7 @@ button {
   color: var(--text);
   background-color: var(--button-bg);
   border: none;
-  padding: 5px 30px;
+  padding: 0.5rem 2rem;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -63,9 +63,9 @@ table {
 }
 
 table td, th {
-  padding: 10px 0px;
-  padding-left: 10px;
-  padding-right: 15px;
+  padding: 0.75rem 0rem;
+  padding-left: 0.75rem;
+  padding-right: 1rem;
 }
 
 table th {
@@ -89,7 +89,7 @@ h2 {
 
 h3 {
   margin: 0px;
-  margin-bottom: 5px;
+  margin-bottom: 0.25rem;
   font-size: var(--menu-font-size);
   line-height: var(--menu-line-height) !important;
   color: var(--text);
