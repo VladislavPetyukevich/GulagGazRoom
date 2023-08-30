@@ -1,11 +1,12 @@
+using System.Net;
 using System.Net.Mime;
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.RoomReviews.Records;
+using Interview.Domain.RoomReviews.Services;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
-using Interview.Domain.ServiceResults.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -15,9 +16,9 @@ namespace Interview.Backend.RoomReviews;
 [Route("room-reviews")]
 public class RoomReviewController : ControllerBase
 {
-    private readonly RoomReviewService _roomReviewService;
+    private readonly IRoomReviewService _roomReviewService;
 
-    public RoomReviewController(RoomReviewService roomReviewService)
+    public RoomReviewController(IRoomReviewService roomReviewService)
     {
         _roomReviewService = roomReviewService;
     }
@@ -57,13 +58,16 @@ public class RoomReviewController : ControllerBase
     {
         var user = HttpContext.User.ToUser();
 
-        if (user == null)
+        if (user is null)
         {
-            return Task.FromResult(ServiceError.Error("Current user not found").ToActionResult<RoomReviewDetail>());
+            throw new AccessDeniedException("Current user not found");
         }
 
-        return _roomReviewService.CreateAsync(request, user.Id, HttpContext.RequestAborted)
-            .ToResponseAsync();
+        return Task.FromResult<ActionResult<RoomReviewDetail>>(
+            new ObjectResult(_roomReviewService.CreateAsync(request, user.Id, HttpContext.RequestAborted))
+            {
+                StatusCode = (int?)HttpStatusCode.Created,
+            });
     }
 
     /// <summary>
@@ -80,16 +84,8 @@ public class RoomReviewController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomReviewDetail>> Update([FromRoute] Guid id, [FromBody] RoomReviewUpdateRequest request)
+    public Task<RoomReviewDetail> Update([FromRoute] Guid id, [FromBody] RoomReviewUpdateRequest request)
     {
-        var user = HttpContext.User.ToUser();
-
-        if (user == null)
-        {
-            return Task.FromResult(ServiceError.Error("Current user not found").ToActionResult<RoomReviewDetail>());
-        }
-
-        return _roomReviewService.UpdateAsync(id, user.Id, request, HttpContext.RequestAborted)
-            .ToResponseAsync();
+        return _roomReviewService.UpdateAsync(id, request, HttpContext.RequestAborted);
     }
 }

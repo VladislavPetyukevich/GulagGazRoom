@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Interview.Domain.Permissions;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Records;
@@ -13,6 +14,7 @@ public class UserServiceTest
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IRoleRepository> _mockRoleRepository;
     private readonly Mock<IPermissionRepository> _mockPermissionRepository;
+    private readonly Mock<ISecurityService> _mockSecurityService;
 
     private readonly UserService _userService;
 
@@ -21,9 +23,10 @@ public class UserServiceTest
         _mockUserRepository = new Mock<IUserRepository>();
         _mockRoleRepository = new Mock<IRoleRepository>();
         _mockPermissionRepository = new Mock<IPermissionRepository>();
+        _mockSecurityService = new Mock<ISecurityService>();
 
         _userService = new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, new AdminUsers(),
-            _mockPermissionRepository.Object);
+            _mockPermissionRepository.Object, _mockSecurityService.Object);
     }
 
     [Fact]

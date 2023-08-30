@@ -1,3 +1,4 @@
+using Interview.Domain.Permissions;
 using Interview.Domain.Repository;
 using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Records;
@@ -7,23 +8,26 @@ using X.PagedList;
 
 namespace Interview.Domain.Users;
 
-public sealed class UserService
+public sealed class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
     private readonly AdminUsers _adminUsers;
     private readonly IPermissionRepository _permissionRepository;
+    private readonly ISecurityService _securityService;
 
     public UserService(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         AdminUsers adminUsers,
-        IPermissionRepository permissionRepository)
+        IPermissionRepository permissionRepository, 
+        ISecurityService securityService)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _adminUsers = adminUsers;
         _permissionRepository = permissionRepository;
+        _securityService = securityService;
     }
 
     public Task<IPagedList<UserDetail>> FindPageAsync(
@@ -61,7 +65,7 @@ public sealed class UserService
         };
     }
 
-    public async Task<User?> GetByIdentityAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<User?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var user = await _userRepository.FindByIdAsync(id, cancellationToken);
 
@@ -71,6 +75,11 @@ public sealed class UserService
         }
 
         return user;
+    }
+
+    public Task<User?> GetSelfAsync()
+    {
+        return Task.FromResult(_securityService.CurrentUser());
     }
 
     public async Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)
@@ -183,7 +192,7 @@ public sealed class UserService
 
         await _userRepository.UpdateAsync(user, cancellationToken);
 
-        return new PermissionItem(storagePermission.Id, storagePermission.Type.Name, containsPermission);
+        return new PermissionItem(storagePermission.Type, containsPermission);
     }
 
     private Task<Role?> GetUserRoleAsync(string nickname, CancellationToken cancellationToken)

@@ -1,6 +1,7 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
+using Interview.Domain.Questions.Permissions;
 using Interview.Domain.Questions.Records.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,9 +13,9 @@ namespace Interview.Backend.Questions;
 [Route("questions")]
 public class QuestionController : ControllerBase
 {
-    private readonly QuestionService _questionService;
+    private readonly IQuestionService _questionService;
 
-    public QuestionController(QuestionService questionService)
+    public QuestionController(IQuestionService questionService)
     {
         _questionService = questionService;
     }

@@ -1,7 +1,7 @@
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.Rooms;
-using Interview.Domain.Rooms.Service.Records.Request;
+using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Infrastructure.Database;

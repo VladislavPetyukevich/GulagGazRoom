@@ -4,15 +4,28 @@ using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Permissions;
 using Interview.Domain.Questions;
+using Interview.Domain.Questions.Permissions;
 using Interview.Domain.Reactions;
+using Interview.Domain.Reactions.Permissions;
+using Interview.Domain.Reactions.Services;
 using Interview.Domain.Repository;
+using Interview.Domain.RoomParticipants.Permissions;
 using Interview.Domain.RoomParticipants.Service;
 using Interview.Domain.RoomQuestionReactions;
+using Interview.Domain.RoomQuestionReactions.Permissions;
+using Interview.Domain.RoomQuestionReactions.Services;
 using Interview.Domain.RoomQuestions;
+using Interview.Domain.RoomQuestions.Permissions;
+using Interview.Domain.RoomQuestions.Services;
 using Interview.Domain.RoomReviews;
+using Interview.Domain.RoomReviews.Permissions;
+using Interview.Domain.RoomReviews.Services;
+using Interview.Domain.Rooms.Permissions;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
+using Interview.Domain.Users.Permissions;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Database.Processors;
@@ -50,14 +63,32 @@ public static class ServiceCollectionExt
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
 
         // Services
-        self.AddScoped<UserService>();
-        self.AddScoped<RoomService>();
-        self.AddScoped<QuestionService>();
-        self.AddScoped<RoomReviewService>();
-        self.AddScoped<RoomParticipantService>();
-        self.AddScoped<RoomQuestionService>();
-        self.AddScoped<RoomQuestionReactionService>();
-        self.AddScoped<ReactionService>();
+        self.AddScoped<ISecurityService, SecurityService>();
+        
+        self.AddScoped<IUserService, UserService>();
+        self.Decorate<IUserService, UserServicePermissionAccessor>();
+        
+        self.AddScoped<IRoomService, RoomService>();
+        self.Decorate<IRoomService, RoomServicePermissionAccessor>();
+        
+        self.AddScoped<IQuestionService, QuestionService>();
+        self.Decorate<IQuestionService, QuestionServicePermissionAccessor>();
+        
+        self.AddScoped<IRoomReviewService, RoomReviewService>();
+        self.Decorate<IRoomReviewService, RoomReviewServicePermissionAccessor>();
+        
+        self.AddScoped<IRoomParticipantService, RoomParticipantService>();
+        self.Decorate<IRoomParticipantService, RoomParticipantServicePermissionAccessor>();
+        
+        self.AddScoped<IRoomQuestionService, RoomQuestionService>();
+        self.Decorate<IRoomQuestionService, RoomQuestionServicePermissionAccessor>();
+        
+        self.AddScoped<IRoomQuestionReactionService, RoomQuestionReactionService>();
+        self.Decorate<IRoomQuestionReactionService, RoomQuestionReactionServicePermissionAccessor>();
+        
+        self.AddScoped<IReactionService, ReactionService>();
+        self.Decorate<IReactionService, ReactionServicePermissionAccessor>();
+        
         self.AddScoped(typeof(ArchiveService<>));
 
         self.AddSingleton(option.TwitchTokenProviderOption);
@@ -75,9 +106,8 @@ public static class ServiceCollectionExt
         self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
 
         self.AddScoped<ICurrentPermissionAccessor, CurrentPermissionAccessor>();
-
+    
         self.AddScoped<IEntityPreProcessor, DateEntityPreProcessor>();
-        self.AddScoped<IEntityPreProcessor, AccessEntityActionPreProcessor>();
 
         return self;
     }

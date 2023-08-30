@@ -122,7 +122,7 @@ public class EfCoreRepositoryTest
         dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser);
     }
 
-    [Fact(DisplayName = "GetPageAsync should not include roles")]
+    [Fact(DisplayName = "FindPageAsync should not include roles")]
     public async Task DbContext_GetPageAsync()
     {
         const int pageNumber = 1;
@@ -141,7 +141,7 @@ public class EfCoreRepositoryTest
         dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser);
     }
 
-    [Fact(DisplayName = "GetPageAsync with mapper should not include roles")]
+    [Fact(DisplayName = "FindPageAsync with mapper should not include roles")]
     public async Task DbContext_GetPageAsync_With_Mapper()
     {
         const int pageNumber = 1;

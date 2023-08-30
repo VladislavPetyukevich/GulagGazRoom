@@ -46,6 +46,9 @@ public class AccessDeniedException : UserException
         : base(message, innerException)
     {
     }
+
+    public static AccessDeniedException CreateForAction(string resource)
+        => new AccessDeniedException($"Action was denied for the '{resource.ToLower()}' resource.");
 }
 
 public abstract class ExceptionMessage
@@ -55,7 +58,4 @@ public abstract class ExceptionMessage
     public static string UserNotFoundByNickname(string nickname) => $"Not found user with nickname [{nickname}]";
 
     public static string UserRoleNotFound() => "Not found \"User\" role";
-
-    public static string ResourceAccessDined(string resource, PermissionNameType type)
-        => $"A '{type.Name.ToLower()}' type action was denied for the '{resource.ToLower()}' resource.";
 }

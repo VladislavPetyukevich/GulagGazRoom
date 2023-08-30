@@ -1,5 +1,5 @@
+using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Service.Records;
-using Interview.Domain.Rooms.Service.Records.Request;
 
 namespace Interview.Backend.Rooms;
 

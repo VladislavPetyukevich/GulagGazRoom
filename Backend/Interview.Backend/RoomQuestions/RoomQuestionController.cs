@@ -3,6 +3,7 @@ using Interview.Backend.Responses;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
+using Interview.Domain.RoomQuestions.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,9 @@ namespace Interview.Backend.RoomQuestions;
 [Route("room-questions")]
 public class RoomQuestionController : ControllerBase
 {
-    private readonly RoomQuestionService _roomQuestionService;
+    private readonly IRoomQuestionService _roomQuestionService;
 
-    public RoomQuestionController(RoomQuestionService roomQuestionService)
+    public RoomQuestionController(IRoomQuestionService roomQuestionService)
     {
         _roomQuestionService = roomQuestionService;
     }
@@ -32,9 +33,9 @@ public class RoomQuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomQuestionDetail>> ChangeActiveQuestion(RoomQuestionChangeActiveRequest request)
+    public Task<RoomQuestionDetail> ChangeActiveQuestion(RoomQuestionChangeActiveRequest request)
     {
-        return _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -50,9 +51,9 @@ public class RoomQuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomQuestionDetail>> Create(RoomQuestionCreateRequest request)
+    public Task<RoomQuestionDetail> Create(RoomQuestionCreateRequest request)
     {
-        return _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -68,8 +69,8 @@ public class RoomQuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<List<Guid>>> FindRoomQuestions([FromQuery] RoomQuestionsRequest request)
+    public Task<List<Guid>> FindRoomQuestions([FromQuery] RoomQuestionsRequest request)
     {
-        return _roomQuestionService.FindRoomQuestionsAsync(request).ToResponseAsync();
+        return _roomQuestionService.FindGuidsAsync(request);
     }
 }

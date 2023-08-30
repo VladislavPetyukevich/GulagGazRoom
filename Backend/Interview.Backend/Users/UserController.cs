@@ -12,11 +12,11 @@ namespace Interview.Backend.Users;
 [Route("users")]
 public class UserController : ControllerBase
 {
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
     private readonly UserClaimService _userClaimService;
 
-    public UserController(UserService userService, UserClaimService userClaimService)
+    public UserController(IUserService userService, UserClaimService userClaimService)
     {
         _userService = userService;
         _userClaimService = userClaimService;
@@ -81,9 +81,9 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<UserClaim?> GetMyself()
+    public Task<User?> GetMyself()
     {
-        return await _userClaimService.ParseClaimsAsync(HttpContext.User.Claims, HttpContext.RequestAborted);
+        return _userService.GetSelfAsync();
     }
 
     [Authorize(policy: GulagSecurePolicy.User)]
@@ -98,7 +98,7 @@ public class UserController : ControllerBase
         return await _userService.GetPermissionsAsync(id, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [HttpPut("{id:guid}/permissions")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(PermissionItem), StatusCodes.Status200OK)]

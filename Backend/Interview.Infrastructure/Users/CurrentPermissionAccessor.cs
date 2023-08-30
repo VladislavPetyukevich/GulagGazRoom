@@ -7,20 +7,18 @@ namespace Interview.Infrastructure.Users;
 
 public sealed class CurrentPermissionAccessor : ICurrentPermissionAccessor
 {
-    private readonly Lazy<List<Permission>> _lazyPermission;
+    private readonly Lazy<HashSet<string>> _lazyPermission;
 
     public CurrentPermissionAccessor(AppDbContext appDbContext)
     {
-        _lazyPermission = new Lazy<List<Permission>>(() =>
-            appDbContext.Permissions.AsNoTracking().ToList());
+        // roomQuestionReaction -> RoomQuestionReaction [write, read]
+        _lazyPermission = new Lazy<HashSet<string>>(() => appDbContext.Permissions.AsNoTracking()
+            .Select(permission => permission.Type.Name)
+            .ToHashSet(StringComparer.InvariantCultureIgnoreCase));
     }
 
     public bool IsProtectedResource(string resource)
     {
-        var protectedResources = _lazyPermission.Value
-            .Select(permission => permission.Resource.ToLower())
-            .ToHashSet();
-
-        return protectedResources.Contains(resource.ToLower());
+        return _lazyPermission.Value.Contains(resource);
     }
 }

@@ -19,10 +19,9 @@ public interface ICurrentUserAccessor
 
     bool IsAdmin() => HasRole(RoleName.Admin);
 
-    bool HasPermission(string permissionName, PermissionNameType permissionType)
+    bool HasPermission(string permissionName)
     {
-        return UserDetailed is not null &&
-            UserDetailed.Permissions.Any(it => it.Resource == permissionName && it.Type == permissionType);
+        return UserDetailed is not null && UserDetailed.Permissions.Any(it => it.Type.Name == permissionName);
     }
 }
 

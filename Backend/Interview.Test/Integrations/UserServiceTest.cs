@@ -1,5 +1,6 @@
 using System.Runtime.Serialization;
 using FluentAssertions;
+using Interview.Domain.Permissions;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Users;
@@ -31,8 +32,13 @@ public class UserServiceTest
         appDbContext.Users.Add(entity);
         await appDbContext.SaveChangesAsync();
 
+        var securityService = new SecurityService(
+            new CurrentPermissionAccessor(appDbContext),
+            new CachedCurrentUserAccessor(new CurrentUserAccessor(), appDbContext)
+        );
+        
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext),
-            new AdminUsers(), new PermissionRepository(appDbContext));
+            new AdminUsers(), new PermissionRepository(appDbContext), securityService);
         var user = new User("Dima", "1");
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
 
@@ -50,9 +56,14 @@ public class UserServiceTest
         var clock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(clock);
         appDbContext.Users.Count().Should().Be(0);
+        
+        var securityService = new SecurityService(
+            new CurrentPermissionAccessor(appDbContext),
+            new CachedCurrentUserAccessor(new CurrentUserAccessor(), appDbContext)
+        );
         var userService =
             new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext), adminUsers,
-                new PermissionRepository(appDbContext));
+                new PermissionRepository(appDbContext), securityService);
         var user = new User(nickname, "1");
 
         var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
@@ -70,8 +81,12 @@ public class UserServiceTest
         appDbContext.Roles.RemoveRange(appDbContext.Roles);
         await appDbContext.SaveChangesAsync();
         appDbContext.Users.Count().Should().Be(0);
+        var securityService = new SecurityService(
+            new CurrentPermissionAccessor(appDbContext),
+            new CachedCurrentUserAccessor(new CurrentUserAccessor(), appDbContext)
+        );
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext),
-            new AdminUsers(), new PermissionRepository(appDbContext));
+            new AdminUsers(), new PermissionRepository(appDbContext), securityService);
         var user = new User("Dima", "1");
 
         var error = await Assert.ThrowsAsync<Domain.NotFoundException>(async () =>

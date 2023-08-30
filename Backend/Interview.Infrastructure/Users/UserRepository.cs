@@ -57,23 +57,24 @@ public class UserRepository : EfRepository<User>, IUserRepository
 
         var userPermissions = (user?.Permissions ?? new List<Permission>()).Select(it => it.Id).ToHashSet();
 
-        var dictionary = Db.Permissions.ToList().Aggregate(
-            new Dictionary<string, List<PermissionItem>>(),
-            (dict, item) =>
-            {
-                var permissionItem = new PermissionItem(item.Id, item.Type.Name, userPermissions.Contains(item.Id));
-
-                if (dict.ContainsKey(item.Resource))
+        var dictionary = Db.Permissions.ToList()
+            .Aggregate(
+                new Dictionary<string, List<PermissionItem>>(),
+                (dict, item) =>
                 {
-                    dict.GetValueOrDefault(item.Resource)?.Add(permissionItem);
-                }
-                else
-                {
-                    dict.Add(item.Resource, new List<PermissionItem>(new[] { permissionItem }));
-                }
+                    var permissionItem = new PermissionItem(item.Type, userPermissions.Contains(item.Id));
 
-                return dict;
-            });
+                    if (dict.ContainsKey(item.Type.Name))
+                    {
+                        dict.GetValueOrDefault(item.Type.Name)?.Add(permissionItem);
+                    }
+                    else
+                    {
+                        dict.Add(item.Type.Name, new List<PermissionItem>(new[] { permissionItem }));
+                    }
+
+                    return dict;
+                });
 
         return dictionary;
     }

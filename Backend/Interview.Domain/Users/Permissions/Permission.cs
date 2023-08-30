@@ -1,17 +1,20 @@
+using Interview.Domain.Permissions;
 using Entity = Interview.Domain.Repository.Entity;
 
 namespace Interview.Domain.Users.Permissions;
 
 public class Permission : Entity
 {
-    public Permission(Guid id, PermissionNameType type, string resource)
-        : base(id)
+    public Permission(SEPermission permission)
+        : base(permission.Id)
     {
-        Type = type;
-        Resource = resource;
+        Type = permission;
     }
 
-    public PermissionNameType Type { get; set; }
+    private Permission()
+        : this(SEPermission.Unknown)
+    {
+    }
 
-    public string Resource { get; set; }
+    public SEPermission Type { get; set; }
 }
