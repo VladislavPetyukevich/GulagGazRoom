@@ -1,9 +1,5 @@
-using System.ComponentModel;
-using System.Text;
-using Castle.Core.Internal;
 using Interview.Domain;
 using Interview.Domain.Events;
-using Interview.Domain.Permissions;
 using Interview.Domain.Questions;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
@@ -51,7 +47,7 @@ public class RoomServiceTest
         _roomRepository.Setup(repository => repository.FindByIdAsync(roomId, default))
             .ReturnsAsync((Room?)null);
 
-        await Assert.ThrowsAsync<NotFoundException>(() => 
+        await Assert.ThrowsAsync<NotFoundException>(() =>
             _roomService.UpdateAsync(roomId, roomPatchUpdateRequest));
     }
 }

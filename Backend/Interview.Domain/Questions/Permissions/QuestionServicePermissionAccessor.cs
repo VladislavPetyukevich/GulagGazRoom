@@ -3,7 +3,6 @@ using Interview.Domain.Permissions;
 using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
-using Interview.Domain.Users;
 using X.PagedList;
 
 namespace Interview.Domain.Questions.Permissions;
@@ -76,7 +75,8 @@ public class QuestionServicePermissionAccessor : IQuestionService
         return _questionService.ArchiveAsync(id, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(Guid id,
+    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
+        Guid id,
         CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPageArchive);

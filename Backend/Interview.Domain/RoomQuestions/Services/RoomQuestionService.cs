@@ -104,7 +104,10 @@ public class RoomQuestionService : IRoomQuestionService
 
         return new RoomQuestionDetail
         {
-            Id = newRoomQuestion.Id, QuestionId = question.Id, RoomId = room.Id, State = newRoomQuestion.State,
+            Id = newRoomQuestion.Id,
+            QuestionId = question.Id,
+            RoomId = room.Id,
+            State = newRoomQuestion.State,
         };
     }
 

@@ -22,9 +22,9 @@ public class RoomServicePermissionAccessor : IRoomService
 
     public Task<IPagedList<RoomPageDetail>> FindPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-       _securityService.EnsurePermission(SEPermission.RoomFindPage);
+        _securityService.EnsurePermission(SEPermission.RoomFindPage);
 
-       return _roomService.FindPageAsync(pageNumber, pageSize, cancellationToken);
+        return _roomService.FindPageAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public Task<RoomDetail> FindByIdAsync(Guid id, CancellationToken cancellationToken)

@@ -20,7 +20,7 @@ public sealed class UserService : IUserService
         IUserRepository userRepository,
         IRoleRepository roleRepository,
         AdminUsers adminUsers,
-        IPermissionRepository permissionRepository, 
+        IPermissionRepository permissionRepository,
         ISecurityService securityService)
     {
         _userRepository = userRepository;

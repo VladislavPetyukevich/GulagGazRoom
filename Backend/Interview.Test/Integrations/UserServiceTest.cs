@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using FluentAssertions;
 using Interview.Domain.Permissions;
 using Interview.Domain.Users;
@@ -36,7 +35,7 @@ public class UserServiceTest
             new CurrentPermissionAccessor(appDbContext),
             new CachedCurrentUserAccessor(new CurrentUserAccessor(), appDbContext)
         );
-        
+
         var userService = new UserService(new UserRepository(appDbContext), new RoleRepository(appDbContext),
             new AdminUsers(), new PermissionRepository(appDbContext), securityService);
         var user = new User("Dima", "1");
@@ -56,7 +55,7 @@ public class UserServiceTest
         var clock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(clock);
         appDbContext.Users.Count().Should().Be(0);
-        
+
         var securityService = new SecurityService(
             new CurrentPermissionAccessor(appDbContext),
             new CachedCurrentUserAccessor(new CurrentUserAccessor(), appDbContext)

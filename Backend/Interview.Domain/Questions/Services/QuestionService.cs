@@ -7,7 +7,7 @@ using Interview.Domain.ServiceResults.Success;
 using NSpecifications;
 using X.PagedList;
 
-namespace Interview.Domain.Questions;
+namespace Interview.Domain.Questions.Services;
 
 public class QuestionService : IQuestionService
 {
@@ -41,7 +41,8 @@ public class QuestionService : IQuestionService
     {
         var mapper = new Mapper<Question, QuestionItem>(question => new QuestionItem
         {
-            Id = question.Id, Value = question.Value,
+            Id = question.Id,
+            Value = question.Value,
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);

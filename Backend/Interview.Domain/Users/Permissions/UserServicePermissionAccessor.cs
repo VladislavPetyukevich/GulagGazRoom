@@ -46,7 +46,6 @@ public class UserServicePermissionAccessor : IUserService
     public Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)
     {
         // _securityService.EnsurePermission(SEPermission.UserFindById);
-
         return _userService.UpsertByTwitchIdentityAsync(user, cancellationToken);
     }
 
