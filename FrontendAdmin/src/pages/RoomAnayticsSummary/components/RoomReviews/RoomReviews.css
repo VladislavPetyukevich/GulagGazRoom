@@ -28,12 +28,12 @@
 }
 
 .roomReviews-list .roomReview-delete-button {
-  padding: 5px 10px;
-  margin-left: 5px;
+  padding: 0.5rem 1rem;
+  margin-left: 0.25rem;
 }
 
 .roomReviews-list .roomReview-item .roomReview-edit-button {
-  margin-left: 5px;
+  margin-left: 0.25rem;
 }
 
 .roomReviews-list .roomReview-item textarea {

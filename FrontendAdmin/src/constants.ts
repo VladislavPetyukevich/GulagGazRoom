@@ -92,6 +92,7 @@ export const enum Captions {
   AddReviewPlaceholder = 'Писать донос сюда',
   Send = 'Отправить',
   WithLove = 'С любовью',
+  BuildHash = 'Хэш сборки'
 };
 
 export const toastSuccessOptions = {
