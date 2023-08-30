@@ -5,7 +5,7 @@ namespace Interview.Domain.Permissions
     public class SEPermission : SmartEnum<SEPermission>
     {
         public static readonly SEPermission Unknown = new(Guid.Parse("129319c5-2bff-46a6-8539-5fc6bf77983e"),
-            "Unknown", "Unknown", EVPermission.QuestionFindPage);
+            "Unknown", "Unknown", EVPermission.Unknown);
 
         public static readonly SEPermission QuestionFindPage = new(Guid.Parse("189309c5-0bff-46a6-8539-5fc6bf77983e"),
             "QuestionFindPage", "Получение страницы вопросов", EVPermission.QuestionFindPage);
