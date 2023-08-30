@@ -137,7 +137,10 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
 
     fetchCreateQuestion({
       value: questionValue,
-      tags: selectedTags.map(tag => tag.id),
+      tags: selectedTags.map(tag => ({
+        tagId: tag.id,
+        hexColor: 'FFFFFF',
+      })),
     });
 
   }, [selectedTags, questionValue, fetchCreateQuestion]);
@@ -150,7 +153,10 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     fetchUpdateQuestion({
       id: question.id,
       value: questionValue,
-      tags: selectedTags.map(tag => tag.id),
+      tags: selectedTags.map(tag => ({
+        tagId: tag.id,
+        hexColor: 'FFFFFF',
+      })),
     });
 
   }, [selectedTags, question, questionValue, fetchUpdateQuestion]);

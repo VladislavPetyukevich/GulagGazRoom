@@ -63,11 +63,19 @@ const apiMethodReducer = (state: ApiMethodState, action: ApiMethodAction): ApiMe
 };
 const unauthorizedHttpCode = 401;
 
+const createUrlParam = (name: string, value: string) =>
+  `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+
 const createFetchUrl = (apiContract: ApiContract) => {
   if (apiContract.urlParams) {
     const params =
       Object.entries(apiContract.urlParams)
-        .map(([paramName, paramValue]) => `${encodeURIComponent(paramName)}=${encodeURIComponent(paramValue)}`)
+        .map(([paramName, paramValue]) => {
+          if (Array.isArray(paramValue)) {
+            return paramValue.map(val => createUrlParam(paramName, val)).join('&');
+          }
+          return createUrlParam(paramName, paramValue);
+        })
         .join('&');
     return `${REACT_APP_BACKEND_URL}${apiContract.baseUrl}?${params}`;
   }

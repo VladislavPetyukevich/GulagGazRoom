@@ -97,6 +97,7 @@ export const enum Captions {
   TagsPlaceholder = 'Выбрать тэги',
   TagsLoading = 'Загрузка тэгов',
   NoTags = 'Тэги отсутствуют',
+  SearchByTags = 'Поиск по тэгам',
 };
 
 export const toastSuccessOptions = {
