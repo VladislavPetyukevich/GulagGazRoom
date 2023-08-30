@@ -4,6 +4,7 @@ namespace Interview.Domain.Permissions;
 
 public enum EVPermission
 {
+#pragma warning disable SA1602
     Unknown,
 
     [Description("Получение страницы вопросов")]
@@ -19,6 +20,7 @@ public enum EVPermission
     QuestionUpdate,
 
     [Description("Поиск вопроса по идентификатору")]
+
     QuestionFindById,
 
     [Description("Перманентное удаление вопроса")]
@@ -116,4 +118,5 @@ public enum EVPermission
 
     [Description("Предоставление пользователю разрешения")]
     UserChangePermission,
+#pragma warning restore SA1602
 }
