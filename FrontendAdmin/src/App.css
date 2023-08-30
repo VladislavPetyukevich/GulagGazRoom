@@ -1,10 +1,21 @@
 .App {
   text-align: center;
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.App-content {
+  flex: 1;
 }
 
 .App h1 {
   margin: 0px;
   padding-top: 14px;
   font-size: 24px;
+}
+
+footer {
+  color: var(--wrap-bg);
+  padding: 0.25rem 0rem;
 }
