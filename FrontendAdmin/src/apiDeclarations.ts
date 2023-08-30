@@ -104,14 +104,6 @@ export interface UpdateQuestionBody extends CreateQuestionBody {
   id: string;
 }
 
-export interface GetTagsParams extends PaginationUrlParams {
-  value: string;
-}
-
-export interface CreateTagBody {
-  value: string;
-}
-
 export const questionsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
@@ -132,14 +124,25 @@ export const questionsApiDeclaration = {
     baseUrl: `/questions/${question.id}`,
     body: { value: question.value, tags: question.tags },
   }),
-  getTags: (params: GetTagsParams): ApiContractGet => ({
+};
+
+export interface GetTagsParams extends PaginationUrlParams {
+  value: string;
+}
+
+export interface CreateTagBody {
+  value: string;
+}
+
+export const tagsApiDeclaration = {
+  getPage: (params: GetTagsParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/questions/tag',
+    baseUrl: '/tags/tag',
     urlParams: params,
   }),
   createTag: (body: CreateTagBody): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/questions/tag',
+    baseUrl: '/tags/tag',
     body,
   }),
 };
