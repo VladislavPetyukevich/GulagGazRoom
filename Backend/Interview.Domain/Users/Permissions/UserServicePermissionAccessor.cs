@@ -38,14 +38,14 @@ public class UserServicePermissionAccessor : IUserService
         return _userService.FindByIdAsync(id, cancellationToken);
     }
 
-    public Task<User?> GetSelfAsync()
+    public Task<UserDetail> GetSelfAsync()
     {
         return _userService.GetSelfAsync();
     }
 
     public Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)
     {
-        _securityService.EnsurePermission(SEPermission.UserFindById);
+        // _securityService.EnsurePermission(SEPermission.UserFindById);
 
         return _userService.UpsertByTwitchIdentityAsync(user, cancellationToken);
     }

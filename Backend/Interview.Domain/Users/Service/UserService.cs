@@ -77,9 +77,24 @@ public sealed class UserService : IUserService
         return user;
     }
 
-    public Task<User?> GetSelfAsync()
+    public Task<UserDetail> GetSelfAsync()
     {
-        return Task.FromResult(_securityService.CurrentUser());
+        var user = _securityService.CurrentUser();
+
+        if (user is null)
+        {
+            throw new AccessDeniedException("User unauthorized");
+        }
+
+        return Task.FromResult(new UserDetail()
+        {
+            Id = user.Id,
+            TwitchIdentity = user.TwitchIdentity,
+            Nickname = user.Nickname,
+            Avatar = user.Avatar,
+            Roles = user.Roles.Select(role => role.Name.Name).ToList(),
+            Permissions = user.Permissions.Select(permission => new PermissionDetail(permission.Type)).ToList(),
+        });
     }
 
     public async Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default)

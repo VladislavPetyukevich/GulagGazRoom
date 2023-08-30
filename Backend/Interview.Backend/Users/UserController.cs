@@ -76,12 +76,11 @@ public class UserController : ControllerBase
     [Authorize]
     [HttpGet("self")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(UserClaim), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(UserDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<User?> GetMyself()
+    public Task<UserDetail> GetMyself()
     {
         return _userService.GetSelfAsync();
     }

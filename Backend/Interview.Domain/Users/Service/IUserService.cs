@@ -14,7 +14,7 @@ public interface IUserService
 
     Task<User?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<User?> GetSelfAsync();
+    Task<UserDetail> GetSelfAsync();
 
     Task<User> UpsertByTwitchIdentityAsync(User user, CancellationToken cancellationToken = default);
 

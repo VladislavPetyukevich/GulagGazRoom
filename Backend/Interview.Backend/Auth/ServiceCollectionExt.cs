@@ -52,7 +52,7 @@ public static class ServiceCollectionExt
                         return;
                     }
 
-                    var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
+                    var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                     var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
                     context.Principal!.EnrichRolesWithId(upsertUser);
                 };
