@@ -14,7 +14,7 @@ export interface QuestionTagsProps {
   onSelect: (tag: Tag) => void;
   onUnselect: (tag: Tag) => void;
   onSearch: (value: string) => void;
-  onCreate: (value: string) => void;
+  onCreate?: (value: string) => void;
 }
 
 export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
@@ -55,6 +55,9 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
 
   const handleCreate: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
+    if (!onCreate) {
+      return;
+    }
     onCreate(searchValue);
     setSearchValue('');
   };
@@ -77,7 +80,9 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
         <div className="questionTagsSelector-menu">
           <div className="search-box">
             <input onChange={handleSearch} value={searchValue} ref={searchRef} />
-            <button onClick={handleCreate}>{Captions.Create}</button>
+            {onCreate && (
+              <button onClick={handleCreate}>{Captions.Create}</button>
+            )}
           </div>
           {options.map((option) => (
             <div

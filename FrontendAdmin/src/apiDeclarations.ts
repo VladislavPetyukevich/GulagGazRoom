@@ -1,5 +1,5 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
-import { Question, QuestionState } from './types/question';
+import { Question, QuestionState, Tag } from './types/question';
 import { Reaction } from './types/reaction';
 import { Room, RoomReview } from './types/room';
 import { User } from './types/user';
@@ -97,23 +97,22 @@ export const roomQuestionApiDeclaration = {
 
 export interface CreateQuestionBody {
   value: string;
-  tags: string[];
+  tags: Array<{
+    tagId: string;
+    hexColor: string;
+  }>;
 }
 
 export interface UpdateQuestionBody extends CreateQuestionBody {
   id: string;
 }
 
-export interface GetTagsParams extends PaginationUrlParams {
-  value: string;
-}
-
-export interface CreateTagBody {
-  value: string;
+export interface GetQuestionsParams extends PaginationUrlParams {
+  tags?: Array<Tag['id']>;
 }
 
 export const questionsApiDeclaration = {
-  getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
+  getPage: (pagination: GetQuestionsParams): ApiContractGet => ({
     method: 'GET',
     baseUrl: '/questions',
     urlParams: pagination,
@@ -132,14 +131,25 @@ export const questionsApiDeclaration = {
     baseUrl: `/questions/${question.id}`,
     body: { value: question.value, tags: question.tags },
   }),
-  getTags: (params: GetTagsParams): ApiContractGet => ({
+};
+
+export interface GetTagsParams extends PaginationUrlParams {
+  value: string;
+}
+
+export interface CreateTagBody {
+  value: string;
+}
+
+export const tagsApiDeclaration = {
+  getPage: (params: GetTagsParams): ApiContractGet => ({
     method: 'GET',
-    baseUrl: '/questions/tag',
+    baseUrl: '/tags/tag',
     urlParams: params,
   }),
   createTag: (body: CreateTagBody): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/questions/tag',
+    baseUrl: '/tags/tag',
     body,
   }),
 };

@@ -1,7 +1,7 @@
 import React, { ChangeEvent, FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateQuestionBody, CreateTagBody, GetTagsParams, UpdateQuestionBody, questionsApiDeclaration } from '../../apiDeclarations';
+import { CreateQuestionBody, CreateTagBody, GetTagsParams, UpdateQuestionBody, questionsApiDeclaration, tagsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
@@ -38,16 +38,16 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
   const { process: { loading: questionLoading, error: questionError }, data: question } = getQuestionState;
 
   const {
-    apiMethodState: questionTagsState,
-    fetchData: fetchQuestionTags,
-  } = useApiMethod<Tag[], GetTagsParams>(questionsApiDeclaration.getTags);
-  const { process: { loading: tagsLoading, error: tagsError }, data: tags } = questionTagsState;
+    apiMethodState: tagsState,
+    fetchData: fetchTags,
+  } = useApiMethod<Tag[], GetTagsParams>(tagsApiDeclaration.getPage);
+  const { process: { loading: tagsLoading, error: tagsError }, data: tags } = tagsState;
 
   const {
-    apiMethodState: questionTagCreateState,
-    fetchData: fetchCreateQuestionTag,
-  } = useApiMethod<Tag, CreateTagBody>(questionsApiDeclaration.createTag);
-  const { process: { loading: createTagLoading, error: createTagError }, data: createdQuestionTag } = questionTagCreateState;
+    apiMethodState: tagCreateState,
+    fetchData: fetchCreateTag,
+  } = useApiMethod<Tag, CreateTagBody>(tagsApiDeclaration.createTag);
+  const { process: { loading: createTagLoading, error: createTagError }, data: createdQuestionTag } = tagCreateState;
 
   const navigate = useNavigate();
   let { id } = useParams();
@@ -77,23 +77,23 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
   }, [question]);
 
   useEffect(() => {
-    fetchQuestionTags({
+    fetchTags({
       PageNumber: pageNumber,
       PageSize: pageSize,
       value: tagsSearchValue,
     });
-  }, [createdQuestionTag, tagsSearchValue, fetchQuestionTags]);
+  }, [createdQuestionTag, tagsSearchValue, fetchTags]);
 
   useEffect(() => {
     if (!createdQuestionTag) {
       return;
     }
-    fetchQuestionTags({
+    fetchTags({
       PageNumber: pageNumber,
       PageSize: pageSize,
       value: '',
     });
-  }, [createdQuestionTag, fetchQuestionTags]);
+  }, [createdQuestionTag, fetchTags]);
 
   useEffect(() => {
     if (!createdQuestionId) {
@@ -125,7 +125,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
   };
 
   const handleTagCreate = (value: string) => {
-    fetchCreateQuestionTag({ value });
+    fetchCreateTag({ value });
   };
 
   const handleQuestionValueChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +137,10 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
 
     fetchCreateQuestion({
       value: questionValue,
-      tags: selectedTags.map(tag => tag.id),
+      tags: selectedTags.map(tag => ({
+        tagId: tag.id,
+        hexColor: 'FFFFFF',
+      })),
     });
 
   }, [selectedTags, questionValue, fetchCreateQuestion]);
@@ -150,7 +153,10 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     fetchUpdateQuestion({
       id: question.id,
       value: questionValue,
-      tags: selectedTags.map(tag => tag.id),
+      tags: selectedTags.map(tag => ({
+        tagId: tag.id,
+        hexColor: 'FFFFFF',
+      })),
     });
 
   }, [selectedTags, question, questionValue, fetchUpdateQuestion]);
