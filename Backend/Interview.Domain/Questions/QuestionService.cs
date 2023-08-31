@@ -42,15 +42,11 @@ public class QuestionService
                 {
                     Id = question.Id,
                     Value = question.Value,
-                    Tags = question.Tags.Select(e => new LinkedTagItem
-                    {
-                        Value = e.Tag.Value,
-                        HexColor = e.HexColor,
-                    }).ToList(),
+                    Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
                 });
         var spec = tags.Count == 0
             ? Spec.Any<Question>()
-            : new Spec<Question>(e => e.Tags.Any(e => tags.Contains(e.TagId)));
+            : new Spec<Question>(e => e.Tags.Any(t => tags.Contains(t.Id)));
         return _questionNonArchiveRepository.GetPageDetailedAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
     }
 
@@ -61,11 +57,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new LinkedTagItem
-            {
-                Value = e.Tag.Value,
-                HexColor = e.HexColor,
-            }).ToList(),
+            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
@@ -77,7 +69,7 @@ public class QuestionService
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
-        var tags = await EnsureValidTagsAsync(request.Tags, cancellationToken);
+        var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
         if (tags.IsFailure)
         {
             return tags.Error;
@@ -94,11 +86,7 @@ public class QuestionService
         {
             Id = result.Id,
             Value = result.Value,
-            Tags = result.Tags.Select(e => new LinkedTagItem
-            {
-                Value = e.Tag.Value,
-                HexColor = e.HexColor,
-            }).ToList(),
+            Tags = result.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
         });
     }
 
@@ -112,7 +100,7 @@ public class QuestionService
             return ServiceError.NotFound($"Question not found with id={id}");
         }
 
-        var tags = await EnsureValidTagsAsync(request.Tags, cancellationToken);
+        var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
         if (tags.IsFailure)
         {
             return tags.Error;
@@ -128,11 +116,7 @@ public class QuestionService
         {
             Id = entity.Id,
             Value = entity.Value,
-            Tags = entity.Tags.Select(e => new LinkedTagItem
-            {
-                Value = e.Tag.Value,
-                HexColor = e.HexColor,
-            }).ToList(),
+            Tags = entity.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
         });
     }
 
@@ -150,11 +134,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new LinkedTagItem
-            {
-                Value = e.Tag.Value,
-                HexColor = e.HexColor,
-            }).ToList(),
+            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
         });
     }
 
@@ -180,11 +160,7 @@ public class QuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new LinkedTagItem
-            {
-                Value = e.Tag.Value,
-                HexColor = e.HexColor,
-            }).ToList(),
+            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
         });
     }
 
@@ -196,11 +172,7 @@ public class QuestionService
             {
                 Id = q.Value.Id,
                 Value = q.Value.Value,
-                Tags = q.Value.Tags.Select(e => new LinkedTagItem
-                {
-                    Value = e.Tag.Value,
-                    HexColor = e.HexColor,
-                }).ToList(),
+                Tags = q.Value.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
             }));
     }
 
@@ -213,39 +185,7 @@ public class QuestionService
                 {
                     Id = question.Value.Id,
                     Value = question.Value.Value,
-                    Tags = question.Value.Tags.Select(e => new LinkedTagItem
-                    {
-                        Value = e.Tag.Value,
-                        HexColor = e.HexColor,
-                    }).ToList(),
+                    Tags = question.Value.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
                 }));
-    }
-
-    private async Task<Result<List<QuestionTag>, ServiceError>> EnsureValidTagsAsync(IReadOnlyCollection<TagLinkRequest> tagsForCheck, CancellationToken cancellationToken)
-    {
-        var requestTags = tagsForCheck.Select(e => e.TagId).ToHashSet();
-        var tags = await _tagRepository.FindByIdsAsync(requestTags, cancellationToken);
-        requestTags.ExceptWith(tags.Select(e => e.Id));
-        var notFoundTags = string.Join(",", requestTags);
-        if (!string.IsNullOrWhiteSpace(notFoundTags))
-        {
-            return ServiceError.NotFound($"Not found tags: [{notFoundTags}]");
-        }
-
-        var notValidHex = tagsForCheck
-            .Where(e => !TagLink.IsValidColor(e.HexColor))
-            .Take(5);
-        var notValidHexStr = string.Join(", ", notValidHex.Select(e => e.TagId.ToString("N") + $" ({e.HexColor})"));
-        if (!string.IsNullOrWhiteSpace(notValidHexStr))
-        {
-            return ServiceError.Error($"The following tags have color set in the wrong format: [{notValidHexStr}]");
-        }
-
-        return tags.Join(
-                tagsForCheck,
-                tag => tag.Id,
-                tagRequest => tagRequest.TagId,
-                (tag, tagRequest) => new QuestionTag { TagId = tag.Id, HexColor = tagRequest.HexColor })
-            .ToList();
     }
 }

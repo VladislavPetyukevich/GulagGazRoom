@@ -14,6 +14,8 @@ using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
+using Interview.Domain.Tags;
+using Interview.Domain.Tags.Records.Response;
 using Interview.Domain.Users;
 using Entity = Interview.Domain.Repository.Entity;
 
@@ -27,6 +29,7 @@ public sealed class RoomService
     private readonly IUserRepository _userRepository;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly IRoomQuestionReactionRepository _roomQuestionReactionRepository;
+    private readonly ITagRepository _tagRepository;
 
     public RoomService(
         IRoomRepository roomRepository,
@@ -34,13 +37,15 @@ public sealed class RoomService
         IQuestionRepository questionRepository,
         IUserRepository userRepository,
         IRoomEventDispatcher roomEventDispatcher,
-        IRoomQuestionReactionRepository roomQuestionReactionRepository)
+        IRoomQuestionReactionRepository roomQuestionReactionRepository,
+        ITagRepository tagRepository)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
         _userRepository = userRepository;
         _roomEventDispatcher = roomEventDispatcher;
         _roomQuestionReactionRepository = roomQuestionReactionRepository;
+        _tagRepository = tagRepository;
         _roomQuestionRepository = roomQuestionRepository;
     }
 
@@ -77,13 +82,22 @@ public sealed class RoomService
             return examinees.Error;
         }
 
+        var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
+        if (tags.IsFailure)
+        {
+            return tags.Error;
+        }
+
         var twitchChannel = request.TwitchChannel?.Trim();
         if (string.IsNullOrEmpty(twitchChannel))
         {
             return ServiceError.Error($"Twitch channel should not be empty");
         }
 
-        var room = new Room(name, twitchChannel);
+        var room = new Room(name, twitchChannel)
+        {
+            Tags = tags.Value,
+        };
         var roomQuestions = questions.Value.Select(question =>
             new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
 
@@ -128,10 +142,28 @@ public sealed class RoomService
             return Result.Failure<RoomItem>($"Not found room with id [{roomId}]");
         }
 
+        var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
+        if (tags.IsFailure)
+        {
+            return Result.Failure<RoomItem>(tags.Error.Message);
+        }
+
         foundRoom.Name = name;
         foundRoom.TwitchChannel = twitchChannel;
+        foundRoom.Tags.Clear();
+        foundRoom.Tags.AddRange(tags.Value);
         await _roomRepository.UpdateAsync(foundRoom, cancellationToken);
-        return new RoomItem { Id = foundRoom.Id, Name = foundRoom.Name };
+        return new RoomItem
+        {
+            Id = foundRoom.Id,
+            Name = foundRoom.Name,
+            Tags = tags.Value.Select(t => new TagItem
+            {
+                Id = t.Id,
+                Value = t.Value,
+                HexValue = t.HexColor,
+            }).ToList(),
+        };
     }
 
     public async Task<Result<Room?>> AddParticipantAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)

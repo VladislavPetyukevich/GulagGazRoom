@@ -6,5 +6,5 @@ public sealed class QuestionEditRequest
 {
     public string Value { get; set; } = string.Empty;
 
-    public List<TagLinkRequest> Tags { get; set; } = new List<TagLinkRequest>();
+    public HashSet<Guid> Tags { get; set; } = new();
 }

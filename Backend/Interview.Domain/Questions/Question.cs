@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Interview.Domain.Repository;
+using Interview.Domain.Tags;
 
 namespace Interview.Domain.Questions;
 
@@ -17,5 +18,5 @@ public class Question : ArchiveEntity
 
     public string Value { get; internal set; }
 
-    public List<QuestionTag> Tags { get; internal set; } = new List<QuestionTag>();
+    public List<Tag> Tags { get; internal set; } = new List<Tag>();
 }

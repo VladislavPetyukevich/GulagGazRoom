@@ -49,38 +49,6 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("Questions");
                 });
 
-            modelBuilder.Entity("Interview.Domain.Questions.QuestionTag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("HexColor")
-                        .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("character varying(6)");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("QuestionTag");
-                });
-
             modelBuilder.Entity("Interview.Domain.Reactions.Reaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -310,7 +278,7 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("Rooms");
                 });
 
-            modelBuilder.Entity("Interview.Domain.Rooms.RoomTag", b =>
+            modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -321,35 +289,7 @@ namespace Interview.Migrations.Postgres.Migrations
 
                     b.Property<string>("HexColor")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("character varying(6)");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("RoomTag");
-                });
-
-            modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("timestamp without time zone");
@@ -435,6 +375,21 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("QuestionTag", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("QuestionId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("QuestionTag");
+                });
+
             modelBuilder.Entity("RoleUser", b =>
                 {
                     b.Property<Guid>("RolesId")
@@ -450,23 +405,19 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("RoleUser");
                 });
 
-            modelBuilder.Entity("Interview.Domain.Questions.QuestionTag", b =>
+            modelBuilder.Entity("RoomTag", b =>
                 {
-                    b.HasOne("Interview.Domain.Questions.Question", "Question")
-                        .WithMany("Tags")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uuid");
 
-                    b.HasOne("Interview.Domain.Tags.Tag", "Tag")
-                        .WithMany("QuestionTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("uuid");
 
-                    b.Navigation("Question");
+                    b.HasKey("RoomId", "TagsId");
 
-                    b.Navigation("Tag");
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("RoomTag");
                 });
 
             modelBuilder.Entity("Interview.Domain.RoomConfigurations.RoomConfiguration", b =>
@@ -564,23 +515,19 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Interview.Domain.Rooms.RoomTag", b =>
+            modelBuilder.Entity("QuestionTag", b =>
                 {
-                    b.HasOne("Interview.Domain.Rooms.Room", "Room")
-                        .WithMany("Tags")
-                        .HasForeignKey("RoomId")
+                    b.HasOne("Interview.Domain.Questions.Question", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Interview.Domain.Tags.Tag", "Tag")
-                        .WithMany("RoomTags")
-                        .HasForeignKey("TagId")
+                    b.HasOne("Interview.Domain.Tags.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Room");
-
-                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("RoleUser", b =>
@@ -598,9 +545,19 @@ namespace Interview.Migrations.Postgres.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
+            modelBuilder.Entity("RoomTag", b =>
                 {
-                    b.Navigation("Tags");
+                    b.HasOne("Interview.Domain.Rooms.Room", null)
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Interview.Domain.Tags.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
@@ -610,15 +567,6 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
-
-                    b.Navigation("Tags");
-                });
-
-            modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
-                {
-                    b.Navigation("QuestionTags");
-
-                    b.Navigation("RoomTags");
                 });
 #pragma warning restore 612, 618
         }

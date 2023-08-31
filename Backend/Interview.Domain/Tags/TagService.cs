@@ -1,6 +1,4 @@
 using CSharpFunctionalExtensions;
-using Interview.Domain.Questions;
-using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
@@ -29,6 +27,7 @@ public class TagService
                 {
                     Id = question.Id,
                     Value = question.Value,
+                    HexValue = question.HexColor,
                 });
         var specification = !string.IsNullOrWhiteSpace(value) ?
             new Spec<Tag>(spec => spec.Value.Contains(value)) :
@@ -43,6 +42,11 @@ public class TagService
             return ServiceError.Error("Tag should not be empty");
         }
 
+        if (!Tag.IsValidColor(request.HexValue))
+        {
+            return ServiceError.Error("Tag should contain valid hex value.");
+        }
+
         request.Value = request.Value.Trim();
         var hasTag = await _tagRepository.HasAsync(new Spec<Tag>(e => e.Value == request.Value), cancellationToken);
         if (hasTag)
@@ -50,9 +54,18 @@ public class TagService
             return ServiceError.Error($"Already exists tag '{request.Value}'");
         }
 
-        var tag = new Tag { Value = request.Value, };
+        var tag = new Tag
+        {
+            Value = request.Value,
+            HexColor = request.HexValue,
+        };
         await _tagRepository.CreateAsync(tag, cancellationToken);
-        return ServiceResult.Created(new TagItem { Id = tag.Id, Value = request.Value, });
+        return ServiceResult.Created(new TagItem
+        {
+            Id = tag.Id,
+            Value = tag.Value,
+            HexValue = tag.HexColor,
+        });
     }
 
     public async Task<Result<ServiceResult<TagItem>, ServiceError>> UpdateTagAsync(Guid id, TagEditRequest request, CancellationToken cancellationToken)
@@ -62,8 +75,13 @@ public class TagService
             return ServiceError.Error("Tag should not be empty");
         }
 
+        if (!Tag.IsValidColor(request.HexValue))
+        {
+            return ServiceError.Error("Tag should contain valid hex value.");
+        }
+
         request.Value = request.Value.Trim();
-        var hasTag = await _tagRepository.HasAsync(new Spec<Tag>(e => e.Value == request.Value), cancellationToken);
+        var hasTag = await _tagRepository.HasAsync(new Spec<Tag>(e => e.Value == request.Value && e.Id != id), cancellationToken);
         if (hasTag)
         {
             return ServiceError.Error($"Already exists tag '{request.Value}'");
@@ -76,7 +94,13 @@ public class TagService
         }
 
         tag.Value = request.Value;
+        tag.HexColor = request.HexValue;
         await _tagRepository.UpdateAsync(tag, cancellationToken);
-        return ServiceResult.Ok(new TagItem { Id = tag.Id, Value = request.Value, });
+        return ServiceResult.Ok(new TagItem
+        {
+            Id = tag.Id,
+            Value = tag.Value,
+            HexValue = tag.HexColor,
+        });
     }
 }

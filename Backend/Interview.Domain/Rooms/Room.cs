@@ -4,6 +4,7 @@ using Interview.Domain.RoomConfigurations;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
+using Interview.Domain.Tags;
 
 namespace Interview.Domain.Rooms;
 
@@ -33,5 +34,5 @@ public class Room : Entity
 
     public List<RoomParticipant> Participants { get; set; } = new();
 
-    public List<RoomTag> Tags { get; set; } = new();
+    public List<Tag> Tags { get; set; } = new();
 }

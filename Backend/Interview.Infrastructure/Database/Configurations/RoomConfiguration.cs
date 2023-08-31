@@ -1,4 +1,5 @@
 using Interview.Domain.Rooms;
+using Interview.Domain.Tags;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,5 +19,6 @@ public class RoomConfiguration : EntityTypeConfigurationBase<Room>
             .HasOne<Domain.RoomConfigurations.RoomConfiguration>(room => room.Configuration)
             .WithOne(e => e.Room)
             .HasForeignKey<Domain.RoomConfigurations.RoomConfiguration>(e => e.Id);
+        builder.HasMany<Tag>(e => e.Tags).WithMany();
     }
 }
