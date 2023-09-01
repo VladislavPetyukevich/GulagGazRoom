@@ -1,6 +1,6 @@
 using System.Globalization;
 using CSharpFunctionalExtensions;
-using Interview.Domain.Questions.Records.Response;
+using Interview.Domain.Questions.Records.FindPage;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
@@ -33,8 +33,7 @@ public class QuestionService
         _tagRepository = tagRepository;
     }
 
-    public Task<IPagedList<QuestionItem>> FindPageAsync(
-        HashSet<Guid> tags, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public Task<IPagedList<QuestionItem>> FindPageAsync(FindPageRequest request, CancellationToken cancellationToken)
     {
         var mapper =
             new Mapper<Question, QuestionItem>(
@@ -44,10 +43,17 @@ public class QuestionService
                     Value = question.Value,
                     Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
                 });
-        var spec = tags.Count == 0
+        var spec = request.Tags is null || request.Tags.Count == 0
             ? Spec.Any<Question>()
-            : new Spec<Question>(e => e.Tags.Any(t => tags.Contains(t.Id)));
-        return _questionNonArchiveRepository.GetPageDetailedAsync(spec, mapper, pageNumber, pageSize, cancellationToken);
+            : new Spec<Question>(e => e.Tags.Any(t => request.Tags.Contains(t.Id)));
+
+        if (!string.IsNullOrWhiteSpace(request.Value))
+        {
+            var questionValue = request.Value.Trim().ToLower();
+            spec &= new Spec<Question>(e => e.Value.ToLower().Contains(questionValue));
+        }
+
+        return _questionNonArchiveRepository.GetPageDetailedAsync(spec, mapper, request.Page.PageNumber, request.Page.PageSize, cancellationToken);
     }
 
     public Task<IPagedList<QuestionItem>> FindPageArchiveAsync(

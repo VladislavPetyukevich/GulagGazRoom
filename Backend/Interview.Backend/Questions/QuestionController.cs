@@ -1,7 +1,7 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
-using Interview.Domain.Questions.Records.Response;
+using Interview.Domain.Questions.Records.FindPage;
 using Interview.Domain.Tags;
 using Interview.Domain.Tags.Records.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -34,9 +34,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<IPagedList<QuestionItem>> GetPage([FromQuery] HashSet<Guid> tags, [FromQuery] PageRequest request)
+    public Task<IPagedList<QuestionItem>> GetPage([FromQuery] FindPageRequest request)
     {
-        return _questionService.FindPageAsync(tags, request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+        return _questionService.FindPageAsync(request, HttpContext.RequestAborted);
     }
 
     /// <summary>

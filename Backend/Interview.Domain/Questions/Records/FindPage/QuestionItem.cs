@@ -1,6 +1,6 @@
 using Interview.Domain.Tags.Records.Response;
 
-namespace Interview.Domain.Questions.Records.Response;
+namespace Interview.Domain.Questions.Records.FindPage;
 
 public class QuestionItem
 {
