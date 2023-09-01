@@ -73,10 +73,14 @@ table td {
   background-color: var(--bg);
 }
 
-textarea, input[type="text"] {
+textarea, input[type="text"], input[type="color"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
+}
+
+input[type="color"] {
+  background-color: var(--form-bg);
 }
 
 h2 {

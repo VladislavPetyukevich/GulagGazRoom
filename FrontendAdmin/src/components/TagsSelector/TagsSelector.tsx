@@ -29,7 +29,7 @@ export const TagsSelector: FunctionComponent<TagsSelectorProps> = ({
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [color, setColor] = useState("#000000");
+  const [color, setColor] = useState("#b9221c");
 
   const checkIsSelected = (tag: Tag) => {
     return !!selectedTags.find(tg => tg.id === tag.id);
@@ -85,10 +85,10 @@ export const TagsSelector: FunctionComponent<TagsSelectorProps> = ({
       {showMenu && (
         <div className="tagsSelector-menu">
           <div className="search-box">
-            <input className='tag-value' onChange={handleSearch} value={searchValue} />
+            <input type="text" className='tag-value' onChange={handleSearch} value={searchValue} />
             {onCreate && (
               <>
-                <input type="color" value={color} onChange={handleColorChange} />
+                <input type="color" className="color-select" value={color} onChange={handleColorChange} />
                 <button onClick={handleCreate}>{Captions.Create}</button>
               </>
             )}

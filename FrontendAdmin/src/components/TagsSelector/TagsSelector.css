@@ -58,7 +58,16 @@
 }
 
 .tagsSelector-container .search-box {
-  padding: 5px;
+  padding: 0.5rem;
+  padding-bottom: 0px;
+}
+
+.tagsSelector-container .search-box input {
+  height: 1.75rem;
+}
+
+.tagsSelector-container .search-box .color-select {
+  margin: 0rem 0.5rem;
 }
 
 .tagsSelector-container .search-box .tag-value {
