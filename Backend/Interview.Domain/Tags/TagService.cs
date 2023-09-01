@@ -3,7 +3,6 @@ using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Tags.Records.Response;
-using Microsoft.EntityFrameworkCore;
 using NSpecifications;
 using X.PagedList;
 
@@ -30,8 +29,10 @@ public class TagService
                     Value = question.Value,
                     HexValue = question.HexColor,
                 });
+
+        value = value?.ToLower();
         var specification = !string.IsNullOrWhiteSpace(value) ?
-            new Spec<Tag>(tag => EF.Functions.Like(tag.Value, $"%{value}%")) :
+            new Spec<Tag>(tag => tag.Value.ToLower().Contains(value)) :
             Spec<Tag>.Any;
         return _tagRepository.GetPageAsync(specification, mapper, pageNumber, pageSize, cancellationToken);
     }
