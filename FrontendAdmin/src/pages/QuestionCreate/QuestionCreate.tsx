@@ -11,7 +11,7 @@ import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { Tag } from '../../types/tag';
-import { QuestionTags } from './components/QuestionTags/QuestionTags';
+import { TagsSelector } from '../../components/TagsSelector/TagsSelector';
 
 import './QuestionCreate.css';
 
@@ -190,7 +190,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
           <input id="qestionText" name={valueFieldName} type="text" value={questionValue} onChange={handleQuestionValueChange} />
         </Field>
         <Field>
-          <QuestionTags
+          <TagsSelector
             placeHolder={Captions.TagsPlaceholder}
             loading={tagsLoading}
             tags={tags || []}

@@ -1,12 +1,12 @@
 import React, { ChangeEventHandler, FunctionComponent, MouseEventHandler, useEffect, useState } from 'react';
-import { Tag } from '../../../../types/tag';
-import { Captions } from '../../../../constants';
-import { OpenIcon } from '../../../../components/OpenIcon/OpenIcon';
-import { QuestionTagsView } from '../../../../components/QuestionTagsView/QuestionTagsView';
+import { Tag } from '../../types/tag';
+import { Captions } from '../../constants';
+import { OpenIcon } from '../OpenIcon/OpenIcon';
+import { TagsView } from '../TagsView/TagsView';
 
-import './QuestionTags.css';
+import './TagsSelector.css';
 
-export interface QuestionTagsProps {
+export interface TagsSelectorProps {
   loading: boolean;
   tags: Tag[];
   selectedTags: Tag[];
@@ -17,7 +17,7 @@ export interface QuestionTagsProps {
   onCreate?: (tag: Omit<Tag, 'id'>) => void;
 }
 
-export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
+export const TagsSelector: FunctionComponent<TagsSelectorProps> = ({
   loading,
   tags,
   selectedTags,
@@ -73,17 +73,17 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
   );
 
   return (
-    <div className="questionTagsSelector-container">
-      <div onClick={handleInputClick} className="questionTagsSelector-input">
-        <QuestionTagsView tags={selectedTags} placeHolder={placeHolder} onClick={handleUnselectClick} />
-        <div className="questionTagsSelector-tools">
-          <div className="questionTagsSelector-tool">
+    <div className="tagsSelector-container">
+      <div onClick={handleInputClick} className="tagsSelector-input">
+        <TagsView tags={selectedTags} placeHolder={placeHolder} onClick={handleUnselectClick} />
+        <div className="tagsSelector-tools">
+          <div className="tagsSelector-tool">
             <OpenIcon />
           </div>
         </div>
       </div>
       {showMenu && (
-        <div className="questionTagsSelector-menu">
+        <div className="tagsSelector-menu">
           <div className="search-box">
             <input className='tag-value' onChange={handleSearch} value={searchValue} />
             {onCreate && (
@@ -93,12 +93,12 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
               </>
             )}
           </div>
-          <div className="questionTagsSelector-items">
+          <div className="tagsSelector-items">
           {options.map((option) => (
             <div
               onClick={() => onSelect(option)}
               key={option.id}
-              className="questionTagsSelector-item"
+              className="tagsSelector-item"
               style={{ borderColor: `#${option.hexValue}` }}
             >
               {option.value}

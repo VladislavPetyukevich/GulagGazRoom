@@ -1,11 +1,11 @@
-.questionTagsSelector-container {
+.tagsSelector-container {
   text-align: left;
   border: 1px solid var(--form-bg);
   position: relative;
   cursor: pointer;
 }
 
-.questionTagsSelector-input {
+.tagsSelector-input {
   padding: 5px;
   display: flex;
   align-items: center;
@@ -13,7 +13,7 @@
   user-select: none;
 }
 
-.questionTagsSelector-menu {
+.tagsSelector-menu {
   position: absolute;
   transform: translateY(4px);
   width: 100%;
@@ -25,25 +25,25 @@
   z-index: 99;
 }
 
-.questionTagsSelector-menu .search-box {
+.tagsSelector-menu .search-box {
   display: flex;
   position: sticky;
   top: 0px;
   background-color: inherit;
 }
 
-.questionTagsSelector-tools {
+.tagsSelector-tools {
   background-color: var(--button-bg);
 }
 
-.questionTagsSelector-items {
+.tagsSelector-items {
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 0.5rem;
 }
 
-.questionTagsSelector-item {
+.tagsSelector-item {
   padding: 5px;
   border: 1px solid;
   width: fit-content;
@@ -53,15 +53,15 @@
   padding: 0.5rem;
 }
 
-.questionTagsSelector-item:hover {
+.tagsSelector-item:hover {
   background-color: var(--active);
 }
 
-.questionTagsSelector-container .search-box {
+.tagsSelector-container .search-box {
   padding: 5px;
 }
 
-.questionTagsSelector-container .search-box .tag-value {
+.tagsSelector-container .search-box .tag-value {
   width: 100%;
   box-sizing: border-box;
   padding: 5px;

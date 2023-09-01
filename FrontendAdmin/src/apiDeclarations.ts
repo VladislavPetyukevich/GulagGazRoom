@@ -16,6 +16,7 @@ export interface CreateRoomBody {
   questions: Array<Question['id']>;
   experts: Array<User['id']>;
   examinees: Array<User['id']>;
+  tags: Array<Tag['id']>;
 }
 
 export interface SendGasBody {

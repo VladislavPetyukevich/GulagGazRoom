@@ -1,15 +1,15 @@
 import { FunctionComponent, MouseEventHandler } from 'react';
 import { Tag } from '../../types/tag';
 
-import './QuestionTagsView.css';
+import './TagsView.css';
 
-interface QuestionTagsViewProps {
+interface TagsViewProps {
   tags: Tag[];
   placeHolder: string;
   onClick?: (tag: Tag) => MouseEventHandler<HTMLElement>;
 }
 
-export const QuestionTagsView: FunctionComponent<QuestionTagsViewProps> = ({
+export const TagsView: FunctionComponent<TagsViewProps> = ({
   tags,
   placeHolder,
   onClick,
@@ -30,6 +30,6 @@ export const QuestionTagsView: FunctionComponent<QuestionTagsViewProps> = ({
   };
 
   return (
-    <div className="questionTags">{getDisplay()}</div>
+    <div className="tags-view">{getDisplay()}</div>
   );
 };
