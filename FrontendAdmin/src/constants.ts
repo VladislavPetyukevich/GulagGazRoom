@@ -98,6 +98,13 @@ export const enum Captions {
   TagsLoading = 'Загрузка тэгов',
   NoTags = 'Тэги отсутствуют',
   SearchByTags = 'Поиск по тэгам',
+  BuildHash = 'Хэш сборки',
+  CreateRoom = 'Создание заседания',
+  RoomName = 'Имя заседания',
+  RoomTwitchChannel = 'Twitch канал',
+  RoomQuestions = 'Поднимемые вопросы',
+  RoomExperts = 'Начальники',
+  RoomExaminees = 'Испытуемые',
 };
 
 export const toastSuccessOptions = {

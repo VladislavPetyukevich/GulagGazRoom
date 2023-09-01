@@ -5,7 +5,6 @@
 
 .rooms-list .room-link {
   font-size: var(--menu-font-size);
-  line-height: var(--menu-line-height);
 }
 
 .rooms-list .room-users {

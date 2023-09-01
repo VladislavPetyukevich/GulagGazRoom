@@ -1,17 +1,19 @@
 :root {
-  --text: #d2deab;
-  --form-bg: #3d2e2d;
-  --wrap-bg: #000000;
+  --text: #cccccc;
+  --form-bg: #222;
+  --wrap-bg: #000;
   --active: #b9221c;
   --shadow: #100908;
   --bg: #400000;
   --bg-success: #103000;
-  --page-bg: #574240;
+  --page-bg: #222;
   --progress-bg: var(--shadow);
   --progress-1: var(--active);
   --progress-2: var(--form-bg);
   --menu-font-size: 1.15rem;
   --menu-line-height: calc(var(--menu-font-size) * 1.4);
+  --button-bg: #555;
+  --border-radius: 0.5rem;
 }
 
 body {
@@ -28,14 +30,16 @@ body {
 
 button {
   color: var(--text);
-  background-color: var(--form-bg);
+  background-color: var(--button-bg);
   border: none;
-  padding: 5px 30px;
+  padding: 0rem 2rem;
+  height: 1.75rem;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
   transition: 0.3s;
+  border-radius: var(--border-radius);
 }
 
 button:hover {
@@ -60,9 +64,9 @@ table {
 }
 
 table td, th {
-  padding: 10px 0px;
-  padding-left: 10px;
-  padding-right: 15px;
+  padding: 0.75rem 0rem;
+  padding-left: 0.75rem;
+  padding-right: 1rem;
 }
 
 table th {
@@ -77,6 +81,7 @@ textarea, input[type="text"], input[type="color"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
+  border: 1px solid var(--button-bg);
 }
 
 input[type="color"] {
@@ -90,7 +95,7 @@ h2 {
 
 h3 {
   margin: 0px;
-  margin-bottom: 5px;
+  margin-bottom: 0.25rem;
   font-size: var(--menu-font-size);
   line-height: var(--menu-line-height) !important;
   color: var(--text);
