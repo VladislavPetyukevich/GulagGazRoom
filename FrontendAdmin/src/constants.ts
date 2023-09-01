@@ -92,7 +92,13 @@ export const enum Captions {
   AddReviewPlaceholder = 'Писать донос сюда',
   Send = 'Отправить',
   WithLove = 'С любовью',
-  BuildHash = 'Хэш сборки'
+  BuildHash = 'Хэш сборки',
+  CreateRoom = 'Создание заседания',
+  RoomName = 'Имя заседания',
+  RoomTwitchChannel = 'Twitch канал',
+  RoomQuestions = 'Поднимемые вопросы',
+  RoomExperts = 'Начальники',
+  RoomExaminees = 'Испытуемые',
 };
 
 export const toastSuccessOptions = {
