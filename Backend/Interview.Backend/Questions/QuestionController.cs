@@ -24,8 +24,7 @@ public class QuestionController : ControllerBase
     /// <summary>
     /// Getting a Question page.
     /// </summary>
-    /// <param name="tags">Search for questions by tag.</param>
-    /// <param name="request">Page Parameters.</param>
+    /// <param name="request">Search request.</param>
     /// <returns>A page of questions with metadata about the pages.</returns>
     [Authorize]
     [HttpGet]
