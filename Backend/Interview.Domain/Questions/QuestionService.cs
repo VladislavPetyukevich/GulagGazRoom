@@ -1,4 +1,3 @@
-using System.Globalization;
 using CSharpFunctionalExtensions;
 using Interview.Domain.Questions.Records.FindPage;
 using Interview.Domain.Repository;
