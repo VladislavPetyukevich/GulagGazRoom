@@ -9,7 +9,8 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { Question, Tag } from '../../types/question';
+import { Question } from '../../types/question';
+import { Tag } from '../../types/tag';
 import { QuestionTags } from './components/QuestionTags/QuestionTags';
 
 import './QuestionCreate.css';

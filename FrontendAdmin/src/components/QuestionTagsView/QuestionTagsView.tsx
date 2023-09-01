@@ -1,5 +1,5 @@
 import { FunctionComponent, MouseEventHandler } from 'react';
-import { Tag } from '../../types/question';
+import { Tag } from '../../types/tag';
 
 import './QuestionTagsView.css';
 

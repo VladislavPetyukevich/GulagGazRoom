@@ -1,5 +1,6 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
-import { Question, QuestionState, Tag } from './types/question';
+import { Question, QuestionState } from './types/question';
+import { Tag } from './types/tag';
 import { Reaction } from './types/reaction';
 import { Room, RoomReview } from './types/room';
 import { User } from './types/user';

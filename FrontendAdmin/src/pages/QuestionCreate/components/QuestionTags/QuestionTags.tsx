@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, FunctionComponent, MouseEventHandler, useEffect, useState } from 'react';
-import { Tag } from '../../../../types/question';
+import { Tag } from '../../../../types/tag';
 import { Captions } from '../../../../constants';
 import { OpenIcon } from '../../../../components/OpenIcon/OpenIcon';
 import { QuestionTagsView } from '../../../../components/QuestionTagsView/QuestionTagsView';
