@@ -41,7 +41,8 @@ public class QuestionService : IQuestionService
     {
         var mapper = new Mapper<Question, QuestionItem>(question => new QuestionItem
         {
-            Id = question.Id, Value = question.Value,
+            Id = question.Id,
+            Value = question.Value,
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
