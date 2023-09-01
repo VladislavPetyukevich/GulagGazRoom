@@ -32,7 +32,8 @@ button {
   color: var(--text);
   background-color: var(--button-bg);
   border: none;
-  padding: 0.5rem 2rem;
+  padding: 0rem 2rem;
+  height: 1.75rem;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -80,6 +81,7 @@ textarea, input[type="text"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
+  border: 1px solid var(--button-bg);
 }
 
 h2 {

@@ -116,7 +116,7 @@ export const RoomCreate: FunctionComponent = () => {
   return (
     <MainContentWrapper className="question-create">
       <HeaderWithLink
-        title="Create room"
+        title={Captions.CreateRoom}
         linkVisible={true}
         path={pathnames.rooms}
         linkCaption="<"
@@ -125,24 +125,26 @@ export const RoomCreate: FunctionComponent = () => {
       {renderStatus()}
       <form action="" onSubmit={handleSubmit}>
         <Field>
-          <label htmlFor="roomName">Name:</label>
+          <label htmlFor="roomName">{Captions.RoomName}:</label>
           <input id="roomName" name={nameFieldName} type="text" required />
         </Field>
         <Field>
-          <label htmlFor="twitchChannel">Twitch channel name:</label>
+          <label htmlFor="twitchChannel">{Captions.RoomTwitchChannel}:</label>
           <input id="twitchChannel" name={twitchChannelFieldName} type="text" required />
         </Field>
         <Field>
-          <div>Questions:</div>
+          <div>{Captions.RoomQuestions}:</div>
           <div className="items-selected">
-            Selected: {selectedQuestions.map(question => question.value).join(', ')}
+            {selectedQuestions.map(question => question.value).join(', ')}
           </div>
           <QuestionsSelector
             selected={selectedQuestions}
             onSelect={handleQuestionSelect}
             onUnselect={handleQuestionUnSelect}
           />
-          <span>Experts: </span>
+        </Field>
+        <Field>
+          <span>{Captions.RoomExperts}: </span>
           <span className="items-selected">
             {selectedExperts.map(user => user.nickname).join(', ')}
           </span>
@@ -152,18 +154,20 @@ export const RoomCreate: FunctionComponent = () => {
             onSelect={handleExpertSelect}
             onUnselect={handleExpertUnSelect}
           />
-          <span>Examinees:</span>
+        </Field>
+        <Field>
+          <span>{Captions.RoomExaminees}: </span>
           <span className="items-selected">
             {selectedExaminees.map(user => user.nickname).join(', ')}
           </span>
-           <UsersSelector
+          <UsersSelector
             uniqueKey='Examinees'
             selected={selectedExaminees}
             onSelect={handleExamineeSelect}
             onUnselect={handleExamineeUnSelect}
           />
         </Field>
-        <SubmitField caption="Create" />
+        <SubmitField caption={Captions.Create} />
       </form>
     </MainContentWrapper>
   );
