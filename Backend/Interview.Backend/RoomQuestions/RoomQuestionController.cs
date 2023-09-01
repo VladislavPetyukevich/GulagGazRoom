@@ -4,6 +4,7 @@ using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
 using Interview.Domain.RoomQuestions.Services;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +29,7 @@ public class RoomQuestionController : ControllerBase
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPut("active-question")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
@@ -51,9 +52,11 @@ public class RoomQuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<RoomQuestionDetail> Create(RoomQuestionCreateRequest request)
+    public async Task<ActionResult<RoomQuestionDetail>> Create(RoomQuestionCreateRequest request)
     {
-        return _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
+        var roomQuestionDetail = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(roomQuestionDetail).ToActionResult();
     }
 
     /// <summary>

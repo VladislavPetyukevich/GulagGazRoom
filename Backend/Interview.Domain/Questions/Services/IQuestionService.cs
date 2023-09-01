@@ -14,7 +14,7 @@ namespace Interview.Domain.Questions.Permissions
         Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
             int pageNumber, int pageSize, CancellationToken cancellationToken);
 
-        Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
+        Task<QuestionItem> CreateAsync(
             QuestionCreateRequest request, CancellationToken cancellationToken = default);
 
         Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(

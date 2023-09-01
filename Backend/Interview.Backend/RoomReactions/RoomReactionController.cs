@@ -5,6 +5,7 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestionReactions.Records;
 using Interview.Domain.RoomQuestionReactions.Records.Response;
 using Interview.Domain.RoomQuestionReactions.Services;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +35,7 @@ public class RoomReactionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<RoomQuestionReactionDetail> CreateInRoom(
+    public async Task<ActionResult<RoomQuestionReactionDetail>> CreateInRoom(
         [FromBody] RoomQuestionReactionCreateRequest request)
     {
         var user = User.ToUser();
@@ -44,6 +45,9 @@ public class RoomReactionController : ControllerBase
             throw new AccessDeniedException("User is not unauthorized");
         }
 
-        return _roomQuestionReactionService.CreateAsync(request, user.Id, HttpContext.RequestAborted);
+        var roomQuestionReaction =
+            await _roomQuestionReactionService.CreateAsync(request, user.Id, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(roomQuestionReaction).ToActionResult();
     }
 }

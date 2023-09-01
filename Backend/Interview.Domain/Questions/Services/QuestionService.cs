@@ -41,8 +41,7 @@ public class QuestionService : IQuestionService
     {
         var mapper = new Mapper<Question, QuestionItem>(question => new QuestionItem
         {
-            Id = question.Id,
-            Value = question.Value,
+            Id = question.Id, Value = question.Value,
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
@@ -51,14 +50,14 @@ public class QuestionService : IQuestionService
             .GetPageDetailedAsync(isArchiveSpecification, mapper, pageNumber, pageSize, cancellationToken);
     }
 
-    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
+    public async Task<QuestionItem> CreateAsync(
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
         var result = new Question(request.Value);
 
         await _questionRepository.CreateAsync(result, cancellationToken);
 
-        return ServiceResult.Created(new QuestionItem { Id = result.Id, Value = result.Value, });
+        return new QuestionItem { Id = result.Id, Value = result.Value, };
     }
 
     public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(

@@ -35,7 +35,7 @@ public class QuestionServicePermissionAccessor : IQuestionService
         return _questionService.FindPageArchiveAsync(pageNumber, pageSize, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> CreateAsync(
+    public Task<QuestionItem> CreateAsync(
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPageArchive);

@@ -3,6 +3,7 @@ using Interview.Backend.Responses;
 using Interview.Domain.RoomParticipants.Records.Request;
 using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.RoomParticipants.Service;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,15 +43,17 @@ public class RoomParticipantController : ControllerBase
     /// <returns>Data about the added participant to the room.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
     [HttpPost]
-    [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<RoomParticipantDetail> Create([FromBody] RoomParticipantCreateRequest request)
+    public async Task<ActionResult<RoomParticipantDetail>> Create([FromBody] RoomParticipantCreateRequest request)
     {
-        return _roomParticipantService.CreateAsync(request, HttpContext.RequestAborted);
+        var roomParticipant = await _roomParticipantService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(roomParticipant).ToActionResult();
     }
 
     /// <summary>

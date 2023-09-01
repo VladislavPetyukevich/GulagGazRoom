@@ -7,6 +7,7 @@ using Interview.Domain.RoomReviews;
 using Interview.Domain.RoomReviews.Records;
 using Interview.Domain.RoomReviews.Services;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -54,7 +55,7 @@ public class RoomReviewController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomReviewDetail>> Create([FromBody] RoomReviewCreateRequest request)
+    public async Task<ActionResult<RoomReviewDetail>> Create([FromBody] RoomReviewCreateRequest request)
     {
         var user = HttpContext.User.ToUser();
 
@@ -63,11 +64,9 @@ public class RoomReviewController : ControllerBase
             throw new AccessDeniedException("Current user not found");
         }
 
-        return Task.FromResult<ActionResult<RoomReviewDetail>>(
-            new ObjectResult(_roomReviewService.CreateAsync(request, user.Id, HttpContext.RequestAborted))
-            {
-                StatusCode = (int?)HttpStatusCode.Created,
-            });
+        var roomReviewDetail = await _roomReviewService.CreateAsync(request, user.Id, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(roomReviewDetail).ToActionResult();
     }
 
     /// <summary>

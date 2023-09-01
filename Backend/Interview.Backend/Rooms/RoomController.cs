@@ -9,6 +9,7 @@ using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -78,15 +79,17 @@ public class RoomController : ControllerBase
     /// <summary>
     /// Creating a new room.
     /// </summary>
-    /// <param name="room">Room.</param>
+    /// <param name="request">Room.</param>
     /// <returns>Created room.</returns>
     [Authorize(policy: GulagSecurePolicy.Manager)]
-    [HttpPost("")]
+    [HttpPost]
     [ProducesResponseType(typeof(Guid), 201)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    public Task<Room> Create([FromBody] RoomCreateRequest room)
+    public async Task<ActionResult<Room>> Create([FromBody] RoomCreateRequest request)
     {
-        return _roomService.CreateAsync(room, HttpContext.RequestAborted);
+        var room = await _roomService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(room).ToActionResult();
     }
 
     /// <summary>

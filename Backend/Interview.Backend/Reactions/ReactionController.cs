@@ -27,7 +27,7 @@ public class ReactionController : ControllerBase
     /// <param name="request">Page Parameters.</param>
     /// <returns>List of reactions.</returns>
     [HttpGet]
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [ProducesResponseType(typeof(IPagedList<ReactionDetail>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]

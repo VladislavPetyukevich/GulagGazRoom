@@ -3,6 +3,7 @@ using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.Questions.Permissions;
 using Interview.Domain.Questions.Records.Response;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -86,9 +87,11 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> Create(QuestionCreateRequest request)
+    public async Task<ActionResult<QuestionItem>> Create(QuestionCreateRequest request)
     {
-        return _questionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        var question = await _questionService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(question).ToActionResult();
     }
 
     /// <summary>
