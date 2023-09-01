@@ -12,6 +12,7 @@ import { useApiMethod } from '../../hooks/useApiMethod';
 import { Room } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
+import { TagsView } from '../../components/TagsView/TagsView';
 
 import './Rooms.css';
 
@@ -86,6 +87,12 @@ export const Rooms: FunctionComponent = () => {
                 {index < usersArr.length - 1 ? (<>,&nbsp;</>) : ''}
               </span>
             ))}
+          </div>
+          <div className="room-tags">
+            <TagsView
+              placeHolder={Captions.NoTags}
+              tags={room.tags}
+            />
           </div>
           {admin && (
             <Link to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}>

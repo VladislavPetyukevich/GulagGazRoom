@@ -9,8 +9,9 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { SubmitField } from '../../components/SubmitField/SubmitField';
 import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { Question, Tag } from '../../types/question';
-import { QuestionTags } from './components/QuestionTags/QuestionTags';
+import { Question } from '../../types/question';
+import { Tag } from '../../types/tag';
+import { TagsSelector } from '../../components/TagsSelector/TagsSelector';
 
 import './QuestionCreate.css';
 
@@ -124,8 +125,8 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     setTagsSearchValue(value);
   };
 
-  const handleTagCreate = (value: string) => {
-    fetchCreateTag({ value });
+  const handleTagCreate = (tag: Omit<Tag, 'id'>) => {
+    fetchCreateTag(tag);
   };
 
   const handleQuestionValueChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -137,10 +138,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
 
     fetchCreateQuestion({
       value: questionValue,
-      tags: selectedTags.map(tag => ({
-        tagId: tag.id,
-        hexColor: 'FFFFFF',
-      })),
+      tags: selectedTags.map(tag => tag.id),
     });
 
   }, [selectedTags, questionValue, fetchCreateQuestion]);
@@ -153,10 +151,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     fetchUpdateQuestion({
       id: question.id,
       value: questionValue,
-      tags: selectedTags.map(tag => ({
-        tagId: tag.id,
-        hexColor: 'FFFFFF',
-      })),
+      tags: selectedTags.map(tag => tag.id),
     });
 
   }, [selectedTags, question, questionValue, fetchUpdateQuestion]);
@@ -195,7 +190,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
           <input id="qestionText" name={valueFieldName} type="text" value={questionValue} onChange={handleQuestionValueChange} />
         </Field>
         <Field>
-          <QuestionTags
+          <TagsSelector
             placeHolder={Captions.TagsPlaceholder}
             loading={tagsLoading}
             tags={tags || []}

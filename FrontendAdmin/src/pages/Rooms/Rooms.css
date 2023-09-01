@@ -24,3 +24,12 @@
   border-radius: 50%;
   object-fit: contain;
 }
+
+.rooms-list .room-tags {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}

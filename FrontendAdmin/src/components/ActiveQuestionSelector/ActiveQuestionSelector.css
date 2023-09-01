@@ -42,11 +42,11 @@
   opacity: 0.4;
 }
 
-.search-box {
+.activeQuestionSelector-container .search-box {
   padding: 5px;
 }
 
-.search-box input {
+.activeQuestionSelector-container .search-box input {
   width: 100%;
   box-sizing: border-box;
   padding: 5px;

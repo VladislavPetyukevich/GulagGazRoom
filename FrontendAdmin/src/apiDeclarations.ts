@@ -1,5 +1,6 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
-import { Question, QuestionState, Tag } from './types/question';
+import { Question, QuestionState } from './types/question';
+import { Tag } from './types/tag';
 import { Reaction } from './types/reaction';
 import { Room, RoomReview } from './types/room';
 import { User } from './types/user';
@@ -15,6 +16,7 @@ export interface CreateRoomBody {
   questions: Array<Question['id']>;
   experts: Array<User['id']>;
   examinees: Array<User['id']>;
+  tags: Array<Tag['id']>;
 }
 
 export interface SendGasBody {
@@ -97,10 +99,7 @@ export const roomQuestionApiDeclaration = {
 
 export interface CreateQuestionBody {
   value: string;
-  tags: Array<{
-    tagId: string;
-    hexColor: string;
-  }>;
+  tags: Array<Tag['id']>
 }
 
 export interface UpdateQuestionBody extends CreateQuestionBody {
@@ -139,6 +138,7 @@ export interface GetTagsParams extends PaginationUrlParams {
 
 export interface CreateTagBody {
   value: string;
+  hexValue: string;
 }
 
 export const tagsApiDeclaration = {

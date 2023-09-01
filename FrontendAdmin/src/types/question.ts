@@ -1,3 +1,5 @@
+import { Tag } from './tag';
+
 export interface Question {
   id: string;
   value: string;
@@ -8,8 +10,3 @@ export type QuestionState =
   'Open' |
   'Closed' |
   'Active';
-
-export interface Tag {
-  id: string;
-  value: string;
-}

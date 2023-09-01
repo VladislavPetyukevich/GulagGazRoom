@@ -8,11 +8,12 @@ import { Paginator } from '../../components/Paginator/Paginator';
 import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { Question, Tag } from '../../types/question';
+import { Question } from '../../types/question';
+import { Tag } from '../../types/tag';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
-import { QuestionTagsView } from '../../components/QuestionTagsView/QuestionTagsView';
-import { QuestionTags } from '../QuestionCreate/components/QuestionTags/QuestionTags';
+import { TagsView } from '../../components/TagsView/TagsView';
+import { TagsSelector } from '../../components/TagsSelector/TagsSelector';
 
 import './Questions.css';
 
@@ -85,7 +86,7 @@ export const Questions: FunctionComponent = () => {
             🖊️
           </button>
         </Link>
-        <QuestionTagsView
+        <TagsView
           placeHolder={Captions.NoTags}
           tags={question.tags}
         />
@@ -107,7 +108,7 @@ export const Questions: FunctionComponent = () => {
         {tagsError ? (
           <div>{Captions.Error}: {tagsError}</div>
         ) : (
-          <QuestionTags
+          <TagsSelector
             placeHolder={Captions.SearchByTags}
             loading={tagsLoading}
             tags={tags || []}
