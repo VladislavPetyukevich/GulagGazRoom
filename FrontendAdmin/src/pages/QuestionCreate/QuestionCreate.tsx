@@ -124,8 +124,8 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     setTagsSearchValue(value);
   };
 
-  const handleTagCreate = (value: string) => {
-    fetchCreateTag({ value });
+  const handleTagCreate = (tag: Omit<Tag, 'id'>) => {
+    fetchCreateTag(tag);
   };
 
   const handleQuestionValueChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -137,10 +137,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
 
     fetchCreateQuestion({
       value: questionValue,
-      tags: selectedTags.map(tag => ({
-        tagId: tag.id,
-        hexColor: 'FFFFFF',
-      })),
+      tags: selectedTags.map(tag => tag.id),
     });
 
   }, [selectedTags, questionValue, fetchCreateQuestion]);
@@ -153,10 +150,7 @@ export const QuestionCreate: FunctionComponent<{ edit: boolean; }> = ({ edit }) 
     fetchUpdateQuestion({
       id: question.id,
       value: questionValue,
-      tags: selectedTags.map(tag => ({
-        tagId: tag.id,
-        hexColor: 'FFFFFF',
-      })),
+      tags: selectedTags.map(tag => tag.id),
     });
 
   }, [selectedTags, question, questionValue, fetchUpdateQuestion]);

@@ -97,10 +97,7 @@ export const roomQuestionApiDeclaration = {
 
 export interface CreateQuestionBody {
   value: string;
-  tags: Array<{
-    tagId: string;
-    hexColor: string;
-  }>;
+  tags: Array<Tag['id']>
 }
 
 export interface UpdateQuestionBody extends CreateQuestionBody {
@@ -139,6 +136,7 @@ export interface GetTagsParams extends PaginationUrlParams {
 
 export interface CreateTagBody {
   value: string;
+  hexValue: string;
 }
 
 export const tagsApiDeclaration = {

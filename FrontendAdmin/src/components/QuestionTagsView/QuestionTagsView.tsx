@@ -15,10 +15,11 @@ export const QuestionTagsView: FunctionComponent<QuestionTagsViewProps> = ({
   onClick,
 }) => {
   const createItem = (tag: Tag) => {
+    const style = { borderColor: `#${tag.hexValue}` };
     if (onClick) {
-      return <span className='tag-item' onClick={onClick(tag)} key={tag.id}>{tag.value} ✖</span>;
+      return <span className='tag-item' style={style} onClick={onClick(tag)} key={tag.id}>{tag.value} ✖</span>;
     }
-    return <span className='tag-item' key={tag.id}>{tag.value}</span>
+    return <span className='tag-item' style={style} key={tag.id}>{tag.value}</span>
   };
 
   const getDisplay = () => {

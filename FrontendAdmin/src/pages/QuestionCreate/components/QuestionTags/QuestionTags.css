@@ -36,19 +36,32 @@
   background-color: var(--button-bg);
 }
 
+.questionTagsSelector-items {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+}
+
 .questionTagsSelector-item {
   padding: 5px;
+  border: 1px solid;
+  width: fit-content;
+  border-radius: 1rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
 }
 
 .questionTagsSelector-item:hover {
   background-color: var(--active);
 }
 
-.search-box {
+.questionTagsSelector-container .search-box {
   padding: 5px;
 }
 
-.search-box input {
+.questionTagsSelector-container .search-box .tag-value {
   width: 100%;
   box-sizing: border-box;
   padding: 5px;

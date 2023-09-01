@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, FunctionComponent, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import React, { ChangeEventHandler, FunctionComponent, MouseEventHandler, useEffect, useState } from 'react';
 import { Tag } from '../../../../types/question';
 import { Captions } from '../../../../constants';
 import { OpenIcon } from '../../../../components/OpenIcon/OpenIcon';
@@ -14,7 +14,7 @@ export interface QuestionTagsProps {
   onSelect: (tag: Tag) => void;
   onUnselect: (tag: Tag) => void;
   onSearch: (value: string) => void;
-  onCreate?: (value: string) => void;
+  onCreate?: (tag: Omit<Tag, 'id'>) => void;
 }
 
 export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
@@ -29,8 +29,7 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const searchRef = useRef<HTMLInputElement>(null);
-  const inputRef = useRef<HTMLDivElement>(null);
+  const [color, setColor] = useState("#000000");
 
   const checkIsSelected = (tag: Tag) => {
     return !!selectedTags.find(tg => tg.id === tag.id);
@@ -53,12 +52,19 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
     setSearchValue(e.target.value);
   };
 
+  const handleColorChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setColor(e.target.value);
+  };
+
   const handleCreate: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
     if (!onCreate) {
       return;
     }
-    onCreate(searchValue);
+    onCreate({
+      value: searchValue,
+      hexValue: color.replace('#', ''),
+    });
     setSearchValue('');
   };
 
@@ -68,7 +74,7 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
 
   return (
     <div className="questionTagsSelector-container">
-      <div ref={inputRef} onClick={handleInputClick} className="questionTagsSelector-input">
+      <div onClick={handleInputClick} className="questionTagsSelector-input">
         <QuestionTagsView tags={selectedTags} placeHolder={placeHolder} onClick={handleUnselectClick} />
         <div className="questionTagsSelector-tools">
           <div className="questionTagsSelector-tool">
@@ -79,20 +85,26 @@ export const QuestionTags: FunctionComponent<QuestionTagsProps> = ({
       {showMenu && (
         <div className="questionTagsSelector-menu">
           <div className="search-box">
-            <input onChange={handleSearch} value={searchValue} ref={searchRef} />
+            <input className='tag-value' onChange={handleSearch} value={searchValue} />
             {onCreate && (
-              <button onClick={handleCreate}>{Captions.Create}</button>
+              <>
+                <input type="color" value={color} onChange={handleColorChange} />
+                <button onClick={handleCreate}>{Captions.Create}</button>
+              </>
             )}
           </div>
+          <div className="questionTagsSelector-items">
           {options.map((option) => (
             <div
               onClick={() => onSelect(option)}
               key={option.id}
               className="questionTagsSelector-item"
+              style={{ borderColor: `#${option.hexValue}` }}
             >
               {option.value}
             </div>
           ))}
+          </div>
           {options.length === 0 && (
             <div>{Captions.NoTags}</div>
           )}
