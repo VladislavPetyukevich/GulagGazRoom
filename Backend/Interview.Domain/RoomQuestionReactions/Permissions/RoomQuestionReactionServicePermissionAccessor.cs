@@ -4,7 +4,7 @@ using Interview.Domain.RoomQuestionReactions.Records.Response;
 
 namespace Interview.Domain.RoomQuestionReactions.Permissions;
 
-public class RoomQuestionReactionServicePermissionAccessor : IRoomQuestionReactionService
+public class RoomQuestionReactionServicePermissionAccessor : IRoomQuestionReactionService, IServiceDecorator
 {
     private readonly IRoomQuestionReactionService _roomQuestionReactionService;
     private readonly ISecurityService _securityService;

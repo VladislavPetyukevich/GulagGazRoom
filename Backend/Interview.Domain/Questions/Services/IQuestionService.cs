@@ -6,7 +6,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Questions.Permissions
 {
-    public interface IQuestionService
+    public interface IQuestionService : IService
     {
         Task<IPagedList<QuestionItem>> FindPageAsync(
             int pageNumber, int pageSize, CancellationToken cancellationToken);

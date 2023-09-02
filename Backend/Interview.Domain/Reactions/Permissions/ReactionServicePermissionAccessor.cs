@@ -5,7 +5,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Reactions.Permissions;
 
-public class ReactionServicePermissionAccessor : IReactionService
+public class ReactionServicePermissionAccessor : IReactionService, IServiceDecorator
 {
     private readonly IReactionService _reactionService;
     private readonly ISecurityService _securityService;

@@ -3,7 +3,7 @@ using Interview.Domain.RoomQuestionReactions.Records.Response;
 
 namespace Interview.Domain.RoomQuestionReactions
 {
-    public interface IRoomQuestionReactionService
+    public interface IRoomQuestionReactionService : IService
     {
         Task<RoomQuestionReactionDetail> CreateAsync(
             RoomQuestionReactionCreateRequest request,

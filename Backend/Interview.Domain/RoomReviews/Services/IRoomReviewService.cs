@@ -4,7 +4,7 @@ using X.PagedList;
 
 namespace Interview.Domain.RoomReviews.Services;
 
-public interface IRoomReviewService
+public interface IRoomReviewService : IService
 {
     Task<IPagedList<RoomReviewPageDetail>> FindPageAsync(
         RoomReviewPageRequest request,

@@ -9,7 +9,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Rooms.Permissions;
 
-public class RoomServicePermissionAccessor : IRoomService
+public class RoomServicePermissionAccessor : IRoomService, IServiceDecorator
 {
     private readonly IRoomService _roomService;
     private readonly ISecurityService _securityService;

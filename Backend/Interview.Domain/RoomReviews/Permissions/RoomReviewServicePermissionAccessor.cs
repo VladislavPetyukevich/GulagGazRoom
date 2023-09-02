@@ -6,7 +6,7 @@ using X.PagedList;
 
 namespace Interview.Domain.RoomReviews.Permissions;
 
-public class RoomReviewServicePermissionAccessor : IRoomReviewService
+public class RoomReviewServicePermissionAccessor : IRoomReviewService, IServiceDecorator
 {
     private readonly IRoomReviewService _roomReviewService;
     private readonly ISecurityService _securityService;

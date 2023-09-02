@@ -7,7 +7,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Questions.Permissions;
 
-public class QuestionServicePermissionAccessor : IQuestionService
+public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecorator
 {
     private readonly IQuestionService _questionService;
     private readonly ISecurityService _securityService;

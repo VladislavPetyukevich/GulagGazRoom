@@ -4,7 +4,7 @@ using Interview.Domain.Users.Roles;
 
 namespace Interview.Domain.Permissions;
 
-public interface ISecurityService
+public interface ISecurityService : IService
 {
     public void EnsurePermission(SEPermission action);
 

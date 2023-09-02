@@ -54,33 +54,6 @@ public static class ServiceCollectionExt
         self.AddSingleton<IConnectUserSource, ConnectUserSource>();
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
 
-        // Services
-        self.AddScoped<ISecurityService, SecurityService>();
-
-        self.AddScoped<IUserService, UserService>();
-        self.Decorate<IUserService, UserServicePermissionAccessor>();
-
-        self.AddScoped<IRoomService, RoomService>();
-        self.Decorate<IRoomService, RoomServicePermissionAccessor>();
-
-        self.AddScoped<IQuestionService, QuestionService>();
-        self.Decorate<IQuestionService, QuestionServicePermissionAccessor>();
-
-        self.AddScoped<IRoomReviewService, RoomReviewService>();
-        self.Decorate<IRoomReviewService, RoomReviewServicePermissionAccessor>();
-
-        self.AddScoped<IRoomParticipantService, RoomParticipantService>();
-        self.Decorate<IRoomParticipantService, RoomParticipantServicePermissionAccessor>();
-
-        self.AddScoped<IRoomQuestionService, RoomQuestionService>();
-        self.Decorate<IRoomQuestionService, RoomQuestionServicePermissionAccessor>();
-
-        self.AddScoped<IRoomQuestionReactionService, RoomQuestionReactionService>();
-        self.Decorate<IRoomQuestionReactionService, RoomQuestionReactionServicePermissionAccessor>();
-
-        self.AddScoped<IReactionService, ReactionService>();
-        self.Decorate<IReactionService, ReactionServicePermissionAccessor>();
-
         self.AddScoped(typeof(ArchiveService<>));
 
         self.AddSingleton(option.TwitchTokenProviderOption);
@@ -91,11 +64,34 @@ public static class ServiceCollectionExt
                 .AddClasses(filter => filter.AssignableTo(typeof(IRepository<>)))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
-                
+
                 .AddClasses(filter => filter.AssignableTo<IEntityPostProcessor>())
                 .As<IEntityPostProcessor>()
-                .WithSingletonLifetime();
+                .WithSingletonLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IEntityPreProcessor>())
+                .As<IEntityPreProcessor>()
+                .WithScopedLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IService>().Where(f => !f.IsAssignableTo(typeof(IServiceDecorator))))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IServiceDecorator>())
+                .As<IServiceDecorator>()
+                .WithScopedLifetime();
         });
+
+        var decorators = self.Where(e => e.ServiceType == typeof(IServiceDecorator)).ToList();
+        foreach (var serviceDescriptor in decorators)
+        {
+            foreach (var decorateInterface in serviceDescriptor.ImplementationType!.GetInterfaces().Where(e => e != typeof(IServiceDecorator)))
+            {
+                self.Decorate(decorateInterface, serviceDescriptor.ImplementationType);
+            }
+        }
+
+        decorators.ForEach(e => self.Remove(e));
 
         self.AddScoped<CurrentUserAccessor>();
         self.AddScoped<IEditableCurrentUserAccessor>(provider => provider.GetRequiredService<CurrentUserAccessor>());
@@ -103,8 +99,6 @@ public static class ServiceCollectionExt
         self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
 
         self.AddScoped<ICurrentPermissionAccessor, CurrentPermissionAccessor>();
-
-        self.AddScoped<IEntityPreProcessor, DateEntityPreProcessor>();
 
         return self;
     }

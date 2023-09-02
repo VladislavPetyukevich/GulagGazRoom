@@ -5,7 +5,7 @@ using Interview.Domain.RoomParticipants.Service;
 
 namespace Interview.Domain.RoomParticipants.Permissions;
 
-public class RoomParticipantServicePermissionAccessor : IRoomParticipantService
+public class RoomParticipantServicePermissionAccessor : IRoomParticipantService, IServiceDecorator
 {
     private readonly IRoomParticipantService _roomParticipantService;
     private readonly ISecurityService _securityService;

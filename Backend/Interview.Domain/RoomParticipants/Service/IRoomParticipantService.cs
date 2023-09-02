@@ -3,7 +3,7 @@ using Interview.Domain.RoomParticipants.Records.Response;
 
 namespace Interview.Domain.RoomParticipants.Service
 {
-    public interface IRoomParticipantService
+    public interface IRoomParticipantService : IService
     {
         Task<RoomParticipantDetail> FindByRoomIdAndUserIdAsync(
             RoomParticipantGetRequest request,

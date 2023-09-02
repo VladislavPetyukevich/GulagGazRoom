@@ -4,7 +4,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Users;
 
-public interface IUserService
+public interface IUserService : IService
 {
     Task<IPagedList<UserDetail>> FindPageAsync(
         int pageNumber, int pageSize, CancellationToken cancellationToken = default);

@@ -7,7 +7,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Rooms.Service;
 
-public interface IRoomService
+public interface IRoomService : IService
 {
     Task<IPagedList<RoomPageDetail>> FindPageAsync(
         int pageNumber, int pageSize, CancellationToken cancellationToken = default);

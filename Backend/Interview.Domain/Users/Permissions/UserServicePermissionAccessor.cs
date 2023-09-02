@@ -5,7 +5,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Users.Permissions;
 
-public class UserServicePermissionAccessor : IUserService
+public class UserServicePermissionAccessor : IUserService, IServiceDecorator
 {
     private readonly ISecurityService _securityService;
     private readonly IUserService _userService;

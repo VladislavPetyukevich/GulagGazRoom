@@ -3,7 +3,7 @@ using Interview.Domain.RoomQuestions.Records.Response;
 
 namespace Interview.Domain.RoomQuestions.Services;
 
-public interface IRoomQuestionService
+public interface IRoomQuestionService : IService
 {
     Task<RoomQuestionDetail> ChangeActiveQuestionAsync(
         RoomQuestionChangeActiveRequest request, CancellationToken cancellationToken = default);
