@@ -1,7 +1,7 @@
 import React, { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CreateRoomBody, roomsApiDeclaration } from '../../apiDeclarations';
+import { CreateRoomBody, CreateTagBody, GetTagsParams, roomsApiDeclaration, tagsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { Loader } from '../../components/Loader/Loader';
@@ -13,19 +13,49 @@ import { Captions, pathnames, toastSuccessOptions } from '../../constants';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
 import { User } from '../../types/user';
+import { TagsSelector } from '../../components/TagsSelector/TagsSelector';
+import { Tag } from '../../types/tag';
 
 import './RoomCreate.css';
 
 const nameFieldName = 'roomName';
 const twitchChannelFieldName = 'roomTwitchChannel';
+const pageNumber = 1;
+const pageSize = 30;
 
 export const RoomCreate: FunctionComponent = () => {
   const navigate = useNavigate();
   const { apiMethodState, fetchData } = useApiMethod<string, CreateRoomBody>(roomsApiDeclaration.create);
   const { process: { loading, error }, data: createdRoomId } = apiMethodState;
+
+  const {
+    apiMethodState: tagsState,
+    fetchData: fetchTags,
+  } = useApiMethod<Tag[], GetTagsParams>(tagsApiDeclaration.getPage);
+  const { process: { loading: tagsLoading, error: tagsError }, data: tags } = tagsState;
+
+  const {
+    apiMethodState: tagCreateState,
+    fetchData: fetchCreateTag,
+  } = useApiMethod<Tag, CreateTagBody>(tagsApiDeclaration.createTag);
+  const { process: { loading: createTagLoading, error: createTagError }, data: createdQuestionTag } = tagCreateState;
+
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [selectedExperts, setSelectedExperts] = useState<User[]>([]);
   const [selectedExaminees, setSelectedExaminees] = useState<User[]>([]);
+  const [tagsSearchValue, setTagsSearchValue] = useState('');
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+
+  const totalLoading = loading || createTagLoading;
+  const totalError = error || tagsError || createTagError;
+
+  useEffect(() => {
+    fetchTags({
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      value: tagsSearchValue,
+    });
+  }, [createdQuestionTag, tagsSearchValue, fetchTags]);
 
   useEffect(() => {
     if (!createdRoomId) {
@@ -34,6 +64,23 @@ export const RoomCreate: FunctionComponent = () => {
     toast.success(Captions.RoomCreated, toastSuccessOptions);
     navigate(pathnames.rooms);
   }, [createdRoomId, navigate]);
+
+  const handleTagSelect = (tag: Tag) => {
+    setSelectedTags([...selectedTags, tag]);
+  };
+
+  const handleTagUnselect = (tag: Tag) => {
+    const newSelectedTags = selectedTags.filter(tg => tg.id !== tag.id);
+    setSelectedTags(newSelectedTags);
+  };
+
+  const handleTagSearch = (value: string) => {
+    setTagsSearchValue(value);
+  };
+
+  const handleTagCreate = (tag: Omit<Tag, 'id'>) => {
+    fetchCreateTag(tag);
+  };
 
   const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,8 +106,9 @@ export const RoomCreate: FunctionComponent = () => {
       questions: selectedQuestions.map(question => question.id),
       experts: selectedExperts.map(user => user.id),
       examinees: selectedExaminees.map(user => user.id),
+      tags: selectedTags.map(tag => tag.id),
     });
-  }, [selectedQuestions, selectedExperts, selectedExaminees, fetchData]);
+  }, [selectedQuestions, selectedExperts, selectedExaminees, selectedTags, fetchData]);
 
   const handleQuestionSelect = useCallback((question: Question) => {
     setSelectedQuestions([...selectedQuestions, question]);
@@ -96,14 +144,14 @@ export const RoomCreate: FunctionComponent = () => {
   }, [selectedExaminees]);
 
   const renderStatus = useCallback(() => {
-    if (error) {
+    if (totalError) {
       return (
         <Field>
-          <div>Error: {error}</div>
+          <div>{Captions.Error}: {totalError}</div>
         </Field>
       );
     }
-    if (loading) {
+    if (totalLoading) {
       return (
         <Field>
           <Loader />
@@ -111,7 +159,7 @@ export const RoomCreate: FunctionComponent = () => {
       );
     }
     return <></>;
-  }, [error, loading]);
+  }, [totalError, totalLoading]);
 
   return (
     <MainContentWrapper className="question-create">
@@ -133,6 +181,19 @@ export const RoomCreate: FunctionComponent = () => {
           <input id="twitchChannel" name={twitchChannelFieldName} type="text" required />
         </Field>
         <Field>
+          <TagsSelector
+            placeHolder={Captions.TagsPlaceholder}
+            loading={tagsLoading}
+            tags={tags || []}
+            selectedTags={selectedTags}
+            onSelect={handleTagSelect}
+            onUnselect={handleTagUnselect}
+            onSearch={handleTagSearch}
+            onCreate={handleTagCreate}
+          />
+        </Field>
+        <Field>
+          <div>Questions:</div>
           <div>{Captions.RoomQuestions}:</div>
           <div className="items-selected">
             {selectedQuestions.map(question => question.value).join(', ')}

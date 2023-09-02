@@ -7,6 +7,7 @@ export const pathnames = {
   roomAnalyticsSummary: '/rooms/:id/analytics/summary',
   questions: '/questions',
   questionsCreate: '/questions/create',
+  questionsEdit: '/questions/edit/:id',
   session: '/session',
   terms: '/terms',
 };
@@ -31,6 +32,7 @@ export const enum Captions {
   Create = 'Создать',
   Error = 'Ошибка',
   QuestionCreatedSuccessfully = 'Вопрос успешно создан',
+  QuestionUpdatedSuccessfully = 'Вопрос успешно обновлён',
   Room = 'Заседание',
   SetActiveQuestion = 'Сделать активным вопросом',
   ShowClosedQuestions = 'Показывать закрытые вопросы',
@@ -92,6 +94,10 @@ export const enum Captions {
   AddReviewPlaceholder = 'Писать донос сюда',
   Send = 'Отправить',
   WithLove = 'С любовью',
+  TagsPlaceholder = 'Выбрать тэги',
+  TagsLoading = 'Загрузка тэгов',
+  NoTags = 'Тэги отсутствуют',
+  SearchByTags = 'Поиск по тэгам',
   BuildHash = 'Хэш сборки',
   CreateRoom = 'Создание заседания',
   RoomName = 'Имя заседания',
@@ -99,6 +105,7 @@ export const enum Captions {
   RoomQuestions = 'Поднимемые вопросы',
   RoomExperts = 'Начальники',
   RoomExaminees = 'Испытуемые',
+  SearchByValue = 'Поиск по содержимому',
 };
 
 export const toastSuccessOptions = {

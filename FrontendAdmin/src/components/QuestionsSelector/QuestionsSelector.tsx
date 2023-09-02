@@ -1,9 +1,11 @@
 import { ChangeEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
-import { PaginationUrlParams, questionsApiDeclaration } from '../../apiDeclarations';
-import { Loader } from '../../components/Loader/Loader';
+import { GetQuestionsParams, questionsApiDeclaration } from '../../apiDeclarations';
+import { ProcessWrapper } from '../ProcessWrapper/ProcessWrapper';
 import { Paginator } from '../../components/Paginator/Paginator';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { Question } from '../../types/question';
+import { Tag } from '../../types/tag';
+import { QustionsSearch } from '../QustionsSearch/QustionsSearch';
 
 import './QuestionsSelector.css';
 
@@ -22,15 +24,20 @@ export const QuestionsSelector: FunctionComponent<QuestionsSelectorProps> = ({
   onUnselect,
 }) => {
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const { apiMethodState, fetchData } = useApiMethod<Question[], PaginationUrlParams>(questionsApiDeclaration.getPage);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [searchValue, setSearchValue] = useState('');
+  const { apiMethodState, fetchData } = useApiMethod<Question[], GetQuestionsParams>(questionsApiDeclaration.getPage);
   const { process: { loading, error }, data: questions } = apiMethodState;
+  const questionsSafe: Question[] = questions || [];
 
   useEffect(() => {
     fetchData({
       PageNumber: pageNumber,
       PageSize: pageSize,
+      value: searchValue,
+      tags: selectedTags.map(tag => tag.id),
     });
-  }, [fetchData, pageNumber]);
+  }, [fetchData, pageNumber, searchValue, selectedTags]);
 
   const handleCheckboxChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;
@@ -51,8 +58,7 @@ export const QuestionsSelector: FunctionComponent<QuestionsSelectorProps> = ({
   }, [questions, onSelect, onUnselect]);
 
   const createQuestionItem = useCallback((question: Question) => (
-    <li key={question.id}>
-      <label htmlFor={`input-${question.id}`}>{question.value}</label>
+    <li key={question.id} className='questions-selector-item'>
       <input
         id={`input-${question.id}`}
         type="checkbox"
@@ -60,6 +66,19 @@ export const QuestionsSelector: FunctionComponent<QuestionsSelectorProps> = ({
         checked={selected.some(que => que.id === question.id)}
         onChange={handleCheckboxChange}
       />
+      <label htmlFor={`input-${question.id}`}>
+        {question.value} [
+        {question.tags.map(tag => (
+          <span
+            key={tag.id}
+            className='questions-selector-item-tag'
+            style={{ borderColor: `#${tag.hexValue}` }}
+          >
+            {tag.value}
+          </span>
+        ))}
+        ]
+      </label>
     </li>
   ), [selected, handleCheckboxChange]);
 
@@ -71,34 +90,30 @@ export const QuestionsSelector: FunctionComponent<QuestionsSelectorProps> = ({
     setPageNumber(pageNumber - 1);
   }, [pageNumber]);
 
-  if (error) {
-    return (
-      <div>Error: {error}</div>
-    );
-  }
-  if (loading || !questions) {
-    return (
-      <>
-        {Array.from({ length: pageSize + 1 }, (_, index) => (
-          <div key={index}>
-            <Loader />
-          </div>
-        ))}
-      </>
-    );
-  }
   return (
     <>
-      <ul className="questions-selector">
-        {questions.map(createQuestionItem)}
-      </ul>
-      <Paginator
-        pageNumber={pageNumber}
-        prevDisabled={pageNumber === initialPageNumber}
-        nextDisabled={questions.length !== pageSize}
-        onPrevClick={handlePrevPage}
-        onNextClick={handleNextPage}
+      <QustionsSearch
+        onSearchChange={setSearchValue}
+        onTagsChange={setSelectedTags}
       />
+      <ProcessWrapper
+        loading={loading}
+        error={error}
+        loaders={Array.from({ length: pageSize + 1 }, () => ({ height: '0.25rem' }))}
+      >
+        <>
+          <ul className="questions-selector">
+            {questionsSafe.map(createQuestionItem)}
+          </ul>
+          <Paginator
+            pageNumber={pageNumber}
+            prevDisabled={pageNumber === initialPageNumber}
+            nextDisabled={questionsSafe.length !== pageSize}
+            onPrevClick={handlePrevPage}
+            onNextClick={handleNextPage}
+          />
+        </>
+      </ProcessWrapper>
     </>
   );
 };

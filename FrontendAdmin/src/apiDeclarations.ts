@@ -1,5 +1,6 @@
 import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } from './types/apiContracts';
 import { Question, QuestionState } from './types/question';
+import { Tag } from './types/tag';
 import { Reaction } from './types/reaction';
 import { Room, RoomReview } from './types/room';
 import { User } from './types/user';
@@ -15,6 +16,7 @@ export interface CreateRoomBody {
   questions: Array<Question['id']>;
   experts: Array<User['id']>;
   examinees: Array<User['id']>;
+  tags: Array<Tag['id']>;
 }
 
 export interface SendGasBody {
@@ -95,21 +97,66 @@ export const roomQuestionApiDeclaration = {
   }),
 };
 
+export interface CreateQuestionBody {
+  value: string;
+  tags: Array<Tag['id']>
+}
+
+export interface UpdateQuestionBody extends CreateQuestionBody {
+  id: string;
+}
+
+export interface GetQuestionsParams extends PaginationUrlParams {
+  tags: Array<Tag['id']>;
+  value: string;
+}
+
 export const questionsApiDeclaration = {
-  getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
+  getPage: (params: GetQuestionsParams): ApiContractGet => ({
     method: 'GET',
     baseUrl: '/questions',
-    urlParams: pagination,
+    urlParams: {
+      'Page.PageSize': params.PageSize,
+      'Page.PageNumber': params.PageNumber,
+      Tags: params.tags,
+      Value: params.value,
+    },
   }),
-  create: (question: Pick<Question, 'value'>): ApiContractPost => ({
+  get: (id: Question['id']): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: `/questions/${id}`,
+  }),
+  create: (question: CreateQuestionBody): ApiContractPost => ({
     method: 'POST',
     baseUrl: '/questions',
     body: question,
   }),
-  update: (question: Question): ApiContractPut => ({
+  update: (question: UpdateQuestionBody): ApiContractPut => ({
     method: 'PUT',
     baseUrl: `/questions/${question.id}`,
-    body: { value: question.value },
+    body: { value: question.value, tags: question.tags },
+  }),
+};
+
+export interface GetTagsParams extends PaginationUrlParams {
+  value: string;
+}
+
+export interface CreateTagBody {
+  value: string;
+  hexValue: string;
+}
+
+export const tagsApiDeclaration = {
+  getPage: (params: GetTagsParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/tags/tag',
+    urlParams: params,
+  }),
+  createTag: (body: CreateTagBody): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: '/tags/tag',
+    body,
   }),
 };
 

@@ -1,7 +1,9 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
-using Interview.Domain.Questions.Records.Response;
+using Interview.Domain.Questions.Records.FindPage;
+using Interview.Domain.Tags;
+using Interview.Domain.Tags.Records.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -22,7 +24,7 @@ public class QuestionController : ControllerBase
     /// <summary>
     /// Getting a Question page.
     /// </summary>
-    /// <param name="request">Page Parameters.</param>
+    /// <param name="request">Search request.</param>
     /// <returns>A page of questions with metadata about the pages.</returns>
     [Authorize]
     [HttpGet]
@@ -31,9 +33,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<IPagedList<QuestionItem>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<QuestionItem>> GetPage([FromQuery] FindPageRequest request)
     {
-        return _questionService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+        return _questionService.FindPageAsync(request, HttpContext.RequestAborted);
     }
 
     /// <summary>

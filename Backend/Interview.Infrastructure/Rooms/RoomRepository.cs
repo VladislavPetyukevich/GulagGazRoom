@@ -4,6 +4,7 @@ using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
+using Interview.Domain.Tags.Records.Response;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
@@ -231,6 +232,7 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .Include(e => e.Participants)
             .Include(e => e.Questions)
             .Include(e => e.Configuration)
+            .Include(e => e.Tags)
             .Select(e => new RoomPageDetail
             {
                 Id = e.Id,
@@ -243,6 +245,12 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                         new RoomUserDetail { Id = participant.User.Id, Nickname = participant.User.Nickname, Avatar = participant.User.Avatar })
                     .ToList(),
                 RoomStatus = e.Status.EnumValue,
+                Tags = e.Tags.Select(t => new TagItem
+                {
+                    Id = t.Id,
+                    Value = t.Value,
+                    HexValue = t.HexColor,
+                }).ToList(),
             })
             .OrderBy(e => e.Id)
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
@@ -271,7 +279,9 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
     }
 
     protected override IQueryable<Room> ApplyIncludes(DbSet<Room> set)
-        => Set.Include(e => e.Participants)
+        => Set
+            .Include(e => e.Tags)
+            .Include(e => e.Participants)
             .Include(e => e.Questions)
             .Include(e => e.Configuration);
 }
