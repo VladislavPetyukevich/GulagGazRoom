@@ -123,7 +123,7 @@ public class RoomController : ControllerBase
 
         if (user is null)
         {
-            return Unauthorized();
+            throw new AccessDeniedException("Current user not found");
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
@@ -148,7 +148,7 @@ public class RoomController : ControllerBase
         var user = User.ToUser();
         if (user is null)
         {
-            return Unauthorized();
+            throw new AccessDeniedException("Current user not found");
         }
 
         var sendRequest = request.ToDomainRequest(user.Id);
