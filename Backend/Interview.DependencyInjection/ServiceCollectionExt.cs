@@ -51,12 +51,6 @@ public static class ServiceCollectionExt
         self.AddSingleton<ISystemClock, SystemClock>();
         self.AddSingleton(option.AdminUsers);
 
-        self.AddSingleton<IEntityPostProcessor, RoomQuestionReactionChangeEntityProcessor>();
-        self.AddSingleton<IEntityPostProcessor, QuestionChangeEntityProcessor>();
-        self.AddSingleton<IEntityPostProcessor, RoomQuestionChangeEntityProcessor>();
-        self.AddSingleton<IEntityPostProcessor, RoomConfigurationChangeEntityProcessor>();
-        self.AddSingleton<IEntityPostProcessor, RoomChangeEntityProcessor>();
-
         self.AddSingleton<IConnectUserSource, ConnectUserSource>();
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
 
@@ -93,9 +87,14 @@ public static class ServiceCollectionExt
 
         self.Scan(selector =>
         {
-            selector.FromAssemblies(typeof(UserRepository).Assembly)
+            selector.FromAssemblies(typeof(UserRepository).Assembly, typeof(RoomQuestionReactionChangeEntityProcessor).Assembly)
                 .AddClasses(filter => filter.AssignableTo(typeof(IRepository<>)))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+                
+                .AddClasses(filter => filter.AssignableTo<IEntityPostProcessor>())
+                .As<IEntityPostProcessor>()
+                .WithSingletonLifetime();
         });
 
         self.AddScoped<CurrentUserAccessor>();
