@@ -107,14 +107,20 @@ export interface UpdateQuestionBody extends CreateQuestionBody {
 }
 
 export interface GetQuestionsParams extends PaginationUrlParams {
-  tags?: Array<Tag['id']>;
+  tags: Array<Tag['id']>;
+  value: string;
 }
 
 export const questionsApiDeclaration = {
-  getPage: (pagination: GetQuestionsParams): ApiContractGet => ({
+  getPage: (params: GetQuestionsParams): ApiContractGet => ({
     method: 'GET',
     baseUrl: '/questions',
-    urlParams: pagination,
+    urlParams: {
+      'Page.PageSize': params.PageSize,
+      'Page.PageNumber': params.PageNumber,
+      Tags: params.tags,
+      Value: params.value,
+    },
   }),
   get: (id: Question['id']): ApiContractGet => ({
     method: 'GET',

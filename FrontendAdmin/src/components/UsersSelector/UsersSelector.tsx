@@ -58,7 +58,6 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
 
   const createUserItem = useCallback((user: User) => (
     <li key={user.id}>
-      <label htmlFor={`input-${uniqueKey}-${user.id}`}>{user.nickname}</label>
       <input
         id={`input-${uniqueKey}-${user.id}`}
         type="checkbox"
@@ -66,6 +65,7 @@ export const UsersSelector: FunctionComponent<UsersSelectorProps> = ({
         checked={selected.some(que => que.id === user.id)}
         onChange={handleCheckboxChange}
       />
+      <label htmlFor={`input-${uniqueKey}-${user.id}`}>{user.nickname}</label>
     </li>
   ), [selected, uniqueKey, handleCheckboxChange]);
 

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GetQuestionsParams, GetTagsParams, questionsApiDeclaration, tagsApiDeclaration } from '../../apiDeclarations';
+import { GetQuestionsParams, questionsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
@@ -13,7 +13,7 @@ import { Tag } from '../../types/tag';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { TagsView } from '../../components/TagsView/TagsView';
-import { TagsSelector } from '../../components/TagsSelector/TagsSelector';
+import { QustionsSearch } from '../../components/QustionsSearch/QustionsSearch';
 
 import './Questions.css';
 
@@ -24,17 +24,11 @@ export const Questions: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const [tagsSearchValue, setTagsSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
   const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[], GetQuestionsParams>(questionsApiDeclaration.getPage);
   const { process: { loading, error }, data: questions } = questionsState;
-
-  const {
-    apiMethodState: tagsState,
-    fetchData: fetchTags,
-  } = useApiMethod<Tag[], GetTagsParams>(tagsApiDeclaration.getPage);
-  const { process: { loading: tagsLoading, error: tagsError }, data: tags } = tagsState;
 
   const questionsSafe = questions || [];
 
@@ -43,29 +37,9 @@ export const Questions: FunctionComponent = () => {
       PageNumber: pageNumber,
       PageSize: pageSize,
       tags: selectedTags.map(tag => tag.id),
+      value: searchValue,
     });
-  }, [pageNumber, selectedTags, fetchQuestios]);
-
-  useEffect(() => {
-    fetchTags({
-      PageNumber: initialPageNumber,
-      PageSize: pageSize,
-      value: tagsSearchValue,
-    });
-  }, [tagsSearchValue, fetchTags]);
-
-  const handleSelect = (tag: Tag) => {
-    setSelectedTags([...selectedTags, tag]);
-  };
-
-  const handleUnselect = (tag: Tag) => {
-    const newSelectedTags = selectedTags.filter(tg => tg.id !== tag.id);
-    setSelectedTags(newSelectedTags);
-  };
-
-  const handleTagSearch = (value: string) => {
-    setTagsSearchValue(value);
-  };
+  }, [pageNumber, selectedTags, searchValue, fetchQuestios]);
 
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);
@@ -105,19 +79,10 @@ export const Questions: FunctionComponent = () => {
         linkFloat="right"
       />
       <Field>
-        {tagsError ? (
-          <div>{Captions.Error}: {tagsError}</div>
-        ) : (
-          <TagsSelector
-            placeHolder={Captions.SearchByTags}
-            loading={tagsLoading}
-            tags={tags || []}
-            selectedTags={selectedTags}
-            onSelect={handleSelect}
-            onUnselect={handleUnselect}
-            onSearch={handleTagSearch}
-          />
-        )}
+        <QustionsSearch
+          onSearchChange={setSearchValue}
+          onTagsChange={setSelectedTags}
+        />
       </Field>
       <ProcessWrapper
         loading={loading}

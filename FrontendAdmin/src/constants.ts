@@ -105,6 +105,7 @@ export const enum Captions {
   RoomQuestions = 'Поднимемые вопросы',
   RoomExperts = 'Начальники',
   RoomExaminees = 'Испытуемые',
+  SearchByValue = 'Поиск по содержимому',
 };
 
 export const toastSuccessOptions = {
