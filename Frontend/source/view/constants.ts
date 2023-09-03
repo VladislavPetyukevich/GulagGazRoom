@@ -74,7 +74,8 @@ export const gameSounds = {
   gulagVox,
 };
 
-const voxVolume = 0.15;
+const voxVolume = 0.05;
+const lightFlickVolume = 0.2
 
 export const audioSlices = {
   like1: {
@@ -131,18 +132,18 @@ export const audioSlices = {
   },
   lightFlick1: {
     bufferName: 'lightFlicks',
-    start: 0.05, end: 0.39, volume: 0.5,
+    start: 0.05, end: 0.39, volume: lightFlickVolume,
   },
   lightFlick2: {
     bufferName: 'lightFlicks',
-    start: 0.39, end: 0.6, volume: 0.5,
+    start: 0.39, end: 0.6, volume: lightFlickVolume,
   },
   lightFlick3: {
     bufferName: 'lightFlicks',
-    start: 0.6, end: 0.91, volume: 0.5,
+    start: 0.6, end: 0.91, volume: lightFlickVolume,
   },
   lightFlick4: {
     bufferName: 'lightFlicks',
-    start: 0.91, end: 1.22, volume: 0.5,
+    start: 0.91, end: 1.22, volume: lightFlickVolume,
   },
 };
