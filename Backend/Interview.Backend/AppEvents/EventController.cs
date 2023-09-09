@@ -1,14 +1,11 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
-using Interview.Domain.Events;
 using Interview.Domain.Events.Service;
 using Interview.Domain.Events.Service.Create;
 using Interview.Domain.Events.Service.FindPage;
 using Interview.Domain.Events.Service.Update;
-using Interview.Domain.Questions.Records.Response;
-using Interview.Domain.Rooms.Service.Records.Request;
-using Microsoft.AspNetCore.Authentication;
+using Interview.Domain.Questions.Records.FindPage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;

@@ -30,7 +30,7 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
         await transaction.CommitAsync(cancellationToken);
     }
 
-    protected override IQueryable<Question> ApplyIncludes(DbSet<Question> set)
+    protected override IQueryable<Question> ApplyDetailed(DbSet<Question> set)
     {
         return set.Include(e => e.Tags);
     }

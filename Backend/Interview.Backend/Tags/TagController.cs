@@ -43,7 +43,7 @@ public class TagController : ControllerBase
     /// </summary>
     /// <param name="request">Tag edit request.</param>
     /// <returns>The object of the new question.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPost("tag")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(TagItem), StatusCodes.Status201Created)]
@@ -62,7 +62,7 @@ public class TagController : ControllerBase
     /// <param name="id">ID of the of tag.</param>
     /// <param name="request">The object with the tag data for which you need to update.</param>
     /// <returns>Updated question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize(policy: SecurePolicy.Manager)]
     [HttpPut("tag/{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(TagItem), StatusCodes.Status200OK)]
