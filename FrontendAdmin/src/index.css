@@ -1,18 +1,18 @@
 :root {
-  --text: #cccccc;
-  --form-bg: #222;
+  --text: #ccc;
+  --page-bg: #333;
+  --form-bg: var(--page-bg);
   --wrap-bg: #000;
   --active: #b9221c;
   --shadow: #100908;
   --bg: #400000;
   --bg-success: #103000;
-  --page-bg: #222;
   --progress-bg: var(--shadow);
   --progress-1: var(--active);
   --progress-2: var(--form-bg);
   --menu-font-size: 1.15rem;
   --menu-line-height: calc(var(--menu-font-size) * 1.4);
-  --button-bg: #555;
+  --button-bg: #444;
   --border-radius: 0.5rem;
 }
 
@@ -31,8 +31,10 @@ body {
 button {
   color: var(--text);
   background-color: var(--button-bg);
+  font-size: 0.9rem;
   border: none;
-  padding: 0.5rem 2rem;
+  padding: 0rem 2rem;
+  height: 1.75rem;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -76,10 +78,15 @@ table td {
   background-color: var(--bg);
 }
 
-textarea, input[type="text"] {
+textarea, input[type="text"], input[type="color"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
+  border: 1px solid var(--button-bg);
+}
+
+input[type="color"] {
+  background-color: var(--form-bg);
 }
 
 h2 {

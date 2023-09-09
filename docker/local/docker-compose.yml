@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: "psql"
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - database-drive:/var/lib/postgresql/data
+    networks:
+      - local.network
+
+  backend:
+    container_name: "backend"
+    build:
+      context: ../../Backend/.
+      dockerfile: Interview.Backend/Dockerfile
+      args:
+        ConnectionString: Server=postgres;User ID=postgres;Password=postgres;Port=5432;Database=postgres
+        ClientId: "********"
+        ClientSecret: "********"
+        SwaggerPrefix: ""
+    ports:
+      - '8800:8800'
+    environment:
+      - ASPNETCORE_URLS=http://+:8800
+      - ASPNETCORE_ENVIRONMENT=PreProduction
+    volumes:
+      - backend-drive:/app/
+    depends_on:
+      - postgres
+    networks:
+      - local.network
+
+networks:
+  local.network:
+    driver: bridge
+    
+volumes:
+  backend-drive:
+  database-drive:

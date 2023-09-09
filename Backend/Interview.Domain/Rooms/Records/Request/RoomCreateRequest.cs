@@ -11,4 +11,6 @@ public sealed class RoomCreateRequest
     public HashSet<Guid> Experts { get; set; } = new();
 
     public HashSet<Guid> Examinees { get; set; } = new();
+
+    public HashSet<Guid> Tags { get; set; } = new();
 }

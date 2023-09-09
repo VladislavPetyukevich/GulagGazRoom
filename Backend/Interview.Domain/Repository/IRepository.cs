@@ -12,6 +12,8 @@ public interface IRepository<T>
 
     Task CreateAsync(T entity, CancellationToken cancellationToken = default);
 
+    Task CreateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
+
     Task<T?> FindFirstOrDefaultAsync(ISpecification<T> specification, CancellationToken cancellationToken = default);
 
     Task<TRes?> FindFirstOrDefaultAsync<TRes>(ISpecification<T> specification, IMapper<T, TRes> mapper, CancellationToken cancellationToken = default);

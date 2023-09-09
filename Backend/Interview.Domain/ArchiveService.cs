@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.ServiceResults.Success;

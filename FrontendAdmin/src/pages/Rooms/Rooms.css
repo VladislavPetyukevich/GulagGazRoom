@@ -5,7 +5,6 @@
 
 .rooms-list .room-link {
   font-size: var(--menu-font-size);
-  line-height: var(--menu-line-height);
 }
 
 .rooms-list .room-users {
@@ -23,4 +22,13 @@
   height: 1rem;
   border-radius: 50%;
   object-fit: contain;
+}
+
+.rooms-list .room-tags {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
 }

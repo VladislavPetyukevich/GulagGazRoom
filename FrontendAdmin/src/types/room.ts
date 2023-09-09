@@ -1,4 +1,5 @@
 import { Question } from './question';
+import { Tag } from './tag';
 import { User } from './user';
 
 export interface Room {
@@ -7,6 +8,7 @@ export interface Room {
   twitchChannel: string;
   questions: Question[];
   users: User[];
+  tags: Tag[];
   roomStatus: 'New' | 'Active' | 'Review' | 'Close';
 }
 

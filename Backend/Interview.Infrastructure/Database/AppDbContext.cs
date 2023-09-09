@@ -45,24 +45,22 @@ public class AppDbContext : DbContext
 
     public DbSet<RoomConfiguration> RoomConfiguration { get; private set; } = null!;
 
+    public DbSet<Tag> Tag { get; private set; } = null!;
+
     public DbSet<Permission> Permissions { get; private set; } = null!;
 
     public override int SaveChanges()
     {
-        using (var saveCookie = new SaveCookie(this, CancellationToken.None))
+        using (new SaveCookie(this, CancellationToken.None))
         {
-            saveCookie.NotifyPreProcessors();
             return base.SaveChanges();
         }
     }
 
-    public override async Task<int> SaveChangesAsync(
-        bool acceptAllChangesOnSuccess,
-        CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        await using (var saveCookie = new SaveCookie(this, cancellationToken))
+        await using (new SaveCookie(this, cancellationToken))
         {
-            await saveCookie.NotifyPreProcessorsAsync();
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }
@@ -79,99 +77,56 @@ public class AppDbContext : DbContext
         private readonly List<Entity>? _addedEntities;
         private readonly List<(Entity Original, Entity Current)>? _modifiedEntities;
 
-        private readonly List<IEntityPreProcessor> _preProcessors;
-        private readonly List<IEntityPostProcessor> _postProcessors;
-
         public SaveCookie(AppDbContext db, CancellationToken cancellationToken)
         {
             _db = db;
             _cancellationToken = cancellationToken;
-
-            _preProcessors = _db.Processors.PreProcessors;
-            _postProcessors = _db.Processors.PostProcessors;
-
-            _addedEntities = FilterByState(EntityState.Added).ToList();
-            _modifiedEntities = FilterEntryByState(EntityState.Modified)
-                .Select(e =>
-                {
-                    var original = (Entity)e.OriginalValues.ToObject();
-                    return (original, e.Entity);
-                })
-                .ToList();
-        }
-
-        public void NotifyPreProcessors()
-        {
-            if (_preProcessors.Count == 0 || (_addedEntities == null && _modifiedEntities == null))
+            foreach (var entity in FilterByState(EntityState.Added))
             {
-                return;
+                entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
             }
 
-            foreach (var preProcessor in _preProcessors)
+            foreach (var entity in FilterByState(EntityState.Modified))
             {
-                if (_addedEntities != null)
-                {
-                    preProcessor.ProcessAddedAsync(_addedEntities, _cancellationToken)
-                        .ConfigureAwait(false)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-
-                if (_modifiedEntities != null)
-                {
-                    preProcessor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken)
-                        .ConfigureAwait(false)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-            }
-        }
-
-        public async ValueTask NotifyPreProcessorsAsync()
-        {
-            if (_preProcessors.Count == 0 || (_addedEntities == null && _modifiedEntities == null))
-            {
-                return;
+                entity.UpdateUpdateDate(db.SystemClock.UtcNow.DateTime);
             }
 
-            foreach (var preProcessor in _preProcessors)
+            if (db.ChangeEntityProcessors.Length > 0)
             {
-                if (_addedEntities != null)
-                {
-                    await preProcessor.ProcessAddedAsync(_addedEntities, _cancellationToken);
-                }
+                _addedEntities = FilterByState(EntityState.Added).ToList();
 
-                if (_modifiedEntities != null)
-                {
-                    await preProcessor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);
-                }
+                _modifiedEntities = FilterEntryByState(EntityState.Modified)
+                    .Select(e =>
+                    {
+                        var original = (Entity)e.OriginalValues.ToObject();
+                        return (original, e.Entity);
+                    })
+                    .ToList();
             }
         }
 
         public void Dispose()
         {
-            if (_postProcessors.Count == 0 || _addedEntities == null || _modifiedEntities == null)
+            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
             {
                 return;
             }
 
-            foreach (var processor in _postProcessors)
+            foreach (var processor in _db.ChangeEntityProcessors)
             {
-                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
-                    .GetResult();
-                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
-                    .GetResult();
+                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (_postProcessors.Count == 0 || _addedEntities == null || _modifiedEntities == null)
+            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
             {
                 return;
             }
 
-            foreach (var processor in _postProcessors)
+            foreach (var processor in _db.ChangeEntityProcessors)
             {
                 await processor.ProcessAddedAsync(_addedEntities, _cancellationToken);
                 await processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);

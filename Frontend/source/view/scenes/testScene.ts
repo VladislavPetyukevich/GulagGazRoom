@@ -195,7 +195,7 @@ export class TestScene extends BasicScene {
     const buzzSoundBuffer = audioStore.getSound('buzz');
     this.buzzSound.setBuffer(buzzSoundBuffer);
     this.buzzSound.setLoop(true);
-    this.buzzSound.setVolume(0.4);
+    this.buzzSound.setVolume(0.15);
 
     this.lightEffects = {
       flick: {

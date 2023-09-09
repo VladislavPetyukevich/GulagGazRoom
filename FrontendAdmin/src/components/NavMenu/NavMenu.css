@@ -1,6 +1,5 @@
 .nav-menu {
   font-size: var(--menu-font-size);
-  line-height: var(--menu-line-height);
 }
 .nav-menu nav {
   display: contents;
@@ -15,6 +14,7 @@
   width: 100%;
   border-radius: 0px;
   margin-bottom: 0.5rem;
+  line-height: 1.6;
 }
 
 .nav-menu .active {
