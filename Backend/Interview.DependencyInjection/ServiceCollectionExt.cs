@@ -13,6 +13,7 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomReviews;
 using Interview.Domain.Rooms.Service;
+using Interview.Domain.Tags;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Certificates.Pdf;
@@ -54,6 +55,7 @@ public static class ServiceCollectionExt
         self.AddScoped<UserService>();
         self.AddScoped<RoomService>();
         self.AddScoped<QuestionService>();
+        self.AddScoped<TagService>();
         self.AddScoped<RoomReviewService>();
         self.AddScoped<RoomParticipantService>();
         self.AddScoped<AppEventService>();

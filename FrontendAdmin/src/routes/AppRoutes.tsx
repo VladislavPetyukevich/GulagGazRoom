@@ -65,7 +65,14 @@ export const AppRoutes: FunctionComponent<AppRoutesProps> = ({
       <Route path={pathnames.questionsCreate}
         element={
           <ProtectedRoute allowed={authenticated}>
-            <QuestionCreate />
+            <QuestionCreate edit={false} />
+          </ProtectedRoute>
+        }
+      />
+      <Route path={pathnames.questionsEdit}
+        element={
+          <ProtectedRoute allowed={authenticated}>
+            <QuestionCreate edit={true} />
           </ProtectedRoute>
         }
       />

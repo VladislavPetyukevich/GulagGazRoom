@@ -1,5 +1,6 @@
 import { Question } from './question';
 import { ParticipantType, User } from './user';
+import { Tag } from './tag';
 
 export interface Room {
   id: string;
@@ -7,6 +8,7 @@ export interface Room {
   twitchChannel: string;
   questions: Question[];
   users: User[];
+  tags: Tag[];
   roomStatus: 'New' | 'Active' | 'Review' | 'Close';
 }
 

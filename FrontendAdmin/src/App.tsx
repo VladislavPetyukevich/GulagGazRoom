@@ -11,6 +11,7 @@ import { Field } from './components/FieldsBlock/Field';
 import { useCommunist } from './hooks/useCommunist';
 import { Captions } from './constants';
 import { FieldsBlock } from './components/FieldsBlock/FieldsBlock';
+import { REACT_APP_BUILD_HASH } from './config';
 
 import './App.css';
 
@@ -83,7 +84,12 @@ export const App: FunctionComponent = () => {
             </FieldsBlock>
             <NavMenu />
           </header>
-          {renderMainContent()}
+          <div className="App-content">
+            {renderMainContent()}
+          </div>
+          <footer>
+            <div>{Captions.BuildHash}: {REACT_APP_BUILD_HASH}</div>
+          </footer>
         </div>
       </AuthContext.Provider>
     </HashRouter>

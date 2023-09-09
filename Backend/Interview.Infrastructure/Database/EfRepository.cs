@@ -33,6 +33,12 @@ public abstract class EfRepository<T> : IRepository<T>
         return Db.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task CreateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    {
+        await Set.AddRangeAsync(entities, cancellationToken);
+        await Db.SaveChangesAsync(cancellationToken);
+    }
+
     public Task<T?> FindFirstOrDefaultAsync(ISpecification<T> specification, CancellationToken cancellationToken = default)
     {
         return ApplyNonDetail(Set).FirstOrDefaultAsync(specification.Expression, cancellationToken);

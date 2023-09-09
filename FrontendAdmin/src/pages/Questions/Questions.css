@@ -6,15 +6,21 @@
 .questions-list .question-item {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
   align-items: stretch;
 }
 
+.questions-list .tags-view {
+  width: 100%;
+  justify-content: center;
+}
+
 .questions-list .question-edit-button {
   position: absolute;
-  padding: 5px 10px;
-  right: 40px;
+  padding: 0.25rem 1rem;
+  right: 2.5rem;
 }
 
 .questions-list .question-item-new-value {

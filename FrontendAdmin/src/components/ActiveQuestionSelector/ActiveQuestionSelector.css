@@ -6,7 +6,7 @@
 }
 
 .activeQuestionSelector-input {
-  padding: 5px;
+  padding: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -15,10 +15,10 @@
 
 .activeQuestionSelector-menu {
   position: absolute;
-  transform: translateY(4px);
+  transform: translateY(0.25rem);
   width: 100%;
   border: 1px solid var(--form-bg);
-  border-radius: 5px;
+  border-radius: 0.25rem;
   overflow: auto;
   max-height: 150px;
   background-color: var(--wrap-bg);
@@ -26,11 +26,11 @@
 }
 
 .activeQuestionSelector-tools {
-  background-color: var(--form-bg);
+  background-color: var(--button-bg);
 }
 
 .activeQuestionSelector-item {
-  padding: 5px;
+  padding: 0.25rem;
 }
 
 .activeQuestionSelector-item:hover {
@@ -42,12 +42,12 @@
   opacity: 0.4;
 }
 
-.search-box {
-  padding: 5px;
+.activeQuestionSelector-container .search-box {
+  padding: 0.25rem;
 }
 
-.search-box input {
+.activeQuestionSelector-container .search-box input {
   width: 100%;
   box-sizing: border-box;
-  padding: 5px;
+  padding: 0.25rem;
 }

@@ -5,18 +5,18 @@
   justify-content: center;
   align-items: stretch;
   font-size: var(--menu-font-size);
-  line-height: var(--menu-line-height) !important;
+  line-height: 1.6 !important;
 }
 
 .header-with-link .button-link {
   position: absolute;
-  padding: 5px 30px;
+  padding: 0.25rem 2rem;
 }
 
 .header-with-link .button-link.float-right {
-  right: 25px;
+  right: 2rem;
 }
 
 .header-with-link .button-link.float-left {
-  left: 55px;
+  left: 2rem;
 }
