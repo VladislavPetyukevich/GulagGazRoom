@@ -1,35 +1,26 @@
-using CSharpFunctionalExtensions;
-using Interview.Domain.Questions.Records.Response;
-using Interview.Domain.ServiceResults.Errors;
-using Interview.Domain.ServiceResults.Success;
+using Interview.Domain.Questions.Records.FindPage;
 using X.PagedList;
 
-namespace Interview.Domain.Questions.Permissions
+namespace Interview.Domain.Questions.Services;
+
+public interface IQuestionService : IService
 {
-    public interface IQuestionService : IService
-    {
-        Task<IPagedList<QuestionItem>> FindPageAsync(
-            int pageNumber, int pageSize, CancellationToken cancellationToken);
+    public Task<IPagedList<QuestionItem>> FindPageAsync(FindPageRequest request, CancellationToken cancellationToken);
 
-        Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
-            int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
+        int pageNumber, int pageSize, CancellationToken cancellationToken);
 
-        Task<QuestionItem> CreateAsync(
-            QuestionCreateRequest request, CancellationToken cancellationToken = default);
+    Task<QuestionItem> CreateAsync(
+        QuestionCreateRequest request, CancellationToken cancellationToken = default);
 
-        Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
-            Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default);
+    Task<QuestionItem> UpdateAsync(
+        Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default);
 
-        Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
-            Guid id, CancellationToken cancellationToken = default);
+    public Task<QuestionItem> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task<Result<ServiceResult<QuestionItem>, ServiceError>> DeletePermanentlyAsync(
-            Guid id, CancellationToken cancellationToken = default);
+    Task<QuestionItem> DeletePermanentlyAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
-            Guid id, CancellationToken cancellationToken = default);
+    Task<QuestionItem> ArchiveAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
-            Guid id, CancellationToken cancellationToken = default);
-    }
+    Task<QuestionItem> UnarchiveAsync(Guid id, CancellationToken cancellationToken = default);
 }

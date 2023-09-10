@@ -4,6 +4,7 @@ using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.RoomReviews.Records;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
@@ -81,7 +82,7 @@ public class RoomController : ControllerBase
     /// </summary>
     /// <param name="request">Room.</param>
     /// <returns>Created room.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(Guid), 201)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
@@ -98,7 +99,7 @@ public class RoomController : ControllerBase
     /// <param name="id">Room id.</param>
     /// <param name="request">Request.</param>
     /// <returns>Ok message.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
@@ -112,7 +113,7 @@ public class RoomController : ControllerBase
     /// </summary>
     /// <param name="request">Request.</param>
     /// <returns>Ok message.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost("event/gas")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
@@ -138,7 +139,7 @@ public class RoomController : ControllerBase
     /// </summary>
     /// <param name="request">Request.</param>
     /// <returns>Ok message.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost("event/codeEditor")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
@@ -162,7 +163,7 @@ public class RoomController : ControllerBase
     /// </summary>
     /// <param name="id">Room id.</param>
     /// <returns>Analytics.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet("{id:guid}/analytics")]
     [ProducesResponseType(typeof(Analytics), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -195,7 +196,7 @@ public class RoomController : ControllerBase
         return _roomService.GetAnalyticsSummaryAsync(request, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPatch("{id:guid}/close")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -207,7 +208,7 @@ public class RoomController : ControllerBase
         return Ok();
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPatch("{id:guid}/startReview")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]

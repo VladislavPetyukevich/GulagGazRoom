@@ -1,5 +1,6 @@
 using Interview.Domain.Permissions;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;

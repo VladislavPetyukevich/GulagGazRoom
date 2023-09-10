@@ -1,8 +1,6 @@
-using CSharpFunctionalExtensions;
 using Interview.Domain.Permissions;
-using Interview.Domain.Questions.Records.Response;
-using Interview.Domain.ServiceResults.Errors;
-using Interview.Domain.ServiceResults.Success;
+using Interview.Domain.Questions.Records.FindPage;
+using Interview.Domain.Questions.Services;
 using X.PagedList;
 
 namespace Interview.Domain.Questions.Permissions;
@@ -19,12 +17,11 @@ public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecor
         _securityService = securityService;
     }
 
-    public Task<IPagedList<QuestionItem>> FindPageAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken)
+    public Task<IPagedList<QuestionItem>> FindPageAsync(FindPageRequest request, CancellationToken cancellationToken)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPage);
 
-        return _questionService.FindPageAsync(pageNumber, pageSize, cancellationToken);
+        return _questionService.FindPageAsync(request, cancellationToken);
     }
 
     public Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
@@ -43,7 +40,7 @@ public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecor
         return _questionService.CreateAsync(request, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
+    public Task<QuestionItem> UpdateAsync(
         Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPageArchive);
@@ -51,7 +48,7 @@ public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecor
         return _questionService.UpdateAsync(id, request, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
+    public Task<QuestionItem> FindByIdAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPageArchive);
@@ -59,7 +56,7 @@ public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecor
         return _questionService.FindByIdAsync(id, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> DeletePermanentlyAsync(
+    public Task<QuestionItem> DeletePermanentlyAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPageArchive);
@@ -67,7 +64,7 @@ public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecor
         return _questionService.DeletePermanentlyAsync(id, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
+    public Task<QuestionItem> ArchiveAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.QuestionFindPageArchive);
@@ -75,7 +72,7 @@ public class QuestionServicePermissionAccessor : IQuestionService, IServiceDecor
         return _questionService.ArchiveAsync(id, cancellationToken);
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
+    public Task<QuestionItem> UnarchiveAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {

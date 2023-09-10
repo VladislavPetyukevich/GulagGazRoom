@@ -37,9 +37,9 @@ public class QuestionServiceTest
 
         var foundQuestion = await questionService.FindByIdAsync(question.Id);
 
-        Assert.True(foundQuestion.IsSuccess);
+        Assert.NotNull(foundQuestion);
 
-        foundQuestion.Value?.Value.Value.Should().BeEquivalentTo(question.Value);
+        foundQuestion.Value.Should().BeEquivalentTo(question.Value);
     }
 
     [Fact(DisplayName = "Searching question by id when question not found")]
@@ -54,11 +54,10 @@ public class QuestionServiceTest
         var tagRepository = new TagRepository(appDbContext);
         var questionService = new QuestionService(questionRepository, questionArchiveRepository, archiveService, tagRepository);
 
-        var foundQuestion = await questionService.FindByIdAsync(Guid.NewGuid());
+        var notFoundException =
+            await Assert.ThrowsAsync<NotFoundException>(() => questionService.FindByIdAsync(Guid.NewGuid()));
 
-        Assert.True(foundQuestion.IsFailure);
-
-        Assert.NotNull(foundQuestion.Error);
+        Assert.NotNull(notFoundException);
     }
 
     [Fact(DisplayName = "Permanent deleting the question")]
@@ -107,7 +106,7 @@ public class QuestionServiceTest
 
         var result = await questionService.DeletePermanentlyAsync(question.Id);
 
-        Assert.True(result.IsSuccess);
+        Assert.NotNull(result);
 
         var foundQuestion = await appDbContext.Questions
             .Where(it => it.Id == question.Id)

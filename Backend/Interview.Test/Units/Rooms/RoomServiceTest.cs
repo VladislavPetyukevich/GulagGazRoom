@@ -6,7 +6,6 @@ using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
 using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Service;
-using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Tags;
 using Interview.Domain.Users;
 using Moq;

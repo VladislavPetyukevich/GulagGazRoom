@@ -104,12 +104,42 @@ public sealed class UserService : IUserService
         {
             existingUser.Nickname = user.Nickname;
             existingUser.Avatar = user.Avatar;
+
+            if (existingUser.Permissions.Count == 0)
+            {
+                var permissionTypes = new HashSet<SEPermission>
+                {
+                    SEPermission.QuestionFindPage,
+                    SEPermission.RoomQuestionReactionCreate,
+                    SEPermission.RoomFindPage,
+                    SEPermission.RoomFindById,
+                    SEPermission.RoomSendEventRequest,
+                    SEPermission.RoomGetState,
+                    SEPermission.RoomGetAnalyticsSummary,
+                };
+
+                var permissions = await _permissionRepository.FindAllByTypes(permissionTypes, cancellationToken);
+                existingUser.Permissions.AddRange(permissions);
+            }
+
             await _userRepository.UpdateAsync(existingUser, cancellationToken);
             return existingUser;
         }
 
         var userRole = await GetUserRoleAsync(user.Nickname, cancellationToken);
 
+        var userPermissions = new HashSet<SEPermission>
+        {
+            SEPermission.QuestionFindPage,
+            SEPermission.RoomQuestionReactionCreate,
+            SEPermission.RoomFindPage,
+            SEPermission.RoomFindById,
+            SEPermission.RoomSendEventRequest,
+            SEPermission.RoomGetState,
+            SEPermission.RoomGetAnalyticsSummary,
+        };
+
+        await _permissionRepository.FindAllByTypes(userPermissions, cancellationToken);
         if (userRole is null)
         {
             throw new NotFoundException(ExceptionMessage.UserRoleNotFound());

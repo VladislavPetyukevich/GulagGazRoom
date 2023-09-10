@@ -14,15 +14,12 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
 
-    private readonly UserClaimService _userClaimService;
-
-    public UserController(IUserService userService, UserClaimService userClaimService)
+    public UserController(IUserService userService)
     {
         _userService = userService;
-        _userClaimService = userClaimService;
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -34,7 +31,7 @@ public class UserController : ControllerBase
         return _userService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet("nickname/{nickname}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -47,7 +44,7 @@ public class UserController : ControllerBase
         return _userService.FindByNicknameAsync(nickname, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet("role/{role}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -60,7 +57,7 @@ public class UserController : ControllerBase
         return _userService.FindByRoleAsync(pageRequest.PageNumber, pageRequest.PageSize, role, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [HttpGet("admins")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -85,7 +82,7 @@ public class UserController : ControllerBase
         return _userService.GetSelfAsync();
     }
 
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [HttpGet("{id:guid}/permissions")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Dictionary<string, List<PermissionItem>>), StatusCodes.Status200OK)]

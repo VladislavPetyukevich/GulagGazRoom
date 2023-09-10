@@ -1,6 +1,4 @@
 using CSharpFunctionalExtensions;
-using Interview.Domain.Questions.Permissions;
-using Interview.Domain.Questions.Records.Response;
 using Interview.Domain.Questions.Records.FindPage;
 using Interview.Domain.Repository;
 using Interview.Domain.ServiceResults.Errors;
@@ -42,7 +40,8 @@ public class QuestionService : IQuestionService
                 {
                     Id = question.Id,
                     Value = question.Value,
-                    Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
+                    Tags = question.Tags
+                        .Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
                 });
         var spec = request.Tags is null || request.Tags.Count == 0
             ? Spec.Any<Question>()
@@ -54,7 +53,8 @@ public class QuestionService : IQuestionService
             spec &= new Spec<Question>(e => e.Value.ToLower().Contains(questionValue));
         }
 
-        return _questionNonArchiveRepository.GetPageDetailedAsync(spec, mapper, request.Page.PageNumber, request.Page.PageSize, cancellationToken);
+        return _questionNonArchiveRepository.GetPageDetailedAsync(
+            spec, mapper, request.Page.PageNumber, request.Page.PageSize, cancellationToken);
     }
 
     public Task<IPagedList<QuestionItem>> FindPageArchiveAsync(
@@ -64,7 +64,8 @@ public class QuestionService : IQuestionService
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
+            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, })
+                .ToList(),
         });
 
         var isArchiveSpecification = new Spec<Question>(question => question.IsArchived);
@@ -77,15 +78,8 @@ public class QuestionService : IQuestionService
         QuestionCreateRequest request, CancellationToken cancellationToken = default)
     {
         var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
-        if (tags.IsFailure)
-        {
-            return tags.Error;
-        }
 
-        var result = new Question(request.Value)
-        {
-            Tags = tags.Value,
-        };
+        var result = new Question(request.Value) { Tags = tags, };
 
         await _questionRepository.CreateAsync(result, cancellationToken);
 
@@ -98,52 +92,50 @@ public class QuestionService : IQuestionService
         };
     }
 
-    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> UpdateAsync(
+    public async Task<QuestionItem> UpdateAsync(
         Guid id, QuestionEditRequest request, CancellationToken cancellationToken = default)
     {
         var entity = await _questionNonArchiveRepository.FindByIdAsync(id, cancellationToken);
 
         if (entity == null)
         {
-            return ServiceError.NotFound($"Question not found with id={id}");
+            throw NotFoundException.Create<Question>(id);
         }
 
         var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
-        if (tags.IsFailure)
-        {
-            return tags.Error;
-        }
 
         entity.Value = request.Value;
         entity.Tags.Clear();
-        entity.Tags.AddRange(tags.Value);
+        entity.Tags.AddRange(tags);
 
         await _questionRepository.UpdateAsync(entity, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem
+        return new QuestionItem
         {
             Id = entity.Id,
             Value = entity.Value,
-            Tags = entity.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
-        });
+            Tags = entity.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, })
+                .ToList(),
+        };
     }
 
-    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> FindByIdAsync(
+    public async Task<QuestionItem> FindByIdAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         var question = await _questionNonArchiveRepository.FindByIdAsync(id, cancellationToken);
 
         if (question is null)
         {
-            return ServiceError.NotFound($"Not found question with id [{id}]");
+            throw NotFoundException.Create<Question>(id);
         }
 
-        return ServiceResult.Ok(new QuestionItem
+        return new QuestionItem
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
-        });
+            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, })
+                .ToList(),
+        };
     }
 
     /// <summary>
@@ -152,48 +144,50 @@ public class QuestionService : IQuestionService
     /// <param name="id">Question's guid.</param>
     /// <param name="cancellationToken">Cancellation Token.</param>
     /// <returns>ServiceResult with QuestionItem - success, ServiceError - error.</returns>
-    public async Task<Result<ServiceResult<QuestionItem>, ServiceError>> DeletePermanentlyAsync(
+    public async Task<QuestionItem> DeletePermanentlyAsync(
         Guid id, CancellationToken cancellationToken = default)
     {
         var question = await _questionRepository.FindByIdAsync(id, cancellationToken);
 
         if (question == null)
         {
-            return ServiceError.NotFound($"Question not found by id {id}");
+            throw NotFoundException.Create<Question>(id);
         }
 
         await _questionRepository.DeletePermanentlyAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(new QuestionItem
+        return new QuestionItem
         {
             Id = question.Id,
             Value = question.Value,
-            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
-        });
+            Tags = question.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, })
+                .ToList(),
+        };
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> ArchiveAsync(
-        Guid id, CancellationToken cancellationToken = default)
+    public async Task<QuestionItem> ArchiveAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _archiveService.ArchiveAsync(id, cancellationToken)
-            .Map(q => ServiceResult.Ok(new QuestionItem
-            {
-                Id = q.Value.Id,
-                Value = q.Value.Value,
-                Tags = q.Value.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
-            }));
+        var archiveQuestion = await _archiveService.ArchiveAsync(id, cancellationToken);
+
+        return new QuestionItem
+        {
+            Id = archiveQuestion.Id,
+            Value = archiveQuestion.Value,
+            Tags = archiveQuestion.Tags
+                .Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
+        };
     }
 
-    public Task<Result<ServiceResult<QuestionItem>, ServiceError>> UnarchiveAsync(
-        Guid id, CancellationToken cancellationToken = default)
+    public async Task<QuestionItem> UnarchiveAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _archiveService.UnarchiveAsync(id, cancellationToken)
-            .Map(question =>
-                ServiceResult.Ok(new QuestionItem
-                {
-                    Id = question.Value.Id,
-                    Value = question.Value.Value,
-                    Tags = question.Value.Tags.Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
-                }));
+        var unarchiveQuestion = await _archiveService.UnarchiveAsync(id, cancellationToken);
+
+        return new QuestionItem
+        {
+            Id = unarchiveQuestion.Id,
+            Value = unarchiveQuestion.Value,
+            Tags = unarchiveQuestion.Tags
+                .Select(e => new TagItem { Id = e.Id, Value = e.Value, HexValue = e.HexColor, }).ToList(),
+        };
     }
 }

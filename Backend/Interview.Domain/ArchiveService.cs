@@ -1,7 +1,4 @@
-using CSharpFunctionalExtensions;
 using Interview.Domain.Repository;
-using Interview.Domain.ServiceResults.Errors;
-using Interview.Domain.ServiceResults.Success;
 
 namespace Interview.Domain;
 
@@ -15,42 +12,40 @@ public class ArchiveService<T>
         _repository = repository;
     }
 
-    public async Task<Result<ServiceResult<T>, ServiceError>> ArchiveAsync(
-        Guid id, CancellationToken cancellationToken = default)
+    public async Task<T> ArchiveAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var question = await _repository.FindByIdAsync(id, cancellationToken);
 
         if (question == null)
         {
-            return ServiceError.NotFound($"{typeof(T).Name} not found by id {id}");
+            throw NotFoundException.Create<T>(id);
         }
 
         question.IsArchived = true;
 
         await _repository.UpdateAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(question);
+        return question;
     }
 
-    public async Task<Result<ServiceResult<T>, ServiceError>> UnarchiveAsync(
-        Guid id, CancellationToken cancellationToken = default)
+    public async Task<T> UnarchiveAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var question = await _repository.FindByIdAsync(id, cancellationToken);
 
         if (question == null)
         {
-            return ServiceError.NotFound($"{typeof(T).Name} not found by id {id}");
+            throw NotFoundException.Create<T>(id);
         }
 
         if (!question.IsArchived)
         {
-            return ServiceError.Error($"The {typeof(T).Name} is not archived");
+            throw new UserException($"The {typeof(T).Name} is not archived");
         }
 
         question.IsArchived = false;
 
         await _repository.UpdateAsync(question, cancellationToken);
 
-        return ServiceResult.Ok(question);
+        return question;
     }
 }

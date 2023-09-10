@@ -1,8 +1,8 @@
 using Interview.Domain.Repository;
 using Interview.Domain.RoomQuestions;
-using Interview.Domain.Rooms.Service.Records.Response.Detail;
+using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 
-namespace Interview.Domain.Rooms.Service.Records.Response.RoomStates;
+namespace Interview.Domain.Rooms.Records.Response.RoomStates;
 
 public class RoomState
 {

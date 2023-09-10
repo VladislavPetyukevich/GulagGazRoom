@@ -8,12 +8,10 @@ using Interview.Domain.RoomQuestionReactions.Mappers;
 using Interview.Domain.RoomQuestionReactions.Specifications;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
-using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
-using Interview.Domain.ServiceResults.Errors;
-using Interview.Domain.ServiceResults.Success;
 using Interview.Domain.Tags;
 using Interview.Domain.Tags.Records.Response;
 using Interview.Domain.Users;
@@ -90,13 +88,7 @@ public sealed class RoomService : IRoomService
 
         var examinees = await FindByIdsOrErrorAsync(_userRepository, request.Examinees, "examinees", cancellationToken);
 
-        var twitchChannel = request.TwitchChannel.Trim();
-
         var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
-        if (tags.IsFailure)
-        {
-            return tags.Error;
-        }
 
         var twitchChannel = request.TwitchChannel?.Trim();
         if (string.IsNullOrEmpty(twitchChannel))
@@ -106,9 +98,9 @@ public sealed class RoomService : IRoomService
 
         var room = new Room(name, twitchChannel)
         {
-            Tags = tags.Value,
+            Tags = tags,
         };
-        var roomQuestions = questions.Value.Select(question =>
+        var roomQuestions = questions.Select(question =>
             new RoomQuestion { Room = room, Question = question, State = RoomQuestionState.Open });
 
         room.Questions.AddRange(roomQuestions);
@@ -156,23 +148,19 @@ public sealed class RoomService : IRoomService
         }
 
         var tags = await Tag.EnsureValidTagsAsync(_tagRepository, request.Tags, cancellationToken);
-        if (tags.IsFailure)
-        {
-            return Result.Failure<RoomItem>(tags.Error.Message);
-        }
 
         foundRoom.Name = name;
         foundRoom.TwitchChannel = twitchChannel;
 
         foundRoom.Tags.Clear();
-        foundRoom.Tags.AddRange(tags.Value);
+        foundRoom.Tags.AddRange(tags);
         await _roomRepository.UpdateAsync(foundRoom, cancellationToken);
 
         return new RoomItem
         {
             Id = foundRoom.Id,
             Name = foundRoom.Name,
-            Tags = tags.Value.Select(t => new TagItem
+            Tags = tags.Select(t => new TagItem
             {
                 Id = t.Id,
                 Value = t.Value,

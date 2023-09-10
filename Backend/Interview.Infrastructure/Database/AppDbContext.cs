@@ -6,6 +6,7 @@ using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
+using Interview.Domain.Tags;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Roles;
@@ -51,16 +52,20 @@ public class AppDbContext : DbContext
 
     public override int SaveChanges()
     {
-        using (new SaveCookie(this, CancellationToken.None))
+        using (var saveCookie = new SaveCookie(this, CancellationToken.None))
         {
+            saveCookie.NotifyPreProcessors();
             return base.SaveChanges();
         }
     }
 
-    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
     {
-        await using (new SaveCookie(this, cancellationToken))
+        await using (var saveCookie = new SaveCookie(this, cancellationToken))
         {
+            await saveCookie.NotifyPreProcessorsAsync();
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }
@@ -77,56 +82,99 @@ public class AppDbContext : DbContext
         private readonly List<Entity>? _addedEntities;
         private readonly List<(Entity Original, Entity Current)>? _modifiedEntities;
 
+        private readonly List<IEntityPreProcessor> _preProcessors;
+        private readonly List<IEntityPostProcessor> _postProcessors;
+
         public SaveCookie(AppDbContext db, CancellationToken cancellationToken)
         {
             _db = db;
             _cancellationToken = cancellationToken;
-            foreach (var entity in FilterByState(EntityState.Added))
+
+            _preProcessors = _db.Processors.PreProcessors;
+            _postProcessors = _db.Processors.PostProcessors;
+
+            _addedEntities = FilterByState(EntityState.Added).ToList();
+            _modifiedEntities = FilterEntryByState(EntityState.Modified)
+                .Select(e =>
+                {
+                    var original = (Entity)e.OriginalValues.ToObject();
+                    return (original, e.Entity);
+                })
+                .ToList();
+        }
+
+        public void NotifyPreProcessors()
+        {
+            if (_preProcessors.Count == 0 || (_addedEntities == null && _modifiedEntities == null))
             {
-                entity.UpdateCreateDate(db.SystemClock.UtcNow.DateTime);
+                return;
             }
 
-            foreach (var entity in FilterByState(EntityState.Modified))
+            foreach (var preProcessor in _preProcessors)
             {
-                entity.UpdateUpdateDate(db.SystemClock.UtcNow.DateTime);
+                if (_addedEntities != null)
+                {
+                    preProcessor.ProcessAddedAsync(_addedEntities, _cancellationToken)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+
+                if (_modifiedEntities != null)
+                {
+                    preProcessor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+            }
+        }
+
+        public async ValueTask NotifyPreProcessorsAsync()
+        {
+            if (_preProcessors.Count == 0 || (_addedEntities == null && _modifiedEntities == null))
+            {
+                return;
             }
 
-            if (db.ChangeEntityProcessors.Length > 0)
+            foreach (var preProcessor in _preProcessors)
             {
-                _addedEntities = FilterByState(EntityState.Added).ToList();
+                if (_addedEntities != null)
+                {
+                    await preProcessor.ProcessAddedAsync(_addedEntities, _cancellationToken);
+                }
 
-                _modifiedEntities = FilterEntryByState(EntityState.Modified)
-                    .Select(e =>
-                    {
-                        var original = (Entity)e.OriginalValues.ToObject();
-                        return (original, e.Entity);
-                    })
-                    .ToList();
+                if (_modifiedEntities != null)
+                {
+                    await preProcessor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);
+                }
             }
         }
 
         public void Dispose()
         {
-            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
+            if (_postProcessors.Count == 0 || _addedEntities == null || _modifiedEntities == null)
             {
                 return;
             }
 
-            foreach (var processor in _db.ChangeEntityProcessors)
+            foreach (var processor in _postProcessors)
             {
-                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
-                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                processor.ProcessAddedAsync(_addedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
+                    .GetResult();
+                processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken).ConfigureAwait(false).GetAwaiter()
+                    .GetResult();
             }
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (_db.ChangeEntityProcessors.Length == 0 || _addedEntities == null || _modifiedEntities == null)
+            if (_postProcessors.Count == 0 || _addedEntities == null || _modifiedEntities == null)
             {
                 return;
             }
 
-            foreach (var processor in _db.ChangeEntityProcessors)
+            foreach (var processor in _postProcessors)
             {
                 await processor.ProcessAddedAsync(_addedEntities, _cancellationToken);
                 await processor.ProcessModifiedAsync(_modifiedEntities, _cancellationToken);

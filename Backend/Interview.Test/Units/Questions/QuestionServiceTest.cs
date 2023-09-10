@@ -1,7 +1,7 @@
 using Interview.Domain;
 using Interview.Domain.Questions;
-using Interview.Domain.Tags;
 using Interview.Domain.Questions.Services;
+using Interview.Domain.Tags;
 using Moq;
 
 namespace Interview.Test.Units.Questions;
@@ -32,11 +32,10 @@ public class QuestionServiceTest
         _questionRepository.Setup(repository => repository.FindByIdAsync(questionGuid, default))
             .ReturnsAsync((Question?)null);
 
-        var resultQuestion = await _questionService.FindByIdAsync(questionGuid);
+        var notFoundException =
+            await Assert.ThrowsAsync<NotFoundException>(() => _questionService.FindByIdAsync(questionGuid));
 
-        Assert.True(resultQuestion.IsFailure);
-
-        Assert.NotNull(resultQuestion.Error);
+        Assert.NotNull(notFoundException);
     }
 
     [Fact(DisplayName = "Searching question by id when question exists")]
@@ -50,10 +49,6 @@ public class QuestionServiceTest
 
         var resultQuestion = await _questionService.FindByIdAsync(questionGuid);
 
-        Assert.True(resultQuestion.IsSuccess);
-
-        var questionItem = resultQuestion.Value;
-
-        Assert.Equal(questionStub.Value, questionItem.Value.Value);
+        Assert.Equal(questionStub.Value, resultQuestion.Value);
     }
 }
