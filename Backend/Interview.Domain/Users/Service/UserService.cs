@@ -107,18 +107,7 @@ public sealed class UserService : IUserService
 
             if (existingUser.Permissions.Count == 0)
             {
-                var permissionTypes = new HashSet<SEPermission>
-                {
-                    SEPermission.QuestionFindPage,
-                    SEPermission.RoomQuestionReactionCreate,
-                    SEPermission.RoomFindPage,
-                    SEPermission.RoomFindById,
-                    SEPermission.RoomSendEventRequest,
-                    SEPermission.RoomGetState,
-                    SEPermission.RoomGetAnalyticsSummary,
-                };
-
-                var permissions = await _permissionRepository.FindAllByTypes(permissionTypes, cancellationToken);
+                var permissions = await GetDefaultUserPermission(cancellationToken);
                 existingUser.Permissions.AddRange(permissions);
             }
 
@@ -128,26 +117,16 @@ public sealed class UserService : IUserService
 
         var userRole = await GetUserRoleAsync(user.Nickname, cancellationToken);
 
-        var userPermissions = new HashSet<SEPermission>
-        {
-            SEPermission.QuestionFindPage,
-            SEPermission.RoomQuestionReactionCreate,
-            SEPermission.RoomFindPage,
-            SEPermission.RoomFindById,
-            SEPermission.RoomSendEventRequest,
-            SEPermission.RoomGetState,
-            SEPermission.RoomGetAnalyticsSummary,
-        };
-
-        await _permissionRepository.FindAllByTypes(userPermissions, cancellationToken);
         if (userRole is null)
         {
             throw new NotFoundException(ExceptionMessage.UserRoleNotFound());
         }
 
+        var defaultUserPermissions = await GetDefaultUserPermission(cancellationToken);
         var insertUser = new User(user.Nickname, user.TwitchIdentity) { Avatar = user.Avatar };
 
         insertUser.Roles.Add(userRole);
+        insertUser.Permissions.AddRange(defaultUserPermissions);
         await _userRepository.CreateAsync(insertUser, cancellationToken);
 
         return insertUser;
@@ -245,5 +224,21 @@ public sealed class UserService : IUserService
         var roleName = _adminUsers.IsAdmin(nickname) ? RoleName.Admin : RoleName.User;
 
         return _roleRepository.FindByIdAsync(roleName.Id, cancellationToken);
+    }
+
+    private async Task<List<Permission>> GetDefaultUserPermission(CancellationToken cancellationToken = default)
+    {
+        var permissionTypes = new HashSet<SEPermission>
+        {
+            SEPermission.QuestionFindPage,
+            SEPermission.RoomQuestionReactionCreate,
+            SEPermission.RoomFindPage,
+            SEPermission.RoomFindById,
+            SEPermission.RoomSendEventRequest,
+            SEPermission.RoomGetState,
+            SEPermission.RoomGetAnalyticsSummary,
+        };
+
+        return await _permissionRepository.FindAllByTypes(permissionTypes, cancellationToken);
     }
 }
