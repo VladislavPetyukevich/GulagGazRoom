@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -16,7 +16,7 @@ namespace Interview.Migrations.Postgres.Migrations
                 table: "Tag",
                 type: "uuid",
                 nullable: true);
-            
+
             migrationBuilder.InsertData(
                 table: "Permissions",
                 columns: new[] { "Id", "CreateDate", "CreatedById", "Type", "UpdateDate" },
