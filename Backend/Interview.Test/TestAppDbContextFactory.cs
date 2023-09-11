@@ -1,7 +1,9 @@
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Infrastructure.Database;
+using Interview.Infrastructure.Database.Processors;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 
 namespace Interview.Test;
@@ -17,10 +19,14 @@ public class TestAppDbContextFactory
             sqliteConnection
         );
 
-        var context = new AppDbContext(option.Options, Array.Empty<IChangeEntityProcessor>())
+        var serviceCollection = new ServiceCollection();
+
+        var context = new AppDbContext(option.Options)
         {
-            SystemClock = clock
+            SystemClock = clock,
+            Processors = new LazyPreProcessors(serviceCollection.BuildServiceProvider())
         };
+
         context.Database.EnsureCreated();
         return context;
     }

@@ -2,8 +2,8 @@ using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.Questions.Records.FindPage;
-using Interview.Domain.Tags;
-using Interview.Domain.Tags.Records.Response;
+using Interview.Domain.Questions.Services;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -14,9 +14,9 @@ namespace Interview.Backend.Questions;
 [Route("questions")]
 public class QuestionController : ControllerBase
 {
-    private readonly QuestionService _questionService;
+    private readonly IQuestionService _questionService;
 
-    public QuestionController(QuestionService questionService)
+    public QuestionController(IQuestionService questionService)
     {
         _questionService = questionService;
     }
@@ -43,7 +43,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="pageRequest">Page params.</param>
     /// <returns>Deleted question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet("archived")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -69,9 +69,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> GetById(Guid id)
+    public Task<QuestionItem> GetById(Guid id)
     {
-        return _questionService.FindByIdAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _questionService.FindByIdAsync(id, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="request">The object with the question data for which you need to create.</param>
     /// <returns>The object of the new question.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status201Created)]
@@ -87,9 +87,11 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> Create(QuestionCreateRequest request)
+    public async Task<ActionResult<QuestionItem>> Create(QuestionCreateRequest request)
     {
-        return _questionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        var question = await _questionService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(question).ToActionResult();
     }
 
     /// <summary>
@@ -98,7 +100,7 @@ public class QuestionController : ControllerBase
     /// <param name="id">ID of the of question.</param>
     /// <param name="request">The object with the question data for which you need to update.</param>
     /// <returns>Updated question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPut("{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -107,9 +109,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> Update(Guid id, QuestionEditRequest request)
+    public Task<QuestionItem> Update(Guid id, QuestionEditRequest request)
     {
-        return _questionService.UpdateAsync(id, request, HttpContext.RequestAborted).ToResponseAsync();
+        return _questionService.UpdateAsync(id, request, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -117,7 +119,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="id">ID of the of question.</param>
     /// <returns>Archived question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPatch("{id:guid}/archive")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -125,9 +127,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> ArchiveAsync(Guid id)
+    public Task<QuestionItem> ArchiveAsync(Guid id)
     {
-        return _questionService.ArchiveAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _questionService.ArchiveAsync(id, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -135,7 +137,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="id">ID of the of question.</param>
     /// <returns>Deleted question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPatch("{id:guid}/unarchive")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -143,9 +145,9 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> Unarchive(Guid id)
+    public Task<QuestionItem> Unarchive(Guid id)
     {
-        return _questionService.UnarchiveAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _questionService.UnarchiveAsync(id, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -153,7 +155,7 @@ public class QuestionController : ControllerBase
     /// </summary>
     /// <param name="id">ID of the of question.</param>
     /// <returns>Deleted question object.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpDelete("{id:guid}/permanently")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(QuestionItem), StatusCodes.Status200OK)]
@@ -161,8 +163,8 @@ public class QuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<QuestionItem>> DeletePermanently(Guid id)
+    public Task<QuestionItem> DeletePermanently(Guid id)
     {
-        return _questionService.DeletePermanentlyAsync(id, HttpContext.RequestAborted).ToResponseAsync();
+        return _questionService.DeletePermanentlyAsync(id, HttpContext.RequestAborted);
     }
 }

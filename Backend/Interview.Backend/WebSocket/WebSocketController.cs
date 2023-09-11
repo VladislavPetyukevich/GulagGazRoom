@@ -2,12 +2,9 @@ using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
-using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket.UserByRoom;
 using Interview.Domain.Connections;
-using Interview.Domain.Events;
-using Interview.Domain.Events.Events;
 using Interview.Domain.RoomConfigurations;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Service;
@@ -52,13 +49,7 @@ public class WebSocketController : ControllerBase
                 return;
             }
 
-            var (_, isFailure, dbRoom) = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
-
-            if (isFailure || dbRoom == null)
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Invalid room details", ct);
-                return;
-            }
+            var dbRoom = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
 
             var task = _userByRoomEventSubscriber.SubscribeAsync(dbRoom.Id, webSocket, ct);
             _connectUserSource.Connect(dbRoom.Id, user.Id, dbRoom.TwitchChannel);

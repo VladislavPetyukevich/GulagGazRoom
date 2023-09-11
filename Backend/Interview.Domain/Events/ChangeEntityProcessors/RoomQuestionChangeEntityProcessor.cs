@@ -4,7 +4,7 @@ using Interview.Domain.RoomQuestions;
 
 namespace Interview.Domain.Events.ChangeEntityProcessors
 {
-    public class RoomQuestionChangeEntityProcessor : IChangeEntityProcessor
+    public class RoomQuestionChangeEntityProcessor : IEntityPostProcessor
     {
         private readonly IRoomEventDispatcher _eventDispatcher;
 

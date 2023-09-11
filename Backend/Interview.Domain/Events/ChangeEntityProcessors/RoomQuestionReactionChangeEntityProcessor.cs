@@ -5,7 +5,7 @@ using Interview.Domain.RoomQuestionReactions;
 
 namespace Interview.Domain.Events.ChangeEntityProcessors;
 
-public class RoomQuestionReactionChangeEntityProcessor : IChangeEntityProcessor
+public class RoomQuestionReactionChangeEntityProcessor : IEntityPostProcessor
 {
     private readonly IRoomEventDispatcher _eventDispatcher;
 

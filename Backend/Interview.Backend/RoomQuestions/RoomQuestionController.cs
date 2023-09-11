@@ -3,6 +3,8 @@ using Interview.Backend.Responses;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.RoomQuestions.Records;
 using Interview.Domain.RoomQuestions.Records.Response;
+using Interview.Domain.RoomQuestions.Services;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +14,9 @@ namespace Interview.Backend.RoomQuestions;
 [Route("room-questions")]
 public class RoomQuestionController : ControllerBase
 {
-    private readonly RoomQuestionService _roomQuestionService;
+    private readonly IRoomQuestionService _roomQuestionService;
 
-    public RoomQuestionController(RoomQuestionService roomQuestionService)
+    public RoomQuestionController(IRoomQuestionService roomQuestionService)
     {
         _roomQuestionService = roomQuestionService;
     }
@@ -24,17 +26,17 @@ public class RoomQuestionController : ControllerBase
     /// </summary>
     /// <param name="request">User Request.</param>
     /// <returns>Data of the current question, room, status.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPut("active-question")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomQuestionDetail>> ChangeActiveQuestion(RoomQuestionChangeActiveRequest request)
+    public Task<RoomQuestionDetail> ChangeActiveQuestion(RoomQuestionChangeActiveRequest request)
     {
-        return _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomQuestionService.ChangeActiveQuestionAsync(request, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -42,7 +44,7 @@ public class RoomQuestionController : ControllerBase
     /// </summary>
     /// <param name="request">User Request.</param>
     /// <returns>Data of the current question, room, status.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(RoomQuestionDetail), StatusCodes.Status201Created)]
@@ -50,9 +52,11 @@ public class RoomQuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomQuestionDetail>> Create(RoomQuestionCreateRequest request)
+    public async Task<ActionResult<RoomQuestionDetail>> Create(RoomQuestionCreateRequest request)
     {
-        return _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        var roomQuestionDetail = await _roomQuestionService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(roomQuestionDetail).ToActionResult();
     }
 
     /// <summary>
@@ -68,8 +72,8 @@ public class RoomQuestionController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<List<Guid>>> FindRoomQuestions([FromQuery] RoomQuestionsRequest request)
+    public Task<List<Guid>> FindRoomQuestions([FromQuery] RoomQuestionsRequest request)
     {
-        return _roomQuestionService.FindRoomQuestionsAsync(request).ToResponseAsync();
+        return _roomQuestionService.FindGuidsAsync(request);
     }
 }

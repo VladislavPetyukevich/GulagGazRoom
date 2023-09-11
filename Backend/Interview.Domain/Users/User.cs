@@ -1,4 +1,5 @@
 using Interview.Domain.Repository;
+using Interview.Domain.Users.Permissions;
 using Interview.Domain.Users.Roles;
 
 namespace Interview.Domain.Users;
@@ -29,4 +30,6 @@ public class User : Entity
     public string TwitchIdentity { get; private set; }
 
     public List<Role> Roles { get; private set; } = new List<Role>();
+
+    public List<Permission> Permissions { get; private set; } = new List<Permission>();
 }

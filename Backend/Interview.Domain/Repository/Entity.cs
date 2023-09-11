@@ -1,3 +1,5 @@
+using Interview.Domain.Users;
+
 namespace Interview.Domain.Repository;
 
 public abstract class Entity
@@ -16,6 +18,10 @@ public abstract class Entity
     public DateTime CreateDate { get; internal set; }
 
     public DateTime UpdateDate { get; internal set; }
+
+    public Guid? CreatedById { get; set; }
+
+    public User? CreatedBy { get; set; }
 
     public void UpdateCreateDate(DateTime dateTime)
     {

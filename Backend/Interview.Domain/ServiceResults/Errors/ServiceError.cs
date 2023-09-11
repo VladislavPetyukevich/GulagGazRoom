@@ -15,8 +15,15 @@ public class ServiceError : IEquatable<ServiceError>
 
     public static ServiceError Error(string message) => new ServiceError(message);
 
-    public virtual TRes Match<TRes>(Func<ServiceError, TRes> appError, Func<NotFoundServiceError, TRes> notFoundError)
-        => appError(this);
+    public static ServiceError Forbidden(string message) => new ForbiddenError(message);
+
+    public virtual TRes Match<TRes>(
+        Func<ServiceError, TRes> appError,
+        Func<NotFoundServiceError, TRes> notFoundError,
+        Func<ForbiddenError, TRes> forbiddenError)
+    {
+        return appError(this);
+    }
 
     public bool Equals(ServiceError? other)
     {

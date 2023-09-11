@@ -1,4 +1,5 @@
 using Interview.Domain.Repository;
+using Interview.Domain.Users.Permissions;
 
 namespace Interview.Domain;
 
@@ -45,4 +46,16 @@ public class AccessDeniedException : UserException
         : base(message, innerException)
     {
     }
+
+    public static AccessDeniedException CreateForAction(string resource)
+        => new AccessDeniedException($"Action was denied for the '{resource.ToLower()}' resource.");
+}
+
+public abstract class ExceptionMessage
+{
+    public static string UserNotFound() => $"User not found";
+
+    public static string UserNotFoundByNickname(string nickname) => $"Not found user with nickname [{nickname}]";
+
+    public static string UserRoleNotFound() => "Not found \"User\" role";
 }

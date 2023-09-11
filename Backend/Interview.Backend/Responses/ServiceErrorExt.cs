@@ -20,6 +20,10 @@ namespace Interview.Backend.Responses
                 notFoundError => new NotFoundObjectResult(new MessageResponse
                 {
                     Message = notFoundError.Message,
+                }),
+                forbiddenError => new ForbiddenObjectResult(new MessageResponse
+                {
+                    Message = forbiddenError.Message,
                 }));
         }
     }

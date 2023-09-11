@@ -1,6 +1,5 @@
 using Interview.Backend.Responses;
 using Interview.Backend.WebSocket.Configuration;
-using Interview.Domain.Users.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
@@ -19,13 +18,19 @@ public static class ServiceCollectionExt
                 options.Events.OnRedirectToAccessDenied = context =>
                 {
                     context.Response.StatusCode = 403;
-                    context.Response.WriteAsJsonAsync(new MessageResponse { Message = "Forbidden", });
+                    context.Response.WriteAsJsonAsync(new MessageResponse
+                    {
+                        Message = "Forbidden",
+                    });
                     return Task.CompletedTask;
                 };
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = 401;
-                    context.Response.WriteAsJsonAsync(new MessageResponse { Message = "Unauthorized", });
+                    context.Response.WriteAsJsonAsync(new MessageResponse
+                    {
+                        Message = "Unauthorized",
+                    });
                     return Task.CompletedTask;
                 };
                 options.Cookie.HttpOnly = false;
@@ -47,7 +52,7 @@ public static class ServiceCollectionExt
                         return;
                     }
 
-                    var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
+                    var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
                     var upsertUser = await userService.UpsertByTwitchIdentityAsync(user);
                     context.Principal!.EnrichRolesWithId(upsertUser);
                 };

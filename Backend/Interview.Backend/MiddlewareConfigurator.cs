@@ -1,6 +1,8 @@
 using Interview.Backend.Auth;
 using Interview.Backend.Errors;
+using Interview.Backend.Responses;
 using Interview.Backend.WebSocket.Configuration;
+using Interview.Domain.Users.Permissions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.Extensions.Options;
 
@@ -59,6 +61,18 @@ public class MiddlewareConfigurator
         _app.Use((context, func) =>
         {
             var upsertUser = context.User.ToUser();
+            logger.LogInformation(
+                "Request {Path} authorized user [{nickname} {id}]",
+                context.Request.Path,
+                upsertUser?.Nickname,
+                upsertUser?.Id);
+
+            return func();
+        });
+        _app.Use((context, func) =>
+        {
+            var upsertUser = context.User.ToUser();
+
             if (upsertUser is null)
             {
                 return func();
@@ -66,6 +80,7 @@ public class MiddlewareConfigurator
 
             var userAccessor = context.RequestServices.GetRequiredService<IEditableCurrentUserAccessor>();
             userAccessor.SetUser(upsertUser);
+
             return func();
         });
 

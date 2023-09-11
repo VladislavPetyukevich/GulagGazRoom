@@ -4,17 +4,8 @@ using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
-using Interview.Domain.Questions;
-using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
-using Interview.Domain.RoomParticipants.Service;
-using Interview.Domain.RoomQuestionReactions;
-using Interview.Domain.RoomQuestions;
-using Interview.Domain.RoomReviews;
-using Interview.Domain.Rooms.Service;
-using Interview.Domain.Tags;
 using Interview.Domain.Users;
-using Interview.Domain.Users.Service;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
 using Interview.Infrastructure.Users;
@@ -32,7 +23,7 @@ public static class ServiceCollectionExt
 #pragma warning disable EF1001
         self.AddSingleton<IDbContextPool<AppDbContext>, AppDbContextPool<AppDbContext>>();
         self.AddScoped<IScopedDbContextLease<AppDbContext>, AppScopedDbContextLease<AppDbContext>>();
-        self.AddScoped<IPooledDbContextInterceptor<AppDbContext>, DefaultAppDbContextPooledDbContextInterceptor>();
+        self.AddScoped<IPooledDbContextInterceptor<AppDbContext>, UserAccessorDbContextInterceptor>();
 #pragma warning restore EF1001
         self.AddDbContextPool<AppDbContext>(option.DbConfigurator);
 
@@ -41,35 +32,54 @@ public static class ServiceCollectionExt
         self.AddSingleton<ISystemClock, SystemClock>();
         self.AddSingleton(option.AdminUsers);
 
-        self.AddSingleton<IChangeEntityProcessor, RoomQuestionReactionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, QuestionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomQuestionChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomConfigurationChangeEntityProcessor>();
-        self.AddSingleton<IChangeEntityProcessor, RoomChangeEntityProcessor>();
-
         self.AddSingleton<IConnectUserSource, ConnectUserSource>();
         self.AddSingleton<IRoomEventSerializer, JsonRoomEventSerializer>();
 
-        // Services
-        self.AddScoped<UserService>();
-        self.AddScoped<RoomService>();
-        self.AddScoped<QuestionService>();
-        self.AddScoped<TagService>();
-        self.AddScoped<RoomReviewService>();
-        self.AddScoped<RoomParticipantService>();
-        self.AddScoped<RoomQuestionService>();
-        self.AddScoped<RoomQuestionReactionService>();
-        self.AddScoped<ReactionService>();
         self.AddScoped(typeof(ArchiveService<>));
 
         self.AddSingleton(option.TwitchTokenProviderOption);
 
         self.Scan(selector =>
         {
-            selector.FromAssemblies(typeof(UserRepository).Assembly)
+            selector.FromAssemblies(typeof(UserRepository).Assembly, typeof(RoomQuestionReactionChangeEntityProcessor).Assembly)
                 .AddClasses(filter => filter.AssignableTo(typeof(IRepository<>)))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IEntityPostProcessor>())
+                .As<IEntityPostProcessor>()
+                .WithSingletonLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IEntityPreProcessor>())
+                .As<IEntityPreProcessor>()
+                .WithScopedLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IService>().Where(f => !f.IsAssignableTo(typeof(IServiceDecorator))))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+
+                .AddClasses(filter => filter.AssignableTo<IServiceDecorator>())
+                .As<IServiceDecorator>()
+                .WithScopedLifetime();
         });
+
+        var decorators = self.Where(e => e.ServiceType == typeof(IServiceDecorator)).ToList();
+        foreach (var serviceDescriptor in decorators)
+        {
+            foreach (var decorateInterface in serviceDescriptor.ImplementationType!.GetInterfaces().Where(e => e != typeof(IServiceDecorator)))
+            {
+                self.Decorate(decorateInterface, serviceDescriptor.ImplementationType);
+            }
+        }
+
+        decorators.ForEach(e => self.Remove(e));
+
+        self.AddScoped<CurrentUserAccessor>();
+        self.AddScoped<IEditableCurrentUserAccessor>(provider => provider.GetRequiredService<CurrentUserAccessor>());
+        self.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
+        self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
+
+        self.AddScoped<ICurrentPermissionAccessor, CurrentPermissionAccessor>();
 
         return self;
     }

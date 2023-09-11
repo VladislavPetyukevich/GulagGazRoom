@@ -2,6 +2,7 @@ using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.Reactions.Records;
+using Interview.Domain.Reactions.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -12,9 +13,9 @@ namespace Interview.Backend.Reactions;
 [Route("reactions")]
 public class ReactionController : ControllerBase
 {
-    private readonly ReactionService _reactionService;
+    private readonly IReactionService _reactionService;
 
-    public ReactionController(ReactionService reactionService)
+    public ReactionController(IReactionService reactionService)
     {
         _reactionService = reactionService;
     }
@@ -25,11 +26,11 @@ public class ReactionController : ControllerBase
     /// <param name="request">Page Parameters.</param>
     /// <returns>List of reactions.</returns>
     [HttpGet]
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [ProducesResponseType(typeof(IPagedList<ReactionDetail>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
     public Task<IPagedList<ReactionDetail>> GetPage([FromQuery] PageRequest request) =>
-        _reactionService.GetPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+        _reactionService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
 }

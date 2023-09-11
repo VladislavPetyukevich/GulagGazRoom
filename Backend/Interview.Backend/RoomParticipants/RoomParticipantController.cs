@@ -3,6 +3,7 @@ using Interview.Backend.Responses;
 using Interview.Domain.RoomParticipants.Records.Request;
 using Interview.Domain.RoomParticipants.Records.Response;
 using Interview.Domain.RoomParticipants.Service;
+using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,9 @@ namespace Interview.Backend.RoomParticipants;
 [Route("room-participants")]
 public class RoomParticipantController : ControllerBase
 {
-    private readonly RoomParticipantService _roomParticipantService;
+    private readonly IRoomParticipantService _roomParticipantService;
 
-    public RoomParticipantController(RoomParticipantService roomParticipantService)
+    public RoomParticipantController(IRoomParticipantService roomParticipantService)
     {
         _roomParticipantService = roomParticipantService;
     }
@@ -24,15 +25,15 @@ public class RoomParticipantController : ControllerBase
     /// </summary>
     /// <param name="request">Page Parameters.</param>
     /// <returns>List of room participants.</returns>
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomParticipantDetail>> GetParticipant([FromQuery] RoomParticipantGetRequest request)
+    public Task<RoomParticipantDetail> FindByRoomIdAndUserId([FromQuery] RoomParticipantGetRequest request)
     {
-        return _roomParticipantService.GetParticipantAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        return _roomParticipantService.FindByRoomIdAndUserIdAsync(request, HttpContext.RequestAborted);
     }
 
     /// <summary>
@@ -40,17 +41,19 @@ public class RoomParticipantController : ControllerBase
     /// </summary>
     /// <param name="request">Data for adding a participant to a room.</param>
     /// <returns>Data about the added participant to the room.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPost]
-    [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomParticipantDetail>> CreateParticipant([FromBody] RoomParticipantCreateRequest request)
+    public async Task<ActionResult<RoomParticipantDetail>> Create([FromBody] RoomParticipantCreateRequest request)
     {
-        return _roomParticipantService.CreateParticipantAsync(request, HttpContext.RequestAborted).ToResponseAsync();
+        var roomParticipant = await _roomParticipantService.CreateAsync(request, HttpContext.RequestAborted);
+
+        return ServiceResult.Created(roomParticipant).ToActionResult();
     }
 
     /// <summary>
@@ -58,7 +61,7 @@ public class RoomParticipantController : ControllerBase
     /// </summary>
     /// <param name="request">Data changes in the status of a room participant.</param>
     /// <returns>Information about the participant of the room.</returns>
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpPatch]
     [ProducesResponseType(typeof(RoomParticipantDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
@@ -66,10 +69,8 @@ public class RoomParticipantController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<RoomParticipantDetail>> ChangeParticipantStatus(
-        [FromBody] RoomParticipantChangeStatusRequest request)
+    public Task<RoomParticipantDetail> ChangeStatus([FromBody] RoomParticipantChangeStatusRequest request)
     {
-        return _roomParticipantService.ChangeParticipantStatusAsync(request, HttpContext.RequestAborted)
-            .ToResponseAsync();
+        return _roomParticipantService.ChangeStatusAsync(request, HttpContext.RequestAborted);
     }
 }

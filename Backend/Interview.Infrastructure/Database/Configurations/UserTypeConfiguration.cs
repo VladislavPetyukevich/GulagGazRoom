@@ -10,5 +10,6 @@ public sealed class UserTypeConfiguration : EntityTypeConfigurationBase<User>
         builder.Property(e => e.Nickname).IsRequired().HasMaxLength(128);
         builder.Property(e => e.Avatar).HasMaxLength(250);
         builder.HasMany(user => user.Roles).WithMany();
+        builder.HasMany(user => user.Permissions).WithMany();
     }
 }

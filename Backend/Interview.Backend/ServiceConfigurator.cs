@@ -181,9 +181,5 @@ public class ServiceConfigurator
                 options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);
             }
         });
-
-        serviceCollection.AddScoped<IEditableCurrentUserAccessor, CurrentUserAccessor>();
-        serviceCollection.Decorate<IEditableCurrentUserAccessor, CachedCurrentUserAccessor>();
-        serviceCollection.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
     }
 }

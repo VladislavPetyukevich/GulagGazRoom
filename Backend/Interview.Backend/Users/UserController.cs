@@ -1,9 +1,7 @@
-using CSharpFunctionalExtensions;
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.Users.Records;
-using Interview.Domain.Users.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using X.PagedList;
@@ -14,17 +12,14 @@ namespace Interview.Backend.Users;
 [Route("users")]
 public class UserController : ControllerBase
 {
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
-    private readonly UserClaimService _userClaimService;
-
-    public UserController(UserService userService, UserClaimService userClaimService)
+    public UserController(IUserService userService)
     {
         _userService = userService;
-        _userClaimService = userClaimService;
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -36,7 +31,7 @@ public class UserController : ControllerBase
         return _userService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet("nickname/{nickname}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -44,12 +39,12 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<ActionResult<UserDetail>> FindByNickname([FromRoute] string nickname)
+    public Task<UserDetail> FindByNickname([FromRoute] string nickname)
     {
-        return _userService.FindByNicknameAsync(nickname, HttpContext.RequestAborted).ToResponseAsync();
+        return _userService.FindByNicknameAsync(nickname, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.Manager)]
+    [Authorize]
     [HttpGet("role/{role}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -62,7 +57,7 @@ public class UserController : ControllerBase
         return _userService.FindByRoleAsync(pageRequest.PageNumber, pageRequest.PageSize, role, HttpContext.RequestAborted);
     }
 
-    [Authorize(policy: GulagSecurePolicy.User)]
+    [Authorize]
     [HttpGet("admins")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPagedList<UserDetail>), StatusCodes.Status200OK)]
@@ -78,21 +73,36 @@ public class UserController : ControllerBase
     [Authorize]
     [HttpGet("self")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(UserClaim), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(UserDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<UserClaim?>> GetMyself()
+    public Task<UserDetail> GetMyself()
     {
-        var userClaimResult =
-            await _userClaimService.ParseClaimsAsync(HttpContext.User.Claims, HttpContext.RequestAborted);
+        return _userService.GetSelfAsync();
+    }
 
-        if (userClaimResult.IsFailure)
-        {
-            return BadRequest(userClaimResult.Error);
-        }
+    [Authorize]
+    [HttpGet("{id:guid}/permissions")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(Dictionary<string, List<PermissionItem>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<Dictionary<string, List<PermissionItem>>> GetPermissions(Guid id)
+    {
+        return await _userService.GetPermissionsAsync(id, HttpContext.RequestAborted);
+    }
 
-        return Ok(userClaimResult.Value);
+    [Authorize]
+    [HttpPut("{id:guid}/permissions")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PermissionItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<PermissionItem> GetPermissions(Guid id, [FromBody] PermissionModifyRequest request)
+    {
+        return await _userService.ChangePermissionAsync(id, request, HttpContext.RequestAborted);
     }
 }

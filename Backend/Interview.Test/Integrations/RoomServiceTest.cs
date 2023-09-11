@@ -5,8 +5,8 @@ using Interview.Domain.RoomParticipants;
 using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms;
+using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Service;
-using Interview.Domain.Rooms.Service.Records.Request;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Questions;
@@ -40,8 +40,6 @@ public class RoomServiceTest
         var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
         var patchUpdate = await roomService.UpdateAsync(savedRoom.Id, roomPatchUpdateRequest);
-
-        Assert.True(patchUpdate.IsSuccess);
 
         var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
 
@@ -83,9 +81,7 @@ public class RoomServiceTest
         var roomRepository = new RoomRepository(appDbContext);
         var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
 
-        var result = await roomService.CloseRoomAsync(savedRoom.Id);
-
-        Assert.True(result.IsSuccess);
+        await roomService.CloseAsync(savedRoom.Id);
 
         var foundedRoom = await roomRepository.FindByIdAsync(savedRoom.Id);
         foundedRoom!.Status.Should().BeEquivalentTo(SERoomStatus.Close);
@@ -381,11 +377,9 @@ public class RoomServiceTest
 
         var analyticsResult = await roomService.GetAnalyticsAsync(new RoomAnalyticsRequest(room1.Id));
 
-        Assert.True(analyticsResult.IsSuccess);
-
-        var serviceResult = analyticsResult.Value;
+        var serviceResult = analyticsResult;
         serviceResult.Should().NotBeNull();
-        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics, e =>
+        serviceResult.Should().BeEquivalentTo(expectAnalytics, e =>
             e
                 .For(e => e.Questions)
                 .For(e => e.Users)
@@ -594,10 +588,7 @@ public class RoomServiceTest
 
         var analyticsResult = await roomService.GetAnalyticsSummaryAsync(new RoomAnalyticsRequest(room1.Id));
 
-        Assert.True(analyticsResult.IsSuccess);
-
-        var serviceResult = analyticsResult.Value;
-        serviceResult.Should().NotBeNull();
-        serviceResult.Value.Should().BeEquivalentTo(expectAnalytics);
+        analyticsResult.Should().NotBeNull();
+        analyticsResult.Should().BeEquivalentTo(expectAnalytics);
     }
 }

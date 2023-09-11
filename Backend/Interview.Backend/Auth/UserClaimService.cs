@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AspNet.Security.OAuth.Twitch;
 using CSharpFunctionalExtensions;
+using Interview.Domain;
 
 namespace Interview.Backend.Auth
 {
@@ -12,7 +13,7 @@ namespace Interview.Backend.Auth
         /// <param name="claims">List with claim is a statement about an entity by an Issuer.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns><see cref="Task{TResult}"/> with the result of user data or an error message.</returns>
-        public Task<Result<UserClaim?>> ParseClaimsAsync(
+        public Task<UserClaim?> ParseClaimsAsync(
             IEnumerable<Claim> claims,
             CancellationToken cancellationToken = default)
         {
@@ -24,31 +25,31 @@ namespace Interview.Backend.Auth
             var avatar = claimList
                 .FirstOrDefault(e => e.Type == TwitchAuthenticationConstants.Claims.ProfileImageUrl);
 
-            if (externalId == null || nickname == null || avatar == null)
+            if (externalId is null || nickname is null || avatar is null)
             {
-                return Task.FromResult(Result.Failure<UserClaim?>($"Not found users fields"));
+                throw new NotFoundException($"Not found users fields");
             }
 
             var id = claimList.FirstOrDefault(e => e.Type == UserClaimConstants.UserId);
 
             if (id == null)
             {
-                return Task.FromResult(Result.Failure<UserClaim?>($"User id not found"));
+                throw new NotFoundException(ExceptionMessage.UserNotFound());
             }
 
             if (!Guid.TryParse(id.Value, out var typedId))
             {
-                return Task.FromResult(Result.Failure<UserClaim?>($"User id is invalid"));
+                throw new NotFoundException("User id is invalid");
             }
 
-            return Task.FromResult<Result<UserClaim?>>(new UserClaim
+            return Task.FromResult<UserClaim?>(new UserClaim
             {
                 Identity = typedId,
                 Nickname = nickname.Value,
                 Avatar = avatar.Value,
                 Roles = claimList.Where(claim => claim.Type == ClaimTypes.Role)
-                    .Select(claim => claim.Value)
-                    .ToList(),
+                        .Select(claim => claim.Value)
+                        .ToList(),
                 TwitchIdentity = externalId.Value,
             })
                 .WaitAsync(cancellationToken);

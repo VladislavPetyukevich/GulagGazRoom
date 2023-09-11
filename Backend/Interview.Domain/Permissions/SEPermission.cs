@@ -1,0 +1,147 @@
+using Ardalis.SmartEnum;
+
+namespace Interview.Domain.Permissions
+{
+    public class SEPermission : SmartEnum<SEPermission>
+    {
+        public static readonly SEPermission Unknown = new(Guid.Parse("129319c5-2bff-46a6-8539-5fc6bf77983e"),
+            "Unknown", "Unknown", EVPermission.Unknown);
+
+        public static readonly SEPermission QuestionFindPage = new(Guid.Parse("189309c5-0bff-46a6-8539-5fc6bf77983e"),
+            "QuestionFindPage", "Получение страницы вопросов", EVPermission.QuestionFindPage);
+
+        public static readonly SEPermission QuestionFindPageArchive =
+            new(Guid.Parse("6f652e58-1229-4a3c-b8cb-328bf817ad54"), "QuestionFindPageArchive",
+                "Получение страницы архивных вопросов", EVPermission.QuestionFindPageArchive);
+
+        public static readonly SEPermission QuestionCreate = new(Guid.Parse("eac25c4b-28d5-4e22-93b2-5c3caf0f6922"),
+            "QuestionCreate", "Создание нового вопроса", EVPermission.QuestionCreate);
+
+        public static readonly SEPermission QuestionUpdate = new(Guid.Parse("175f724e-7299-4a0b-b827-0d4b0c6aed6b"),
+            "QuestionUpdate", "Обновление вопроса", EVPermission.QuestionUpdate);
+
+        public static readonly SEPermission QuestionFindById = new(Guid.Parse("94d1bd4d-d3cd-47c0-a223-a4e80287314b"),
+            "QuestionFindById", "Поиск вопроса по идентификатору", EVPermission.QuestionFindById);
+
+        public static readonly SEPermission QuestionDeletePermanently =
+            new(Guid.Parse("a2117904-59f1-4990-ae7f-d3d9d415f38e"), "QuestionDeletePermanently",
+                "Перманентное удаление вопроса", EVPermission.QuestionDeletePermanently);
+
+        public static readonly SEPermission QuestionArchive = new(Guid.Parse("cebe2ad6-d9d5-4cfb-9530-925073e37ad5"),
+            "QuestionArchive", "Архивация вопроса", EVPermission.QuestionArchive);
+
+        public static readonly SEPermission QuestionUnarchive = new(Guid.Parse("32e18595-1c0a-4dd5-bad7-2cbfbccbcb2a"),
+            "QuestionUnarchive", "Разархивация вопроса", EVPermission.QuestionUnarchive);
+
+        public static readonly SEPermission ReactionFindPage = new(Guid.Parse("004cca49-9857-4973-9bda-79b57f60279b"),
+            "ReactionFindPage", "Получение страницы реакций", EVPermission.ReactionFindPage);
+
+        public static readonly SEPermission RoomParticipantFindByRoomIdAndUserId = new(
+            Guid.Parse("4c3386da-cbb2-4493-86e8-036e8802782d"), "RoomParticipantFindByRoomIdAndUserId",
+            "Получение участника комнаты", EVPermission.RoomParticipantFindByRoomIdAndUserId);
+
+        public static readonly SEPermission RoomParticipantChangeStatus =
+            new(Guid.Parse("9ce5949f-a7b9-489c-8b04-bd6724aff687"), "RoomParticipantChangeStatus",
+                "Изменение статуса участника в комнате", EVPermission.RoomParticipantChangeStatus);
+
+        public static readonly SEPermission RoomParticipantCreate =
+            new(Guid.Parse("d1916ab5-462e-41d7-ae46-f1ce27d514d4"), "RoomParticipantCreate",
+                "Добавление нового участника в комнату", EVPermission.RoomParticipantCreate);
+
+        public static readonly SEPermission RoomQuestionReactionCreate =
+            new(Guid.Parse("1bb49aa7-1305-427c-9523-e9687392d385"), "RoomQuestionReactionCreate",
+                "Добавление реакции на активный вопрос в комнате", EVPermission.RoomQuestionReactionCreate);
+
+        public static readonly SEPermission RoomQuestionChangeActiveQuestion =
+            new(Guid.Parse("4f7a0200-9fe1-4d04-9bcc-6ed668d07828"), "RoomQuestionChangeActiveQuestion",
+                "Установка активного вопроса в комнате", EVPermission.RoomQuestionChangeActiveQuestion);
+
+        public static readonly SEPermission RoomQuestionCreate = new(Guid.Parse("a115f072-638a-4472-8cc3-4cf04da67cfc"),
+            "RoomQuestionCreate", "Добавление существующего вопроса в комнату", EVPermission.RoomQuestionCreate);
+
+        public static readonly SEPermission RoomQuestionFindGuids =
+            new(Guid.Parse("150f05e3-8d73-45e9-8ecd-6187f7b96461"), "RoomQuestionFindGuids",
+                "Получение списка идентификаторов вопросов в комнате по идентификатору комнаты и статусу вопроса",
+                EVPermission.RoomQuestionFindGuids);
+
+        public static readonly SEPermission RoomReviewFindPage = new(Guid.Parse("64f1a5ed-e22a-4574-8732-c1aa6525f010"),
+            "RoomReviewFindPage", "Получение списка отзывов", EVPermission.RoomReviewFindPage);
+
+        public static readonly SEPermission RoomReviewCreate = new(Guid.Parse("5f088b45-704f-4f61-b4c5-05bd08b80303"),
+            "RoomReviewCreate", "Создание нового отзыва", EVPermission.RoomReviewCreate);
+
+        public static readonly SEPermission RoomReviewUpdate = new(Guid.Parse("220380d1-fd72-4004-aed4-22187e88b386"),
+            "RoomReviewUpdate", "Обновление отзыва", EVPermission.RoomReviewUpdate);
+
+        public static readonly SEPermission RoomCreate = new(Guid.Parse("c4c21128-f672-47d0-b0f5-2b3ca53fc420"),
+            "RoomCreate", "Создание новой комнаты", EVPermission.RoomCreate);
+
+        public static readonly SEPermission RoomFindPage = new(Guid.Parse("aad7a083-b4dc-437e-a5db-c28512dedb5f"),
+            "RoomFindPage", "Получение страницы комнат", EVPermission.RoomFindPage);
+
+        public static readonly SEPermission RoomFindById = new(Guid.Parse("6938365f-752d-453e-b0be-93facac0c5b8"),
+            "RoomFindById", "Получение комнаты по идентификатору", EVPermission.RoomFindById);
+
+        public static readonly SEPermission RoomUpdate = new(Guid.Parse("b5c4eb71-50c8-4c13-a144-0496ce56e095"),
+            "RoomUpdate", "Обновление комнаты", EVPermission.RoomUpdate);
+
+        public static readonly SEPermission RoomAddParticipant = new(Guid.Parse("7c4d9ac2-72e7-466a-bcff-68f3ee0bc65e"),
+            "RoomAddParticipant", "Добавление нового участника в комнату", EVPermission.RoomAddParticipant);
+
+        public static readonly SEPermission RoomSendEventRequest =
+            new(Guid.Parse("882ffc55-3439-4d0b-8add-ba79e2a7df45"), "RoomSendEventRequest",
+                "Отправка события в комнату", EVPermission.RoomSendEventRequest);
+
+        public static readonly SEPermission RoomClose = new(Guid.Parse("5ac11db0-b079-40ab-b32b-a02243a451b3"),
+            "RoomClose", "Закрытие комнаты", EVPermission.RoomClose);
+
+        public static readonly SEPermission RoomStartReview = new(Guid.Parse("7df4ea9b-ded5-4a1d-a8ea-e92e6bd85269"),
+            "RoomStartReview", "Перевод комнаты в стадию - отзывы", EVPermission.RoomStartReview);
+
+        public static readonly SEPermission RoomGetState = new(Guid.Parse("97b2411a-b9d4-49cb-9525-0e31b7d35496"),
+            "RoomGetState", "Получение статуса комнаты", EVPermission.RoomGetState);
+
+        public static readonly SEPermission RoomGetAnalytics = new(Guid.Parse("a63b2ca5-304b-40a0-8e82-665a3327e407"),
+            "RoomGetAnalytics", "Получение полной аналитики по результатам собеседования",
+            EVPermission.RoomGetAnalytics);
+
+        public static readonly SEPermission RoomGetAnalyticsSummary =
+            new(Guid.Parse("b7ad620a-0614-494a-89ca-623e47b7415a"), "RoomGetAnalyticsSummary",
+                "Получение краткой аналитики по результатам собеседования", EVPermission.RoomGetAnalyticsSummary);
+
+        public static readonly SEPermission UserFindPage = new(Guid.Parse("c65b3cd1-0532-4b3a-8b25-5128b4124aa0"),
+            "UserFindPage", "Получение страницы пользователей", EVPermission.UserFindPage);
+
+        public static readonly SEPermission UserFindByNickname = new(Guid.Parse("3f05ddc0-ef78-4916-b8b2-17fa11e95bb5"),
+            "UserFindByNickname", "Получение пользователя по логину", EVPermission.UserFindByNickname);
+
+        public static readonly SEPermission UserFindById = new(Guid.Parse("6439dbeb-1b8e-49b3-99e4-2a95712a3958"),
+            "UserFindById", "Получение пользователя по идентификатору", EVPermission.UserFindById);
+
+        public static readonly SEPermission UserUpsertByTwitchIdentity =
+            new(Guid.Parse("1c876e71-24d2-4868-9385-23078c0b1c18"), "UserUpsertByTwitchIdentity",
+                "Обновление данных пользователя по twitch идентификатору", EVPermission.UserUpsertByTwitchIdentity);
+
+        public static readonly SEPermission UserFindByRole = new(Guid.Parse("0cb3a389-14b6-41a5-914b-3fd5cc876b28"),
+            "UserFindByRole", "Получение страницы пользователей по роли", EVPermission.UserFindByRole);
+
+        public static readonly SEPermission UserGetPermissions = new(Guid.Parse("946dff13-dfa5-424c-9891-6fcaa1e45ad1"),
+            "UserGetPermissions", "Получение списка разрешений пользователя по идентификатору",
+            EVPermission.UserGetPermissions);
+
+        public static readonly SEPermission UserChangePermission =
+            new(Guid.Parse("53af37b0-2c68-4775-9ddb-ab143ce92fec"), "UserChangePermission",
+                "Предоставление пользователю разрешения", EVPermission.UserChangePermission);
+
+        public Guid Id { get; }
+
+        public string Description { get; }
+
+        public SEPermission(Guid id, string name, string description, EVPermission value)
+            : base(name, (int)value)
+        {
+            Id = id;
+            Description = description;
+        }
+    }
+}
