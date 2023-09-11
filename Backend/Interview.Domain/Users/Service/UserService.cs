@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Interview.Domain.Permissions;
 using Interview.Domain.Repository;
 using Interview.Domain.Users.Permissions;
@@ -107,7 +108,7 @@ public sealed class UserService : IUserService
 
             if (existingUser.Permissions.Count == 0)
             {
-                var permissions = await GetDefaultUserPermission(cancellationToken);
+                var permissions = await GetDefaultUserPermission(existingUser.Roles, cancellationToken);
                 existingUser.Permissions.AddRange(permissions);
             }
 
@@ -122,11 +123,13 @@ public sealed class UserService : IUserService
             throw new NotFoundException(ExceptionMessage.UserRoleNotFound());
         }
 
-        var defaultUserPermissions = await GetDefaultUserPermission(cancellationToken);
         var insertUser = new User(user.Nickname, user.TwitchIdentity) { Avatar = user.Avatar };
 
         insertUser.Roles.Add(userRole);
+
+        var defaultUserPermissions = await GetDefaultUserPermission(insertUser.Roles, cancellationToken);
         insertUser.Permissions.AddRange(defaultUserPermissions);
+
         await _userRepository.CreateAsync(insertUser, cancellationToken);
 
         return insertUser;
@@ -226,18 +229,11 @@ public sealed class UserService : IUserService
         return _roleRepository.FindByIdAsync(roleName.Id, cancellationToken);
     }
 
-    private async Task<List<Permission>> GetDefaultUserPermission(CancellationToken cancellationToken = default)
+    private async Task<List<Permission>> GetDefaultUserPermission(IReadOnlyList<Role> roleNames, CancellationToken cancellationToken = default)
     {
-        var permissionTypes = new HashSet<SEPermission>
-        {
-            SEPermission.QuestionFindPage,
-            SEPermission.RoomQuestionReactionCreate,
-            SEPermission.RoomFindPage,
-            SEPermission.RoomFindById,
-            SEPermission.RoomSendEventRequest,
-            SEPermission.RoomGetState,
-            SEPermission.RoomGetAnalyticsSummary,
-        };
+        var permissionTypes = roleNames
+            .SelectMany(it => it.Name.DefaultPermissions)
+            .ToHashSet();
 
         return await _permissionRepository.FindAllByTypes(permissionTypes, cancellationToken);
     }
