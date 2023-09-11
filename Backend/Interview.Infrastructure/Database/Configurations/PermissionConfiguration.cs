@@ -15,7 +15,7 @@ public class PermissionConfiguration : EntityTypeConfigurationBase<Permission>
     {
         builder.Property(e => e.Type)
             .HasConversion(permissionType => permissionType.Name, name => SEPermission.FromName(name, false))
-            .HasMaxLength(20)
+            .HasMaxLength(128)
             .IsRequired();
 
         builder.HasIndex(e => new { e.Type }).IsUnique();
