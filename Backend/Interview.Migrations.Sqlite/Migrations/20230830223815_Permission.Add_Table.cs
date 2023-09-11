@@ -78,7 +78,7 @@ namespace Interview.Migrations.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    Type = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     CreateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CreatedById = table.Column<Guid>(type: "TEXT", nullable: true)

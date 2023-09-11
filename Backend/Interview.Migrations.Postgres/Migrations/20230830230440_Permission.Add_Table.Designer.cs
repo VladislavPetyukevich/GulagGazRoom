@@ -335,8 +335,8 @@ namespace Interview.Migrations.Postgres.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("timestamp without time zone");

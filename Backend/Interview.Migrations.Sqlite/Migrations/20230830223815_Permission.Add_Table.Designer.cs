@@ -330,7 +330,7 @@ namespace Interview.Migrations.Sqlite.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(20)
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdateDate")
