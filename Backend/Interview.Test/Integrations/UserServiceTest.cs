@@ -44,6 +44,7 @@ public class UserServiceTest
         var expectedUser = new User(entity.Id, user.Nickname, user.TwitchIdentity);
         expectedUser.UpdateCreateDate(user.CreateDate);
         expectedUser.Roles.AddRange(entity.Roles);
+        expectedUser.Permissions.AddRange(entity.Permissions);
         upsertUser.Should().BeEquivalentTo(expectedUser);
     }
 
