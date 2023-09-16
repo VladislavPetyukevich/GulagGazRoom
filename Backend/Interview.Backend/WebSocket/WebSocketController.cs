@@ -5,7 +5,6 @@ using System.Text;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket.Events;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
-using Interview.Backend.WebSocket.UserByRoom;
 using Interview.Domain.RoomConfigurations;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Service;
@@ -20,12 +19,10 @@ public class WebSocketController : ControllerBase
 {
     private readonly ILogger<WebSocketController> _logger;
     private readonly IRoomService _roomService;
-    private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
     private readonly IConnectionListener[] _connectListeners;
     private readonly WebSocketReader _webSocketReader;
 
     public WebSocketController(
-        UserByRoomEventSubscriber userByRoomEventSubscriber,
         IRoomService roomService,
         WebSocketReader webSocketReader,
         IEnumerable<IConnectionListener> connectionListeners,
@@ -35,7 +32,6 @@ public class WebSocketController : ControllerBase
         _connectListeners = connectionListeners.ToArray();
         _webSocketReader = webSocketReader;
         _logger = logger;
-        _userByRoomEventSubscriber = userByRoomEventSubscriber;
     }
 
     [Route("/ws")]
@@ -60,29 +56,15 @@ public class WebSocketController : ControllerBase
 
             var dbRoom = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
 
-            var task = _userByRoomEventSubscriber.SubscribeAsync(dbRoom.Id, webSocket, user.Id, ct);
             detail = new WebSocketConnectDetail(webSocket, dbRoom, user);
-            var tasks = _connectListeners.Select(e => e.OnConnectAsync(detail, ct));
-            try
-            {
-                await Task.WhenAll(tasks);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "During OnConnect");
-            }
+            await HandleListenersSafely(
+                nameof(IConnectionListener.OnConnectAsync),
+                e => e.OnConnectAsync(detail, ct));
 
+            var waitTask = CreateWaitTask(ct);
             var readerTask = RunEventReaderJob(webSocket, ct);
-            await Task.WhenAny(task, readerTask);
-
-            try
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, ct);
-            }
-            catch
-            {
-                // ignore
-            }
+            await Task.WhenAny(waitTask, readerTask);
+            await CloseSafely(webSocket, WebSocketCloseStatus.NormalClosure, string.Empty, ct);
         }
         catch (OperationCanceledException)
         {
@@ -90,14 +72,42 @@ public class WebSocketController : ControllerBase
         }
         catch (Exception e)
         {
-            await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
+            await CloseSafely(webSocket, WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
         }
         finally
         {
             if (detail is not null)
             {
-                var tasks = _connectListeners.Select(e => e.OnDisconnectAsync(detail, ct));
-                await Task.WhenAll(tasks);
+                await HandleListenersSafely(
+                    nameof(IConnectionListener.OnDisconnectAsync),
+                    e => e.OnDisconnectAsync(detail, ct));
+            }
+        }
+
+        return;
+
+        static async Task CreateWaitTask(CancellationToken cancellationToken)
+        {
+            var cst = new TaskCompletionSource<object>();
+            await using (cancellationToken.Register(() => cst.TrySetCanceled()))
+            {
+                await cst.Task;
+            }
+        }
+
+        static async Task CloseSafely(
+            System.Net.WebSockets.WebSocket ws,
+            WebSocketCloseStatus status,
+            string message,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                await ws.CloseAsync(status, message, cancellationToken);
+            }
+            catch
+            {
+                // ignore
             }
         }
     }
@@ -204,6 +214,19 @@ public class WebSocketController : ControllerBase
             {
                 // ignore
             }
+        }
+    }
+
+    private async Task HandleListenersSafely(string actionName, Func<IConnectionListener, Task> map)
+    {
+        var tasks = _connectListeners.Select(map);
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "During {Action}", actionName);
         }
     }
 

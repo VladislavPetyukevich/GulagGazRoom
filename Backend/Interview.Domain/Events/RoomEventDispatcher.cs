@@ -17,9 +17,10 @@ public class RoomEventDispatcher : IRoomEventDispatcher
         {
             var list = new List<IRoomEvent>();
 
-            foreach (var (_, value) in _queue)
+            foreach (var value in _queue.Values)
             {
-                list.Add(await value.Reader.ReadAsync(cts.Token));
+                var roomEvent = await value.Reader.ReadAsync(cts.Token);
+                list.Add(roomEvent);
             }
 
             return list;

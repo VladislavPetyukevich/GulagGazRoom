@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Interview.Backend.Auth;
 using Interview.Domain.Connections;
 using Interview.Domain.Events;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
-public class RoomConnectionListener : IActiveRoomSource, IConnectionListener
+public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IWebSocketConnectionSource
 {
     private ConcurrentDictionary<Guid, ImmutableList<WebSocketConnectDetail>> _activeRooms = new();
 
@@ -24,7 +25,7 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener
         _logger = logger;
     }
 
-    public ICollection<Guid> ActiveRooms => _activeRooms.Where(e => e.Value.Count > 0).Select(e => e.Key).ToList();
+    public IReadOnlyCollection<Guid> ActiveRooms => _activeRooms.Where(e => e.Value.Count > 0).Select(e => e.Key).ToList();
 
     public async Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {
@@ -74,4 +75,23 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener
                 return newList;
             });
     }
+
+    public bool TryGetConnections(Guid roomId, [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections)
+    {
+        if (!_activeRooms.TryGetValue(roomId, out var details) || details.Count == 0)
+        {
+            connections = default;
+            return false;
+        }
+
+        connections = details.Select(e => e.WebSocket).ToList();
+        return true;
+    }
+}
+
+public interface IWebSocketConnectionSource
+{
+    bool TryGetConnections(
+        Guid roomId,
+        [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections);
 }

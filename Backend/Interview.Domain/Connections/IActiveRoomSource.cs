@@ -2,5 +2,5 @@
 
 public interface IActiveRoomSource
 {
-    ICollection<Guid> ActiveRooms { get; }
+    IReadOnlyCollection<Guid> ActiveRooms { get; }
 }

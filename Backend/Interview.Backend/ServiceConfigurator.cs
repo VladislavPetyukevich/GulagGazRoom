@@ -10,7 +10,6 @@ using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.Events;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Backend.WebSocket.Events.Handlers;
-using Interview.Backend.WebSocket.UserByRoom;
 using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
@@ -105,7 +104,6 @@ public class ServiceConfigurator
 
         serviceCollection.AddHostedService<EventSenderJob>();
 
-        serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
         serviceCollection.AddSingleton(oAuthServiceDispatcher);
         serviceCollection.AddSingleton<UserClaimService>();
 
@@ -119,7 +117,7 @@ public class ServiceConfigurator
                 .WithScopedLifetime()
 
                 .AddClasses(f => f.AssignableTo<IConnectionListener>())
-                .AsImplementedInterfaces()
+                .AsSelfWithInterfaces()
                 .WithSingletonLifetime();
         });
 
