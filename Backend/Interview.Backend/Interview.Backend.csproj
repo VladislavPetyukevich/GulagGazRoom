@@ -39,5 +39,7 @@
         <ProjectReference Include="..\Interview.Migrations.Sqlite\Interview.Migrations.Sqlite.csproj" />
     </ItemGroup>
     
+
+    
     
 </Project>

@@ -4,8 +4,8 @@ using System.Net.WebSockets;
 using System.Text;
 using Interview.Backend.Auth;
 using Interview.Backend.WebSocket.Events;
+using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Backend.WebSocket.UserByRoom;
-using Interview.Domain.Connections;
 using Interview.Domain.RoomConfigurations;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Service;
@@ -18,20 +18,23 @@ namespace Interview.Backend.WebSocket;
 [Route("[controller]")]
 public class WebSocketController : ControllerBase
 {
+    private readonly ILogger<WebSocketController> _logger;
     private readonly IRoomService _roomService;
     private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
-    private readonly IConnectUserSource _connectUserSource;
+    private readonly IConnectionListener[] _connectListeners;
     private readonly WebSocketReader _webSocketReader;
 
     public WebSocketController(
         UserByRoomEventSubscriber userByRoomEventSubscriber,
         IRoomService roomService,
-        IConnectUserSource connectUserSource,
-        WebSocketReader webSocketReader)
+        WebSocketReader webSocketReader,
+        IEnumerable<IConnectionListener> connectionListeners,
+        ILogger<WebSocketController> logger)
     {
         _roomService = roomService;
-        _connectUserSource = connectUserSource;
+        _connectListeners = connectionListeners.ToArray();
         _webSocketReader = webSocketReader;
+        _logger = logger;
         _userByRoomEventSubscriber = userByRoomEventSubscriber;
     }
 
@@ -46,7 +49,7 @@ public class WebSocketController : ControllerBase
 
         var ct = HttpContext.RequestAborted;
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        (Guid RoomId, Guid UserId, string TwitchChannel)? connectionDetail = null;
+        WebSocketConnectDetail? detail = null;
         try
         {
             var roomIdentity = await ParseRoomIdAsync(webSocket, ct);
@@ -58,8 +61,17 @@ public class WebSocketController : ControllerBase
             var dbRoom = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
 
             var task = _userByRoomEventSubscriber.SubscribeAsync(dbRoom.Id, webSocket, user.Id, ct);
-            _connectUserSource.Connect(dbRoom.Id, user.Id, dbRoom.TwitchChannel);
-            connectionDetail = (dbRoom.Id, user.Id, dbRoom.TwitchChannel);
+            detail = new WebSocketConnectDetail(webSocket, dbRoom, user);
+            var tasks = _connectListeners.Select(e => e.OnConnectAsync(detail, ct));
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "During OnConnect");
+            }
+
             var readerTask = RunEventReaderJob(webSocket, ct);
             await Task.WhenAny(task, readerTask);
 
@@ -82,10 +94,10 @@ public class WebSocketController : ControllerBase
         }
         finally
         {
-            if (connectionDetail.HasValue)
+            if (detail is not null)
             {
-                var (roomId, userId, twitchChannel) = connectionDetail.Value;
-                _connectUserSource.Disconnect(roomId, userId, twitchChannel);
+                var tasks = _connectListeners.Select(e => e.OnDisconnectAsync(detail, ct));
+                await Task.WhenAll(tasks);
             }
         }
     }
