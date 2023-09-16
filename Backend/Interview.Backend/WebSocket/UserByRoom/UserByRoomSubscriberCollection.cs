@@ -5,12 +5,12 @@ namespace Interview.Backend.WebSocket.UserByRoom;
 
 public sealed class UserByRoomSubscriberCollection : IEnumerable<UserSubscriber>
 {
-    private readonly ConcurrentDictionary<System.Net.WebSockets.WebSocket, TaskCompletionSource<object>> _users = new();
+    private readonly ConcurrentDictionary<System.Net.WebSockets.WebSocket, StorePayload> _users = new();
 
-    public async Task AddAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken cancellationToken = default)
+    public async Task AddAsync(System.Net.WebSockets.WebSocket webSocket, Guid userId, CancellationToken cancellationToken = default)
     {
         var cst = new TaskCompletionSource<object>();
-        _users.TryAdd(webSocket, cst);
+        _users.TryAdd(webSocket, new StorePayload(cst, userId));
         await using (cancellationToken.Register(() => cst.TrySetCanceled()))
         {
             await cst.Task;
@@ -26,7 +26,7 @@ public sealed class UserByRoomSubscriberCollection : IEnumerable<UserSubscriber>
 
         try
         {
-            tcs.SetCanceled(stoppingToken);
+            tcs.CompletionSource.SetCanceled(stoppingToken);
         }
         catch
         {
@@ -35,7 +35,9 @@ public sealed class UserByRoomSubscriberCollection : IEnumerable<UserSubscriber>
     }
 
     public IEnumerator<UserSubscriber> GetEnumerator() =>
-        _users.Keys.Select(e => new UserSubscriber(e)).ToList().GetEnumerator();
+        _users.Select(e => new UserSubscriber(e.Key, e.Value.UserId)).ToList().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    private record StorePayload(TaskCompletionSource<object> CompletionSource, Guid UserId);
 }
