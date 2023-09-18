@@ -4,39 +4,39 @@ namespace Interview.Backend.WebSocket.Events.Handlers;
 
 public abstract class WebSocketEventHandlerBase<TPayload> : IWebSocketEventHandler
 {
-    private readonly ILogger<WebSocketEventHandlerBase<TPayload>> _logger;
+    protected readonly ILogger<WebSocketEventHandlerBase<TPayload>> Logger;
 
     protected WebSocketEventHandlerBase(ILogger<WebSocketEventHandlerBase<TPayload>> logger)
     {
-        _logger = logger;
+        Logger = logger;
     }
 
     protected abstract string SupportType { get; }
 
-    public Task HandleAsync(System.Net.WebSockets.WebSocket webSocket, WebSocketEvent @event, CancellationToken cancellationToken)
+    public Task HandleAsync(SocketEventDetail detail, CancellationToken cancellationToken)
     {
-        if (!SupportType.Equals(@event.Type, StringComparison.InvariantCultureIgnoreCase))
+        if (!SupportType.Equals(detail.Event.Type, StringComparison.InvariantCultureIgnoreCase))
         {
             return Task.CompletedTask;
         }
 
         try
         {
-            var payload = ParsePayload(@event);
+            var payload = ParsePayload(detail.Event);
             if (payload is not null)
             {
-                return HandleEventAsync(webSocket, @event, payload, cancellationToken);
+                return HandleEventAsync(detail, payload, cancellationToken);
             }
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to parse payload {Payload}", @event.Payload);
+            Logger.LogError(e, "Unable to parse payload {Payload}", detail.Event.Payload);
         }
 
         return Task.CompletedTask;
     }
 
-    protected abstract Task HandleEventAsync(System.Net.WebSockets.WebSocket webSocket, WebSocketEvent @event, TPayload payload, CancellationToken cancellationToken);
+    protected abstract Task HandleEventAsync(SocketEventDetail detail, TPayload payload, CancellationToken cancellationToken);
 
     protected virtual TPayload? ParsePayload(WebSocketEvent @event) => JsonSerializer.Deserialize<TPayload>(@event.Payload);
 }

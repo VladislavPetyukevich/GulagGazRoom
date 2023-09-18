@@ -2,5 +2,7 @@
 
 public interface IWebSocketEventHandler
 {
-    Task HandleAsync(System.Net.WebSockets.WebSocket webSocket, WebSocketEvent @event, CancellationToken cancellationToken);
+    Task HandleAsync(SocketEventDetail detail, CancellationToken cancellationToken);
 }
+
+public record SocketEventDetail(System.Net.WebSockets.WebSocket WebSocket, WebSocketEvent Event, Guid UserId);
