@@ -30,25 +30,23 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IW
     public async Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {
         await Task.Yield();
-        _activeRooms.AddOrUpdate(
+        var list = _activeRooms.AddOrUpdate(
             detail.Room.Id,
             roomId =>
             {
-                try
-                {
-                    var client = new TwitchChatClient(roomId, _roomEventDispatcher);
-                    client.Connect(_chatBotAccount.Username, _chatBotAccount.AccessToken, detail.Room.TwitchChannel);
-                    _twitchClients.TryAdd(roomId, client);
-                    _logger.LogInformation("Start listen new room {RoomId} {TwitchChannel}", roomId, detail.Room.TwitchChannel);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Unable connect to twitch {RoomId} {TwitchChannel}", roomId, detail.Room.TwitchChannel);
-                }
-
+                ConnectToTwitch(detail, roomId);
                 return ImmutableList.Create(detail);
             },
-            (_, list) => list.Add(detail));
+            (roomId, list) =>
+            {
+                var newList = list.Add(detail);
+                if (newList.Count == 1)
+                {
+                    ConnectToTwitch(detail, roomId);
+                }
+
+                return newList;
+            });
     }
 
     public async Task OnDisconnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
@@ -86,6 +84,21 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IW
 
         connections = details.Select(e => e.WebSocket).ToList();
         return true;
+    }
+
+    private void ConnectToTwitch(WebSocketConnectDetail detail, Guid roomId)
+    {
+        try
+        {
+            var client = new TwitchChatClient(roomId, _roomEventDispatcher);
+            client.Connect(_chatBotAccount.Username, _chatBotAccount.AccessToken, detail.Room.TwitchChannel);
+            _twitchClients.TryAdd(roomId, client);
+            _logger.LogInformation("Start listen new room {RoomId} {TwitchChannel}", roomId, detail.Room.TwitchChannel);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable connect to twitch {RoomId} {TwitchChannel}", roomId, detail.Room.TwitchChannel);
+        }
     }
 }
 

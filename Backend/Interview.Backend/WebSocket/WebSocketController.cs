@@ -62,7 +62,7 @@ public class WebSocketController : ControllerBase
                 e => e.OnConnectAsync(detail, ct));
 
             var waitTask = CreateWaitTask(ct);
-            var readerTask = RunEventReaderJob(webSocket, ct);
+            var readerTask = RunEventReaderJob(user.Id, webSocket, ct);
             await Task.WhenAny(waitTask, readerTask);
             await CloseSafely(webSocket, WebSocketCloseStatus.NormalClosure, string.Empty, ct);
         }
@@ -230,12 +230,13 @@ public class WebSocketController : ControllerBase
         }
     }
 
-    private Task RunEventReaderJob(System.Net.WebSockets.WebSocket webSocket, CancellationToken ct)
+    private Task RunEventReaderJob(Guid userId, System.Net.WebSockets.WebSocket webSocket, CancellationToken ct)
     {
         return Task.Run(
             () =>
             {
                 return _webSocketReader.ReadAsync(
+                    userId,
                     webSocket,
                     exception => Console.WriteLine("On error: {0}", exception),
                     ct);

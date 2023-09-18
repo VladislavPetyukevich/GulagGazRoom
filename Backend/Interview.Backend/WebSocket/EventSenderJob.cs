@@ -45,9 +45,9 @@ public class EventSenderJob : BackgroundService
                     if (e is not OperationCanceledException)
                     {
                         _logger.LogError(e, "Read events");
+                        await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
                     }
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
                     continue;
                 }
 

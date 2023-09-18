@@ -1,9 +1,8 @@
 ﻿using System.Buffers;
 using System.Net.WebSockets;
 using System.Text.Json;
-using Microsoft.IO;
-using System;
 using Interview.Backend.WebSocket.Events.Handlers;
+using Microsoft.IO;
 
 namespace Interview.Backend.WebSocket.Events;
 
@@ -19,6 +18,7 @@ public class WebSocketReader
     }
 
     public async Task ReadAsync(
+        Guid userId,
         System.Net.WebSockets.WebSocket webSocket,
         Action<Exception> onError,
         CancellationToken ct)
@@ -58,7 +58,8 @@ public class WebSocketReader
 
                 if (deserializeResult is not null)
                 {
-                    var tasks = _handlers.Select(e => e.HandleAsync(webSocket, deserializeResult, ct));
+                    var socketEventDetail = new SocketEventDetail(webSocket, deserializeResult, userId);
+                    var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
                     await Task.WhenAll(tasks);
                 }
             }
