@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Net.WebSockets;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.Handlers;
@@ -20,6 +20,7 @@ public class WebSocketReader
     public async Task ReadAsync(
         Guid userId,
         Guid roomId,
+        IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
         Action<Exception> onError,
         CancellationToken ct)
@@ -48,7 +49,10 @@ public class WebSocketReader
                     }
                     catch (Exception e)
                     {
-                        onError(e);
+                        if (!webSocket.ShouldCloseWebSocket())
+                        {
+                            onError(e);
+                        }
                     }
                 }
 
@@ -59,7 +63,7 @@ public class WebSocketReader
 
                 if (deserializeResult is not null)
                 {
-                    var socketEventDetail = new SocketEventDetail(webSocket, deserializeResult, userId, roomId);
+                    var socketEventDetail = new SocketEventDetail(scopedServiceProvider, webSocket, deserializeResult, userId, roomId);
                     var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
                     await Task.WhenAll(tasks);
                 }
@@ -67,7 +71,10 @@ public class WebSocketReader
         }
         catch (Exception e)
         {
-            onError(e);
+            if (!webSocket.ShouldCloseWebSocket())
+            {
+                onError(e);
+            }
         }
     }
 

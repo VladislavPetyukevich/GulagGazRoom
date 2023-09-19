@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Connections;
+namespace Interview.Domain.Connections;
 
 public interface IActiveRoomSource
 {

@@ -1,4 +1,4 @@
-﻿using System.Net.WebSockets;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;

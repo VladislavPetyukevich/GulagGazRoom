@@ -62,7 +62,7 @@ public class WebSocketController : ControllerBase
                 e => e.OnConnectAsync(detail, ct));
 
             var waitTask = CreateWaitTask(ct);
-            var readerTask = RunEventReaderJob(user.Id, roomIdentity.Value, webSocket, ct);
+            var readerTask = RunEventReaderJob(user.Id, roomIdentity.Value, HttpContext.RequestServices, webSocket, ct);
             await Task.WhenAny(waitTask, readerTask);
             await CloseSafely(webSocket, WebSocketCloseStatus.NormalClosure, string.Empty, ct);
         }
@@ -112,111 +112,6 @@ public class WebSocketController : ControllerBase
         }
     }
 
-    [Route("/code")]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task SendCode()
-    {
-        if (!TryGetUser(out var user))
-        {
-            return;
-        }
-
-        var ct = HttpContext.RequestAborted;
-        using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-
-        try
-        {
-            var roomIdentity = await ParseRoomIdAsync(webSocket, ct);
-            if (roomIdentity is null)
-            {
-                return;
-            }
-
-            var roomRepository = HttpContext.RequestServices.GetRequiredService<IRoomRepository>();
-            var hasRoom = await roomRepository.HasAsync(new Spec<Room>(room => room.Id == roomIdentity), ct);
-            if (!hasRoom)
-            {
-                await webSocket.CloseAsync(
-                    WebSocketCloseStatus.InvalidPayloadData,
-                    $"Not found room by id '{roomIdentity}'",
-                    ct);
-                return;
-            }
-
-            var participantRepository = HttpContext.RequestServices.GetRequiredService<IRoomParticipantRepository>();
-            var roomParticipant = await participantRepository.FindByRoomIdAndUserId(roomIdentity.Value, user.Id, ct);
-            if (roomParticipant is null)
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, "Not found room participant", ct);
-                return;
-            }
-
-            if (roomParticipant.Type != RoomParticipantType.Examinee &&
-                roomParticipant.Type != RoomParticipantType.Expert)
-            {
-                await webSocket.CloseAsync(
-                    WebSocketCloseStatus.InvalidPayloadData,
-                    "Not enough rights to send an event.",
-                    ct);
-                return;
-            }
-
-            while (!webSocket.ShouldCloseWebSocket())
-            {
-                string code;
-                using (var buffer = new PoolItem(8192))
-                {
-                    using var ms = new MemoryStream();
-                    WebSocketReceiveResult result;
-                    do
-                    {
-                        result = await webSocket.ReceiveAsync(buffer.Buffer, CancellationToken.None);
-                        ms.Write(buffer.Buffer, 0, result.Count);
-                    }
-                    while (!result.EndOfMessage);
-
-                    ms.Seek(0, SeekOrigin.Begin);
-
-                    using var reader = new StreamReader(ms, Encoding.UTF8);
-                    code = await reader.ReadToEndAsync(ct);
-                }
-
-                if (webSocket.ShouldCloseWebSocket())
-                {
-                    break;
-                }
-
-                var repository = HttpContext.RequestServices.GetRequiredService<IRoomConfigurationRepository>();
-                var request = new UpsertCodeStateRequest { CodeEditorContent = code, RoomId = roomIdentity.Value, };
-                await repository.UpsertCodeStateAsync(request, ct);
-            }
-
-            try
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, ct);
-            }
-            catch
-            {
-                // ignore
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // ignore
-        }
-        catch (Exception e)
-        {
-            try
-            {
-                await webSocket.CloseAsync(WebSocketCloseStatus.InvalidPayloadData, e.Message, ct);
-            }
-            catch
-            {
-                // ignore
-            }
-        }
-    }
-
     private async Task HandleListenersSafely(string actionName, Func<IConnectionListener, Task> map)
     {
         var tasks = _connectListeners.Select(map);
@@ -230,7 +125,12 @@ public class WebSocketController : ControllerBase
         }
     }
 
-    private Task RunEventReaderJob(Guid userId, Guid roomId, System.Net.WebSockets.WebSocket webSocket, CancellationToken ct)
+    private Task RunEventReaderJob(
+        Guid userId,
+        Guid roomId,
+        IServiceProvider scopedServiceProvider,
+        System.Net.WebSockets.WebSocket webSocket,
+        CancellationToken ct)
     {
         return Task.Run(
             () =>
@@ -238,6 +138,7 @@ public class WebSocketController : ControllerBase
                 return _webSocketReader.ReadAsync(
                     userId,
                     roomId,
+                    scopedServiceProvider,
                     webSocket,
                     exception => Console.WriteLine("On error: {0}", exception),
                     ct);

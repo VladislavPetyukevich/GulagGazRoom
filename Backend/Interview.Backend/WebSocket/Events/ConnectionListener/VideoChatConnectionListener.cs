@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
@@ -6,7 +6,7 @@ namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
 public class VideoChatConnectionListener : IConnectionListener, IVideChatConnectionProvider
 {
-    private ConcurrentDictionary<Guid, ImmutableList<Payload>> _store = new();
+    private readonly ConcurrentDictionary<Guid, ImmutableList<Payload>> _store = new();
 
     public Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {

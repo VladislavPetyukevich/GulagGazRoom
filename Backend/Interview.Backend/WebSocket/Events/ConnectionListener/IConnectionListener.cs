@@ -1,4 +1,4 @@
-﻿namespace Interview.Backend.WebSocket.Events.ConnectionListener;
+namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
 public interface IConnectionListener
 {

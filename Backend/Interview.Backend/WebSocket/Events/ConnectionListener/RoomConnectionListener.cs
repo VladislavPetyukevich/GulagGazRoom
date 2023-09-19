@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Interview.Backend.Auth;
@@ -11,7 +11,7 @@ namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
 public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IWebSocketConnectionSource
 {
-    private ConcurrentDictionary<Guid, ImmutableList<WebSocketConnectDetail>> _activeRooms = new();
+    private readonly ConcurrentDictionary<Guid, ImmutableList<WebSocketConnectDetail>> _activeRooms = new();
 
     private readonly ChatBotAccount _chatBotAccount;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
