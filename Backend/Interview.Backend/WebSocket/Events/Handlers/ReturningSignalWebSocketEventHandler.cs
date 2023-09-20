@@ -21,7 +21,7 @@ public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<Re
 
     protected override async Task HandleEventAsync(SocketEventDetail detail, ReceivePayload payload, CancellationToken cancellationToken)
     {
-        if (!_userWebSocketConnectionProvider.TryGetConnections(payload.To, out var connections))
+        if (!_userWebSocketConnectionProvider.TryGetConnections(payload.To, detail.RoomId, out var connections))
         {
             Logger.LogWarning("Not found {To} user connections. {RoomId} {From}", payload.To, detail.RoomId, detail.UserId);
             return;

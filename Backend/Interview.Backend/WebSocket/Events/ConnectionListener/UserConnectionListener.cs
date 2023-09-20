@@ -6,31 +6,31 @@ namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
 public class UserConnectionListener : IConnectionListener, IUserWebSocketConnectionProvider
 {
-    private readonly ConcurrentDictionary<Guid, ImmutableList<WebSocketConnectDetail>> _store = new();
+    private readonly ConcurrentDictionary<(Guid UserId, Guid RoomId), ImmutableList<System.Net.WebSockets.WebSocket>> _store = new();
 
     public Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {
         _store.AddOrUpdate(
-            detail.User.Id,
-            _ => ImmutableList.Create(detail),
-            (_, list) => list.Add(detail));
+            (detail.User.Id, detail.Room.Id),
+            _ => ImmutableList.Create(detail.WebSocket),
+            (_, list) => list.Add(detail.WebSocket));
         return Task.CompletedTask;
     }
 
     public Task OnDisconnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {
         _store.AddOrUpdate(
-            detail.User.Id,
-            _ => ImmutableList<WebSocketConnectDetail>.Empty,
-            (_, list) => list.Remove(detail));
+            (detail.User.Id, detail.Room.Id),
+            _ => ImmutableList<System.Net.WebSockets.WebSocket>.Empty,
+            (_, list) => list.Remove(detail.WebSocket));
         return Task.CompletedTask;
     }
 
-    public bool TryGetConnections(Guid userId, [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections)
+    public bool TryGetConnections(Guid userId, Guid roomId, [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections)
     {
-        if (_store.TryGetValue(userId, out var details))
+        if (_store.TryGetValue((userId, roomId), out var details))
         {
-            connections = details.Select(e => e.WebSocket).ToList();
+            connections = details;
             return true;
         }
 
@@ -43,5 +43,6 @@ public interface IUserWebSocketConnectionProvider
 {
     bool TryGetConnections(
         Guid userId,
+        Guid roomId,
         [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections);
 }
