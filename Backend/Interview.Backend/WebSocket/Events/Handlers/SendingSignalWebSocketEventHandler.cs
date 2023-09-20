@@ -27,10 +27,20 @@ public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<Send
             return;
         }
 
+        var payloadForSerialization = new
+        {
+            From = new
+            {
+                Id = detail.User.Id,
+                Nickname = detail.User.Nickname,
+                Avatar = detail.User.Avatar,
+            },
+            Signal = payload.Signal,
+        };
         var sendEvent = new WebSocketEvent
         {
             Type = "user joined",
-            Payload = JsonSerializer.Serialize(new { From = detail.UserId, Signal = payload.Signal, }),
+            Payload = JsonSerializer.Serialize(payloadForSerialization),
         };
         var sendEventAsStr = JsonSerializer.Serialize(sendEvent);
         var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);

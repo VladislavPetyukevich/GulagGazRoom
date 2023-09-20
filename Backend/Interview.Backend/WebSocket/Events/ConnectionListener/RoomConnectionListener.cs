@@ -64,7 +64,7 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IW
                     {
                         client.Dispose();
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         // ignore
                     }

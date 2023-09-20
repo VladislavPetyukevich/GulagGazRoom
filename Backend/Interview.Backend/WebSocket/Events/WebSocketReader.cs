@@ -18,8 +18,8 @@ public class WebSocketReader
     }
 
     public async Task ReadAsync(
-        Guid userId,
-        Guid roomId,
+        User user,
+        Room room,
         IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
         Action<Exception> onError,
@@ -63,7 +63,7 @@ public class WebSocketReader
 
                 if (deserializeResult is not null)
                 {
-                    var socketEventDetail = new SocketEventDetail(scopedServiceProvider, webSocket, deserializeResult, userId, roomId);
+                    var socketEventDetail = new SocketEventDetail(scopedServiceProvider, webSocket, deserializeResult, user, room);
                     var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
                     await Task.WhenAll(tasks);
                 }

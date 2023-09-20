@@ -62,7 +62,7 @@ public class WebSocketController : ControllerBase
                 e => e.OnConnectAsync(detail, ct));
 
             var waitTask = CreateWaitTask(ct);
-            var readerTask = RunEventReaderJob(user.Id, roomIdentity.Value, HttpContext.RequestServices, webSocket, ct);
+            var readerTask = RunEventReaderJob(user, dbRoom, HttpContext.RequestServices, webSocket, ct);
             await Task.WhenAny(waitTask, readerTask);
             await CloseSafely(webSocket, WebSocketCloseStatus.NormalClosure, string.Empty, ct);
         }
@@ -126,8 +126,8 @@ public class WebSocketController : ControllerBase
     }
 
     private Task RunEventReaderJob(
-        Guid userId,
-        Guid roomId,
+        User user,
+        Room room,
         IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
         CancellationToken ct)
@@ -136,8 +136,8 @@ public class WebSocketController : ControllerBase
             () =>
             {
                 return _webSocketReader.ReadAsync(
-                    userId,
-                    roomId,
+                    user,
+                    room,
                     scopedServiceProvider,
                     webSocket,
                     exception => Console.WriteLine("On error: {0}", exception),
