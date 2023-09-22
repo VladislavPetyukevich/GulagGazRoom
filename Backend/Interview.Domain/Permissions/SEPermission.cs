@@ -133,6 +133,18 @@ namespace Interview.Domain.Permissions
             new(Guid.Parse("53af37b0-2c68-4775-9ddb-ab143ce92fec"), "UserChangePermission",
                 "Предоставление пользователю разрешения", EVPermission.UserChangePermission);
 
+        public static readonly SEPermission TagFindPage =
+            new(Guid.Parse("5c12dbf7-3cf9-40b2-9cab-203621129342"), "TagFindPage",
+                "Получение страницы тегов", EVPermission.TagFindPage);
+
+        public static readonly SEPermission TagCreate =
+            new(Guid.Parse("6eac768e-7345-42e0-80d3-b4d269d80e2e"), "TagCreate",
+                "Создание тега", EVPermission.TagCreate);
+
+        public static readonly SEPermission TagUpdate =
+            new(Guid.Parse("6f814f95-59f5-4591-acd5-545dfb981a31"), "TagUpdate",
+                "Обновление тега", EVPermission.TagUpdate);
+
         public Guid Id { get; }
 
         public string Description { get; }
