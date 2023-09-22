@@ -8,9 +8,9 @@ namespace Interview.Domain.Events.ChangeEntityProcessors;
 public class QuestionChangeEntityProcessor : IEntityPostProcessor
 {
     private readonly IRoomEventDispatcher _eventDispatcher;
-    private readonly IConnectUserSource _connectUserSource;
+    private readonly IActiveRoomSource _connectUserSource;
 
-    public QuestionChangeEntityProcessor(IRoomEventDispatcher eventDispatcher, IConnectUserSource connectUserSource)
+    public QuestionChangeEntityProcessor(IRoomEventDispatcher eventDispatcher, IActiveRoomSource connectUserSource)
     {
         _eventDispatcher = eventDispatcher;
         _connectUserSource = connectUserSource;

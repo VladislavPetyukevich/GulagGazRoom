@@ -1,6 +1,6 @@
 using System.Net.WebSockets;
 using System.Text;
-using Interview.Backend.WebSocket.UserByRoom;
+using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
@@ -12,14 +12,18 @@ public class EventSenderJob : BackgroundService
     private static TimeSpan ReadTimeout => TimeSpan.FromSeconds(30);
 
     private readonly IRoomEventDispatcher _roomEventDispatcher;
-    private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
+    private readonly IWebSocketConnectionSource _webSocketConnectionSource;
     private readonly ILogger<EventSenderJob> _logger;
     private readonly IRoomEventSerializer _roomEventSerializer;
 
-    public EventSenderJob(IRoomEventDispatcher roomEventDispatcher, UserByRoomEventSubscriber userByRoomEventSubscriber, ILogger<EventSenderJob> logger, IRoomEventSerializer roomEventSerializer)
+    public EventSenderJob(
+        IRoomEventDispatcher roomEventDispatcher,
+        IWebSocketConnectionSource webSocketConnectionSource,
+        ILogger<EventSenderJob> logger,
+        IRoomEventSerializer roomEventSerializer)
     {
         _roomEventDispatcher = roomEventDispatcher;
-        _userByRoomEventSubscriber = userByRoomEventSubscriber;
+        _webSocketConnectionSource = webSocketConnectionSource;
         _logger = logger;
         _roomEventSerializer = roomEventSerializer;
     }
@@ -41,22 +45,40 @@ public class EventSenderJob : BackgroundService
                     if (e is not OperationCanceledException)
                     {
                         _logger.LogError(e, "Read events");
+                        await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
                     continue;
                 }
 
-                foreach (var currentEvent in events)
+                foreach (var group in events.ToLookup(e => e.RoomId))
                 {
-                    if (!_userByRoomEventSubscriber.TryGetSubscribers(currentEvent.RoomId, out var subscribers))
+                    if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
+                        subscribers.Count == 0)
                     {
                         continue;
                     }
 
-                    var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
-                    _logger.LogDebug("Start sending {Event}", eventAsString);
-                    await HandleSubscribersAsync(stoppingToken, subscribers, eventAsString);
+                    foreach (var currentEvent in group)
+                    {
+                        var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
+                        var eventAsBytes = Encoding.UTF8.GetBytes(eventAsString);
+                        _logger.LogDebug("Start sending {Event}", eventAsString);
+                        await Parallel.ForEachAsync(subscribers, stoppingToken, async (entry, token) =>
+                        {
+                            try
+                            {
+                                if (!entry.ShouldCloseWebSocket())
+                                {
+                                    await entry.SendAsync(eventAsBytes, WebSocketMessageType.Text, true, token);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogError(e, "Send {Event}", eventAsString);
+                            }
+                        });
+                    }
                 }
 
                 _logger.LogDebug("Before wait async");
@@ -64,41 +86,13 @@ public class EventSenderJob : BackgroundService
                 _logger.LogDebug("After wait async");
             }
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "During sending events");
+        }
         finally
         {
             _logger.LogDebug("Stop sending");
         }
-    }
-
-    private async Task HandleSubscribersAsync(CancellationToken stoppingToken, UserByRoomSubscriberCollection users, string eventAsStr)
-    {
-        await Parallel.ForEachAsync(users, stoppingToken, async (entry, token) =>
-        {
-            try
-            {
-                if (entry.WebSocket.ShouldCloseWebSocket())
-                {
-                    try
-                    {
-                        var status = entry.WebSocket.CloseStatus ?? WebSocketCloseStatus.NormalClosure;
-                        await entry.WebSocket.CloseAsync(status, entry.WebSocket.CloseStatusDescription, token);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-
-                    users.Remove(entry, token);
-                    return;
-                }
-
-                var bytes = Encoding.UTF8.GetBytes(eventAsStr);
-                await entry.WebSocket.SendAsync(bytes, WebSocketMessageType.Text, true, token);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Send {Event}", eventAsStr);
-            }
-        });
     }
 }

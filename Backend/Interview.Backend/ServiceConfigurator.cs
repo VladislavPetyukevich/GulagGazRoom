@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -8,14 +7,15 @@ using Ardalis.SmartEnum.SystemTextJson;
 using Interview.Backend.Auth;
 using Interview.Backend.Swagger;
 using Interview.Backend.WebSocket;
-using Interview.Backend.WebSocket.ConnectListener;
-using Interview.Backend.WebSocket.UserByRoom;
+using Interview.Backend.WebSocket.Events;
+using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Backend.WebSocket.Events.Handlers;
 using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
 using Interview.Infrastructure.Chat;
-using Interview.Infrastructure.Users;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 
 namespace Interview.Backend;
@@ -103,11 +103,23 @@ public class ServiceConfigurator
         serviceCollection.AddAppAuth(twitchService);
 
         serviceCollection.AddHostedService<EventSenderJob>();
-        serviceCollection.AddHostedService<WebSocketConnectListenJob>();
 
-        serviceCollection.AddSingleton<UserByRoomEventSubscriber>();
         serviceCollection.AddSingleton(oAuthServiceDispatcher);
         serviceCollection.AddSingleton<UserClaimService>();
+
+        serviceCollection.AddSingleton<RecyclableMemoryStreamManager>();
+        serviceCollection.AddScoped<WebSocketReader>();
+        serviceCollection.Scan(selector =>
+        {
+            selector.FromAssemblies(typeof(IWebSocketEventHandler).Assembly)
+                .AddClasses(f => f.AssignableTo<IWebSocketEventHandler>())
+                .As<IWebSocketEventHandler>()
+                .WithScopedLifetime()
+
+                .AddClasses(f => f.AssignableTo<IConnectionListener>())
+                .AsSelfWithInterfaces()
+                .WithSingletonLifetime();
+        });
 
         serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
         serviceCollection.Configure<ForwardedHeadersOptions>(options =>
