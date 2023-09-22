@@ -8,7 +8,7 @@ using X.PagedList;
 
 namespace Interview.Domain.Tags;
 
-public class TagService
+public class TagService : ITagService
 {
     private readonly ITagRepository _tagRepository;
 

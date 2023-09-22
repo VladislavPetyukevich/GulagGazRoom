@@ -118,5 +118,14 @@ public enum EVPermission
 
     [Description("Предоставление пользователю разрешения")]
     UserChangePermission,
+
+    [Description("Получение страницы тегов")]
+    TagFindPage,
+
+    [Description("Создание тега")]
+    TagCreate,
+
+    [Description("Обновление тега")]
+    TagUpdate,
 #pragma warning restore SA1602
 }

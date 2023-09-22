@@ -51,8 +51,7 @@ namespace Interview.Backend.Auth
                         .Select(claim => claim.Value)
                         .ToList(),
                 TwitchIdentity = externalId.Value,
-            })
-                .WaitAsync(cancellationToken);
+            });
         }
     }
 }
