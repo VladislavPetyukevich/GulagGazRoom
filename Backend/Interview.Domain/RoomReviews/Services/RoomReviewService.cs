@@ -36,7 +36,6 @@ public class RoomReviewService : IRoomReviewService
             specification &= new Spec<RoomReview>(review => review.Room!.Id == request.Filter.RoomId);
         }
 
-        // TODO что-то не так с методом
         if (request.Filter.State is not null)
         {
             var state = SERoomReviewState.FromEnum(request.Filter.State.Value);
@@ -44,6 +43,7 @@ public class RoomReviewService : IRoomReviewService
         }
 
         return _roomReviewRepository.GetDetailedPageAsync(
+            specification,
             request.Page.PageNumber,
             request.Page.PageSize,
             cancellationToken);

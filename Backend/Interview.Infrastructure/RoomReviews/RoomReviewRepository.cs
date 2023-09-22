@@ -3,6 +3,7 @@ using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
 using Interview.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using NSpecifications;
 using X.PagedList;
 
 namespace Interview.Infrastructure.RoomReviews;
@@ -14,11 +15,13 @@ public class RoomReviewRepository : EfRepository<RoomReview>, IRoomReviewReposit
     {
     }
 
-    public Task<IPagedList<RoomReviewPageDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public Task<IPagedList<RoomReviewPageDetail>> GetDetailedPageAsync(ISpecification<RoomReview> specification, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         return Set
+            .AsNoTracking()
             .Include(e => e.Room)
             .Include(e => e.User)
+            .Where(specification.Expression)
             .Select(e => new RoomReviewPageDetail
             {
                 Id = e.Id,
