@@ -594,6 +594,27 @@ namespace Interview.Migrations.Postgres.Migrations
                         },
                         new
                         {
+                            Id = new Guid("6eac768e-7345-42e0-80d3-b4d269d80e2e"),
+                            CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Type = "TagCreate",
+                            UpdateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = new Guid("5c12dbf7-3cf9-40b2-9cab-203621129342"),
+                            CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Type = "TagFindPage",
+                            UpdateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = new Guid("6f814f95-59f5-4591-acd5-545dfb981a31"),
+                            CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Type = "TagUpdate",
+                            UpdateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
                             Id = new Guid("53af37b0-2c68-4775-9ddb-ab143ce92fec"),
                             CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Type = "UserChangePermission",

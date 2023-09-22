@@ -17,11 +17,11 @@ namespace Interview.Backend.WebSocket;
 [Route("[controller]")]
 public class WebSocketController : ControllerBase
 {
-    private readonly RoomService _roomService;
+    private readonly IRoomService _roomService;
     private readonly UserByRoomEventSubscriber _userByRoomEventSubscriber;
     private readonly IConnectUserSource _connectUserSource;
 
-    public WebSocketController(UserByRoomEventSubscriber userByRoomEventSubscriber, RoomService roomService, IConnectUserSource connectUserSource)
+    public WebSocketController(UserByRoomEventSubscriber userByRoomEventSubscriber, IRoomService roomService, IConnectUserSource connectUserSource)
     {
         _roomService = roomService;
         _connectUserSource = connectUserSource;

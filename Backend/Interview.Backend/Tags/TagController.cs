@@ -13,9 +13,9 @@ namespace Interview.Backend.Questions;
 [Route("tags")]
 public class TagController : ControllerBase
 {
-    private readonly TagService _tagService;
+    private readonly ITagService _tagService;
 
-    public TagController(TagService tagService)
+    public TagController(ITagService tagService)
     {
         _tagService = tagService;
     }
