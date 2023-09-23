@@ -63,7 +63,7 @@ public class RoomEventDispatcher : IRoomEventDispatcher
         return _semaphore.WaitAsync(cancellationToken);
     }
 
-    private static Channel<T> CreateBoundedChannel<T>(int capacity = 100) => Channel.CreateBounded<T>(
+    private static Channel<T> CreateBoundedChannel<T>(int capacity = 1024) => Channel.CreateBounded<T>(
         new BoundedChannelOptions(capacity)
         {
             SingleWriter = false,

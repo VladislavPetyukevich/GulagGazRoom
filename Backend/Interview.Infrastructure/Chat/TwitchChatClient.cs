@@ -64,8 +64,8 @@ public class TwitchChatClient : IDisposable
     private void ClientOnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
         var message = e.ChatMessage.Message ?? string.Empty;
-        var payload = new EventPayload(message, e.ChatMessage.Username);
-        var @event = new RoomEvent<EventPayload>(_roomId, EventType.ChatMessage, payload);
+        var payload = new UserMessageEventPayload(message, e.ChatMessage.Username);
+        var @event = new RoomEvent<UserMessageEventPayload>(_roomId, EventType.ChatMessage, payload);
         _eventDispatcher.WriteAsync(@event, _cancellationTokenSource.Token);
 
         if (message.Contains("он"))
@@ -73,17 +73,17 @@ public class TwitchChatClient : IDisposable
             _client.SendMessage(e.ChatMessage.Channel, $"@{e.ChatMessage.Username}, дай бог здаровъя тебе");
         }
     }
+}
 
-    public sealed class EventPayload
+public sealed class UserMessageEventPayload
+{
+    public string Message { get; }
+
+    public string Nickname { get; }
+
+    public UserMessageEventPayload(string message, string nickname)
     {
-        public string Message { get; }
-
-        public string Nickname { get; }
-
-        public EventPayload(string message, string nickname)
-        {
-            Message = message;
-            Nickname = nickname;
-        }
+        Message = message;
+        Nickname = nickname;
     }
 }
