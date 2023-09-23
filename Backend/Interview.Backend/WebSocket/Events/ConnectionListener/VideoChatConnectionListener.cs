@@ -18,19 +18,19 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         _store.AddOrUpdate(
             detail.Room.Id,
             _ => ImmutableList<Payload>.Empty,
-            (_, list) => list.Remove(new Payload(detail.User.Id, detail.WebSocket), EqualityComparer.Instance));
+            (_, list) => list.Remove(new Payload(detail.User, detail.WebSocket), EqualityComparer.Instance));
         return Task.CompletedTask;
     }
 
-    public void Connect(Guid roomId, Guid userId, System.Net.WebSockets.WebSocket webSocket)
+    public void Connect(Guid roomId, User user, System.Net.WebSockets.WebSocket webSocket)
     {
         _store.AddOrUpdate(
             roomId,
-            _ => ImmutableList.Create(new Payload(userId, webSocket)),
-            (_, list) => list.Add(new Payload(userId, webSocket)));
+            _ => ImmutableList.Create(new Payload(user, webSocket)),
+            (_, list) => list.Add(new Payload(user, webSocket)));
     }
 
-    public bool TryGetConnections(Guid roomId, [NotNullWhen(true)] out IReadOnlyCollection<(Guid UserId, System.Net.WebSockets.WebSocket WebSocket)>? connections)
+    public bool TryGetConnections(Guid roomId, [NotNullWhen(true)] out IReadOnlyCollection<(User User, System.Net.WebSockets.WebSocket WebSocket)>? connections)
     {
         if (!_store.TryGetValue(roomId, out var subscriber) || subscriber.Count == 0)
         {
@@ -38,11 +38,11 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
             return false;
         }
 
-        connections = subscriber.Select(e => (e.UserId, e.Connection)).ToList();
+        connections = subscriber.Select(e => (e.User, e.Connection)).ToList();
         return true;
     }
 
-    private record Payload(Guid UserId, System.Net.WebSockets.WebSocket Connection);
+    private record Payload(User User, System.Net.WebSockets.WebSocket Connection);
 
     private sealed class EqualityComparer : IEqualityComparer<Payload>
     {
@@ -61,9 +61,9 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
 
 public interface IVideChatConnectionProvider
 {
-    void Connect(Guid roomId, Guid userId, System.Net.WebSockets.WebSocket webSocket);
+    void Connect(Guid roomId, User user, System.Net.WebSockets.WebSocket webSocket);
 
     bool TryGetConnections(
         Guid roomId,
-        [NotNullWhen(true)] out IReadOnlyCollection<(Guid UserId, System.Net.WebSockets.WebSocket WebSocket)>? connections);
+        [NotNullWhen(true)] out IReadOnlyCollection<(User User, System.Net.WebSockets.WebSocket WebSocket)>? connections);
 }

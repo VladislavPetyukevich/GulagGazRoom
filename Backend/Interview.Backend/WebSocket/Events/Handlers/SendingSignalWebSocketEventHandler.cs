@@ -27,9 +27,9 @@ public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<Send
             return;
         }
 
-        var payloadForSerialization = new
+        var payloadForSerialization = new UserDetailResponse
         {
-            From = new
+            From = new UserDetail
             {
                 Id = detail.User.Id,
                 Nickname = detail.User.Nickname,
@@ -63,4 +63,20 @@ public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<Send
 
         public string? Signal { get; set; }
     }
+}
+
+public class UserDetailResponse
+{
+    public required UserDetail From { get; init; }
+
+    public required string? Signal { get; init; }
+}
+
+public class UserDetail
+{
+    public required Guid Id { get; init; }
+
+    public required string Nickname { get; init; }
+
+    public required string? Avatar { get; init; }
 }

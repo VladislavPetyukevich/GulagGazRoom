@@ -21,7 +21,7 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
 
     protected override async Task HandleEventAsync(SocketEventDetail detail, string payload, CancellationToken cancellationToken)
     {
-        _videChatConnectionProvider.Connect(detail.RoomId, detail.UserId, detail.WebSocket);
+        _videChatConnectionProvider.Connect(detail.RoomId, detail.User, detail.WebSocket);
 
         try
         {
@@ -40,7 +40,12 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
             return;
         }
 
-        var users = subscribers.Select(e => e.UserId).ToHashSet();
+        var users = subscribers.Select(e => new UserDetail
+        {
+            Id = e.User.Id,
+            Nickname = e.User.Nickname,
+            Avatar = e.User.Avatar,
+        }).ToHashSet();
         var newEvent = new WebSocketEvent
         {
             Type = "all users",
