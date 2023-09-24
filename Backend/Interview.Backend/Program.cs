@@ -3,10 +3,24 @@ using Interview.Backend;
 using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Formatting.Elasticsearch;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("oauth.json", true);
 builder.Configuration.AddEnvironmentVariables("INTERVIEW_BACKEND_");
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    if (context.HostingEnvironment.IsPreProduction())
+    {
+        configuration.WriteTo.Console(new ElasticsearchJsonFormatter());
+    }
+    else
+    {
+        configuration.WriteTo.Console();
+    }
+});
 
 // Add services to the container.
 var serviceConfigurator = new ServiceConfigurator(builder.Environment, builder.Configuration);
