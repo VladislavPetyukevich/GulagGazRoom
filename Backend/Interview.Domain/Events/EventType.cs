@@ -21,7 +21,7 @@ public enum EventType
     ReactionDislike,
 
     /// <summary>
-    /// The event is triggered when a new message appears in twitch
+    /// The event is triggered when a new message appears in twitch or in app chat.
     /// </summary>
     ChatMessage,
 
@@ -69,4 +69,9 @@ public enum EventType
     /// The event is triggered when room status is changed
     /// </summary>
     ChangeRoomStatus,
+
+    /// <summary>
+    /// The event is sent when the speech from the video is recognized.
+    /// </summary>
+    VoiceRecognition,
 }
