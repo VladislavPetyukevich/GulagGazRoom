@@ -1,6 +1,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.WebSockets;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
@@ -13,13 +16,44 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         return Task.CompletedTask;
     }
 
-    public Task OnDisconnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
+    public async Task OnDisconnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {
+        var disconnectUser = false;
         _store.AddOrUpdate(
             detail.Room.Id,
             _ => ImmutableList<Payload>.Empty,
-            (_, list) => list.Remove(new Payload(detail.User, detail.WebSocket), EqualityComparer.Instance));
-        return Task.CompletedTask;
+            (_, list) =>
+            {
+                var newList = list.Remove(new Payload(detail.User, detail.WebSocket), EqualityComparer.Instance);
+                disconnectUser = newList.Count != list.Count;
+                return newList;
+            });
+
+        await Task.Yield();
+
+        if (disconnectUser && TryGetConnections(detail.Room.Id, out var connections))
+        {
+            var payload = new { Id = detail.User.Id, };
+            var sendEvent = new WebSocketEvent
+            {
+                Type = "user left",
+                Payload = System.Text.Json.JsonSerializer.Serialize(payload),
+            };
+            var sendEventAsStr = System.Text.Json.JsonSerializer.Serialize(sendEvent);
+            var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);
+
+            foreach (var (_, webSocket) in connections)
+            {
+                try
+                {
+                    await webSocket.SendAsync(sendEventAsBytes, WebSocketMessageType.Text, true, cancellationToken);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+        }
     }
 
     public void Connect(Guid roomId, User user, System.Net.WebSockets.WebSocket webSocket)
