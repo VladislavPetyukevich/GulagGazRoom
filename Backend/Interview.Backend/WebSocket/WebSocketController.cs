@@ -80,7 +80,7 @@ public class WebSocketController : ControllerBase
             {
                 await HandleListenersSafely(
                     nameof(IConnectionListener.OnDisconnectAsync),
-                    e => e.OnDisconnectAsync(detail, ct));
+                    e => e.OnDisconnectAsync(detail, CancellationToken.None));
             }
         }
 
