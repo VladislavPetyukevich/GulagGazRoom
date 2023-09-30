@@ -21,7 +21,11 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
 
     protected override async Task HandleEventAsync(SocketEventDetail detail, string payload, CancellationToken cancellationToken)
     {
-        _videChatConnectionProvider.Connect(detail.RoomId, detail.User, detail.WebSocket);
+        var successConnectResult = await _videChatConnectionProvider.TryConnectAsync(detail, cancellationToken);
+        if (!successConnectResult)
+        {
+            return;
+        }
 
         try
         {
