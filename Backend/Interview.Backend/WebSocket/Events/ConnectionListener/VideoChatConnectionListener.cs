@@ -3,13 +3,20 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
-using Newtonsoft.Json;
+using Interview.Backend.WebSocket.Events.Handlers;
+using Interview.Domain.RoomParticipants;
 
 namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 
 public class VideoChatConnectionListener : IConnectionListener, IVideChatConnectionProvider
 {
     private readonly ConcurrentDictionary<Guid, ImmutableList<Payload>> _store = new();
+    private readonly ILogger<VideoChatConnectionListener> _logger;
+
+    public VideoChatConnectionListener(ILogger<VideoChatConnectionListener> logger)
+    {
+        _logger = logger;
+    }
 
     public Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
     {
@@ -56,12 +63,27 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         }
     }
 
-    public void Connect(Guid roomId, User user, System.Net.WebSockets.WebSocket webSocket)
+    public async Task<bool> TryConnectAsync(SocketEventDetail detail, CancellationToken cancellationToken)
     {
+        var participantRepository = detail.ScopedServiceProvider.GetRequiredService<IRoomParticipantRepository>();
+        var roomParticipant = await participantRepository.FindByRoomIdAndUserId(detail.RoomId, detail.UserId, cancellationToken);
+        if (roomParticipant is null)
+        {
+            _logger.LogWarning("Not found room participant {RoomId} {UserId}", detail.RoomId, detail.UserId);
+            return false;
+        }
+
+        if (roomParticipant.Type != RoomParticipantType.Examinee && roomParticipant.Type != RoomParticipantType.Expert)
+        {
+            _logger.LogWarning("Not enough permissions to connect to video chat {RoomId} {UserId}", detail.RoomId, detail.UserId);
+            return false;
+        }
+
         _store.AddOrUpdate(
-            roomId,
-            _ => ImmutableList.Create(new Payload(user, webSocket)),
-            (_, list) => list.Add(new Payload(user, webSocket)));
+            detail.RoomId,
+            _ => ImmutableList.Create(new Payload(detail.User, detail.WebSocket)),
+            (_, list) => list.Add(new Payload(detail.User, detail.WebSocket)));
+        return true;
     }
 
     public bool TryGetConnections(Guid roomId, [NotNullWhen(true)] out IReadOnlyCollection<(User User, System.Net.WebSockets.WebSocket WebSocket)>? connections)
@@ -95,7 +117,7 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
 
 public interface IVideChatConnectionProvider
 {
-    void Connect(Guid roomId, User user, System.Net.WebSockets.WebSocket webSocket);
+    Task<bool> TryConnectAsync(SocketEventDetail detail, CancellationToken cancellationToken);
 
     bool TryGetConnections(
         Guid roomId,
