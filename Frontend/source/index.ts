@@ -23,7 +23,6 @@ function onControlsEnabled(enabled: boolean) {
 const htmlElements = new HTMLElements({
   onControlsEnabled,
   onAudioVolumeUpdate: updateAudioVolume,
-  onFovUpdate: updateFov,
 });
 
 const codeEditor = new CodeEditor(htmlElements.editorContainer);
@@ -41,6 +40,7 @@ function updateAudioVolume(value: number) {
   }
   var newVolume = value / 10;
   threeShooter.updateAudioVolume(newVolume);
+  htmlElements.updateAudioVolumeValue(value);
   saveSettings();
 }
 
@@ -49,8 +49,6 @@ function updateFov(value: number) {
     return;
   }
   threeShooter.updateFov(value);
-  htmlElements.updateFovValue(value);
-  saveSettings();
 }
 
 const settings = new Settings();
@@ -58,7 +56,6 @@ const settings = new Settings();
 function saveSettings() {
   const settingsData = {
     audioVolume: htmlElements.getAudioVolume(),
-    fov: htmlElements.getFov(),
   };
   settings.save(settingsData);
 }
@@ -73,6 +70,7 @@ const api = new Api({
   url: REACT_APP_BACKEND_URL,
 });
 
+const fov = 90;
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const roomId = urlParams.get('roomId');
@@ -80,7 +78,6 @@ if (!roomId) {
   alert('Некорректная ссылка на комнату');
   throw new Error('roomId not found in url params');
 }
-const paramsFov = parseInt(urlParams.get('fov') || '');
 const paramsMuted = !!urlParams.get('muted');
 
 function checkIsMessageFromToilet(message: string) {
@@ -110,12 +107,6 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
           break;
         case 'GasOff':
           threeShooter.onPlayerActionStart('gasDisable');
-          break;
-        case 'EnableCodeEditor':
-          codeEditor.show();
-          break;
-        case 'DisableCodeEditor':
-          codeEditor.hide();
           break;
         case 'ChangeCodeEditor':
           codeEditor.setValue(dataParsed.Value || '');
@@ -160,16 +151,7 @@ function addThreeShooterEventHandlers(threeShooter: ThreeShooter) {
       } else {
         updateAudioVolume(settingsData.audioVolume);
       }
-      htmlElements.setFov(settingsData.fov);
-      if (isNaN(paramsFov)) {
-        updateFov(settingsData.fov);
-      } else {
-        threeShooter.updateFov(paramsFov);
-      }
     } catch {
-      if (!isNaN(paramsFov)) {
-        threeShooter.updateFov(paramsFov);
-      }
       if (paramsMuted) {
         threeShooter.updateAudioVolume(0);
       }
@@ -183,9 +165,6 @@ function updateCodeEditor(roomState: RoomState) {
   if (roomState.codeEditorContent) {
     codeEditor.setValue(roomState.codeEditorContent);
   }
-  if (roomState.enableCodeEditor) {
-    codeEditor.show();
-  }
 }
 
 async function init() {
@@ -198,7 +177,7 @@ async function init() {
   }
   try {
     const userSelf = await api.getUserSelf();
-    const participant = await api.getParticipant(roomId, userSelf.identity);
+    const participant = await api.getParticipant(roomId, userSelf.id);
     const roomState = await api.getRoomState(roomId);
     updateCodeEditor(roomState);
     const rendererSize = htmlElements.getRendererSize();
@@ -214,6 +193,7 @@ async function init() {
       onLoad: onLoad
     };
     threeShooter = new ThreeShooter(threeShooterProps);
+    updateFov(fov);
     addThreeShooterEventHandlers(threeShooter);
     const webSocketConnection = new WebSocketConnection({
       communist: communistValue,
@@ -229,13 +209,16 @@ async function init() {
       const codeEditorwebSocketConnection = new WebSocketConnection({
         communist: communistValue,
         roomId,
-        url: `${REACT_APP_WS_URL}/code`,
+        url: `${REACT_APP_WS_URL}/ws`,
         onMessage: (event: MessageEvent<any>) => {
           console.log('message: ', JSON.parse(event.data));
         },
       });
       await codeEditorwebSocketConnection.connect();
-      codeEditor.onChange = code => codeEditorwebSocketConnection.send(code);
+      codeEditor.onChange = code => codeEditorwebSocketConnection.send(JSON.stringify({
+        Type: 'code',
+        Payload: code,
+      }));
     }
   } catch (err) {
     if (err === notAuthenticatedError) {

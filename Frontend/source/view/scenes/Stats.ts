@@ -20,6 +20,6 @@ export class Stats {
   }
 
   toString() {
-    return `${this.count.like} - 😍\n\n${this.count.dislike} - 😈`;
+    return `${this.count.like} - 😍\n${this.count.dislike} - 😈`;
   }
 }

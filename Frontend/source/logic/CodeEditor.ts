@@ -37,8 +37,6 @@ export class CodeEditor {
   constructor(container: HTMLElement) {
     this.container = container;
     this.ignoreChange = false;
-    this.hide();
-
     this.settingsPanelWrapper = this.createSettingsPanel();
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       noLib: true,
@@ -67,14 +65,6 @@ export class CodeEditor {
         this.onChange(this.editor.getValue());
       }
     });
-  }
-
-  show() {
-    this.container.style.visibility = 'visible';
-  }
-
-  hide() {
-    this.container.style.visibility = 'hidden';
   }
 
   setValue(value: string) {

@@ -1,13 +1,13 @@
 import { useCallback, useReducer } from 'react';
 import { REACT_APP_BACKEND_URL } from '../config';
-import { UserAuth } from '../types/user';
+import { User } from '../types/user';
 
 interface GetMeState {
   process: {
     loading: boolean;
     error: string | null;
   };
-  user: UserAuth | null;
+  user: User | null;
 }
 
 const initialState: GetMeState = {
@@ -22,7 +22,7 @@ type GetMeAction = {
   name: 'startLoad';
 } | {
   name: 'setUser';
-  payload: UserAuth;
+  payload: User;
 } | {
   name: 'setError';
   payload: string;

@@ -83,6 +83,7 @@ textarea, input[type="text"], input[type="color"] {
   color: var(--text);
   background-color: var(--wrap-bg);
   border: 1px solid var(--button-bg);
+  border-radius: var(--border-radius);
 }
 
 input[type="color"] {

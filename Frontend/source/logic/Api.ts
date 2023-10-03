@@ -9,7 +9,7 @@ export interface RoomState {
 }
 
 interface User {
-  identity: string;
+  id: string;
   roles: string[];
 }
 

@@ -13,14 +13,22 @@ import { useCommunist } from '../../hooks/useCommunist';
 import { Room as RoomType } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { RoomActionModal } from './components/RoomActionModal/RoomActionModal';
-import { Twitch } from './components/Twitch/Twitch';
-import { Interviewee } from './components/Interviewee/Interviewee';
 import { Reactions } from './components/Reactions/Reactions';
 import { ActiveQuestion } from './components/ActiveQuestion/ActiveQuestion';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { Question } from '../../types/question';
+import { VideoChat } from './components/VideoChat/VideoChat';
 
 import './Room.css';
+
+const getWsStatusMessage = (readyState: number) => {
+  switch (readyState) {
+    case 0: return 'WS CONNECTING';
+    case 2: return 'WS CLOSING';
+    case 3: return 'WS CLOSED';
+    default: return null;
+  }
+};
 
 export const Room: FunctionComponent = () => {
   const auth = useContext(AuthContext);
@@ -29,7 +37,7 @@ export const Room: FunctionComponent = () => {
   const communist = getCommunist();
   let { id } = useParams();
   const socketUrl = `${REACT_APP_WS_URL}/ws?Authorization=${communist}&roomId=${id}`;
-  const { lastMessage } = useWebSocket(socketUrl);
+  const { lastMessage, readyState, sendMessage } = useWebSocket(socketUrl);
   const [roomInReview, setRoomInReview] = useState(false);
   const [reactionsVisible, setReactionsVisible] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<Question>();
@@ -192,7 +200,8 @@ export const Room: FunctionComponent = () => {
               <div>{Captions.ActiveQuestion}: {currentQuestion?.value}</div>
             </Field>
           )}
-          <Field className="reactions-field">
+          <Field>
+          <div className="reactions-field">
             {admin && (
               <ActiveQuestion
                 room={room}
@@ -208,20 +217,15 @@ export const Room: FunctionComponent = () => {
             {!reactionsVisible && (
               <div>{Captions.WaitingRoom}</div>
             )}
-          </Field>
-          <Field className="twitch-embed-field">
-            <Twitch
-              channel={room?.twitchChannel || ''}
-              autoplay={!admin}
-            />
-          </Field>
-          <Field className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
-            <Interviewee
+          </div>
+          {getWsStatusMessage(readyState) || (
+            <VideoChat
               roomId={room?.id || ''}
-              fov={110}
-              muted={!admin}
+              lastWsMessage={lastMessage}
+              onSendWsMessage={sendMessage}
             />
-          </Field>
+          )}
+        </Field>
         </>
       </ProcessWrapper>
     </MainContentWrapper>

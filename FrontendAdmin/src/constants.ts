@@ -106,6 +106,11 @@ export const enum Captions {
   RoomExperts = 'Начальники',
   RoomExaminees = 'Испытуемые',
   SearchByValue = 'Поиск по содержимому',
+  Recognized = '🗣️',
+  UserStreamError = 'Не удалось получить доступ к камере и микрофону',
+  ChatWelcomeMessage = 'Добро пожаловать в ГУЛАГ',
+  ChatMessagePlaceholder = 'Написать в чат',
+  SendToChat = 'Чат',
 };
 
 export const toastSuccessOptions = {

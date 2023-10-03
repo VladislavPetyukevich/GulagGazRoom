@@ -27,7 +27,6 @@ export class WebSocketConnection {
       this.webSocket.onopen = () => resolve();
       this.webSocket.onclose = () => {
         const message = `webSocket connection closed: ${this.url}`;
-        alert(message);
         reject(message);
       }
     });

@@ -1,6 +1,5 @@
 interface SettingsData {
   audioVolume: number;
-  fov: number;
 }
 
 export class Settings {

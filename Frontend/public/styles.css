@@ -2,18 +2,32 @@ html,
 body {
   width: 100%;
   height: 100%;
+  font-size: 16px;
 }
 
 body {
-  background-color: #ffffff;
+  background-color: #000;
   margin: 0;
   overflow: hidden;
   font-family: arial;
 }
 
-#render-container {
+#main-content {
+  display: flex;
   width: 100%;
   height: 100%;
+}
+
+#audio-volume-container {
+  position: absolute;
+  color: #ffffff;
+  left: 1rem;
+  top: 260px;
+}
+
+#render-container {
+  width: 300px;
+  height: 300px;
   text-align: center;
   background-color: black;
 }
@@ -27,13 +41,8 @@ body {
 }
 
 #editor-container {
-  position: absolute;
-  top: 5%;
-  left: 40%;
-  width: 55%;
-  height: 90%;
-  min-width: 400px;
-  min-height: 200px;
+  flex: 1;
+  height: 100%;
 }
 
 .monaco-editor .editor-widget {
