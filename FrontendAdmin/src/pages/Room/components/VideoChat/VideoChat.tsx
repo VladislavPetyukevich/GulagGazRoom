@@ -455,12 +455,6 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
                 </video>
               </VideochatParticipant>
 
-              <VideochatParticipant order={undefined} avatar={auth?.avatar} nickname="TEST"><img src="https://placehold.co/200" className='videochat-video' /></VideochatParticipant>
-              <VideochatParticipant order={undefined} avatar={auth?.avatar} nickname="TEST"><img src="https://placehold.co/200" className='videochat-video' /></VideochatParticipant>
-              <VideochatParticipant order={undefined} avatar={auth?.avatar} nickname="TEST"><img src="https://placehold.co/200" className='videochat-video' /></VideochatParticipant>
-              <VideochatParticipant order={undefined} avatar={auth?.avatar} nickname="TEST"><img src="https://placehold.co/200" className='videochat-video' /></VideochatParticipant>
-              <VideochatParticipant order={undefined} avatar={auth?.avatar} nickname="TEST"><img src="https://placehold.co/200" className='videochat-video' /></VideochatParticipant>
-
               {peers.map(peer => (
                 <VideochatParticipant
                   key={peer.targetUserId}
