@@ -11,6 +11,7 @@ import { MessagesChat } from './MessagesChat';
 import { getAverageVolume } from './utils/getAverageVolume';
 import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnalyser';
 import { limitLength } from './utils/limitLength';
+import { randomId } from './utils/randomId';
 
 import './VideoChat.css';
 
@@ -48,6 +49,11 @@ interface PeerMeta {
   targetUserId: string;
 }
 
+const createTranscript = (body: {userNickname: string; value: string; fromChat: boolean; }): Transcript => ({
+  frontendId: randomId(),
+  ...body,
+});
+
 export const VideoChat: FunctionComponent<VideoChatProps> = ({
   roomId,
   viewerMode,
@@ -59,11 +65,11 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
   const [videochatEnabled, setVideochatEnabled] = useState(false);
-  const [transcripts, setTranscripts] = useState<Transcript[]>([{
+  const [transcripts, setTranscripts] = useState<Transcript[]>([createTranscript({
     userNickname: 'GULAG',
     value: `${Captions.ChatWelcomeMessage}, ${auth?.nickname}.`,
     fromChat: true
-  }]);
+  })]);
   const userVideo = useRef<HTMLVideoElement>(null);
   const [peers, setPeers] = useState<PeerMeta[]>([]);
   const peersRef = useRef<PeerMeta[]>([]);
@@ -266,11 +272,11 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           setTranscripts(transcripts => limitLength(
             [
               ...transcripts,
-              {
+              createTranscript({
                 userNickname: parsedData.Value.Nickname,
                 value: parsedData.Value.Message,
                 fromChat: true,
-              },
+              }),
             ],
             transcriptsMaxLength
           ));
@@ -279,11 +285,11 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           setTranscripts(transcripts => limitLength(
             [
               ...transcripts,
-              {
+              createTranscript({
                 userNickname: parsedData.Value.Nickname,
                 value: parsedData.Value.Message,
                 fromChat: false,
-              },
+              }),
             ],
             transcriptsMaxLength
           ));

@@ -51,7 +51,7 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
     <div className='messages-chat'>
       <div className='videochat-transcripts' ref={videochatTranscriptsRef}>
         {transcripts.map(transcript => (
-          <div>
+          <div key={transcript.frontendId}>
             <span>
               {!transcript.fromChat && `${Captions.Recognized} `}
             </span>
