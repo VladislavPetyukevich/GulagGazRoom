@@ -24,11 +24,14 @@ const includedLanguagesId = [
   'yaml',
 ];
 
+const defaultFontSize = 22;
+const fontSizeList = [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48];
+
 export class CodeEditor {
   container: HTMLElement;
   settingsPanelWrapper?: HTMLDivElement;
   languageSelect?: HTMLSelectElement;
-  fontSizeInput?: HTMLInputElement;
+  fontSizeSelect?: HTMLSelectElement;
   editor: monaco.editor.IStandaloneCodeEditor;
   onChange?: (value: string) => void;
 
@@ -46,7 +49,7 @@ export class CodeEditor {
       monaco.languages.getLanguages()
       .filter(language => includedLanguagesId.includes(language.id));
     this.createLanguagesSelect(languages);
-    const fontSize = 22;
+    const fontSize = defaultFontSize;
     this.createFontSizeInput(fontSize);
     this.container.appendChild(this.settingsPanelWrapper);
 
@@ -107,13 +110,16 @@ export class CodeEditor {
       return;
     }
     this.settingsPanelWrapper.appendChild(document.createTextNode(` ${Captions.FontSize}:`));
-    this.fontSizeInput = document.createElement('input');
-    this.fontSizeInput.type = 'number';
-    this.fontSizeInput.min = '6';
-    this.fontSizeInput.max = '36';
-    this.fontSizeInput.value = String(fontSize);
-    this.fontSizeInput.onchange = this.handleFontSizeChange;
-    this.settingsPanelWrapper.appendChild(this.fontSizeInput);
+    this.fontSizeSelect = document.createElement('select');
+    for (let fontSize of fontSizeList) {
+      const option = document.createElement('option');
+      option.value = String(fontSize);
+      option.textContent = String(fontSize);
+      this.fontSizeSelect.appendChild(option);
+    }
+    this.fontSizeSelect.value = String(defaultFontSize);
+    this.fontSizeSelect.onchange = this.handleFontSizeChange;
+    this.settingsPanelWrapper.appendChild(this.fontSizeSelect);
   }
 
   getLanguageDisplayName(language: monaco.languages.ILanguageExtensionPoint) {
@@ -139,11 +145,11 @@ export class CodeEditor {
   };
 
   handleFontSizeChange = () => {
-    if (!this.fontSizeInput) {
-      console.error('Change font size error: font size input not found');
+    if (!this.fontSizeSelect) {
+      console.error('Change font size error: font size select not found');
       return;
     }
-    const fontSize = Number(this.fontSizeInput.value);
+    const fontSize = Number(this.fontSizeSelect.value);
     this.editor.updateOptions({ fontSize });
   };
 }
