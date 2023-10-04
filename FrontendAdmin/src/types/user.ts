@@ -5,3 +5,5 @@ export interface User {
   avatar?: string;
   roles: string[];
 }
+
+export type UserType = 'Viewer' | 'Expert' | 'Examinee';

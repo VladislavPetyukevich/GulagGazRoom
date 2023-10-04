@@ -5,7 +5,6 @@ import { AuthContext } from '../../../../context/AuthContext';
 import { Interviewee } from '../Interviewee/Interviewee';
 import { Captions } from '../../../../constants';
 import { Transcript } from '../../../../types/transcript';
-import { checkAdmin } from '../../../../utils/checkAdmin';
 import { VideoChatVideo } from './VideoChatVideo';
 import { VideochatParticipant } from './VideochatParticipant';
 import { MessagesChat } from './MessagesChat';
@@ -36,6 +35,7 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 
 interface VideoChatProps {
   roomId: string;
+  viewerMode: boolean;
   lastWsMessage: MessageEvent<any> | null;
   onSendWsMessage: SendMessage;
 };
@@ -50,11 +50,11 @@ interface PeerMeta {
 
 export const VideoChat: FunctionComponent<VideoChatProps> = ({
   roomId,
+  viewerMode,
   lastWsMessage,
   onSendWsMessage,
 }) => {
   const auth = useContext(AuthContext);
-  const admin = checkAdmin(auth);
   const [userStream, setUserStream] = useState<MediaStream | null>(null);
   const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
@@ -76,6 +76,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     [auth?.id || '']: 1,
   });
   const updateAnalyserTimeout = useRef(0);
+  const videochatAvailable = !viewerMode;
 
   useEffect(() => {
     const frequencyData = new Uint8Array(frequencyBinCount);
@@ -421,16 +422,10 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     }));
   };
 
-  const videochatAvailable = true;
-
   return (
     <div className='room-columns'>
-      <div className={`interviewee-frame-wrapper ${admin ? 'admin' : ''}`}>
-        <Interviewee
-          roomId={roomId}
-          fov={110}
-          muted={!admin}
-        />
+      <div className='interviewee-frame-wrapper'>
+        <Interviewee roomId={roomId} />
         <MessagesChat
           transcripts={transcripts}
           onMessageSubmit={handleTextMessageSubmit}

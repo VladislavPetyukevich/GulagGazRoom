@@ -1,6 +1,6 @@
 import { Question } from './question';
 import { Tag } from './tag';
-import { User } from './user';
+import { User, UserType } from './user';
 
 export interface Room {
   id: string;
@@ -26,4 +26,11 @@ export interface RoomReview {
   roomId: Room['id'],
   review: string;
   state: 'Open' | 'Closed';
+}
+
+export interface RoomParticipant {
+  id: string;
+  roomId: Room['id'];
+  userId: User['id'];
+  userType: UserType;
 }

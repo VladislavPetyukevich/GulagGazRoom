@@ -2,16 +2,15 @@ import { FunctionComponent, useCallback, useContext, useEffect, useState } from 
 import { useParams, Navigate } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import toast from 'react-hot-toast';
-import { GetRoomQuestionsBody, roomQuestionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import { GetRoomParticipantParams, GetRoomQuestionsBody, roomQuestionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
-import { REACT_APP_INTERVIEW_FRONTEND_URL, REACT_APP_WS_URL } from '../../config';
+import { REACT_APP_WS_URL } from '../../config';
 import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
-import { Room as RoomType } from '../../types/room';
-import { checkAdmin } from '../../utils/checkAdmin';
+import { RoomParticipant, Room as RoomType } from '../../types/room';
 import { RoomActionModal } from './components/RoomActionModal/RoomActionModal';
 import { Reactions } from './components/Reactions/Reactions';
 import { ActiveQuestion } from './components/ActiveQuestion/ActiveQuestion';
@@ -32,7 +31,6 @@ const getWsStatusMessage = (readyState: number) => {
 
 export const Room: FunctionComponent = () => {
   const auth = useContext(AuthContext);
-  const admin = checkAdmin(auth);
   const { getCommunist } = useCommunist();
   const communist = getCommunist();
   let { id } = useParams();
@@ -61,7 +59,22 @@ export const Room: FunctionComponent = () => {
     data: openRoomQuestions,
   } = apiOpenRoomQuestions;
 
+  const {
+    apiMethodState: apiRoomParticipantState,
+    fetchData: getRoomParticipant,
+  } = useApiMethod<RoomParticipant, GetRoomParticipantParams>(roomsApiDeclaration.getParticipant);
+  const {
+    data: roomParticipant,
+  } = apiRoomParticipantState;
+
+  const currentUserExpert = roomParticipant?.userType === 'Expert';
+  const currentUserExaminee = roomParticipant?.userType === 'Examinee';
+  const viewerMode = !(currentUserExpert || currentUserExaminee);
+
   useEffect(() => {
+    if (!auth?.id) {
+      return;
+    }
     if (!id) {
       throw new Error('Room id not found');
     }
@@ -70,7 +83,11 @@ export const Room: FunctionComponent = () => {
       RoomId: id,
       State: 'Active',
     });
-  }, [id, fetchData, getRoomOpenQuestions]);
+    getRoomParticipant({
+      RoomId: id,
+      UserId: auth.id,
+    });
+  }, [id, auth?.id, fetchData, getRoomOpenQuestions, getRoomParticipant]);
 
   useEffect(() => {
     if (!room) {
@@ -138,11 +155,8 @@ export const Room: FunctionComponent = () => {
     } catch { }
   }, [id, auth, lastMessage, getRoomOpenQuestions]);
 
-  const handleCopyRoomLink = useCallback(() => {
-    navigator.clipboard.writeText(
-      `${REACT_APP_INTERVIEW_FRONTEND_URL}/?roomId=${id}`
-    );
-  }, [id]);
+  const handleCopyRoomLink = () =>
+    navigator.clipboard.writeText(window.location.href);
 
   const handleStartReviewRoom = useCallback(() => {
     if (!id) {
@@ -175,7 +189,7 @@ export const Room: FunctionComponent = () => {
         <>
           <Field className='room-title'>
             <h2>{Captions.Room}: {room?.name}</h2>
-            {admin && (
+            {!viewerMode && (
               <button
                 className="copy-link-button"
                 onClick={handleCopyRoomLink}
@@ -184,7 +198,7 @@ export const Room: FunctionComponent = () => {
               </button>
             )}
           </Field>
-          {admin && (
+          {!viewerMode && (
             <Field>
               <RoomActionModal
                 title={Captions.StartReviewRoomModalTitle}
@@ -195,37 +209,38 @@ export const Room: FunctionComponent = () => {
               />
             </Field>
           )}
-          {!admin && (
-            <Field>
-              <div>{Captions.ActiveQuestion}: {currentQuestion?.value}</div>
-            </Field>
-          )}
           <Field>
-          <div className="reactions-field">
-            {admin && (
-              <ActiveQuestion
-                room={room}
-                placeHolder={currentQuestion?.value}
+            <div className="reactions-field">
+              {viewerMode && (
+                <Field>
+                  <div>{Captions.ActiveQuestion}: {currentQuestion?.value}</div>
+                </Field>
+              )}
+              {!viewerMode && (
+                <ActiveQuestion
+                  room={room}
+                  placeHolder={currentQuestion?.value}
+                />
+              )}
+              {reactionsVisible && (
+                <Reactions
+                  admin={!viewerMode}
+                  room={room}
+                />
+              )}
+              {!reactionsVisible && (
+                <div>{Captions.WaitingRoom}</div>
+              )}
+            </div>
+            {getWsStatusMessage(readyState) || (
+              <VideoChat
+                roomId={room?.id || ''}
+                viewerMode={viewerMode}
+                lastWsMessage={lastMessage}
+                onSendWsMessage={sendMessage}
               />
             )}
-            {reactionsVisible && (
-              <Reactions
-                admin={admin}
-                room={room}
-              />
-            )}
-            {!reactionsVisible && (
-              <div>{Captions.WaitingRoom}</div>
-            )}
-          </div>
-          {getWsStatusMessage(readyState) || (
-            <VideoChat
-              roomId={room?.id || ''}
-              lastWsMessage={lastMessage}
-              onSendWsMessage={sendMessage}
-            />
-          )}
-        </Field>
+          </Field>
         </>
       </ProcessWrapper>
     </MainContentWrapper>
