@@ -38,10 +38,27 @@ services:
     networks:
       - local.network
 
+  frontend-admin:
+    container_name: "frontend-admin"
+    build:
+      context: ../../FrontendAdmin/.
+      dockerfile: Dockerfile.dev
+    expose:
+      - "3000"
+    ports:
+      - '3000:3000'
+    volumes:
+      - frontend-admin-drive:/app/
+    links:
+      - backend
+    networks:
+      - local.network
+
 networks:
   local.network:
     driver: bridge
     
 volumes:
   backend-drive:
+  frontend-admin-drive:
   database-drive:

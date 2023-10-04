@@ -1,0 +1,14 @@
+FROM node:18-alpine3.17
+
+WORKDIR /app
+
+COPY package.json .
+COPY package-lock.json .
+
+ENV WATCHPACK_POLLING=true
+
+RUN npm ci
+
+COPY . .
+
+CMD ["npm", "start"]
