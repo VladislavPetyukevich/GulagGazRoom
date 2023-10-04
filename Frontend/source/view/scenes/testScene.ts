@@ -63,6 +63,7 @@ export class TestScene extends BasicScene {
   gasAudios: Audio[];
   gasAudioIndex: number;
   audioSlices: AudioSlices;
+  currentQuestion: string;
   stats: Stats;
   tvMain?: TV;
   tvStatsAnimationInProgress: boolean;
@@ -126,6 +127,7 @@ export class TestScene extends BasicScene {
 
     this.scene.fog = new Fog(0x202020, 0.15, 150);
 
+    this.currentQuestion = props.preload.question || 'Здесь будет вопрос';
     this.stats = new Stats();
     this.stats.setCount('like', props.preload.likes);
     this.stats.setCount('dislike', props.preload.dislikes);
@@ -140,7 +142,7 @@ export class TestScene extends BasicScene {
         screenSpinAxis: 'y',
       })) as TV;
       this.scene.add(object);
-      this.tvMain.printText(props.preload.question || 'Здесь будет вопрос');
+      this.updateMainTv();
     });
 
     this.tvStatsAnimationInProgress = false;
@@ -337,7 +339,8 @@ export class TestScene extends BasicScene {
   }
 
   onQuestion = (action: PlayerAction) => {
-    this.tvMain?.printText(action.payload);
+    this.currentQuestion = action.payload;
+    this.updateMainTv();
   }
 
   startTvStatsAnimation(actionSymbol: string) {
@@ -359,7 +362,7 @@ export class TestScene extends BasicScene {
       this.tvMain?.printText(line2);
     }, 300);
     setTimeout(() => {
-      this.updateStatsTv();
+      this.updateMainTv();
       this.tvStatsAnimationInProgress = false;
     }, 600);
   }
@@ -399,8 +402,8 @@ export class TestScene extends BasicScene {
     this.startTvStatsAnimation('👎');
   }
 
-  updateStatsTv() {
-    this.tvMain?.printText(`${this.stats.toString()}\nМожно ли писать код без ошбибок? Получается?`)
+  updateMainTv() {
+    this.tvMain?.printText(`${this.stats.toString()}\n${this.currentQuestion}`)
   }
 
   createGasParticle = () => {
