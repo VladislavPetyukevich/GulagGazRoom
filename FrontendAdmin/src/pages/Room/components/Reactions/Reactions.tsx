@@ -81,16 +81,12 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
     eventTypeAdditionalNames: {
       ReactionDislike: [
         'dislike1',
-        'dislike2',
-        'dislike3',
         'dislike4',
         'dislike5',
-        // 'dislike6',
-        // 'dislike7',
-        // 'dislike8',
-        // 'dislike9',
-        // 'dislike10',
-        // 'dislike11',
+        'dislike6',
+        'dislike8',
+        'dislike10',
+        'dislike11',
       ],
     },
   });
