@@ -74,7 +74,7 @@ export const gameSounds = {
   gulagVox,
 };
 
-const voxVolume = 0.05;
+const voxVolume = 0.15;
 const lightFlickVolume = 0.2
 
 export const audioSlices = {

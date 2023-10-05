@@ -63,10 +63,9 @@ export class TestScene extends BasicScene {
   gasAudios: Audio[];
   gasAudioIndex: number;
   audioSlices: AudioSlices;
+  currentQuestion: string;
   stats: Stats;
   tvMain?: TV;
-  tvChat?: TV;
-  tvStats?: TV;
   tvStatsAnimationInProgress: boolean;
   flickAduioNames: ['lightFlick1', 'lightFlick2', 'lightFlick3', 'lightFlick4',];
   likeAduioNames: ['like1'];
@@ -128,6 +127,7 @@ export class TestScene extends BasicScene {
 
     this.scene.fog = new Fog(0x202020, 0.15, 150);
 
+    this.currentQuestion = props.preload.question || 'Здесь будет вопрос';
     this.stats = new Stats();
     this.stats.setCount('like', props.preload.likes);
     this.stats.setCount('dislike', props.preload.dislikes);
@@ -136,59 +136,35 @@ export class TestScene extends BasicScene {
     loader.load(HomePakTV, (object) => {
       this.tvMain = this.entitiesContainer.add(new TV({
         model: object,
-        position: new Vector3(30, 0.8, 44),
+        position: new Vector3(30, 0.8, 45),
         rotationY: 0,
-        screenSpinSpeed: 0.2,
+        screenSpinSpeed: -0.2,
         screenSpinAxis: 'y',
       })) as TV;
       this.scene.add(object);
-      this.tvMain.printText(props.preload.question || 'Здесь будет вопрос');
+      this.updateMainTv();
     });
 
-    loader.load(HomePakTV, (object) => {
-      this.tvChat = this.entitiesContainer.add(new TV({
-        model: object,
-        position: new Vector3(24, 0.8, 45),
-        rotationY: 0.436332,
-        screenSpinSpeed: -2.0,
-        screenSpinAxis: 'y',
-      })) as TV;
-      this.scene.add(object);
-      this.tvChat.printText(
-        'Здесь будут сообщения из чата'
-      );
-    });
-
-    loader.load(HomePakTV, (object) => {
-      this.tvStats = this.entitiesContainer.add(new TV({
-        model: object,
-        position: new Vector3(24, 3.07, 45),
-        rotationY: 0.436332,
-        screenSpinSpeed: -0.1,
-        screenSpinAxis: 'x',
-      })) as TV;
-      this.scene.add(object);
-      this.updateStatsTv();
-    });
     this.tvStatsAnimationInProgress = false;
 
-    this.player.mesh.position.set(31.0, 1.5, 52.0);
-    this.camera.rotation.set(0.0, 0.21, 0.0);
+    this.player.mesh.position.set(31.05, 0.7, 52.8);
+    this.camera.rotation.set(0.21, 0.0, 0.0);
 
-    this.roomSpawner.spawnWall(
-      new Vector2(30, 46),
-      new Vector2(this.roomSpawner.cellCoordinates.size * 15, this.roomSpawner.cellCoordinates.size),
-      true
-    );
+    const wallPos = new Vector2(31, 46);
+    const wallSize = new Vector2(this.roomSpawner.cellCoordinates.size * 5, this.roomSpawner.cellCoordinates.size);
 
-    this.roomSpawner.spawnWall(
-      new Vector2(20, 45),
-      new Vector2(this.roomSpawner.cellCoordinates.size, this.roomSpawner.cellCoordinates.size * 15),
-      true
-    );
+    this.roomSpawner.spawnWall(wallPos, wallSize, true);
 
-    this.gasCenter = new Vector3(30.4, -2.0, 50.0);
-    const gasParticlesCount = 160;
+    const wallUpper = this.roomSpawner.spawnWall(wallPos, wallSize, true);
+    wallUpper.actor.mesh.position.setY(4.5);
+    wallUpper.actor.mesh.updateMatrix();
+
+    const wallUpper2 = this.roomSpawner.spawnWall(wallPos, wallSize, true);
+    wallUpper2.actor.mesh.position.setY(7.5);
+    wallUpper2.actor.mesh.updateMatrix();
+
+    this.gasCenter = new Vector3(31.0, -2.0, 51.0);
+    const gasParticlesCount = 80;
     this.gasParticlesPool = new EntitiesPool(this.createGasParticle, gasParticlesCount);
 
     this.buzzSound = new Audio(this.audioListener);
@@ -241,7 +217,7 @@ export class TestScene extends BasicScene {
       newQuestion: this.onQuestion,
       like: this.onLike,
       dislike: this.onDislike,
-      chatMessage: this.onChatMessage,
+      chatMessage: () => {},
     };
     this.addActionListeners();
   }
@@ -363,7 +339,8 @@ export class TestScene extends BasicScene {
   }
 
   onQuestion = (action: PlayerAction) => {
-    this.tvMain?.printText(action.payload);
+    this.currentQuestion = action.payload;
+    this.updateMainTv();
   }
 
   startTvStatsAnimation(actionSymbol: string) {
@@ -380,12 +357,12 @@ export class TestScene extends BasicScene {
       line1 += (i % 2 === 0) ? variant1 : variant2;
       line2 += (i % 2 === 0) ? variant2 : variant1;
     }
-    this.tvStats?.printText(line1);
+    this.tvMain?.printText(line1);
     setTimeout(() => {
-      this.tvStats?.printText(line2);
+      this.tvMain?.printText(line2);
     }, 300);
     setTimeout(() => {
-      this.updateStatsTv();
+      this.updateMainTv();
       this.tvStatsAnimationInProgress = false;
     }, 600);
   }
@@ -425,27 +402,21 @@ export class TestScene extends BasicScene {
     this.startTvStatsAnimation('👎');
   }
 
-  onChatMessage = (action: PlayerAction) => {
-    this.tvChat?.printText(action.payload);
-  };
-
-  updateStatsTv() {
-    this.tvStats?.printText(
-      this.stats.toString()
-    );
+  updateMainTv() {
+    this.tvMain?.printText(`${this.stats.toString()}\n${this.currentQuestion}`)
   }
 
   createGasParticle = () => {
     const gasPosition = this.gasCenter.clone();
     gasPosition.add(new Vector3(
-      randomNumbers.getRandomFloatInRange(-2, 1),
-      randomNumbers.getRandomFloatInRange(-5, 0),
+      randomNumbers.getRandomFloatInRange(-1.5, 1),
+      randomNumbers.getRandomFloatInRange(-8, 0),
       randomNumbers.getRandomFloatInRange(-1, 0.5),
     ));
     const gas = new Gas({
       position: gasPosition,
       player: this.player,
-      maxY: 5,
+      maxY: 8,
     });
     return this.entitiesContainer.add(gas);
   };

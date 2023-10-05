@@ -1,6 +1,6 @@
 .reactions-list .reaction {
   margin-right: 0.25rem;
-  padding: 0.25rem 1rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .reactions-list .reaction:last-child {

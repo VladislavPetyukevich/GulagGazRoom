@@ -21,7 +21,7 @@ export class TextCanvas {
   maxLineLength: number;
 
   constructor(props: TextCanvasProps) {
-    this.fontSize = 28;
+    this.fontSize = 32;
     this.maxLineLength = 28;
     this.textAlign = props.textAlign || 'left';
     this.canvas = this.initCanvas(props.size);

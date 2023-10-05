@@ -1,4 +1,4 @@
-import { UserAuth } from '../types/user';
+import { User } from '../types/user';
 
-export const checkAdmin = (user: UserAuth | null) =>
+export const checkAdmin = (user: User | null) =>
   !!user && user.roles.includes('Admin');

@@ -10,12 +10,7 @@
 </head>
 
 <body>
-  <div id="editor-container"></div>
   <div id="blocker">
-    <div id="authentication" class="blocker-content">
-      <div>Authentication</div>
-      <a href="<%=htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe">Login</a>
-    </div>
     <div id="instructions" class="blocker-content">
       <div style="font-size:40px; color: red;">WARNING</div>
       <div>This app contains fast flashing images</div>
@@ -25,19 +20,22 @@
         CC BY 4.0. TV set model is licensed under CC BY 4.0 by VladislavPetyukevich</div>
       <br />
       <div style="font-size:25px">Click to play</div>
-      <div id="settings">
-        <div>Game settings:</div>
-        <span>Audio volume:</span>
-        <input id="audio-volume" type="range" min="0" max="10" value="10" step="1">
-        <span id="audio-volume-value"></span>
-        <br />
-        <span>FOV:</span>
-        <input id="fov" type="range" min="50" max="110" value="105" step="1">
-        <span id="fov-value"></span>
-      </div>
     </div>
   </div>
-  <div id="render-container" />
+  <div id="main-content">
+    <div id="authentication" class="blocker-content">
+      <div>Authentication</div>
+      <a
+        href="<%=htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe">Login</a>
+    </div>
+    <div id="audio-volume-container">
+      <span>Громкость:</span>
+      <input id="audio-volume" type="range" min="0" max="10" value="10" step="1">
+      <span id="audio-volume-value"></span>
+    </div>
+    <div id="render-container"></div>
+    <div id="editor-container"></div>
+  </div>
 
   <% for(var i=0; i < htmlWebpackPlugin.files.js.length; i++) {%>
     <script type="text/javascript" src="<%= htmlWebpackPlugin.files.js[i] %>"></script>

@@ -29,6 +29,11 @@ export interface SendCodeEditorBody {
   type: 'EnableCodeEditor' | 'DisableCodeEditor';
 }
 
+export interface GetRoomParticipantParams {
+  RoomId: Room['id'];
+  UserId: User['id'];
+}
+
 export const roomsApiDeclaration = {
   getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
     method: 'GET',
@@ -71,6 +76,11 @@ export const roomsApiDeclaration = {
     method: 'PATCH',
     baseUrl: `/rooms/${id}/startReview`,
     body: {},
+  }),
+  getParticipant: (params: GetRoomParticipantParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/room-participants',
+    urlParams: params,
   }),
 };
 

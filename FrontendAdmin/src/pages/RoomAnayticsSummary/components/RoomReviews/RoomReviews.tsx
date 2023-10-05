@@ -158,7 +158,7 @@ export const RoomReviews: FunctionComponent<RoomReviewsProps> = ({ roomId }) => 
               {Captions.WithLove}, {roomReview.user.nickname}.
             </div>
           </div>
-          {(admin || auth?.identity === roomReview.user.id) && (
+          {(admin || auth?.id === roomReview.user.id) && (
             <>
               <button
                 onClick={handleRoomReviewEdit(roomReview)}
@@ -179,7 +179,7 @@ export const RoomReviews: FunctionComponent<RoomReviewsProps> = ({ roomId }) => 
     </li>
   ), [
     admin,
-    auth?.identity,
+    auth?.id,
     editingRoomReview,
     handleRoomReviewDelete,
     handleRoomReviewEdit,
