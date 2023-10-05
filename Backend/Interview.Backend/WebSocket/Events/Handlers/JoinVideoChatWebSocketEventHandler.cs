@@ -44,12 +44,14 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
             return;
         }
 
-        var users = subscribers.Select(e => new UserDetail
-        {
-            Id = e.User.Id,
-            Nickname = e.User.Nickname,
-            Avatar = e.User.Avatar,
-        }).ToHashSet();
+        var users = subscribers
+            .DistinctBy(e => e.User.Id)
+            .Select(e => new UserDetail
+            {
+                Id = e.User.Id,
+                Nickname = e.User.Nickname,
+                Avatar = e.User.Avatar,
+            }).ToList();
         var newEvent = new WebSocketEvent
         {
             Type = "all users",
