@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Rooms.Records.Request;
+namespace Interview.Domain.Rooms.Records.Request;
 
 public class RoomPageDetailRequestFilter
 {

@@ -234,12 +234,11 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .Include(e => e.Questions)
             .Include(e => e.Configuration)
             .Include(e => e.Tags)
-            .OrderBy(e => e.Id);
-        // .OrderBy(e => e.Status.EnumValue == EVRoomStatus.Active ? 1 :
-            //     e.Status.EnumValue == EVRoomStatus.New ? 2 :
-            //     e.Status.EnumValue == EVRoomStatus.Review ? 3 :
-            //     4)
-            // .ThenByDescending(e => e.CreateDate);
+            .OrderBy(e => e.Status == SERoomStatus.Active ? 1 :
+                e.Status == SERoomStatus.Review ? 2 :
+                e.Status == SERoomStatus.New ? 3 :
+                4)
+            .ThenByDescending(e => e.CreateDate);
         var filterName = filter.Name?.Trim().ToLower();
         if (!string.IsNullOrWhiteSpace(filterName))
         {
