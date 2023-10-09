@@ -233,6 +233,11 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .Include(e => e.Questions)
             .Include(e => e.Configuration)
             .Include(e => e.Tags)
+            .OrderBy(e => e.Status.EnumValue == EVRoomStatus.Active ? 1 :
+                e.Status.EnumValue == EVRoomStatus.New ? 2 :
+                e.Status.EnumValue == EVRoomStatus.Review ? 3 :
+                4)
+            .ThenByDescending(e => e.CreateDate)
             .Select(e => new RoomPageDetail
             {
                 Id = e.Id,
@@ -252,7 +257,6 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                     HexValue = t.HexColor,
                 }).ToList(),
             })
-            .OrderBy(e => e.Id)
             .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
