@@ -32,6 +32,7 @@ public class RoomController : ControllerBase
     /// Getting a Room page.
     /// </summary>
     /// <param name="request">Request.</param>
+    /// <param name="filter">Search filter.</param>
     /// <returns>Page.</returns>
     [Authorize]
     [HttpGet]
@@ -41,9 +42,9 @@ public class RoomController : ControllerBase
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status500InternalServerError)]
-    public Task<IPagedList<RoomPageDetail>> GetPage([FromQuery] PageRequest request)
+    public Task<IPagedList<RoomPageDetail>> GetPage([FromQuery] PageRequest request, [FromQuery] RoomPageDetailRequestFilter? filter)
     {
-        return _roomService.FindPageAsync(request.PageNumber, request.PageSize, HttpContext.RequestAborted);
+        return _roomService.FindPageAsync(filter ?? new RoomPageDetailRequestFilter(), request.PageNumber, request.PageSize, HttpContext.RequestAborted);
     }
 
     /// <summary>

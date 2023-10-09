@@ -49,9 +49,9 @@ public sealed class RoomService : IRoomService
     }
 
     public Task<IPagedList<RoomPageDetail>> FindPageAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        RoomPageDetailRequestFilter filter, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        return _roomRepository.GetDetailedPageAsync(pageNumber, pageSize, cancellationToken);
+        return _roomRepository.GetDetailedPageAsync(filter, pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<RoomDetail> FindByIdAsync(Guid id, CancellationToken cancellationToken)
