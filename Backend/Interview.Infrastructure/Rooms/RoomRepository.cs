@@ -226,18 +226,42 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 cancellationToken);
     }
 
-    public Task<IPagedList<RoomPageDetail>> GetDetailedPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public Task<IPagedList<RoomPageDetail>> GetDetailedPageAsync(RoomPageDetailRequestFilter filter, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        return Set
+        IQueryable<Room> queryable = Set
             .Include(e => e.Participants)
+            .ThenInclude(e => e.User)
             .Include(e => e.Questions)
             .Include(e => e.Configuration)
             .Include(e => e.Tags)
-            .OrderBy(e => e.Status.EnumValue == EVRoomStatus.Active ? 1 :
-                e.Status.EnumValue == EVRoomStatus.New ? 2 :
-                e.Status.EnumValue == EVRoomStatus.Review ? 3 :
-                4)
-            .ThenByDescending(e => e.CreateDate)
+            .OrderBy(e => e.Id);
+        // .OrderBy(e => e.Status.EnumValue == EVRoomStatus.Active ? 1 :
+            //     e.Status.EnumValue == EVRoomStatus.New ? 2 :
+            //     e.Status.EnumValue == EVRoomStatus.Review ? 3 :
+            //     4)
+            // .ThenByDescending(e => e.CreateDate);
+        var filterName = filter.Name?.Trim().ToLower();
+        if (!string.IsNullOrWhiteSpace(filterName))
+        {
+            queryable = queryable.Where(e => e.Name.ToLower().Contains(filterName));
+        }
+
+        if (filter.Statuses is not null && filter.Statuses.Count > 0)
+        {
+            var mapStatuses = filter.Statuses.Join(
+                SERoomStatus.List,
+                status => status,
+                status => status.EnumValue,
+                (_, roomStatus) => roomStatus).ToList();
+            queryable = queryable.Where(e => mapStatuses.Contains(e.Status));
+        }
+
+        if (filter.Participants is not null && filter.Participants.Count > 0)
+        {
+            queryable = queryable.Where(e => e.Participants.Any(p => filter.Participants.Contains(p.User.Id)));
+        }
+
+        return queryable
             .Select(e => new RoomPageDetail
             {
                 Id = e.Id,

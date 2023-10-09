@@ -5,7 +5,6 @@ using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
-using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using X.PagedList;
 
 namespace Interview.Domain.Rooms.Permissions;
@@ -21,11 +20,11 @@ public class RoomServicePermissionAccessor : IRoomService, IServiceDecorator
         _securityService = securityService;
     }
 
-    public Task<IPagedList<RoomPageDetail>> FindPageAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    public Task<IPagedList<RoomPageDetail>> FindPageAsync(RoomPageDetailRequestFilter filter, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.RoomFindPage);
 
-        return _roomService.FindPageAsync(pageNumber, pageSize, cancellationToken);
+        return _roomService.FindPageAsync(filter, pageNumber, pageSize, cancellationToken);
     }
 
     public Task<RoomDetail> FindByIdAsync(Guid id, CancellationToken cancellationToken)

@@ -11,7 +11,7 @@ namespace Interview.Domain.Rooms.Service;
 public interface IRoomService : IService
 {
     Task<IPagedList<RoomPageDetail>> FindPageAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        RoomPageDetailRequestFilter filter, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
 
     Task<RoomDetail> FindByIdAsync(Guid id, CancellationToken cancellationToken);
 
