@@ -205,7 +205,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
             }
             const peer = createPeer(userInChat.Id);
             const newPeerMeta = {
-              peerID: auth.id,
+              peerID: userInChat.Id,
               nickname: userInChat.Nickname,
               avatar: userInChat.Avatar,
               targetUserId: userInChat.Id,
@@ -248,7 +248,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           setPeers([...peersRef.current]);
           break;
         case 'receiving returned signal':
-          const item = peersRef.current.find(p => p.peerID === parsedPayload.To);
+          const item = peersRef.current.find(p => p.peerID === parsedPayload.From);
           if (item) {
             item.peer.signal(parsedPayload.Signal);
           }
