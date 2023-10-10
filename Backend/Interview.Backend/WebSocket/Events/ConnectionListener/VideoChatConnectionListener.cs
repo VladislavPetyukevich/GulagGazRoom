@@ -11,6 +11,7 @@ namespace Interview.Backend.WebSocket.Events.ConnectionListener;
 public class VideoChatConnectionListener : IConnectionListener, IVideChatConnectionProvider
 {
     private readonly ConcurrentDictionary<Guid, ImmutableList<Payload>> _store = new();
+    private readonly ConcurrentDictionary<(Guid UserId, Guid RoomId), ImmutableList<System.Net.WebSockets.WebSocket>> _storeByUserAndRoom = new();
     private readonly ILogger<VideoChatConnectionListener> _logger;
 
     public VideoChatConnectionListener(ILogger<VideoChatConnectionListener> logger)
@@ -32,6 +33,15 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
             (_, list) =>
             {
                 var newList = list.Remove(new Payload(detail.User, detail.WebSocket), EqualityComparer.Instance);
+                disconnectUser = newList.Count != list.Count;
+                return newList;
+            });
+        _storeByUserAndRoom.AddOrUpdate(
+            (detail.User.Id, detail.Room.Id),
+            _ => ImmutableList<System.Net.WebSockets.WebSocket>.Empty,
+            (_, list) =>
+            {
+                var newList = list.Remove(detail.WebSocket);
                 disconnectUser = newList.Count != list.Count;
                 return newList;
             });
@@ -83,6 +93,10 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
             detail.RoomId,
             _ => ImmutableList.Create(new Payload(detail.User, detail.WebSocket)),
             (_, list) => list.Add(new Payload(detail.User, detail.WebSocket)));
+        _storeByUserAndRoom.AddOrUpdate(
+            (detail.User.Id, detail.Room.Id),
+            _ => ImmutableList.Create(detail.WebSocket),
+            (_, list) => list.Add(detail.WebSocket));
         return true;
     }
 
@@ -95,6 +109,18 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         }
 
         connections = subscriber.Select(e => (e.User, e.Connection)).ToList();
+        return true;
+    }
+
+    public bool TryGetConnections(Guid userId, Guid roomId, [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections)
+    {
+        if (!_storeByUserAndRoom.TryGetValue((userId, roomId), out var subscriber) || subscriber.Count == 0)
+        {
+            connections = null;
+            return false;
+        }
+
+        connections = subscriber;
         return true;
     }
 
@@ -122,4 +148,9 @@ public interface IVideChatConnectionProvider
     bool TryGetConnections(
         Guid roomId,
         [NotNullWhen(true)] out IReadOnlyCollection<(User User, System.Net.WebSockets.WebSocket WebSocket)>? connections);
+
+    bool TryGetConnections(
+        Guid userId,
+        Guid roomId,
+        [NotNullWhen(true)] out IReadOnlyCollection<System.Net.WebSockets.WebSocket>? connections);
 }

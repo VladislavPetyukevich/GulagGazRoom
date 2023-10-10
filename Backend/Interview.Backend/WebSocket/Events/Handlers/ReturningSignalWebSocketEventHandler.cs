@@ -7,11 +7,11 @@ namespace Interview.Backend.WebSocket.Events.Handlers;
 
 public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<ReturningSignalWebSocketEventHandler.ReceivePayload>
 {
-    private readonly IUserWebSocketConnectionProvider _userWebSocketConnectionProvider;
+    private readonly IVideChatConnectionProvider _userWebSocketConnectionProvider;
 
     public ReturningSignalWebSocketEventHandler(
         ILogger<WebSocketEventHandlerBase<ReceivePayload>> logger,
-        IUserWebSocketConnectionProvider userWebSocketConnectionProvider)
+        IVideChatConnectionProvider userWebSocketConnectionProvider)
         : base(logger)
     {
         _userWebSocketConnectionProvider = userWebSocketConnectionProvider;
