@@ -7,11 +7,11 @@ namespace Interview.Backend.WebSocket.Events.Handlers;
 
 public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<ReturningSignalWebSocketEventHandler.ReceivePayload>
 {
-    private readonly IUserWebSocketConnectionProvider _userWebSocketConnectionProvider;
+    private readonly IVideChatConnectionProvider _userWebSocketConnectionProvider;
 
     public ReturningSignalWebSocketEventHandler(
         ILogger<WebSocketEventHandlerBase<ReceivePayload>> logger,
-        IUserWebSocketConnectionProvider userWebSocketConnectionProvider)
+        IVideChatConnectionProvider userWebSocketConnectionProvider)
         : base(logger)
     {
         _userWebSocketConnectionProvider = userWebSocketConnectionProvider;
@@ -23,14 +23,15 @@ public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<Re
     {
         if (!_userWebSocketConnectionProvider.TryGetConnections(payload.To, detail.RoomId, out var connections))
         {
-            Logger.LogWarning("Not found {To} user connections. {RoomId} {From}", payload.To, detail.RoomId, detail.UserId);
+            Logger.LogWarning("Not found {To} user connections. {RoomId} current {UserId}", payload.To, detail.RoomId, detail.UserId);
             return;
         }
 
+        var receivingReturnedSignalPayload = new { Signal = payload.Signal, From = detail.UserId };
         var sendEvent = new WebSocketEvent
         {
             Type = "receiving returned signal",
-            Payload = detail.Event.Payload,
+            Payload = JsonSerializer.Serialize(receivingReturnedSignalPayload),
         };
         var sendEventAsStr = JsonSerializer.Serialize(sendEvent);
         var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);
