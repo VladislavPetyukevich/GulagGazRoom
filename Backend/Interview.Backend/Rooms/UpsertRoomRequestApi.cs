@@ -1,4 +1,4 @@
-﻿namespace Interview.Backend.Rooms;
+namespace Interview.Backend.Rooms;
 
 public class UpsertRoomRequestApi
 {
