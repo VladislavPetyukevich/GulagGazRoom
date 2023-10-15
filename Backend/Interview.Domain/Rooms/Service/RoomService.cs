@@ -262,11 +262,11 @@ public sealed class RoomService : IRoomService
         await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
     }
 
-    public async Task<RoomState> GetStateAsync(
+    public async Task<ActualRoomStateResponse> GetActualStateAsync(
         Guid roomId,
         CancellationToken cancellationToken = default)
     {
-        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, RoomState.Mapper, cancellationToken);
+        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, Rooms.Records.Response.RoomStates.ActualRoomStateResponse.Mapper, cancellationToken);
 
         if (roomState == null)
         {

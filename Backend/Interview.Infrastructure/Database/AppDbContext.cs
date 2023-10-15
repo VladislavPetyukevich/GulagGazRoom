@@ -50,6 +50,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Permission> Permissions { get; private set; } = null!;
 
+    public DbSet<RoomState> RoomStates { get; private set; } = null!;
+
     public override int SaveChanges()
     {
         using (var saveCookie = new SaveCookie(this, CancellationToken.None))

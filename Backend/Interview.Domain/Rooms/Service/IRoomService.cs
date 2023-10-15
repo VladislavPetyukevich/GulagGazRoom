@@ -33,7 +33,7 @@ public interface IRoomService : IService
 
     Task StartReviewAsync(Guid roomId, CancellationToken cancellationToken);
 
-    Task<RoomState> GetStateAsync(
+    Task<ActualRoomStateResponse> GetActualStateAsync(
         Guid roomId,
         CancellationToken cancellationToken = default);
 

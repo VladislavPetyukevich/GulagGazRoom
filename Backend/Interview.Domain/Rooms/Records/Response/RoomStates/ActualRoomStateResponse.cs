@@ -4,9 +4,9 @@ using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 
 namespace Interview.Domain.Rooms.Records.Response.RoomStates;
 
-public class RoomState
+public class ActualRoomStateResponse
 {
-    public static readonly Mapper<Room, RoomState> Mapper = new(room => new RoomState
+    public static readonly Mapper<Room, ActualRoomStateResponse> Mapper = new(room => new ActualRoomStateResponse
     {
         Id = room.Id,
         Name = room.Name,

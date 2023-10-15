@@ -71,11 +71,11 @@ public class RoomController : ControllerBase
     /// <returns>Room state.</returns>
     [Authorize]
     [HttpGet("{id:guid}/state")]
-    [ProducesResponseType(typeof(RoomState), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ActualRoomStateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
-    public Task<RoomState> GetRoomState(Guid id)
+    public Task<ActualRoomStateResponse> GetRoomState(Guid id)
     {
-        return _roomService.GetStateAsync(id);
+        return _roomService.GetActualStateAsync(id);
     }
 
     /// <summary>
