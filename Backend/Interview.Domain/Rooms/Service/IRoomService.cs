@@ -37,6 +37,17 @@ public interface IRoomService : IService
         Guid roomId,
         CancellationToken cancellationToken = default);
 
+    Task UpsertRoomStateAsync(
+        Guid roomId,
+        string type,
+        string payload,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteRoomStateAsync(
+        Guid roomId,
+        string type,
+        CancellationToken cancellationToken = default);
+
     Task<Analytics> GetAnalyticsAsync(
         RoomAnalyticsRequest request,
         CancellationToken cancellationToken = default);

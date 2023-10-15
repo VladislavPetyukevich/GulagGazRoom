@@ -35,7 +35,15 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
@@ -79,7 +87,15 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         await roomService.CloseAsync(savedRoom.Id);
 
@@ -204,7 +220,15 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         var expectAnalytics = new Analytics
         {
@@ -499,7 +523,15 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         var expectAnalytics = new AnalyticsSummary
         {

@@ -127,5 +127,11 @@ public enum EVPermission
 
     [Description("Обновление тега")]
     TagUpdate,
+
+    [Description("Обновление/Вставка состояния комнаты")]
+    UpsertRoomState,
+
+    [Description("Удаление состояния комнаты")]
+    DeleteRoomState,
 #pragma warning restore SA1602
 }

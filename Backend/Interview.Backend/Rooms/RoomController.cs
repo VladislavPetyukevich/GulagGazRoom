@@ -79,6 +79,39 @@ public class RoomController : ControllerBase
     }
 
     /// <summary>
+    /// Upsert Room state.
+    /// </summary>
+    /// <param name="id">Room id.</param>
+    /// <param name="type">State type.</param>
+    /// <param name="request">State payload.</param>
+    /// <returns>Upsert result.</returns>
+    [Authorize]
+    [HttpPut("{id:guid}/state/{type}")]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    public async Task<MessageResponse> UpsertRoomState(Guid id, string type, [FromBody] UpsertRoomRequestApi request)
+    {
+        await _roomService.UpsertRoomStateAsync(id, type, request.Payload, HttpContext.RequestAborted);
+        return MessageResponse.Ok;
+    }
+
+    /// <summary>
+    /// Delete Room state.
+    /// </summary>
+    /// <param name="id">Room id.</param>
+    /// <param name="type">State type.</param>
+    /// <returns>Delete result.</returns>
+    [Authorize]
+    [HttpDelete("{id:guid}/state/{type}")]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    public async Task<MessageResponse> DeleteRoomState(Guid id, string type)
+    {
+        await _roomService.DeleteRoomStateAsync(id, type, HttpContext.RequestAborted);
+        return MessageResponse.Ok;
+    }
+
+    /// <summary>
     /// Creating a new room.
     /// </summary>
     /// <param name="request">Room.</param>
