@@ -1,6 +1,7 @@
 .interviewee-frame-wrapper {
   flex: 1;
   display: grid;
+  justify-items: end;
   border-top-left-radius: 0px !important;
   border-top-right-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
@@ -13,11 +14,11 @@
 }
 
 .videochat-field {
-  margin-left: 0.75rem;
+  margin-right: 0.75rem;
   --videochat-video-size: 200px;
   --videochat-video-size-big: 250px;
   width: var(--videochat-video-size-big);
-  height: 700px;
+  height: 800px;
   overflow-y: auto;
   overflow-x: hidden;
 }
