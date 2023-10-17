@@ -2,6 +2,8 @@ import { Question } from './question';
 import { Tag } from './tag';
 import { User, UserType } from './user';
 
+export type RoomStatus = 'New' | 'Active' | 'Review' | 'Close';
+
 export interface Room {
   id: string;
   name: string;
@@ -9,7 +11,7 @@ export interface Room {
   questions: Question[];
   users: User[];
   tags: Tag[];
-  roomStatus: 'New' | 'Active' | 'Review' | 'Close';
+  roomStatus: RoomStatus;
 }
 
 export interface RoomState {

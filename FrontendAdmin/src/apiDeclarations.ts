@@ -2,7 +2,7 @@ import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } fro
 import { Question, QuestionState } from './types/question';
 import { Tag } from './types/tag';
 import { Reaction } from './types/reaction';
-import { Room, RoomReview } from './types/room';
+import { Room, RoomReview, RoomStatus } from './types/room';
 import { User } from './types/user';
 
 export interface PaginationUrlParams {
@@ -29,16 +29,22 @@ export interface SendCodeEditorBody {
   type: 'EnableCodeEditor' | 'DisableCodeEditor';
 }
 
+export interface GetRoomPageParams extends PaginationUrlParams {
+  Name: string;
+  Participants: string[];
+  Statuses: RoomStatus[];
+}
+
 export interface GetRoomParticipantParams {
   RoomId: Room['id'];
   UserId: User['id'];
 }
 
 export const roomsApiDeclaration = {
-  getPage: (pagination: PaginationUrlParams): ApiContractGet => ({
+  getPage: (params: GetRoomPageParams): ApiContractGet => ({
     method: 'GET',
     baseUrl: '/rooms',
-    urlParams: pagination,
+    urlParams: params,
   }),
   getById: (id: Room['id']): ApiContractGet => ({
     method: 'GET',
