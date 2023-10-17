@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
 import { Tooltip } from 'react-tooltip'
 import { Link } from 'react-router-dom';
-import { PaginationUrlParams, roomsApiDeclaration } from '../../apiDeclarations';
+import { GetRoomPageParams, roomsApiDeclaration } from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { HeaderWithLink } from '../../components/HeaderWithLink/HeaderWithLink';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
@@ -9,10 +9,11 @@ import { Paginator } from '../../components/Paginator/Paginator';
 import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
-import { Room } from '../../types/room';
+import { Room, RoomStatus } from '../../types/room';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { TagsView } from '../../components/TagsView/TagsView';
+import { RoomsSearch } from '../../components/RoomsSearch/RoomsSearch';
 
 import './Rooms.css';
 
@@ -32,17 +33,25 @@ export const Rooms: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
   const [pageNumber, setPageNumber] = useState(initialPageNumber);
-  const { apiMethodState, fetchData } = useApiMethod<Room[], PaginationUrlParams>(roomsApiDeclaration.getPage);
+  const { apiMethodState, fetchData } = useApiMethod<Room[], GetRoomPageParams>(roomsApiDeclaration.getPage);
   const { process: { loading, error }, data: rooms } = apiMethodState;
+  const [searchValue, setSearchValue] = useState('');
+  const [participating, setParticipating] = useState(true);
+  const [closed, setClosed] = useState(false);
   const loaders = Array.from({ length: pageSize }, () => ({ height: '4.46rem' }));
   const roomsSafe = rooms || [];
 
   useEffect(() => {
+    const participants = (auth?.id && participating) ? [auth?.id] : [];
+    const statuses: RoomStatus[] = closed ? ['Close'] : ['New', 'Active', 'Review'];
     fetchData({
       PageSize: pageSize,
       PageNumber: pageNumber,
+      Name: searchValue,
+      Participants: participants,
+      Statuses: statuses,
     });
-  }, [fetchData, pageNumber]);
+  }, [pageNumber, searchValue, auth?.id, participating, closed, fetchData]);
 
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);
@@ -113,13 +122,23 @@ export const Rooms: FunctionComponent = () => {
         linkCaption="+"
         linkFloat="right"
       />
+      <Tooltip id={userTooltipId} />
+      <Field>
+        <RoomsSearch
+          searchValue={searchValue}
+          participating={participating}
+          closed={closed}
+          onSearchChange={setSearchValue}
+          onParticipatingChange={setParticipating}
+          onClosedChange={setClosed}
+        />
+      </Field>
       <ProcessWrapper
         loading={loading}
         error={error}
         loaders={loaders}
       >
         <>
-          <Tooltip id={userTooltipId} />
           <ul className="rooms-list">
             {roomsSafe.map(createRoomItem)}
           </ul>

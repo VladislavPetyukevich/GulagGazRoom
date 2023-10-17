@@ -111,6 +111,9 @@ export const enum Captions {
   ChatWelcomeMessage = 'Добро пожаловать в ГУЛАГ',
   ChatMessagePlaceholder = 'Написать в чат',
   SendToChat = 'Чат',
+  SearchByName = 'Поиск по имени',
+  ParticipatingRooms = 'В которых я участвую',
+  ClosedRooms = 'Закрытые',
 };
 
 export const toastSuccessOptions = {
