@@ -28,13 +28,14 @@
       <a
         href="<%=htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe">Login</a>
     </div>
-    <div id="audio-volume-container">
-      <span>Громкость:</span>
-      <input id="audio-volume" type="range" min="0" max="10" value="10" step="1">
-      <span id="audio-volume-value"></span>
-    </div>
-    <div id="render-container"></div>
     <div id="editor-container"></div>
+    <div id="render-container">
+      <div id="audio-volume-container">
+        <span>Громкость:</span>
+        <input id="audio-volume" type="range" min="0" max="10" value="10" step="1">
+        <span id="audio-volume-value"></span>
+      </div>
+    </div>
   </div>
 
   <% for(var i=0; i < htmlWebpackPlugin.files.js.length; i++) {%>

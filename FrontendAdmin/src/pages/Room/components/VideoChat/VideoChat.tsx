@@ -49,7 +49,7 @@ interface PeerMeta {
   targetUserId: string;
 }
 
-const createTranscript = (body: {userNickname: string; value: string; fromChat: boolean; }): Transcript => ({
+const createTranscript = (body: { userNickname: string; value: string; fromChat: boolean; }): Transcript => ({
   frontendId: randomId(),
   ...body,
 });
@@ -430,13 +430,6 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
 
   return (
     <div className='room-columns'>
-      <div className='interviewee-frame-wrapper'>
-        <Interviewee roomId={roomId} />
-        <MessagesChat
-          transcripts={transcripts}
-          onMessageSubmit={handleTextMessageSubmit}
-        />
-      </div>
       {videochatAvailable && (
         <div className='videochat-field'>
           {videochatEnabled ? (
@@ -488,6 +481,13 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           )}
         </div>
       )}
+      <div className='interviewee-frame-wrapper'>
+        <Interviewee roomId={roomId} />
+        <MessagesChat
+          transcripts={transcripts}
+          onMessageSubmit={handleTextMessageSubmit}
+        />
+      </div>
     </div>
   );
 };

@@ -25,7 +25,6 @@ const htmlElements = new HTMLElements({
   onAudioVolumeUpdate: updateAudioVolume,
 });
 
-const codeEditor = new CodeEditor(htmlElements.editorContainer);
 let speech: Speech | undefined;
 try {
   speech = new Speech();
@@ -84,7 +83,7 @@ function checkIsMessageFromToilet(message: string) {
   return message.toLowerCase().startsWith('голос с параши');
 }
 
-function createWebSocketMessagehandler(threeShooter: ThreeShooter) {
+function createWebSocketMessagehandler(threeShooter: ThreeShooter, codeEditor: CodeEditor) {
   return function (event: MessageEvent<any>) {
     try {
       const dataParsed = JSON.parse(event.data);
@@ -161,7 +160,7 @@ function addThreeShooterEventHandlers(threeShooter: ThreeShooter) {
   loadSetting();
 }
 
-function updateCodeEditor(roomState: RoomState) {
+function updateCodeEditor(codeEditor: CodeEditor, roomState: RoomState) {
   if (roomState.codeEditorContent) {
     codeEditor.setValue(roomState.codeEditorContent);
   }
@@ -179,7 +178,6 @@ async function init() {
     const userSelf = await api.getUserSelf();
     const participant = await api.getParticipant(roomId, userSelf.id);
     const roomState = await api.getRoomState(roomId);
-    updateCodeEditor(roomState);
     const rendererSize = htmlElements.getRendererSize();
     const threeShooterProps = {
       renderContainer: htmlElements.renderContainer,
@@ -195,11 +193,13 @@ async function init() {
     threeShooter = new ThreeShooter(threeShooterProps);
     updateFov(fov);
     addThreeShooterEventHandlers(threeShooter);
+    const codeEditor = new CodeEditor(htmlElements.editorContainer);
+    updateCodeEditor(codeEditor, roomState);
     const webSocketConnection = new WebSocketConnection({
       communist: communistValue,
       roomId,
       url: `${REACT_APP_WS_URL}/ws`,
-      onMessage: createWebSocketMessagehandler(threeShooter),
+      onMessage: createWebSocketMessagehandler(threeShooter, codeEditor),
     });
     await webSocketConnection.connect();
 
