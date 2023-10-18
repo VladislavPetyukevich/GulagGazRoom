@@ -466,18 +466,17 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               ))}
             </div>
           ) : (
-            <>
-              <h3>ВИДЕОЧАТ</h3>
-              <br />
+            <div>
+              <h3>{Captions.Videochat}</h3>
               <button
-                style={{ height: '4rem' }}
+                className='videochat-join-button'
                 onClick={handleVideochatJoin}
               >
-                ВОЙТИ В ВИРТУАЛЬНЫЙ МИР
+                {Captions.Join}
               </button>
-              <div>ВНИМАНИЕ!</div>
-              <div>ВСЁ ЗАПИСЫВАЕТСЯ</div>
-            </>
+              <div>{Captions.Warning}</div>
+              <div>{Captions.CallRecording}</div>
+            </div>
           )}
         </div>
       )}

@@ -115,6 +115,10 @@ export const enum Captions {
   ParticipatingRooms = 'В которых я участвую',
   ClosedRooms = 'Закрытые',
   ToRooms = 'Перейти к заседаниям',
+  Warning = 'ВНИМАНИЕ!',
+  Join = 'Войти',
+  Videochat = 'Видеочат',
+  CallRecording = 'Разговор записыватеся',
 };
 
 export const toastSuccessOptions = {

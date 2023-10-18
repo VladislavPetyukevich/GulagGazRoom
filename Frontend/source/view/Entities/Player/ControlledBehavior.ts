@@ -34,10 +34,10 @@ export class ControlledBehavior implements Behavior {
   constructor(props: ControlledBehaviorProps) {
     this.sinTable = new SinTable({
       step: 1,
-      amplitude: 0.06,
+      amplitude: 0.05,
     });
     this.bobTimeout = 0;
-    this.maxBobTimeout = 0.001;
+    this.maxBobTimeout = 0.0005;
     this.actor = props.actor;
     this.eyeY = props.eyeY;
     this.camera = props.camera;
