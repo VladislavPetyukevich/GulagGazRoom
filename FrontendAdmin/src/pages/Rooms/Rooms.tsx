@@ -36,7 +36,7 @@ export const Rooms: FunctionComponent = () => {
   const { apiMethodState, fetchData } = useApiMethod<Room[], GetRoomPageParams>(roomsApiDeclaration.getPage);
   const { process: { loading, error }, data: rooms } = apiMethodState;
   const [searchValue, setSearchValue] = useState('');
-  const [participating, setParticipating] = useState(true);
+  const [participating, setParticipating] = useState(false);
   const [closed, setClosed] = useState(false);
   const loaders = Array.from({ length: pageSize }, () => ({ height: '4.46rem' }));
   const roomsSafe = rooms || [];
