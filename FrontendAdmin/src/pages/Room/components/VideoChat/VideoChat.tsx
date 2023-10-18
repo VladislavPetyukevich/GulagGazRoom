@@ -75,6 +75,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const peersRef = useRef<PeerMeta[]>([]);
   const userIdToAudioAnalyser = useRef<Record<string, AnalyserNode>>({});
   const recognition = useRef(SpeechRecognition ? new SpeechRecognition() : null);
+  const [recognitionNotSupported, setRecognitionNotSupported] = useState(false);
   const [recognitionEnabled, setRecognitionEnabled] = useState(false);
   const requestRef = useRef<number>();
   const louderUserId = useRef(auth?.id || '');
@@ -303,6 +304,12 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   }, [lastWsMessage]);
 
   useEffect(() => {
+    if (!recognition.current) {
+      setRecognitionNotSupported(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const recog = recognition.current;
     if (!recog) {
       return;
@@ -466,18 +473,18 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               ))}
             </div>
           ) : (
-            <>
-              <h3>ВИДЕОЧАТ</h3>
-              <br />
+            <div>
+              <h3>{Captions.Videochat}</h3>
               <button
-                style={{ height: '4rem' }}
+                className='videochat-join-button'
                 onClick={handleVideochatJoin}
               >
-                ВОЙТИ В ВИРТУАЛЬНЫЙ МИР
+                {Captions.Join}
               </button>
-              <div>ВНИМАНИЕ!</div>
-              <div>ВСЁ ЗАПИСЫВАЕТСЯ</div>
-            </>
+              <div>{Captions.Warning}</div>
+              <div>{Captions.CallRecording}</div>
+              {recognitionNotSupported && (<div>{Captions.VoiceRecognitionNotSupported}</div>)}
+            </div>
           )}
         </div>
       )}

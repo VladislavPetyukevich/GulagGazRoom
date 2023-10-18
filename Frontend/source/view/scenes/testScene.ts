@@ -147,7 +147,7 @@ export class TestScene extends BasicScene {
 
     this.tvStatsAnimationInProgress = false;
 
-    this.player.mesh.position.set(31.05, 0.7, 52.8);
+    this.player.mesh.position.set(31.05, 0.85, 52.9);
     this.camera.rotation.set(0.21, 0.0, 0.0);
 
     const wallPos = new Vector2(31, 46);

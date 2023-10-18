@@ -215,7 +215,7 @@ export interface ChangeParticipantStatusBody {
 export const roomParticipantApiDeclaration = {
   changeParticipantStatus: (body: ChangeParticipantStatusBody): ApiContractPatch => ({
     method: 'PATCH',
-    baseUrl: '/ChangeParticipantStatus',
+    baseUrl: '/room-participants',
     body,
   }),
 };

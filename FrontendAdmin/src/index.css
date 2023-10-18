@@ -98,7 +98,7 @@ h2 {
 h3 {
   margin: 0px;
   margin-bottom: 0.25rem;
-  font-size: var(--menu-font-size);
+  font-size: 1.25rem;
   line-height: var(--menu-line-height) !important;
   color: var(--text);
 }

@@ -168,9 +168,7 @@ export const Room: FunctionComponent = () => {
   const loaders = [
     {},
     {},
-    { height: '5.25rem' },
-    { height: '600px' },
-    { height: '800px' }
+    { height: '890px' }
   ];
 
   if (roomInReview && id) {

@@ -114,6 +114,12 @@ export const enum Captions {
   SearchByName = 'Поиск по имени',
   ParticipatingRooms = 'В которых я участвую',
   ClosedRooms = 'Закрытые',
+  ToRooms = 'Перейти к заседаниям',
+  Warning = 'ВНИМАНИЕ!',
+  Join = 'Войти',
+  Videochat = 'Видеочат',
+  CallRecording = 'Разговор записыватеся',
+  VoiceRecognitionNotSupported = 'Распознавание голоса не поддерживается вашим браузером',
 };
 
 export const toastSuccessOptions = {
