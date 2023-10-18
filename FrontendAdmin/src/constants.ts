@@ -119,6 +119,7 @@ export const enum Captions {
   Join = 'Войти',
   Videochat = 'Видеочат',
   CallRecording = 'Разговор записыватеся',
+  VoiceRecognitionNotSupported = 'Распознавание голоса не поддерживается вашим браузером',
 };
 
 export const toastSuccessOptions = {

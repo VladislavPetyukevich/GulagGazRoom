@@ -75,6 +75,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const peersRef = useRef<PeerMeta[]>([]);
   const userIdToAudioAnalyser = useRef<Record<string, AnalyserNode>>({});
   const recognition = useRef(SpeechRecognition ? new SpeechRecognition() : null);
+  const [recognitionNotSupported, setRecognitionNotSupported] = useState(false);
   const [recognitionEnabled, setRecognitionEnabled] = useState(false);
   const requestRef = useRef<number>();
   const louderUserId = useRef(auth?.id || '');
@@ -303,6 +304,12 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   }, [lastWsMessage]);
 
   useEffect(() => {
+    if (!recognition.current) {
+      setRecognitionNotSupported(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const recog = recognition.current;
     if (!recog) {
       return;
@@ -476,6 +483,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               </button>
               <div>{Captions.Warning}</div>
               <div>{Captions.CallRecording}</div>
+              {recognitionNotSupported && (<div>{Captions.VoiceRecognitionNotSupported}</div>)}
             </div>
           )}
         </div>
