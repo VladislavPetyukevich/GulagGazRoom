@@ -114,6 +114,7 @@ export const enum Captions {
   SearchByName = 'Поиск по имени',
   ParticipatingRooms = 'В которых я участвую',
   ClosedRooms = 'Закрытые',
+  ToRooms = 'Перейти к заседаниям',
 };
 
 export const toastSuccessOptions = {
