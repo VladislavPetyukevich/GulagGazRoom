@@ -6,7 +6,8 @@
 }
 
 .tagsSelector-input {
-  padding: 5px;
+  height: 1rem;
+  padding: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,6 +34,8 @@
 }
 
 .tagsSelector-tools {
+  width: 1rem;
+  height: 1rem;
   background-color: var(--button-bg);
 }
 
