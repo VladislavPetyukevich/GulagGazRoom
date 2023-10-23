@@ -14,6 +14,7 @@ import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { TagsView } from '../../components/TagsView/TagsView';
 import { QustionsSearch } from '../../components/QustionsSearch/QustionsSearch';
+import { ActionModal } from '../../components/ActionModal/ActionModal';
 
 import './Questions.css';
 
@@ -30,6 +31,9 @@ export const Questions: FunctionComponent = () => {
   const { apiMethodState: questionsState, fetchData: fetchQuestios } = useApiMethod<Question[], GetQuestionsParams>(questionsApiDeclaration.getPage);
   const { process: { loading, error }, data: questions } = questionsState;
 
+  const { apiMethodState: archiveQuestionsState, fetchData: archiveQuestion } = useApiMethod<Question, Question['id']>(questionsApiDeclaration.archive);
+  const { process: { loading: archiveLoading, error: archiveError }, data: archivedQuestion } = archiveQuestionsState;
+
   const questionsSafe = questions || [];
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export const Questions: FunctionComponent = () => {
       tags: selectedTags.map(tag => tag.id),
       value: searchValue,
     });
-  }, [pageNumber, selectedTags, searchValue, fetchQuestios]);
+  }, [pageNumber, selectedTags, searchValue, archivedQuestion, fetchQuestios]);
 
   const handleNextPage = useCallback(() => {
     setPageNumber(pageNumber + 1);
@@ -53,21 +57,28 @@ export const Questions: FunctionComponent = () => {
     <li key={question.id}>
       <Field className="question-item">
         <span>{question.value}</span>
+        <div className="question-controls">
         <Link to={pathnames.questionsEdit.replace(':id', question.id)}>
-          <button
-            className="question-edit-button"
-          >
+          <button>
             🖊️
           </button>
         </Link>
+        <ActionModal
+          openButtonCaption='📁'
+          error={archiveError}
+          loading={archiveLoading}
+          title={Captions.ArchiveQuestion}
+          loadingCaption={Captions.ArchiveQuestionLoading}
+          onAction={() => {archiveQuestion(question.id)}}
+        />
+        </div>
         <TagsView
           placeHolder={Captions.NoTags}
           tags={question.tags}
         />
       </Field>
-
     </li>
-  ), []);
+  ), [archiveLoading, archiveError, archiveQuestion]);
 
   return (
     <MainContentWrapper>
@@ -85,8 +96,8 @@ export const Questions: FunctionComponent = () => {
         />
       </Field>
       <ProcessWrapper
-        loading={loading}
-        error={error}
+        loading={loading || archiveLoading}
+        error={error|| archiveError}
         loaders={Array.from({ length: pageSize }, () => ({ height: '4.75rem' }))}
       >
         <>

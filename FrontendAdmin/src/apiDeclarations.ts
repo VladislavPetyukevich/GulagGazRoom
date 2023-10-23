@@ -152,6 +152,11 @@ export const questionsApiDeclaration = {
     baseUrl: `/questions/${question.id}`,
     body: { value: question.value, tags: question.tags },
   }),
+  archive: (id: Question['id']): ApiContractPatch => ({
+    method: 'PATCH',
+    baseUrl: `/questions/${id}/archive`,
+    body: {},
+  }),
 };
 
 export interface GetTagsParams extends PaginationUrlParams {
