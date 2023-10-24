@@ -11,7 +11,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
 import { RoomParticipant, Room as RoomType } from '../../types/room';
-import { RoomActionModal } from './components/RoomActionModal/RoomActionModal';
+import { ActionModal } from '../../components/ActionModal/ActionModal';
 import { Reactions } from './components/Reactions/Reactions';
 import { ActiveQuestion } from './components/ActiveQuestion/ActiveQuestion';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
@@ -198,10 +198,11 @@ export const Room: FunctionComponent = () => {
           </Field>
           {!viewerMode && (
             <Field>
-              <RoomActionModal
+              <ActionModal
                 title={Captions.StartReviewRoomModalTitle}
                 openButtonCaption={Captions.StartReviewRoom}
                 loading={roomStartReviewLoading}
+                loadingCaption={Captions.CloseRoomLoading}
                 error={roomStartReviewError}
                 onAction={handleStartReviewRoom}
               />

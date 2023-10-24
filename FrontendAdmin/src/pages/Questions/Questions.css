@@ -17,10 +17,16 @@
   justify-content: center;
 }
 
-.questions-list .question-edit-button {
+.questions-list .question-controls {
   position: absolute;
+  display: flex;
+  gap: 0.5rem;
   padding: 0.25rem 1rem;
   right: 2.5rem;
+}
+
+.questions-list .question-controls button {
+  padding: 0rem 0.75rem;
 }
 
 .questions-list .question-item-new-value {
