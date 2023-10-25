@@ -9,7 +9,9 @@ using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
+using Interview.Infrastructure.Events;
 using Interview.Infrastructure.Questions;
+using Interview.Infrastructure.RoomParticipants;
 using Interview.Infrastructure.RoomQuestionReactions;
 using Interview.Infrastructure.RoomQuestions;
 using Interview.Infrastructure.Rooms;
@@ -35,7 +37,16 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomParticipantRepository(appDbContext),
+            new AppEventRepository(appDbContext));
 
         var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
@@ -79,7 +90,16 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomParticipantRepository(appDbContext),
+            new AppEventRepository(appDbContext));
 
         await roomService.CloseAsync(savedRoom.Id);
 
@@ -204,7 +224,16 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomParticipantRepository(appDbContext),
+            new AppEventRepository(appDbContext));
 
         var expectAnalytics = new Analytics
         {
@@ -499,7 +528,16 @@ public class RoomServiceTest
         await appDbContext.SaveChangesAsync();
 
         var roomRepository = new RoomRepository(appDbContext);
-        var roomService = new RoomService(roomRepository, new RoomQuestionRepository(appDbContext), new QuestionRepository(appDbContext), new UserRepository(appDbContext), new EmptyRoomEventDispatcher(), new RoomQuestionReactionRepository(appDbContext), new TagRepository(appDbContext));
+        var roomService = new RoomService(
+            roomRepository,
+            new RoomQuestionRepository(appDbContext),
+            new QuestionRepository(appDbContext),
+            new UserRepository(appDbContext),
+            new EmptyRoomEventDispatcher(),
+            new RoomQuestionReactionRepository(appDbContext),
+            new TagRepository(appDbContext),
+            new RoomParticipantRepository(appDbContext),
+            new AppEventRepository(appDbContext));
 
         var expectAnalytics = new AnalyticsSummary
         {

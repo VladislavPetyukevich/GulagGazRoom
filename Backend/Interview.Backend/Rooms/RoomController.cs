@@ -9,7 +9,6 @@ using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
-using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 using Interview.Domain.ServiceResults.Success;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -110,56 +109,6 @@ public class RoomController : ControllerBase
     }
 
     /// <summary>
-    /// Sending gas event to room.
-    /// </summary>
-    /// <param name="request">Request.</param>
-    /// <returns>Ok message.</returns>
-    [Authorize]
-    [HttpPost("event/gas")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> SendGasEvent(SendGasRoomEventApiRequest request)
-    {
-        // TODO использовать ICurrentUserAccessor
-        var user = User.ToUser();
-
-        if (user is null)
-        {
-            throw new AccessDeniedException("Current user not found");
-        }
-
-        var sendRequest = request.ToDomainRequest(user.Id);
-
-        await _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted);
-
-        return Ok();
-    }
-
-    /// <summary>
-    /// Sending code editor event to room.
-    /// </summary>
-    /// <param name="request">Request.</param>
-    /// <returns>Ok message.</returns>
-    [Authorize]
-    [HttpPost("event/codeEditor")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> SendCodeEditorEvent(CodeEditorRoomEventApiRequest request)
-    {
-        // TODO использовать ICurrentUserAccessor
-        var user = User.ToUser();
-        if (user is null)
-        {
-            throw new AccessDeniedException("Current user not found");
-        }
-
-        var sendRequest = request.ToDomainRequest(user.Id);
-        await _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted);
-
-        return Ok();
-    }
-
-    /// <summary>
     /// Get analytics by room.
     /// </summary>
     /// <param name="id">Room id.</param>
@@ -218,6 +167,28 @@ public class RoomController : ControllerBase
     {
         await _roomService.StartReviewAsync(id, HttpContext.RequestAborted);
 
+        return Ok();
+    }
+
+    /// <summary>
+    /// Sending event to room.
+    /// </summary>
+    /// <param name="request">Request.</param>
+    /// <returns>Ok message.</returns>
+    [Authorize]
+    [HttpPost("event")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> SendEvent(RoomEventApiRequest request)
+    {
+        var user = User.ToUser();
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var sendRequest = request.ToDomainRequest(user.Id);
+        await _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted);
         return Ok();
     }
 }

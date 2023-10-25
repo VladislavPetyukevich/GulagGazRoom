@@ -16,11 +16,11 @@ public class QuestionRepository : EfRepository<Question>, IQuestionRepository
         var transaction = await Db.Database.BeginTransactionAsync(cancellationToken);
 
         await Db.RoomQuestionReactions
-            .Where(roomQuestionReaction => roomQuestionReaction.RoomQuestion.Question.Id == entity.Id)
+            .Where(roomQuestionReaction => roomQuestionReaction.RoomQuestion!.Question!.Id == entity.Id)
             .ExecuteDeleteAsync(cancellationToken);
 
         await Db.RoomQuestions
-            .Where(roomQuestion => roomQuestion.Question.Id == entity.Id)
+            .Where(roomQuestion => roomQuestion.Question!.Id == entity.Id)
             .ExecuteDeleteAsync(cancellationToken);
 
         await Db.Questions

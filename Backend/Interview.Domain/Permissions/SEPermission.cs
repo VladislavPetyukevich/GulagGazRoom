@@ -145,6 +145,26 @@ namespace Interview.Domain.Permissions
             new(Guid.Parse("6f814f95-59f5-4591-acd5-545dfb981a31"), "TagUpdate",
                 "Обновление тега", EVPermission.TagUpdate);
 
+        public static readonly SEPermission AppEventPage =
+            new(Guid.Parse("e71da275-6ee3-4def-a964-127f1aea9be6"), "AppEventPage",
+                "Получение страницы событий", EVPermission.AppEventPage);
+
+        public static readonly SEPermission AppEventById =
+            new(Guid.Parse("08a4237e-4b59-4896-a7f1-d41c6810d1aa"), "AppEventById",
+                "Получение события по идентификатору", EVPermission.AppEventById);
+
+        public static readonly SEPermission AppEventByType =
+            new(Guid.Parse("ecced60f-2e64-45a6-8a0d-9d2c67a18792"), "AppEventByType",
+                "Получение события по типу", EVPermission.AppEventByType);
+
+        public static readonly SEPermission AppEventCreate =
+            new(Guid.Parse("7dd0b001-12f2-4d1b-8d2f-db800fbe54b2"), "AppEventCreate",
+                "Создание события", EVPermission.AppEventCreate);
+
+        public static readonly SEPermission AppEventUpdate =
+            new(Guid.Parse("7cb3381b-4135-4b2f-ad8a-85992b3be582"), "AppEventUpdate",
+                "Обновление события", EVPermission.AppEventUpdate);
+
         public Guid Id { get; }
 
         public string Description { get; }

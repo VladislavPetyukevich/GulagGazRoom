@@ -1,3 +1,4 @@
+using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
@@ -49,6 +50,8 @@ public class AppDbContext : DbContext
     public DbSet<Tag> Tag { get; private set; } = null!;
 
     public DbSet<Permission> Permissions { get; private set; } = null!;
+
+    public DbSet<AppEvent> AppEvent { get; private set; } = null!;
 
     public override int SaveChanges()
     {
