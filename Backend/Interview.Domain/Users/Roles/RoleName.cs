@@ -32,6 +32,7 @@ public sealed class RoleName : SmartEnum<RoleName>
         new HashSet<SEPermission>
         {
             SEPermission.QuestionFindPage,
+            SEPermission.QuestionFindPageArchive,
             SEPermission.RoomQuestionReactionCreate,
             SEPermission.RoomFindPage,
             SEPermission.RoomFindById,
