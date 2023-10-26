@@ -2,7 +2,12 @@ import { FunctionComponent, useCallback, useContext, useEffect, useState } from 
 import { useParams, Navigate } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import toast from 'react-hot-toast';
-import { GetRoomParticipantParams, GetRoomQuestionsBody, roomQuestionApiDeclaration, roomsApiDeclaration } from '../../apiDeclarations';
+import {
+  GetRoomParticipantParams,
+  GetRoomQuestionsBody,
+  roomQuestionApiDeclaration,
+  roomsApiDeclaration,
+} from '../../apiDeclarations';
 import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { REACT_APP_WS_URL } from '../../config';
@@ -222,8 +227,9 @@ export const Room: FunctionComponent = () => {
               )}
               {reactionsVisible && (
                 <Reactions
-                  admin={!viewerMode}
                   room={room}
+                  roles={auth?.roles || []}
+                  participantType={roomParticipant?.userType || null}
                 />
               )}
               {!reactionsVisible && (

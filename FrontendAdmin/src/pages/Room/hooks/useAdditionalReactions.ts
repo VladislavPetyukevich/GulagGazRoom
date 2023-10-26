@@ -12,7 +12,7 @@ export const useAdditionalReactions = ({
   const additionalReactions: Reaction[] = [];
 
   reactions.forEach(reaction => {
-    const additionalReactionNames = eventTypeAdditionalNames[reaction.type.eventType];
+    const additionalReactionNames = eventTypeAdditionalNames[reaction.type.name];
     if (!additionalReactionNames) {
       return;
     }

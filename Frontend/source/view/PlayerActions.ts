@@ -1,6 +1,5 @@
 export type PlayerActionName =
-  'gasEnable' |
-  'gasDisable' |
+  'gas' |
   'like' |
   'dislike' |
   'newQuestion' |

@@ -95,17 +95,14 @@ function createWebSocketMessagehandler(threeShooter: ThreeShooter, codeEditor: C
           }
           threeShooter.onPlayerActionStart('chatMessage', message);
           break;
-        case 'ReactionLike':
+        case 'Like':
           threeShooter.onPlayerActionStart('like', dataParsed.Value.Payload);
           break;
-        case 'ReactionDislike':
+        case 'Dislike':
           threeShooter.onPlayerActionStart('dislike', dataParsed.Value.Payload);
           break;
-        case 'GasOn':
-          threeShooter.onPlayerActionStart('gasEnable');
-          break;
-        case 'GasOff':
-          threeShooter.onPlayerActionStart('gasDisable');
+        case 'Gas':
+          threeShooter.onPlayerActionStart('gas');
           break;
         case 'ChangeCodeEditor':
           codeEditor.setValue(dataParsed.Value || '');
