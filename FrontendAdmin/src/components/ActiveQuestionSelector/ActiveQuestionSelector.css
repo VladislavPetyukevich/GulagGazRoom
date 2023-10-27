@@ -20,13 +20,21 @@
   border: 1px solid var(--form-bg);
   border-radius: 0.25rem;
   overflow: auto;
-  max-height: 150px;
+  max-height: 200px;
   background-color: var(--wrap-bg);
   z-index: 99;
 }
 
 .activeQuestionSelector-tools {
   background-color: var(--button-bg);
+}
+
+.activeQuestionSelector-options {
+  padding: 0.25rem;
+}
+
+.activeQuestionSelector-options > button {
+  width: 100%;
 }
 
 .activeQuestionSelector-item {

@@ -103,6 +103,7 @@ export const enum Captions {
   RoomName = 'Имя заседания',
   RoomTwitchChannel = 'Twitch канал',
   RoomQuestions = 'Поднимемые вопросы',
+  CreateAndAddRoomQuestion = 'Установить поднимаемым вопросом',
   RoomExperts = 'Начальники',
   RoomExaminees = 'Испытуемые',
   SearchByValue = 'Поиск по содержимому',

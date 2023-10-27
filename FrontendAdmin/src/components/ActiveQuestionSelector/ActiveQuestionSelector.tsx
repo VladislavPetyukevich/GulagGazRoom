@@ -1,6 +1,10 @@
 import React, { ChangeEventHandler, FunctionComponent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { Question } from '../../types/question';
 import { OpenIcon } from '../OpenIcon/OpenIcon';
+import {
+  ActiveQuestionSelectorOptions,
+  Option,
+} from './components/ActiveQuestionSelectorOptions/ActiveQuestionSelectorOptions';
 
 import './ActiveQuestionSelector.css';
 
@@ -25,12 +29,17 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
   const searchRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLDivElement>(null);
 
-  const isOpened = (question: Question) => {
+  const checkIsOpen = (question: Question) => {
     return openQuestions.includes(question.id);
   }
 
-  const questionsFiltered = questions.filter(
-    question => showClosedQuestions ? !isOpened(question) : isOpened(question)
+  const questionsFiltered = questions.filter(question =>
+    (showClosedQuestions ? !checkIsOpen(question) : checkIsOpen(question)) &&
+    (searchValue ? question.value.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0 : true)
+  );
+
+  const options: Option[] = questionsFiltered.map(
+    question => ({ ...question, open: checkIsOpen(question) })
   );
 
   useEffect(() => {
@@ -71,19 +80,12 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
     onSelect(option);
   };
 
-  const onSearch: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setSearchValue(e.target.value);
+  const onCreateNew = () => {
+    console.log('onCreateNew: ', searchValue);
   };
 
-  const getOptions = () => {
-    if (!searchValue) {
-      return questionsFiltered;
-    }
-
-    return questionsFiltered.filter(
-      (question) =>
-        question.value.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
-    );
+  const onSearch: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setSearchValue(e.target.value);
   };
 
   return (
@@ -101,15 +103,11 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
           <div className="search-box">
             <input onChange={onSearch} value={searchValue} ref={searchRef} />
           </div>
-          {getOptions().map((option) => (
-            <div
-              onClick={() => onItemClick(option)}
-              key={option.value}
-              className={`activeQuestionSelector-item ${!isOpened(option) && 'closed'}`}
-            >
-              {option.value}
-            </div>
-          ))}
+          <ActiveQuestionSelectorOptions
+            options={options}
+            onOptionClick={onItemClick}
+            onCreateNew={onCreateNew}
+          />
         </div>
       )}
     </div>
