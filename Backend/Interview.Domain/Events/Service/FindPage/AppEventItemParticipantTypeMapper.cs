@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Repository;
+using Interview.Domain.Repository;
 using Interview.Domain.RoomParticipants;
 
 namespace Interview.Domain.Events.Service.FindPage;

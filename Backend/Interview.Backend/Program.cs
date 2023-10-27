@@ -1,4 +1,5 @@
 using Interview.Backend;
+using Interview.Backend.AppEvents;
 using Interview.Backend.Logging;
 using Interview.Infrastructure.Database;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,6 +9,7 @@ using Serilog.Formatting.Elasticsearch;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("oauth.json", true);
+builder.Configuration.AddJsonFile("events.json", true);
 builder.Configuration.AddEnvironmentVariables("INTERVIEW_BACKEND_");
 
 LogConfigurator.Configure(builder.Host);
@@ -23,19 +25,22 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedProto,
 });
 
-MigrateDb(app);
+await MigrateDbAsync(app);
 
 var middlewareConfigurator = new MiddlewareConfigurator(app);
 middlewareConfigurator.AddMiddlewares();
 
 app.Run();
 
-void MigrateDb(WebApplication webApplication)
+async Task MigrateDbAsync(WebApplication webApplication)
 {
     using var serviceScope = webApplication.Services.CreateScope();
     var appDbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-    appDbContext.Database.Migrate();
+    await appDbContext.Database.MigrateAsync();
+
+    var applier = new EventApplier(app.Configuration);
+    await applier.ApplyEventsAsync(appDbContext, CancellationToken.None);
 
     var testUserId = Guid.Parse("b5a05f34-e44d-11ed-b49f-e8e34e3377ec");
     if (!webApplication.Environment.IsDevelopment() || appDbContext.Users.Any(e => e.Id == testUserId))
@@ -43,7 +48,7 @@ void MigrateDb(WebApplication webApplication)
         return;
     }
 
-    appDbContext.Users.Add(new User("TEST_BACKEND_DEV_USER", "d1731c50-e44d-11ed-905c-d08c09609150")
+    await appDbContext.Users.AddAsync(new User("TEST_BACKEND_DEV_USER", "d1731c50-e44d-11ed-905c-d08c09609150")
     {
         Id = testUserId,
         Avatar = null,
@@ -52,5 +57,5 @@ void MigrateDb(WebApplication webApplication)
             appDbContext.Roles.Find(RoleName.User.Id) !,
         },
     });
-    appDbContext.SaveChanges();
+    await appDbContext.SaveChangesAsync();
 }

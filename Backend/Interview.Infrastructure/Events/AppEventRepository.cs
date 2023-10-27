@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Events;
+using Interview.Domain.Events;
 using Interview.Infrastructure.Database;
 
 namespace Interview.Infrastructure.Events;

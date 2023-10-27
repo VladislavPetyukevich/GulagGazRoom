@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Events;
+using Interview.Domain.Events;
 using Interview.Domain.RoomParticipants;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

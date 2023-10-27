@@ -1,4 +1,4 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using Interview.Domain.Events.Service.Create;
 using Interview.Domain.Events.Service.FindPage;
 using Interview.Domain.Events.Service.Update;

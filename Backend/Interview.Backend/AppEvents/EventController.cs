@@ -1,4 +1,4 @@
-﻿using Interview.Backend.Responses;
+using Interview.Backend.Responses;
 using Interview.Domain;
 using Interview.Domain.Events.Service;
 using Interview.Domain.Events.Service.Create;

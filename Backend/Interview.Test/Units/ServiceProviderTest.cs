@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Interview.Backend;
 using Interview.DependencyInjection;
 using Interview.Domain.Users;
