@@ -11,7 +11,7 @@
 * Запись речи в текстовом виде
 * Автоматическое составление результатов собеседования
 
-## Основатели
+## Команда
 | ![](https://avatars.githubusercontent.com/u/22686801?s=128&v=4) | ![](https://avatars.githubusercontent.com/u/27409383?s=128&v=4) | ![](https://avatars.githubusercontent.com/u/19724906?s=128&v=4) |
 | :------------: | :---------------: | :---------------: |
 |  Дмитрий ([blowin](https://github.com/blowin)) | Павел ([developerdevpav](https://github.com/developerdevpav)) | Владислав ([VladislavPetyukevich](https://github.com/VladislavPetyukevich)) |
