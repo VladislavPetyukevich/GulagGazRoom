@@ -1,4 +1,5 @@
 import { FunctionComponent, ReactNode } from 'react';
+import { UserAvatar } from '../../../../components/UserAvatar/UserAvatar';
 
 interface VideochatParticipantProps {
   order?: number;
@@ -29,10 +30,9 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
     >
       <div className='videochat-overlay videochat-participant-name'>
         {avatar && (
-          <img
+          <UserAvatar
             src={avatar}
-            className='videochat-participant-avatar'
-            alt={`${nickname} avatar`}
+            nickname={nickname || ''}
           />
         )}
         {nickname}
@@ -52,6 +52,18 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
         >
           🎤
         </button>
+      )}
+      {!videoTrackEnabled && (
+        avatar ? (
+          <div className='avatar-wrapper-no-video'>
+            <UserAvatar
+              src={avatar}
+              nickname={nickname || ''}
+            />
+          </div>
+        ) : (
+          <div>NO VIDEO</div>
+        )
       )}
       {children}
     </div>
