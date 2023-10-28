@@ -38,6 +38,7 @@ export const Room: FunctionComponent = () => {
   const { lastMessage, readyState, sendMessage } = useWebSocket(socketUrl);
   const [roomInReview, setRoomInReview] = useState(false);
   const [reactionsVisible, setReactionsVisible] = useState(false);
+  const [currentQuestionId, setCurrentQuestionId] = useState<Question['id']>();
   const [currentQuestion, setCurrentQuestion] = useState<Question>();
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
@@ -144,16 +145,21 @@ export const Room: FunctionComponent = () => {
           if (parsedData.Value.NewState !== 'Active') {
             break;
           }
-          getRoomOpenQuestions({
-            RoomId: id,
-            State: 'Open',
-          });
+          setCurrentQuestionId(parsedData.Value.QuestionId);
           break;
         default:
           break;
       }
     } catch { }
   }, [id, auth, lastMessage, getRoomOpenQuestions]);
+
+  useEffect(() => {
+    if (!currentQuestionId || !room?.questions) {
+      return;
+    }
+    const newCurrentQuestion = room.questions.find(roomQ => roomQ.id === currentQuestionId);
+    setCurrentQuestion(newCurrentQuestion);
+  }, [currentQuestionId, room?.questions]);
 
   const handleCopyRoomLink = () =>
     navigator.clipboard.writeText(window.location.href);
