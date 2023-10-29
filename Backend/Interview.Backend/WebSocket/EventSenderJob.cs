@@ -4,6 +4,7 @@ using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Rooms.Service;
 
 namespace Interview.Backend.WebSocket;
 
@@ -11,6 +12,7 @@ public class EventSenderJob : BackgroundService
 {
     private static TimeSpan ReadTimeout => TimeSpan.FromSeconds(30);
 
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly IWebSocketConnectionSource _webSocketConnectionSource;
     private readonly ILogger<EventSenderJob> _logger;
@@ -20,20 +22,22 @@ public class EventSenderJob : BackgroundService
         IRoomEventDispatcher roomEventDispatcher,
         IWebSocketConnectionSource webSocketConnectionSource,
         ILogger<EventSenderJob> logger,
-        IRoomEventSerializer roomEventSerializer)
+        IRoomEventSerializer roomEventSerializer,
+        IServiceScopeFactory scopeFactory)
     {
         _roomEventDispatcher = roomEventDispatcher;
         _webSocketConnectionSource = webSocketConnectionSource;
         _logger = logger;
         _roomEventSerializer = roomEventSerializer;
+        _scopeFactory = scopeFactory;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         try
         {
             _logger.LogDebug("Start sending");
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 IEnumerable<IRoomEvent>? events;
                 try
@@ -45,12 +49,13 @@ public class EventSenderJob : BackgroundService
                     if (e is not OperationCanceledException)
                     {
                         _logger.LogError(e, "Read events");
-                        await Task.Delay(TimeSpan.FromMilliseconds(100), stoppingToken);
+                        await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
                     }
 
                     continue;
                 }
 
+                var statefulEvents = new List<IRoomEvent>();
                 foreach (var group in events.ToLookup(e => e.RoomId))
                 {
                     if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
@@ -61,28 +66,14 @@ public class EventSenderJob : BackgroundService
 
                     foreach (var currentEvent in group)
                     {
-                        var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
-                        var eventAsBytes = Encoding.UTF8.GetBytes(eventAsString);
-                        _logger.LogDebug("Start sending {Event}", eventAsString);
-                        await Parallel.ForEachAsync(subscribers, stoppingToken, async (entry, token) =>
-                        {
-                            try
-                            {
-                                if (!entry.ShouldCloseWebSocket())
-                                {
-                                    await entry.SendAsync(eventAsBytes, WebSocketMessageType.Text, true, token);
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogError(e, "Send {Event}", eventAsString);
-                            }
-                        });
+                        await ProcessEventAsync(currentEvent, statefulEvents, subscribers, cancellationToken);
                     }
                 }
 
+                await UpdateRoomStateAsync(statefulEvents, cancellationToken);
+
                 _logger.LogDebug("Before wait async");
-                await _roomEventDispatcher.WaitAsync(stoppingToken);
+                await _roomEventDispatcher.WaitAsync(cancellationToken);
                 _logger.LogDebug("After wait async");
             }
         }
@@ -93,6 +84,68 @@ public class EventSenderJob : BackgroundService
         finally
         {
             _logger.LogDebug("Stop sending");
+        }
+    }
+
+    private async Task ProcessEventAsync(
+        IRoomEvent currentEvent,
+        List<IRoomEvent> statefulEvents,
+        IReadOnlyCollection<System.Net.WebSockets.WebSocket> subscribers,
+        CancellationToken cancellationToken)
+    {
+        if (currentEvent.Stateful)
+        {
+            statefulEvents.Add(currentEvent);
+        }
+
+        var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
+        var eventAsBytes = Encoding.UTF8.GetBytes(eventAsString);
+        _logger.LogDebug("Start sending {Event}", eventAsString);
+        await Parallel.ForEachAsync(subscribers, cancellationToken, async (entry, token) =>
+        {
+            try
+            {
+                if (!entry.ShouldCloseWebSocket())
+                {
+                    await entry.SendAsync(eventAsBytes, WebSocketMessageType.Text, true, token);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Send {Event}", eventAsString);
+            }
+        });
+    }
+
+    private async Task UpdateRoomStateAsync(List<IRoomEvent> statefulEvents, CancellationToken cancellationToken)
+    {
+        if (statefulEvents.Count > 0)
+        {
+            try
+            {
+                await using var dbScope = _scopeFactory.CreateAsyncScope();
+                var service = dbScope.ServiceProvider.GetRequiredService<IRoomServiceWithoutPermissionCheck>();
+                foreach (var roomEvent in statefulEvents)
+                {
+                    try
+                    {
+                        var payload = roomEvent.BuildStringPayload();
+                        await service.UpsertRoomStateAsync(
+                            roomEvent.RoomId,
+                            roomEvent.Type,
+                            payload ?? string.Empty,
+                            cancellationToken);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "During update {Type} room state", roomEvent.Type);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Fails to update room states");
+            }
         }
     }
 }

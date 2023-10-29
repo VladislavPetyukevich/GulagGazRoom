@@ -1,6 +1,8 @@
+using System.Text.Json;
+
 namespace Interview.Domain.Events.Events;
 
-public sealed class RoomEventUserPayload
+public sealed class RoomEventUserPayload : IPayloadBuilder
 {
     public Guid UserId { get; }
 
@@ -10,5 +12,10 @@ public sealed class RoomEventUserPayload
     {
         UserId = userId;
         AdditionalData = additionalData;
+    }
+
+    public string? BuildPayload()
+    {
+        return AdditionalData is null ? null : JsonSerializer.Serialize(AdditionalData);
     }
 }

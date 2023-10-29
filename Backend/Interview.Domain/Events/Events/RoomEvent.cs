@@ -42,6 +42,11 @@ public class RoomEvent<T> : IRoomEvent<T>
             return (string)(object)Value;
         }
 
+        if (Value is IPayloadBuilder payloadBuilder)
+        {
+            return payloadBuilder.BuildPayload();
+        }
+
         return JsonSerializer.Serialize(Value);
     }
 }

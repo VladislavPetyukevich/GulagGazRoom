@@ -22,7 +22,7 @@ using Entity = Interview.Domain.Repository.Entity;
 
 namespace Interview.Domain.Rooms.Service;
 
-public sealed class RoomService : IRoomService
+public sealed class RoomService : IRoomServiceWithoutPermissionCheck
 {
     private readonly IAppEventRepository _eventRepository;
     private readonly IRoomStateRepository _roomStateRepository;

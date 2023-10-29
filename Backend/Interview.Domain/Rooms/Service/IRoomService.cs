@@ -55,3 +55,7 @@ public interface IRoomService : IService
     Task<AnalyticsSummary> GetAnalyticsSummaryAsync(
         RoomAnalyticsRequest request, CancellationToken cancellationToken = default);
 }
+
+public interface IRoomServiceWithoutPermissionCheck : IRoomService
+{
+}
