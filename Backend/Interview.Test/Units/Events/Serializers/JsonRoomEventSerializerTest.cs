@@ -15,25 +15,25 @@ namespace Interview.Test.Units.Events.Serializers
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test"}""",
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Stateful":false}""",
                     new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Test", null, false)
                 };
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Value":"Hello world"}""",
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Stateful":false,"Value":"Hello world"}""",
                     new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Test", "Hello world", false)
                 };
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test"}""",
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Stateful":false}""",
                     new RoomEvent<RoomEventUserPayload>(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Test", null, false)
                 };
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Value":{"UserId":"81ad40ec-c89d-11ed-ac80-9acce9101761"}}""",
+                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Stateful":false,"Value":{"UserId":"81ad40ec-c89d-11ed-ac80-9acce9101761"}}""",
                     new RoomEvent<RoomEventUserPayload>(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Test", new RoomEventUserPayload(Guid.Parse("81ad40ec-c89d-11ed-ac80-9acce9101761")), false)
                 };
             }
