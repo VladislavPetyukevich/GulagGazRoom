@@ -166,9 +166,6 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Property<Guid?>("CreatedById")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("EnableCodeEditor")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("timestamp without time zone");
 

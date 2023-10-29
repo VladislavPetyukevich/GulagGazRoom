@@ -6,7 +6,6 @@ public class RoomConfigurationTypeConfiguration : EntityTypeConfigurationBase<Do
 {
     protected override void ConfigureCore(EntityTypeBuilder<Domain.RoomConfigurations.RoomConfiguration> builder)
     {
-        builder.Property(e => e.EnableCodeEditor).IsRequired();
         builder.Property(e => e.CodeEditorContent);
     }
 }
