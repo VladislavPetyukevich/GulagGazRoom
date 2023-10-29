@@ -53,6 +53,8 @@ public class AppDbContext : DbContext
 
     public DbSet<AppEvent> AppEvent { get; private set; } = null!;
 
+    public DbSet<RoomState> RoomStates { get; private set; } = null!;
+
     public override int SaveChanges()
     {
         using (var saveCookie = new SaveCookie(this, CancellationToken.None))

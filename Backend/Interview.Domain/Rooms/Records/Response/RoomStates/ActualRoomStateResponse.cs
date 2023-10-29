@@ -4,9 +4,9 @@ using Interview.Domain.Rooms.Service.Records.Response.RoomStates;
 
 namespace Interview.Domain.Rooms.Records.Response.RoomStates;
 
-public class RoomState
+public class ActualRoomStateResponse
 {
-    public static readonly Mapper<Room, RoomState> Mapper = new(room => new RoomState
+    public static readonly Mapper<Room, ActualRoomStateResponse> Mapper = new(room => new ActualRoomStateResponse
     {
         Id = room.Id,
         Name = room.Name,
@@ -18,6 +18,11 @@ public class RoomState
         }).FirstOrDefault(q => q.State == RoomQuestionState.Active),
         CodeEditorContent = room.Configuration == null ? null : room.Configuration.CodeEditorContent,
         EnableCodeEditor = room.Configuration == null ? false : room.Configuration.EnableCodeEditor,
+        States = room.RoomStates.Select(e => new RoomStateResponse
+        {
+            Payload = e.Payload,
+            Type = e.Type,
+        }).ToList(),
     });
 
     public Guid Id { get; set; }
@@ -33,4 +38,6 @@ public class RoomState
     public required bool EnableCodeEditor { get; set; }
 
     public required string? CodeEditorContent { get; set; }
+
+    public required List<RoomStateResponse> States { get; set; }
 }

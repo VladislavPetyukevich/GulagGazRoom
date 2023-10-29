@@ -142,5 +142,11 @@ public enum EVPermission
 
     [Description("Обновление события")]
     AppEventUpdate,
+
+    [Description("Обновление/Вставка состояния комнаты")]
+    UpsertRoomState,
+
+    [Description("Удаление состояния комнаты")]
+    DeleteRoomState,
 #pragma warning restore SA1602
 }

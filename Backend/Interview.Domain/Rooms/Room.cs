@@ -34,5 +34,7 @@ public class Room : Entity
 
     public List<RoomParticipant> Participants { get; set; } = new();
 
+    public List<RoomState> RoomStates { get; set; } = new();
+
     public List<Tag> Tags { get; set; } = new();
 }

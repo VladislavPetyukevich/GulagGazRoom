@@ -28,6 +28,7 @@ public class RoomServiceTest
         var eventDispatcher = new Mock<IRoomEventDispatcher>();
         var roomQuestionReactionRepository = new Mock<IRoomQuestionReactionRepository>();
         var tagRepository = new Mock<ITagRepository>();
+        var roomStateRepository = new Mock<IRoomStateRepository>();
 
         _roomService = new RoomService(
             _roomRepository.Object,
@@ -38,7 +39,8 @@ public class RoomServiceTest
             roomQuestionReactionRepository.Object,
             tagRepository.Object,
             new Mock<IRoomParticipantRepository>().Object,
-            new Mock<IAppEventRepository>().Object);
+            new Mock<IAppEventRepository>().Object,
+            roomStateRepository.Object);
     }
 
     [Fact(DisplayName = "Patch update of room when request name is null")]

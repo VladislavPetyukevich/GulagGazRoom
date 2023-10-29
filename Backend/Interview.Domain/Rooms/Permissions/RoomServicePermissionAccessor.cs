@@ -76,11 +76,25 @@ public class RoomServicePermissionAccessor : IRoomService, IServiceDecorator
         return _roomService.StartReviewAsync(roomId, cancellationToken);
     }
 
-    public Task<RoomState> GetStateAsync(Guid roomId, CancellationToken cancellationToken = default)
+    public Task<ActualRoomStateResponse> GetActualStateAsync(Guid roomId, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.RoomGetState);
 
-        return _roomService.GetStateAsync(roomId, cancellationToken);
+        return _roomService.GetActualStateAsync(roomId, cancellationToken);
+    }
+
+    public Task UpsertRoomStateAsync(Guid roomId, string type, string payload, CancellationToken cancellationToken = default)
+    {
+        _securityService.EnsurePermission(SEPermission.UpsertRoomState);
+
+        return _roomService.UpsertRoomStateAsync(roomId, type, payload, cancellationToken);
+    }
+
+    public Task DeleteRoomStateAsync(Guid roomId, string type, CancellationToken cancellationToken = default)
+    {
+        _securityService.EnsurePermission(SEPermission.DeleteRoomState);
+
+        return _roomService.DeleteRoomStateAsync(roomId, type, cancellationToken);
     }
 
     public Task<Analytics> GetAnalyticsAsync(RoomAnalyticsRequest request, CancellationToken cancellationToken = default)

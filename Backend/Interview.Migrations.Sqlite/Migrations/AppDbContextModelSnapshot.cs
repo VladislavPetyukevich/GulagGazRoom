@@ -366,6 +366,42 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("Rooms");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.RoomState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RoomId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("RoomStates");
+                });
+
             modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -430,6 +466,13 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("Permissions");
 
                     b.HasData(
+                        new
+                        {
+                            Id = new Guid("1f6c85db-c2a0-4096-8ead-a292397ab4e5"),
+                            CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Type = "DeleteRoomState",
+                            UpdateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
                         new
                         {
                             Id = new Guid("08a4237e-4b59-4896-a7f1-d41c6810d1aa"),
@@ -694,6 +737,13 @@ namespace Interview.Migrations.Sqlite.Migrations
                             Id = new Guid("6f814f95-59f5-4591-acd5-545dfb981a31"),
                             CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Type = "TagUpdate",
+                            UpdateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = new Guid("0827aeef-bcc1-4412-b584-0de4694422ce"),
+                            CreateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Type = "UpsertRoomState",
                             UpdateDate = new DateTime(2023, 8, 31, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
@@ -1061,6 +1111,23 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("CreatedBy");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.RoomState", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Interview.Domain.Rooms.Room", "Room")
+                        .WithMany("RoomStates")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("Interview.Domain.Tags.Tag", b =>
                 {
                     b.HasOne("Interview.Domain.Users.User", "CreatedBy")
@@ -1164,6 +1231,8 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
+
+                    b.Navigation("RoomStates");
                 });
 #pragma warning restore 612, 618
         }

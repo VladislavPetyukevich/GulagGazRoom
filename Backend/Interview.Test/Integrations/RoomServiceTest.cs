@@ -46,7 +46,8 @@ public class RoomServiceTest
             new RoomQuestionReactionRepository(appDbContext),
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
-            new AppEventRepository(appDbContext));
+            new AppEventRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
@@ -99,7 +100,8 @@ public class RoomServiceTest
             new RoomQuestionReactionRepository(appDbContext),
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
-            new AppEventRepository(appDbContext));
+            new AppEventRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         await roomService.CloseAsync(savedRoom.Id);
 
@@ -233,7 +235,8 @@ public class RoomServiceTest
             new RoomQuestionReactionRepository(appDbContext),
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
-            new AppEventRepository(appDbContext));
+            new AppEventRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         var expectAnalytics = new Analytics
         {
@@ -537,7 +540,8 @@ public class RoomServiceTest
             new RoomQuestionReactionRepository(appDbContext),
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
-            new AppEventRepository(appDbContext));
+            new AppEventRepository(appDbContext),
+            new RoomStateRepository(appDbContext));
 
         var expectAnalytics = new AnalyticsSummary
         {

@@ -25,6 +25,7 @@ namespace Interview.Domain.Rooms.Service;
 public sealed class RoomService : IRoomService
 {
     private readonly IAppEventRepository _eventRepository;
+    private readonly IRoomStateRepository _roomStateRepository;
     private readonly IRoomRepository _roomRepository;
     private readonly IRoomQuestionRepository _roomQuestionRepository;
     private readonly IQuestionRepository _questionRepository;
@@ -43,7 +44,8 @@ public sealed class RoomService : IRoomService
         IRoomQuestionReactionRepository roomQuestionReactionRepository,
         ITagRepository tagRepository,
         IRoomParticipantRepository roomParticipantRepository,
-        IAppEventRepository eventRepository)
+        IAppEventRepository eventRepository,
+        IRoomStateRepository roomStateRepository)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
@@ -53,6 +55,7 @@ public sealed class RoomService : IRoomService
         _tagRepository = tagRepository;
         _roomParticipantRepository = roomParticipantRepository;
         _eventRepository = eventRepository;
+        _roomStateRepository = roomStateRepository;
         _roomQuestionRepository = roomQuestionRepository;
     }
 
@@ -74,8 +77,7 @@ public sealed class RoomService : IRoomService
         return room;
     }
 
-    public async Task<Room> CreateAsync(
-        RoomCreateRequest request, CancellationToken cancellationToken = default)
+    public async Task<Room> CreateAsync(RoomCreateRequest request, CancellationToken cancellationToken = default)
     {
         if (request is null)
         {
@@ -297,11 +299,11 @@ public sealed class RoomService : IRoomService
         await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
     }
 
-    public async Task<RoomState> GetStateAsync(
+    public async Task<ActualRoomStateResponse> GetActualStateAsync(
         Guid roomId,
         CancellationToken cancellationToken = default)
     {
-        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, RoomState.Mapper, cancellationToken);
+        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, ActualRoomStateResponse.Mapper, cancellationToken);
 
         if (roomState == null)
         {
@@ -319,6 +321,61 @@ public sealed class RoomService : IRoomService
         roomState.LikeCount = reactions.Count(e => e == ReactionType.Like);
 
         return roomState;
+    }
+
+    public async Task UpsertRoomStateAsync(Guid roomId, string type, string payload, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(type))
+        {
+            throw new UserException("The type cannot be empty.");
+        }
+
+        var hasRoom = await _roomRepository.HasAsync(new Spec<Room>(e => e.Id == roomId), cancellationToken);
+        if (!hasRoom)
+        {
+            throw new UserException("No room was found by id.");
+        }
+
+        var spec = new Spec<RoomState>(e => e.RoomId == roomId && e.Type == type);
+        var state = await _roomStateRepository.FindFirstOrDefaultAsync(spec, cancellationToken);
+        if (state is not null)
+        {
+            state.Payload = payload;
+            await _roomStateRepository.UpdateAsync(state, cancellationToken);
+            return;
+        }
+
+        state = new RoomState
+        {
+            Payload = payload,
+            RoomId = roomId,
+            Type = type,
+            Room = null,
+        };
+        await _roomStateRepository.CreateAsync(state, cancellationToken);
+    }
+
+    public async Task DeleteRoomStateAsync(Guid roomId, string type, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(type))
+        {
+            throw new UserException("The type cannot be empty.");
+        }
+
+        var hasRoom = await _roomRepository.HasAsync(new Spec<Room>(e => e.Id == roomId), cancellationToken);
+        if (!hasRoom)
+        {
+            throw new UserException("No room was found by id.");
+        }
+
+        var spec = new Spec<RoomState>(e => e.RoomId == roomId && e.Type == type);
+        var state = await _roomStateRepository.FindFirstOrDefaultAsync(spec, cancellationToken);
+        if (state is null)
+        {
+            throw new UserException($"No room state with type '{type}' was found");
+        }
+
+        await _roomStateRepository.DeleteAsync(state, cancellationToken);
     }
 
     public async Task<Analytics> GetAnalyticsAsync(

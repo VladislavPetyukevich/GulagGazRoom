@@ -165,6 +165,14 @@ namespace Interview.Domain.Permissions
             new(Guid.Parse("7cb3381b-4135-4b2f-ad8a-85992b3be582"), "AppEventUpdate",
                 "Обновление события", EVPermission.AppEventUpdate);
 
+        public static readonly SEPermission UpsertRoomState =
+            new(Guid.Parse("0827aeef-bcc1-4412-b584-0de4694422ce"), "UpsertRoomState",
+                    "Обновление/Вставка состояния комнаты", EVPermission.UpsertRoomState);
+
+        public static readonly SEPermission DeleteRoomState =
+                new(Guid.Parse("1f6c85db-c2a0-4096-8ead-a292397ab4e5"), "DeleteRoomState",
+                    "Удаление состояния комнаты", EVPermission.DeleteRoomState);
+
         public Guid Id { get; }
 
         public string Description { get; }
