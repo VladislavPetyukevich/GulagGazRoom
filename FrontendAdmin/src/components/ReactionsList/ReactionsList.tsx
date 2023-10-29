@@ -13,6 +13,8 @@ const reactionNameReplaces: Record<string, string> = {
   dislike8: '🍌',
   dislike10: '😢',
   dislike11: '🦍',
+  Gas: '🤿',
+  CodeEditor: '📜',
 }
 
 interface ReactionsListProps {

@@ -127,5 +127,26 @@ public enum EVPermission
 
     [Description("Обновление тега")]
     TagUpdate,
+
+    [Description("Получение страницы событий")]
+    AppEventPage,
+
+    [Description("Получение события по идентификатору")]
+    AppEventById,
+
+    [Description("Получение события по типу")]
+    AppEventByType,
+
+    [Description("Создание события")]
+    AppEventCreate,
+
+    [Description("Обновление события")]
+    AppEventUpdate,
+
+    [Description("Обновление/Вставка состояния комнаты")]
+    UpsertRoomState,
+
+    [Description("Удаление состояния комнаты")]
+    DeleteRoomState,
 #pragma warning restore SA1602
 }

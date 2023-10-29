@@ -33,8 +33,19 @@ public interface IRoomService : IService
 
     Task StartReviewAsync(Guid roomId, CancellationToken cancellationToken);
 
-    Task<RoomState> GetStateAsync(
+    Task<ActualRoomStateResponse> GetActualStateAsync(
         Guid roomId,
+        CancellationToken cancellationToken = default);
+
+    Task UpsertRoomStateAsync(
+        Guid roomId,
+        string type,
+        string payload,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteRoomStateAsync(
+        Guid roomId,
+        string type,
         CancellationToken cancellationToken = default);
 
     Task<Analytics> GetAnalyticsAsync(
@@ -43,4 +54,8 @@ public interface IRoomService : IService
 
     Task<AnalyticsSummary> GetAnalyticsSummaryAsync(
         RoomAnalyticsRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IRoomServiceWithoutPermissionCheck : IRoomService
+{
 }

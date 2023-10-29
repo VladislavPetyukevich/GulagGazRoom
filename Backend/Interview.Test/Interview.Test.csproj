@@ -25,6 +25,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Interview.Backend\Interview.Backend.csproj" />
+        <ProjectReference Include="..\Interview.DependencyInjection\Interview.DependencyInjection.csproj" />
         <ProjectReference Include="..\Interview.Domain\Interview.Domain.csproj" />
         <ProjectReference Include="..\Interview.Infrastructure\Interview.Infrastructure.csproj" />
     </ItemGroup>

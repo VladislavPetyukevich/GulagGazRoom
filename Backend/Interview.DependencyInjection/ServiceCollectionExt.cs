@@ -5,6 +5,7 @@ using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Repository;
+using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
@@ -53,7 +54,7 @@ public static class ServiceCollectionExt
                 .WithScopedLifetime()
 
                 .AddClasses(filter => filter.AssignableTo<IService>().Where(f => !f.IsAssignableTo(typeof(IServiceDecorator))))
-                .AsImplementedInterfaces()
+                .AsImplementedInterfaces(type => type != typeof(IService))
                 .WithScopedLifetime()
 
                 .AddClasses(filter => filter.AssignableTo<IServiceDecorator>())
@@ -64,7 +65,7 @@ public static class ServiceCollectionExt
         var decorators = self.Where(e => e.ServiceType == typeof(IServiceDecorator)).ToList();
         foreach (var serviceDescriptor in decorators)
         {
-            foreach (var decorateInterface in serviceDescriptor.ImplementationType!.GetInterfaces().Where(e => e != typeof(IServiceDecorator)))
+            foreach (var decorateInterface in serviceDescriptor.ImplementationType!.GetInterfaces().Where(e => e != typeof(IServiceDecorator) && e != typeof(IService)))
             {
                 self.Decorate(decorateInterface, serviceDescriptor.ImplementationType);
             }

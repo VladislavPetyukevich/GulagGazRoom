@@ -24,7 +24,6 @@ public class RoomConfigurationRepository : EfRepository<RoomConfiguration>, IRoo
         {
             room.Configuration = new RoomConfiguration
             {
-                EnableCodeEditor = true,
                 CodeEditorContent = request.CodeEditorContent,
             };
         }

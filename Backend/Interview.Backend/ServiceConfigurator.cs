@@ -31,6 +31,22 @@ public class ServiceConfigurator
         _configuration = configuration;
     }
 
+    public static void AddWebSocketServices(IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddSingleton<RecyclableMemoryStreamManager>();
+        serviceCollection.AddScoped<WebSocketReader>();
+        serviceCollection.Scan(selector =>
+        {
+            selector.FromAssemblies(typeof(IWebSocketEventHandler).Assembly)
+                .AddClasses(f => f.AssignableTo<IWebSocketEventHandler>())
+                .As<IWebSocketEventHandler>()
+                .WithScopedLifetime()
+                .AddClasses(f => f.AssignableTo<IConnectionListener>())
+                .AsSelfWithInterfaces()
+                .WithSingletonLifetime();
+        });
+    }
+
     public void AddServices(IServiceCollection serviceCollection)
     {
         if (_environment.IsDevelopment())
@@ -107,19 +123,7 @@ public class ServiceConfigurator
         serviceCollection.AddSingleton(oAuthServiceDispatcher);
         serviceCollection.AddSingleton<UserClaimService>();
 
-        serviceCollection.AddSingleton<RecyclableMemoryStreamManager>();
-        serviceCollection.AddScoped<WebSocketReader>();
-        serviceCollection.Scan(selector =>
-        {
-            selector.FromAssemblies(typeof(IWebSocketEventHandler).Assembly)
-                .AddClasses(f => f.AssignableTo<IWebSocketEventHandler>())
-                .As<IWebSocketEventHandler>()
-                .WithScopedLifetime()
-
-                .AddClasses(f => f.AssignableTo<IConnectionListener>())
-                .AsSelfWithInterfaces()
-                .WithSingletonLifetime();
-        });
+        AddWebSocketServices(serviceCollection);
 
         serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
         serviceCollection.Configure<ForwardedHeadersOptions>(options =>

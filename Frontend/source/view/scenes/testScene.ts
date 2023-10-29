@@ -36,6 +36,7 @@ export interface TestSceneProps extends BasicSceneProps {
     question?: string;
     likes: number;
     dislikes: number;
+    gas: boolean;
   },
   onFinish: Function;
 }
@@ -212,14 +213,16 @@ export class TestScene extends BasicScene {
 
     this.gasEnabled = false;
     this.actions = {
-      gasEnable: this.onGasEnable,
-      gasDisable: this.onGasDisable,
+      gas: this.onGasSwitch,
       newQuestion: this.onQuestion,
       like: this.onLike,
       dislike: this.onDislike,
       chatMessage: () => {},
     };
     this.addActionListeners();
+    if (props.preload.gas) {
+      this.onGasSwitch();
+    }
   }
 
   getInitialPlayerPositon() {
@@ -314,7 +317,15 @@ export class TestScene extends BasicScene {
     }
   }
 
-  onGasEnable = () => {
+  onGasSwitch = () => {
+    if (this.gasEnabled) {
+      this.gasDisable();
+    } else {
+      this.gasEnable();
+    }
+  }
+
+  gasEnable = () => {
     if (this.gasEnabled) {
       return;
     }
@@ -323,7 +334,7 @@ export class TestScene extends BasicScene {
     this.disableEnableGas(true);
   }
 
-  onGasDisable = () => {
+  gasDisable = () => {
     if (!this.gasEnabled) {
       return;
     }

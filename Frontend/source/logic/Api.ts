@@ -1,3 +1,12 @@
+export type RoomStateAdditionalStatefulPayload = {
+  enabled: boolean;
+};
+
+type RoomStateAdditional = {
+  type: string;
+  payload: string;
+};
+
 export interface RoomState {
   activeQuestion: {
     value: string;
@@ -6,6 +15,7 @@ export interface RoomState {
   dislikeCount: number;
   enableCodeEditor: boolean;
   codeEditorContent: string | null;
+  states: RoomStateAdditional[];
 }
 
 interface User {

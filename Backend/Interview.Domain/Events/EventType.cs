@@ -3,75 +3,55 @@ namespace Interview.Domain.Events;
 /// <summary>
 /// Event types.
 /// </summary>
-public enum EventType
+public class EventType
 {
     /// <summary>
-    /// Unknown value
+    /// Unknown value.
     /// </summary>
-    Unknown,
+    public static readonly string Unknown = "Unknown";
 
     /// <summary>
-    /// The event is triggered during a user reaction (like)
+    /// The event is triggered during a user reaction (like).
     /// </summary>
-    ReactionLike,
+    public static readonly string Like = "Like";
 
     /// <summary>
-    /// The event is triggered during a user reaction (dislike)
+    /// The event is triggered during a user reaction (dislike).
     /// </summary>
-    ReactionDislike,
+    public static readonly string Dislike = "Dislike";
 
     /// <summary>
     /// The event is triggered when a new message appears in twitch or in app chat.
     /// </summary>
-    ChatMessage,
+    public static readonly string ChatMessage = "ChatMessage";
 
     /// <summary>
-    /// The event is triggered when the admin turns on the gas in the room
+    /// The event is triggered when question is changed.
     /// </summary>
-    GasOn,
+    public static readonly string ChangeQuestion = "ChangeQuestion";
 
     /// <summary>
-    /// The event is triggered when the admin turns off the gas in the room
+    /// The event is triggered when room question state is changed.
     /// </summary>
-    GasOff,
+    public static readonly string ChangeRoomQuestionState = "ChangeRoomQuestionState";
 
     /// <summary>
-    /// The event is triggered when question is changed
+    /// The event is triggered when room question is created.
     /// </summary>
-    ChangeQuestion,
+    public static readonly string AddRoomQuestion = "AddRoomQuestion";
 
     /// <summary>
-    /// The event is triggered when room question state is changed
+    /// The event is triggered when change code editor for room.
     /// </summary>
-    ChangeRoomQuestionState,
+    public static readonly string ChangeCodeEditor = "ChangeCodeEditor";
 
     /// <summary>
-    /// The event is triggered when room question is created
+    /// The event is triggered when room status is changed.
     /// </summary>
-    AddRoomQuestion,
-
-    /// <summary>
-    /// The event is triggered when enable code editor for room
-    /// </summary>
-    EnableCodeEditor,
-
-    /// <summary>
-    /// The event is triggered when disable code editor for room
-    /// </summary>
-    DisableCodeEditor,
-
-    /// <summary>
-    /// The event is triggered when change code editor for room
-    /// </summary>
-    ChangeCodeEditor,
-
-    /// <summary>
-    /// The event is triggered when room status is changed
-    /// </summary>
-    ChangeRoomStatus,
+    public static readonly string ChangeRoomStatus = "ChangeRoomStatus";
 
     /// <summary>
     /// The event is sent when the speech from the video is recognized.
     /// </summary>
-    VoiceRecognition,
+    public static readonly string VoiceRecognition = "VoiceRecognition";
 }

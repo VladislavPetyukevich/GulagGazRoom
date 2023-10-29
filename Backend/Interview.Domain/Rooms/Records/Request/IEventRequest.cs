@@ -8,5 +8,7 @@ public interface IEventRequest
 
     Guid UserId { get; }
 
-    IRoomEvent ToRoomEvent();
+    string Type { get; }
+
+    IRoomEvent ToRoomEvent(bool stateful);
 }

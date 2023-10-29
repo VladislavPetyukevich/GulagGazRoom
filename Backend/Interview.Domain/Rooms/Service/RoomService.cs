@@ -12,16 +12,20 @@ using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
 using Interview.Domain.Rooms.Service.Records.Response.Page;
+using Interview.Domain.ServiceResults.Errors;
 using Interview.Domain.Tags;
 using Interview.Domain.Tags.Records.Response;
 using Interview.Domain.Users;
+using NSpecifications;
 using X.PagedList;
 using Entity = Interview.Domain.Repository.Entity;
 
 namespace Interview.Domain.Rooms.Service;
 
-public sealed class RoomService : IRoomService
+public sealed class RoomService : IRoomServiceWithoutPermissionCheck
 {
+    private readonly IAppEventRepository _eventRepository;
+    private readonly IRoomStateRepository _roomStateRepository;
     private readonly IRoomRepository _roomRepository;
     private readonly IRoomQuestionRepository _roomQuestionRepository;
     private readonly IQuestionRepository _questionRepository;
@@ -29,6 +33,7 @@ public sealed class RoomService : IRoomService
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly IRoomQuestionReactionRepository _roomQuestionReactionRepository;
     private readonly ITagRepository _tagRepository;
+    private readonly IRoomParticipantRepository _roomParticipantRepository;
 
     public RoomService(
         IRoomRepository roomRepository,
@@ -37,7 +42,10 @@ public sealed class RoomService : IRoomService
         IUserRepository userRepository,
         IRoomEventDispatcher roomEventDispatcher,
         IRoomQuestionReactionRepository roomQuestionReactionRepository,
-        ITagRepository tagRepository)
+        ITagRepository tagRepository,
+        IRoomParticipantRepository roomParticipantRepository,
+        IAppEventRepository eventRepository,
+        IRoomStateRepository roomStateRepository)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
@@ -45,6 +53,9 @@ public sealed class RoomService : IRoomService
         _roomEventDispatcher = roomEventDispatcher;
         _roomQuestionReactionRepository = roomQuestionReactionRepository;
         _tagRepository = tagRepository;
+        _roomParticipantRepository = roomParticipantRepository;
+        _eventRepository = eventRepository;
+        _roomStateRepository = roomStateRepository;
         _roomQuestionRepository = roomQuestionRepository;
     }
 
@@ -66,8 +77,7 @@ public sealed class RoomService : IRoomService
         return room;
     }
 
-    public async Task<Room> CreateAsync(
-        RoomCreateRequest request, CancellationToken cancellationToken = default)
+    public async Task<Room> CreateAsync(RoomCreateRequest request, CancellationToken cancellationToken = default)
     {
         if (request is null)
         {
@@ -201,19 +211,46 @@ public sealed class RoomService : IRoomService
     public async Task SendEventRequestAsync(
         IEventRequest request, CancellationToken cancellationToken = default)
     {
+        var eventSpecification = new Spec<AppEvent>(e => e.Type == request.Type);
+        var dbEvent = await _eventRepository.FindFirstOrDefaultAsync(eventSpecification, cancellationToken);
+        if (dbEvent is null)
+        {
+            throw new NotFoundException($"Event not found by type {request.Type}");
+        }
+
         var currentRoom = await _roomRepository.FindByIdAsync(request.RoomId, cancellationToken);
         if (currentRoom is null)
         {
             throw NotFoundException.Create<Room>(request.RoomId);
         }
 
-        var user = await _userRepository.FindByIdAsync(request.UserId, cancellationToken);
+        var user = await _userRepository.FindByIdDetailedAsync(request.UserId, cancellationToken);
         if (user is null)
         {
             throw NotFoundException.Create<User>(request.UserId);
         }
 
-        await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);
+        var userRoles = user.Roles.Select(e => e.Id).ToHashSet();
+        if (dbEvent.Roles is not null && dbEvent.Roles.Count > 0 && dbEvent.Roles.All(e => !userRoles.Contains(e.Id)))
+        {
+            throw new AccessDeniedException("The user does not have the required role");
+        }
+
+        if (dbEvent.ParticipantTypes is not null && dbEvent.ParticipantTypes.Count > 0)
+        {
+            var participantType = await _roomParticipantRepository.FindByRoomIdAndUserId(request.RoomId, request.UserId, cancellationToken);
+            if (participantType is null)
+            {
+                throw new NotFoundException($"Not found participant type by room id {request.RoomId} and user id {request.UserId}");
+            }
+
+            if (dbEvent.ParticipantTypes.All(e => e != participantType.Type))
+            {
+                throw new AccessDeniedException("The user does not have the required participant type");
+            }
+        }
+
+        await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(dbEvent.Stateful), cancellationToken);
     }
 
     /// <summary>
@@ -262,11 +299,11 @@ public sealed class RoomService : IRoomService
         await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
     }
 
-    public async Task<RoomState> GetStateAsync(
+    public async Task<ActualRoomStateResponse> GetActualStateAsync(
         Guid roomId,
         CancellationToken cancellationToken = default)
     {
-        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, RoomState.Mapper, cancellationToken);
+        var roomState = await _roomRepository.FindByIdDetailedAsync(roomId, ActualRoomStateResponse.Mapper, cancellationToken);
 
         if (roomState == null)
         {
@@ -284,6 +321,61 @@ public sealed class RoomService : IRoomService
         roomState.LikeCount = reactions.Count(e => e == ReactionType.Like);
 
         return roomState;
+    }
+
+    public async Task UpsertRoomStateAsync(Guid roomId, string type, string payload, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(type))
+        {
+            throw new UserException("The type cannot be empty.");
+        }
+
+        var hasRoom = await _roomRepository.HasAsync(new Spec<Room>(e => e.Id == roomId), cancellationToken);
+        if (!hasRoom)
+        {
+            throw new UserException("No room was found by id.");
+        }
+
+        var spec = new Spec<RoomState>(e => e.RoomId == roomId && e.Type == type);
+        var state = await _roomStateRepository.FindFirstOrDefaultAsync(spec, cancellationToken);
+        if (state is not null)
+        {
+            state.Payload = payload;
+            await _roomStateRepository.UpdateAsync(state, cancellationToken);
+            return;
+        }
+
+        state = new RoomState
+        {
+            Payload = payload,
+            RoomId = roomId,
+            Type = type,
+            Room = null,
+        };
+        await _roomStateRepository.CreateAsync(state, cancellationToken);
+    }
+
+    public async Task DeleteRoomStateAsync(Guid roomId, string type, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(type))
+        {
+            throw new UserException("The type cannot be empty.");
+        }
+
+        var hasRoom = await _roomRepository.HasAsync(new Spec<Room>(e => e.Id == roomId), cancellationToken);
+        if (!hasRoom)
+        {
+            throw new UserException("No room was found by id.");
+        }
+
+        var spec = new Spec<RoomState>(e => e.RoomId == roomId && e.Type == type);
+        var state = await _roomStateRepository.FindFirstOrDefaultAsync(spec, cancellationToken);
+        if (state is null)
+        {
+            throw new UserException($"No room state with type '{type}' was found");
+        }
+
+        await _roomStateRepository.DeleteAsync(state, cancellationToken);
     }
 
     public async Task<Analytics> GetAnalyticsAsync(

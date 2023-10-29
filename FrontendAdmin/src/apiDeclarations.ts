@@ -2,7 +2,7 @@ import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } fro
 import { Question, QuestionState } from './types/question';
 import { Tag } from './types/tag';
 import { Reaction } from './types/reaction';
-import { Room, RoomReview, RoomStatus } from './types/room';
+import { Room, RoomReview, RoomStateAdditionalStatefulPayload, RoomStatus } from './types/room';
 import { User } from './types/user';
 
 export interface PaginationUrlParams {
@@ -19,14 +19,10 @@ export interface CreateRoomBody {
   tags: Array<Tag['id']>;
 }
 
-export interface SendGasBody {
+export interface SendEventBody {
   roomId: Room['id'];
-  type: 'GasOn' | 'GasOff';
-}
-
-export interface SendCodeEditorBody {
-  roomId: Room['id'];
-  type: 'EnableCodeEditor' | 'DisableCodeEditor';
+  type: string;
+  additionalData?: RoomStateAdditionalStatefulPayload;
 }
 
 export interface GetRoomPageParams extends PaginationUrlParams {
@@ -63,14 +59,9 @@ export const roomsApiDeclaration = {
     baseUrl: '/rooms',
     body,
   }),
-  sendGasEvent: (body: SendGasBody): ApiContractPost => ({
+  sendEvent: (body: SendEventBody): ApiContractPost => ({
     method: 'POST',
-    baseUrl: '/rooms/event/gas',
-    body,
-  }),
-  sendCodeEditorEvent: (body: SendCodeEditorBody): ApiContractPost => ({
-    method: 'POST',
-    baseUrl: '/rooms/event/codeEditor',
+    baseUrl: '/rooms/event',
     body,
   }),
   close: (id: Room['id']): ApiContractPatch => ({
@@ -211,6 +202,11 @@ export const roomReactionApiDeclaration = {
   }),
 };
 
+export interface GetParticipantParams {
+  userId: Reaction['id'];
+  roomId: Room['id'];
+}
+
 export interface ChangeParticipantStatusBody {
   userId: Reaction['id'];
   roomId: Room['id'];
@@ -218,6 +214,11 @@ export interface ChangeParticipantStatusBody {
 }
 
 export const roomParticipantApiDeclaration = {
+  getRoomParticipant: (params: GetParticipantParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/room-participants',
+    urlParams: params,
+  }),
   changeParticipantStatus: (body: ChangeParticipantStatusBody): ApiContractPatch => ({
     method: 'PATCH',
     baseUrl: '/room-participants',
@@ -257,5 +258,13 @@ export const roomReviewApiDeclaration = {
     method: 'PUT',
     baseUrl: `/room-reviews/${params.id}`,
     body: { review: params.review, state: params.state },
+  }),
+};
+
+export const eventApiDeclaration = {
+  get: (params: PaginationUrlParams): ApiContractGet => ({
+    method: 'GET',
+    baseUrl: '/event',
+    urlParams: params,
   }),
 };

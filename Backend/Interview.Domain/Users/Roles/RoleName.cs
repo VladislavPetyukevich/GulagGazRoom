@@ -28,7 +28,7 @@ public sealed class RoleName : SmartEnum<RoleName>
     public static readonly RoleName User = new(
         Guid.Parse("ab45a82b-aa1c-11ed-abe8-f2b335a02ee9"),
         RoleNameConstants.User,
-        (int)RoleNameType.User,
+        RoleNameType.User,
         new HashSet<SEPermission>
         {
             SEPermission.QuestionFindPage,
@@ -44,15 +44,16 @@ public sealed class RoleName : SmartEnum<RoleName>
             SEPermission.RoomQuestionFindGuids,
             SEPermission.RoomAddParticipant,
             SEPermission.QuestionFindById,
+            SEPermission.AppEventPage,
         });
 
     public static readonly RoleName Admin = new(
         Guid.Parse("ab45cf57-aa1c-11ed-970f-98dc442de35a"),
-        RoleNameConstants.Admin, (int)RoleNameType.Admin,
+        RoleNameConstants.Admin, RoleNameType.Admin,
         ImmutableHashSet<SEPermission>.Empty);
 
-    private RoleName(Guid id, string name, int value, IReadOnlySet<SEPermission> defaultPermissions)
-        : base(name, value)
+    private RoleName(Guid id, string name, RoleNameType value, IReadOnlySet<SEPermission> defaultPermissions)
+        : base(name, (int)value)
     {
         Id = id;
         DefaultPermissions = defaultPermissions;
@@ -61,4 +62,6 @@ public sealed class RoleName : SmartEnum<RoleName>
     public Guid Id { get; }
 
     public IReadOnlySet<SEPermission> DefaultPermissions { get; }
+
+    public RoleNameType EnumValue => (RoleNameType)Value;
 }

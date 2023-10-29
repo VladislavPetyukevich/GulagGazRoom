@@ -41,7 +41,8 @@ namespace Interview.Domain.Events.ChangeEntityProcessors
             return new RoomEvent<ChangeEventPayload>(
                 current.Room!.Id,
                 EventType.ChangeRoomQuestionState,
-                new ChangeEventPayload(current.Question!.Id, original.State!, current.State!));
+                new ChangeEventPayload(current.Question!.Id, original.State!, current.State!),
+                false);
         }
 
         private static IRoomEvent CreateAddEvent(RoomQuestion entity)
@@ -49,7 +50,8 @@ namespace Interview.Domain.Events.ChangeEntityProcessors
             return new RoomEvent<AddEventPayload>(
                 entity.Room!.Id,
                 EventType.AddRoomQuestion,
-                new AddEventPayload(entity.Question!.Id, entity.State!));
+                new AddEventPayload(entity.Question!.Id, entity.State!),
+                false);
         }
 
         public sealed record ChangeEventPayload(Guid QuestionId, RoomQuestionState OldState, RoomQuestionState NewState);

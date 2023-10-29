@@ -1,0 +1,28 @@
+﻿{
+  "InitialEvents": [
+    {
+      "Type": "CodeEditor",
+      "Stateful": true,
+      "Roles": [
+        "User",
+        "Admin"
+      ],
+      "ParticipantTypes": [
+        "Expert",
+        "Examinee"
+      ]
+    },
+    {
+      "Type": "Gas",
+      "Stateful": true,
+      "Roles": [
+        "User",
+        "Admin"
+      ],
+      "ParticipantTypes": [
+        "Expert",
+        "Viewer"
+      ]
+    }
+  ]
+}

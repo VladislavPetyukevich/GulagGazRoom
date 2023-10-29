@@ -310,5 +310,6 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
             .Include(e => e.Tags)
             .Include(e => e.Participants)
             .Include(e => e.Questions)
-            .Include(e => e.Configuration);
+            .Include(e => e.Configuration)
+            .Include(e => e.RoomStates);
 }

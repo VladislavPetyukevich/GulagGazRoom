@@ -42,7 +42,8 @@ public class QuestionChangeEntityProcessor : IEntityPostProcessor
         return new RoomEvent<EventPayload>(
             roomId,
             EventType.ChangeQuestion,
-            new EventPayload(current.Id, original.Value, current.Value));
+            new EventPayload(current.Id, original.Value, current.Value),
+            false);
     }
 
     public sealed class EventPayload
