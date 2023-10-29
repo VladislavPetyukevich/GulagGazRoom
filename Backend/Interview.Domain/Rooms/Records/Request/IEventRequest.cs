@@ -10,5 +10,5 @@ public interface IEventRequest
 
     string Type { get; }
 
-    IRoomEvent ToRoomEvent();
+    IRoomEvent ToRoomEvent(bool stateful);
 }

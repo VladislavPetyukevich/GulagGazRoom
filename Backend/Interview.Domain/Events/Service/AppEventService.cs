@@ -65,7 +65,13 @@ public class AppEventService : IAppEventService
 
         var requestedRoleIds = request.Roles.Select(e => RoleName.FromValue((int)e).Id).ToList();
         var roles = await _roleRepository.FindByIdsAsync(requestedRoleIds, cancellationToken);
-        var newEvent = new AppEvent { Type = type, Roles = roles, ParticipantTypes = AppEvent.ParseParticipantTypes(type, request.ParticipantTypes) };
+        var newEvent = new AppEvent
+        {
+            Type = type,
+            Roles = roles,
+            Stateful = request.Stateful,
+            ParticipantTypes = AppEvent.ParseParticipantTypes(type, request.ParticipantTypes),
+        };
         await _eventRepository.CreateAsync(newEvent, cancellationToken);
         return newEvent.Id;
     }
@@ -107,6 +113,8 @@ public class AppEventService : IAppEventService
         {
             existingEvent.ParticipantTypes = AppEvent.ParseParticipantTypes(request.Type ?? existingEvent.Type, request.ParticipantTypes);
         }
+
+        existingEvent.Stateful = request.Stateful;
 
         await _eventRepository.UpdateAsync(existingEvent, cancellationToken);
         return mapper.Map(existingEvent).ToAppEventItem();

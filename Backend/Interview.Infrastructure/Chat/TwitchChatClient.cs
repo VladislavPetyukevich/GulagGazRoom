@@ -65,7 +65,7 @@ public class TwitchChatClient : IDisposable
     {
         var message = e.ChatMessage.Message ?? string.Empty;
         var payload = new UserMessageEventPayload(message, e.ChatMessage.Username);
-        var @event = new RoomEvent<UserMessageEventPayload>(_roomId, EventType.ChatMessage, payload);
+        var @event = new RoomEvent<UserMessageEventPayload>(_roomId, EventType.ChatMessage, payload, false);
         _eventDispatcher.WriteAsync(@event, _cancellationTokenSource.Token);
 
         if (message.Contains("он"))

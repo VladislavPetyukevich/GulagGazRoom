@@ -60,7 +60,7 @@ namespace Interview.Domain.Events.ChangeEntityProcessors
         public sealed class ChangeCodeEditorRoomEvent : RoomEvent
         {
             public ChangeCodeEditorRoomEvent(Guid roomId, string? value)
-                : base(roomId, EventType.ChangeCodeEditor, value)
+                : base(roomId, EventType.ChangeCodeEditor, value, false)
             {
             }
         }

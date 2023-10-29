@@ -47,6 +47,11 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Property<string>("ParticipantTypes")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("Stateful")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(128)

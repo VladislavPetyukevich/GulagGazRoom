@@ -248,7 +248,7 @@ public sealed class RoomService : IRoomService
             }
         }
 
-        await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(), cancellationToken);
+        await _roomEventDispatcher.WriteAsync(request.ToRoomEvent(dbEvent.Stateful), cancellationToken);
     }
 
     /// <summary>

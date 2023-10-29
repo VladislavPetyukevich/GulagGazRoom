@@ -43,6 +43,7 @@ public class EventApplier
             var @event = new AppEvent
             {
                 Type = type,
+                Stateful = initialEvent.Stateful,
                 Roles = initialEvent.Roles.Select(e => roles[e]).ToList(),
                 ParticipantTypes = AppEvent.ParseParticipantTypes(type, initialEvent.ParticipantTypes),
             };
@@ -61,21 +62,24 @@ public class EventApplier
             existsEvent.Roles ??= new List<Role>();
             existsEvent.ParticipantTypes ??= new List<RoomParticipantType>();
             var dbRoles = existsEvent.Roles.Select(e => e.Name.EnumValue).ToHashSet();
-            dbRoles.SymmetricExceptWith(searchEvents[type].Roles);
+            var initialEvent = searchEvents[type];
+            dbRoles.SymmetricExceptWith(initialEvent.Roles);
 
             var existsParticipantTypes = existsEvent.ParticipantTypes.Select(e => e.Name).ToHashSet();
-            existsParticipantTypes.SymmetricExceptWith(searchEvents[type].ParticipantTypes);
-            if (dbRoles.Count == 0 && existsParticipantTypes.Count == 0)
+            existsParticipantTypes.SymmetricExceptWith(initialEvent.ParticipantTypes);
+            if (dbRoles.Count == 0 && existsParticipantTypes.Count == 0 && existsEvent.Stateful == initialEvent.Stateful)
             {
                 continue;
             }
 
-            var fileRoles = searchEvents[type].Roles.Select(e => roles[e]).ToList();
+            existsEvent.Stateful = initialEvent.Stateful;
+
+            var fileRoles = initialEvent.Roles.Select(e => roles[e]).ToList();
             existsEvent.Roles.Clear();
             existsEvent.Roles.AddRange(fileRoles);
 
             existsEvent.ParticipantTypes.Clear();
-            existsEvent.ParticipantTypes.AddRange(AppEvent.ParseParticipantTypes(type, searchEvents[type].ParticipantTypes));
+            existsEvent.ParticipantTypes.AddRange(AppEvent.ParseParticipantTypes(type, initialEvent.ParticipantTypes));
             db.AppEvent.Update(existsEvent);
         }
     }

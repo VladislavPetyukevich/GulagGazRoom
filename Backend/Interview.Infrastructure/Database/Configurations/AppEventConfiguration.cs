@@ -1,5 +1,6 @@
 using Interview.Domain.Events;
 using Interview.Domain.RoomParticipants;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +11,7 @@ public class AppEventConfiguration : EntityTypeConfigurationBase<AppEvent>
     protected override void ConfigureCore(EntityTypeBuilder<AppEvent> builder)
     {
         builder.Property(e => e.Type).IsRequired().HasMaxLength(128);
+        builder.Property(e => e.Stateful).IsRequired().HasDefaultValue(false);
         builder.HasMany(e => e.Roles).WithMany();
         builder.HasIndex(e => e.Type).IsUnique();
 

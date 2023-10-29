@@ -5,6 +5,10 @@ public interface IRoomEvent
     Guid RoomId { get; }
 
     string Type { get; }
+
+    bool Stateful { get; }
+
+    string? BuildStringPayload();
 }
 
 public interface IRoomEvent<out T> : IRoomEvent

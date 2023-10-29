@@ -10,8 +10,10 @@ public sealed class AppEventItemParticipantTypeMapper : Mapper<AppEvent, AppEven
         {
             Id = e.Id,
             Type = e.Type,
-            Roles = e.Roles!.Select(e => e.Name.EnumValue).ToList(),
+            Roles = e.Roles!.Select(e => e.Name.EnumValue)
+                .ToList(),
             ParticipantTypes = e.ParticipantTypes ?? new List<RoomParticipantType>(),
+            Stateful = e.Stateful,
         })
     {
     }

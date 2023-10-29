@@ -12,6 +12,8 @@ public class AppEvent : Entity
 
     public required List<RoomParticipantType>? ParticipantTypes { get; set; }
 
+    public required bool Stateful { get; set; }
+
     public static List<RoomParticipantType> ParseParticipantTypes(
         string eventType,
         IReadOnlyCollection<string> participantTypesStr)

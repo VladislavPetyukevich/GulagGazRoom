@@ -2,6 +2,7 @@
   "InitialEvents": [
     {
       "Type": "CodeEditor",
+      "Stateful": true,
       "Roles": [
         "User",
         "Admin"
@@ -13,6 +14,7 @@
     },
     {
       "Type": "Gas",
+      "Stateful": true,
       "Roles": [
         "User",
         "Admin"

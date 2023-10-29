@@ -53,7 +53,7 @@ namespace Interview.Domain.Events.ChangeEntityProcessors
         public sealed class ChangeRoomStatusEvent : RoomEvent
         {
             public ChangeRoomStatusEvent(Guid roomId, string? value)
-                : base(roomId, EventType.ChangeRoomStatus, value)
+                : base(roomId, EventType.ChangeRoomStatus, value, false)
             {
             }
         }
