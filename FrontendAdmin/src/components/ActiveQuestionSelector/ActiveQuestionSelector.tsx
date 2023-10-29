@@ -92,7 +92,7 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
         <div className="activeQuestionSelector-selected-value">{getDisplay()}</div>
         <div className="activeQuestionSelector-tools">
           <div className="activeQuestionSelector-tool">
-            <OpenIcon />
+            <OpenIcon sizeRem={1.5} />
           </div>
         </div>
       </div>

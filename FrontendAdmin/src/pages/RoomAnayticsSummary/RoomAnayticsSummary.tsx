@@ -13,7 +13,7 @@ import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { RoomReviews } from './components/RoomReviews/RoomReviews';
 import { AuthContext } from '../../context/AuthContext';
 import { checkAdmin } from '../../utils/checkAdmin';
-import { RoomActionModal } from '../Room/components/RoomActionModal/RoomActionModal';
+import { ActionModal } from '../../components/ActionModal/ActionModal';
 
 import './RoomAnayticsSummary.css';
 
@@ -125,10 +125,11 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
         <>
         {!!(admin && room?.roomStatus === 'Review') && (
             <Field>
-              <RoomActionModal
+              <ActionModal
                 title={Captions.CloseRoomModalTitle}
                 openButtonCaption={Captions.CloseRoom}
                 loading={roomCloseLoading}
+                loadingCaption={Captions.CloseRoomLoading}
                 error={roomCloseError}
                 onAction={handleCloseRoom}
               />
@@ -136,10 +137,11 @@ export const RoomAnayticsSummary: FunctionComponent = () => {
           )}
           {!!(admin && room?.roomStatus === 'Close') && (
             <Field>
-              <RoomActionModal
+              <ActionModal
                 title={Captions.StartReviewRoomModalTitle}
                 openButtonCaption={Captions.StartReviewRoom}
                 loading={roomStartReviewLoading}
+                loadingCaption={Captions.CloseRoomLoading}
                 error={roomStartReviewError}
                 onAction={handleStartReviewRoom}
               />

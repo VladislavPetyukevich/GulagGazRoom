@@ -192,13 +192,10 @@ async function init() {
     addThreeShooterEventHandlers(threeShooter);
     const codeEditor = new CodeEditor(htmlElements.editorContainer);
     updateCodeEditor(codeEditor, roomState);
-    const webSocketConnection = new WebSocketConnection({
-      communist: communistValue,
-      roomId,
-      url: `${REACT_APP_WS_URL}/ws`,
-      onMessage: createWebSocketMessagehandler(threeShooter, codeEditor),
+    const webSocketMessagehandler = createWebSocketMessagehandler(threeShooter, codeEditor)
+    window.addEventListener('message', (event) => {
+      webSocketMessagehandler(event);
     });
-    await webSocketConnection.connect();
 
     const canWriteCode = !!participant && participant.userType !== 'Viewer';
     codeEditor.setReadonly(!canWriteCode);

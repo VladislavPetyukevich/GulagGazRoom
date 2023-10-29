@@ -32,12 +32,18 @@ public sealed class RoleName : SmartEnum<RoleName>
         new HashSet<SEPermission>
         {
             SEPermission.QuestionFindPage,
+            SEPermission.QuestionFindPageArchive,
             SEPermission.RoomQuestionReactionCreate,
             SEPermission.RoomFindPage,
             SEPermission.RoomFindById,
             SEPermission.RoomSendEventRequest,
             SEPermission.RoomGetState,
             SEPermission.RoomGetAnalyticsSummary,
+            SEPermission.ReactionFindPage,
+            SEPermission.RoomParticipantFindByRoomIdAndUserId,
+            SEPermission.RoomQuestionFindGuids,
+            SEPermission.RoomAddParticipant,
+            SEPermission.QuestionFindById,
         });
 
     public static readonly RoleName Admin = new(

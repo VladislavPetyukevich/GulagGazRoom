@@ -106,12 +106,8 @@ public sealed class UserService : IUserService
             existingUser.Nickname = user.Nickname;
             existingUser.Avatar = user.Avatar;
 
-            if (existingUser.Permissions.Count == 0)
-            {
-                var permissions = await GetDefaultUserPermission(existingUser.Roles, cancellationToken);
-                existingUser.Permissions.AddRange(permissions);
-            }
-
+            var permissions = await GetDefaultUserPermission(existingUser, cancellationToken);
+            existingUser.Permissions.AddRange(permissions);
             await _userRepository.UpdateAsync(existingUser, cancellationToken);
             return existingUser;
         }
@@ -127,7 +123,7 @@ public sealed class UserService : IUserService
 
         insertUser.Roles.Add(userRole);
 
-        var defaultUserPermissions = await GetDefaultUserPermission(insertUser.Roles, cancellationToken);
+        var defaultUserPermissions = await GetDefaultUserPermission(insertUser, cancellationToken);
         insertUser.Permissions.AddRange(defaultUserPermissions);
 
         await _userRepository.CreateAsync(insertUser, cancellationToken);
@@ -229,12 +225,14 @@ public sealed class UserService : IUserService
         return _roleRepository.FindByIdAsync(roleName.Id, cancellationToken);
     }
 
-    private async Task<List<Permission>> GetDefaultUserPermission(IReadOnlyList<Role> roleNames, CancellationToken cancellationToken = default)
+    private Task<List<Permission>> GetDefaultUserPermission(User user, CancellationToken cancellationToken = default)
     {
-        var permissionTypes = roleNames
+        var existsPermissions = user.Permissions?.Select(e => e.Id).ToList() ?? (IReadOnlyCollection<Guid>)Array.Empty<Guid>();
+        var permissionTypes = user.Roles
             .SelectMany(it => it.Name.DefaultPermissions)
             .ToHashSet();
 
-        return await _permissionRepository.FindAllByTypes(permissionTypes, cancellationToken);
+        var specification = new Spec<Permission>(e => permissionTypes.Contains(e.Type) && !existsPermissions.Contains(e.Id));
+        return _permissionRepository.FindAsync(specification, cancellationToken);
     }
 }

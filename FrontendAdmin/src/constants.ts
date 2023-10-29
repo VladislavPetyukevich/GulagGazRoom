@@ -117,6 +117,8 @@ export const enum Captions {
   Videochat = 'Видеочат',
   CallRecording = 'Разговор записыватеся',
   VoiceRecognitionNotSupported = 'Распознавание голоса не поддерживается вашим браузером',
+  ArchiveQuestion = 'Архивировать вопрос?',
+  ArchiveQuestionLoading = 'Ахивирование вопроса...',
 };
 
 export const toastSuccessOptions = {

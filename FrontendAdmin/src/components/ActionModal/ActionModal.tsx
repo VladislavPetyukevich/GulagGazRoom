@@ -1,22 +1,24 @@
 import { FunctionComponent, useCallback, useState } from 'react';
 import Modal from 'react-modal';
-import { Captions } from '../../../../constants';
+import { Captions } from '../../constants';
 
-import './RoomActionModal.css';
+import './ActionModal.css';
 
-interface RoomActionModalProps {
+interface ActionModalProps {
   title: string;
   openButtonCaption: string;
   loading: boolean;
+  loadingCaption: string;
   error: string | null;
   onAction: () => void;
 }
 
-export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
+export const ActionModal: FunctionComponent<ActionModalProps> = ({
   title,
   openButtonCaption,
   loading,
   error,
+  loadingCaption,
   onAction,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,7 +37,7 @@ export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
   }, [handleCloseModal, onAction]);
 
   if (loading) {
-    return (<div>{Captions.CloseRoomLoading}...</div>);
+    return (<div>{loadingCaption}...</div>);
   }
 
   if (error) {
@@ -53,14 +55,19 @@ export const RoomActionModal: FunctionComponent<RoomActionModalProps> = ({
         isOpen={modalOpen}
         contentLabel={Captions.CloseRoom}
         appElement={document.getElementById('root') || undefined}
-        className="close-room-modal"
+        className="action-modal"
         onRequestClose={handleCloseModal}
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          },
+        }}
       >
-        <div className="close-room-modal-header">
+        <div className="action-modal-header">
           <h3>{title}</h3>
           <button onClick={handleCloseModal}>X</button>
         </div>
-        <div className="close-room-modal-content">
+        <div className="action-modal-content">
           <button onClick={onCallAction}>{Captions.Yes}</button>
           <button onClick={handleCloseModal}>{Captions.No}</button>
         </div>

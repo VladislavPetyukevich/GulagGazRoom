@@ -1,32 +1,33 @@
-.close-room-modal {
-  background: red;
+.action-modal {
   max-width: 600px;
   margin-top: 100px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
   background-color: var(--wrap-bg);
+  border: 1px solid var(--active);
+  border-radius: var(--border-radius);
 }
 
-.close-room-modal .close-room-modal-header {
+.action-modal .action-modal-header {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   padding: 1rem;
-  background-color: var(--bg);
+  padding-bottom: 1.5rem;
 }
 
-.close-room-modal .close-room-modal-header button {
+.action-modal .action-modal-header button {
   margin-left: auto;
 }
 
-.close-room-modal .close-room-modal-content {
+.action-modal .action-modal-content {
   display: flex;
   justify-content: center;
   padding: 1rem;
 }
 
-.close-room-modal .close-room-modal-content button:first-child {
+.action-modal .action-modal-content button:first-child {
   margin-right: 1rem;
 }

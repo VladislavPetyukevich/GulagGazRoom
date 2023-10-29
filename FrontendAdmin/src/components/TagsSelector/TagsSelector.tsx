@@ -78,7 +78,7 @@ export const TagsSelector: FunctionComponent<TagsSelectorProps> = ({
         <TagsView tags={selectedTags} placeHolder={placeHolder} onClick={handleUnselectClick} />
         <div className="tagsSelector-tools">
           <div className="tagsSelector-tool">
-            <OpenIcon />
+            <OpenIcon sizeRem={1} />
           </div>
         </div>
       </div>

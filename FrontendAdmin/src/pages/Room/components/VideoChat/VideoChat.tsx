@@ -83,6 +83,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     [auth?.id || '']: 1,
   });
   const updateAnalyserTimeout = useRef(0);
+  const intervieweeFrameRef = useRef<HTMLIFrameElement>(null);
   const videochatAvailable = !viewerMode;
 
   useEffect(() => {
@@ -184,6 +185,14 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
       userStream.getTracks().forEach(track => track.stop());
     };
   }, [userStream]);
+
+  useEffect(() => {
+    if (!lastWsMessage?.data || !intervieweeFrameRef.current) {
+      return;
+    }
+    let origin = (new URL(intervieweeFrameRef.current.src)).origin;
+    intervieweeFrameRef.current.contentWindow?.postMessage(lastWsMessage.data, origin);
+  }, [lastWsMessage]);
 
   useEffect(() => {
     if (!lastWsMessage || !auth) {
@@ -489,7 +498,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         </div>
       )}
       <div className='interviewee-frame-wrapper'>
-        <Interviewee roomId={roomId} />
+        <Interviewee roomId={roomId} ref={intervieweeFrameRef} />
         <MessagesChat
           transcripts={transcripts}
           onMessageSubmit={handleTextMessageSubmit}
