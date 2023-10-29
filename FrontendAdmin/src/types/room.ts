@@ -14,12 +14,24 @@ export interface Room {
   roomStatus: RoomStatus;
 }
 
+export type RoomStateType = 'CodeEditor' | 'Gas';
+
+export type RoomStateAdditionalStatefulPayload = {
+  enabled: boolean;
+};
+
+interface RoomStateAdditional {
+  type: RoomStateType;
+  payload: string;
+}
+
 export interface RoomState {
   id: Room['id'];
   name: Room['name'];
   likeCount: number;
   dislikeCount: number;
   activeQuestion: Question;
+  states: RoomStateAdditional[];
 }
 
 export interface RoomReview {

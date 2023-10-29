@@ -4,7 +4,7 @@ import {
   REACT_APP_WS_URL,
 } from './logic/env';
 import { HTMLElements } from './logic/HTMLElements';
-import { Api, RoomState, notAuthenticatedError } from './logic/Api';
+import { Api, RoomState, RoomStateAdditionalStatefulPayload, notAuthenticatedError } from './logic/Api';
 import { WebSocketConnection } from './logic/WebSocketConnection';
 import { Communist } from './logic/Communist';
 import { Settings } from './logic/Settings';
@@ -163,6 +163,14 @@ function updateCodeEditor(codeEditor: CodeEditor, roomState: RoomState) {
   }
 }
 
+function parseRoomStates(roomState: RoomState) {
+  const parsedStates: Record<string, boolean> = {};
+  roomState.states.forEach(roomState =>
+    parsedStates[roomState.type] = (JSON.parse(roomState.payload) as RoomStateAdditionalStatefulPayload).enabled
+  );
+  return parsedStates;
+};
+
 async function init() {
   if (!REACT_APP_WS_URL) {
     throw new Error('REACT_APP_WS_URL are not defined');
@@ -175,6 +183,7 @@ async function init() {
     const userSelf = await api.getUserSelf();
     const participant = await api.getParticipant(roomId, userSelf.id);
     const roomState = await api.getRoomState(roomId);
+    const parsedStates = parseRoomStates(roomState);
     const rendererSize = htmlElements.getRendererSize();
     const threeShooterProps = {
       renderContainer: htmlElements.renderContainer,
@@ -184,6 +193,7 @@ async function init() {
         question: roomState.activeQuestion && roomState.activeQuestion.value,
         likes: roomState.likeCount,
         dislikes: roomState.dislikeCount,
+        gas: parsedStates.Gas,
       },
       onLoad: onLoad
     };

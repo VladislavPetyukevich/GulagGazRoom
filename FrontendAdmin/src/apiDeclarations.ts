@@ -2,7 +2,7 @@ import { ApiContractGet, ApiContractPatch, ApiContractPost, ApiContractPut } fro
 import { Question, QuestionState } from './types/question';
 import { Tag } from './types/tag';
 import { Reaction } from './types/reaction';
-import { Room, RoomReview, RoomStatus } from './types/room';
+import { Room, RoomReview, RoomStateAdditionalStatefulPayload, RoomStatus } from './types/room';
 import { User } from './types/user';
 
 export interface PaginationUrlParams {
@@ -22,11 +22,7 @@ export interface CreateRoomBody {
 export interface SendEventBody {
   roomId: Room['id'];
   type: string;
-}
-
-export interface SendCodeEditorBody {
-  roomId: Room['id'];
-  type: 'EnableCodeEditor' | 'DisableCodeEditor';
+  additionalData?: RoomStateAdditionalStatefulPayload;
 }
 
 export interface GetRoomPageParams extends PaginationUrlParams {

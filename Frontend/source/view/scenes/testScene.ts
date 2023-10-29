@@ -36,6 +36,7 @@ export interface TestSceneProps extends BasicSceneProps {
     question?: string;
     likes: number;
     dislikes: number;
+    gas: boolean;
   },
   onFinish: Function;
 }
@@ -219,6 +220,9 @@ export class TestScene extends BasicScene {
       chatMessage: () => {},
     };
     this.addActionListeners();
+    if (props.preload.gas) {
+      this.onGasSwitch();
+    }
   }
 
   getInitialPlayerPositon() {

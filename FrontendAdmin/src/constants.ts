@@ -40,6 +40,8 @@ export const enum Captions {
   SendingActiveQuestion = 'Установка активного вопроса',
   LoadingRoom = 'Загрузка заседания',
   ErrorLoadingRoom = 'Ошибка загрузки заседания',
+  LoadingRoomState = 'Загрузка состояния заседания',
+  ErrorLoadingRoomState = 'Ошибка загрузки состояния заседания',
   RoomCreated = 'Заседание успешно создано',
   ErrorSendingActiveQuestion = 'Ошибка в установке активного вопроса',
   ReactionsLoadingError = 'Ошибка загрузки реакций',

@@ -237,6 +237,7 @@ export const Room: FunctionComponent = () => {
                   room={room}
                   roles={auth?.roles || []}
                   participantType={roomParticipant?.userType || null}
+                  lastWsMessage={lastMessage}
                 />
               )}
               {!reactionsVisible && (
