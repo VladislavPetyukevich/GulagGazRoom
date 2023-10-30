@@ -6,9 +6,9 @@ services:
     image: postgres:14.1-alpine
     restart: always
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - '5432:5432'
     volumes:
@@ -22,15 +22,16 @@ services:
       context: ../../Backend/.
       dockerfile: Interview.Backend/Dockerfile
       args:
-        ConnectionString: Server=postgres;User ID=postgres;Password=postgres;Port=5432;Database=postgres
-        ClientId: "********"
-        ClientSecret: "********"
+        Database: ${DATABASE}
+        ConnectionString: ${CONNECTION_STRING}
+        ClientId: ${CLIENT_ID}
+        ClientSecret: ${CLIENT_SECRET}
         SwaggerPrefix: ""
     ports:
       - '8800:8800'
     environment:
       - ASPNETCORE_URLS=http://+:8800
-      - ASPNETCORE_ENVIRONMENT=PreProduction
+      - ASPNETCORE_ENVIRONMENT=${CSHARP_ENVIRONMENT}
     volumes:
       - backend-drive:/app/
     depends_on:
