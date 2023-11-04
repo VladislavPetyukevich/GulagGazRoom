@@ -1,9 +1,10 @@
 import React, { FunctionComponent, ReactNode, useContext } from 'react';
-import { NavLink, useLocation, matchPath } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
 import { Captions, pathnames } from '../../constants';
 import { checkAdmin } from '../../utils/checkAdmin';
+import { UserAvatar } from '../UserAvatar/UserAvatar';
 
 import './NavMenu.css';
 
@@ -12,7 +13,7 @@ interface MenuItem {
   content: ReactNode;
 }
 
-const createMenuItem = (item: MenuItem, isActive: boolean) => (  
+const createMenuItem = (item: MenuItem) => (
   <NavLink
     key={item.path}
     to={item.path}
@@ -25,17 +26,14 @@ const createMenuItem = (item: MenuItem, isActive: boolean) => (
 export const NavMenu: FunctionComponent = () => {
   const auth = useContext(AuthContext);
   const admin = checkAdmin(auth);
-  const location = useLocation()
-  const isPathActive = (pathname: string) => !!matchPath(pathname, location.pathname);
 
   const userContent = auth ?
     (
       <div className='nav-menu-user-content'>
-                {auth.avatar && (
-          <img
+        {auth.avatar && (
+          <UserAvatar
             src={auth.avatar}
-            className='nav-menu-user-avatar'
-            alt={`${auth.nickname} avatar`}
+            nickname={auth.nickname}
           />
         )}
         {auth.nickname}
@@ -57,7 +55,7 @@ export const NavMenu: FunctionComponent = () => {
   return (
     <FieldsBlock className="nav-menu">
       <nav>
-        {items.map(item => createMenuItem(item, isPathActive(item.path)))}
+        {items.map(item => createMenuItem(item))}
       </nav>
     </FieldsBlock>
   );

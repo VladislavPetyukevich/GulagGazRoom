@@ -43,18 +43,28 @@
   height: var(--videochat-video-size-big);
 }
 
-.videochat-overlay {
-  position: absolute;
+.videochat-caption {
   font-size: 0.75rem;
   padding: 0.25rem 0.75rem;
   border-radius: 0.25rem;
-  background-color: color-mix(in srgb, var(--form-bg), transparent 50%);
-  z-index: 1;
 }
 
-.videochat-diasbled {
-  background-color: color-mix(in srgb, var(--bg), transparent 50%);
-  visibility: visible !important;
+.videochat-switch-buttons {
+  margin-bottom: 0.5rem;
+}
+
+.videochat-switch-buttons button {
+  margin-right: 0.25rem;
+}
+
+.videochat-switch-buttons button:last-child {
+  margin-right: 0rem;
+}
+
+.videochat-overlay {
+  position: absolute;
+  background-color: color-mix(in srgb, var(--form-bg), transparent 50%);
+  z-index: 1;
 }
 
 .videochat-participant-name {
@@ -64,31 +74,24 @@
   right: 0.5rem;
 }
 
-.videochat-participant-avatar {
+.videochat .user-avatar {
   width: 1.25rem;
   height: 1.25rem;
   margin-right: 0.25rem;
-  border-radius: 1rem;
 }
 
-.videochat-switch-camera {
-  bottom: 3.25rem;
-  right: 0.5rem;
-  visibility: hidden;
+.videochat .avatar-wrapper-no-video {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
-.videochat-switch-mic {
-  bottom: 3.25rem;
-  right: 3.5rem;
-  visibility: hidden;
-}
-
-.videochat-participant:hover .videochat-switch-camera {
-  visibility: visible;
-}
-
-.videochat-participant:hover .videochat-switch-mic {
-  visibility: visible;
+.videochat .avatar-wrapper-no-video .user-avatar {
+  width: 7rem;
+  height: 7rem;
+  margin-right: 0rem;
 }
 
 .videochat-video {

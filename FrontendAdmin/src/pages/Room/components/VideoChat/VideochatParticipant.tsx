@@ -1,4 +1,5 @@
 import { FunctionComponent, ReactNode } from 'react';
+import { UserAvatar } from '../../../../components/UserAvatar/UserAvatar';
 
 interface VideochatParticipantProps {
   order?: number;
@@ -6,9 +7,6 @@ interface VideochatParticipantProps {
   avatar?: string;
   nickname?: string;
   videoTrackEnabled?: boolean;
-  audioTrackEnabled?: boolean;
-  handleSwitchVideo?: () => void;
-  handleSwitchAudio?: () => void;
 }
 
 export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> = ({
@@ -17,9 +15,6 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
   avatar,
   nickname,
   videoTrackEnabled,
-  audioTrackEnabled,
-  handleSwitchVideo,
-  handleSwitchAudio,
 }) => {
   const orderSafe = order || 2;
   return (
@@ -27,33 +22,30 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
       className={`videochat-participant ${orderSafe === 1 ? 'videochat-participant-big' : 'videochat-participant'}`}
       style={{ order: orderSafe }}
     >
-      <div className='videochat-overlay videochat-participant-name'>
+      <div className='videochat-caption videochat-overlay videochat-participant-name'>
         {avatar && (
-          <img
+          <UserAvatar
             src={avatar}
-            className='videochat-participant-avatar'
-            alt={`${nickname} avatar`}
+            nickname={nickname || ''}
           />
         )}
         {nickname}
       </div>
-      {handleSwitchVideo && (
-        <button
-          className={`videochat-overlay videochat-switch-camera ${videoTrackEnabled ? '' : 'videochat-diasbled'}`}
-          onClick={handleSwitchVideo}
-        >
-          📷
-        </button>
+      {videoTrackEnabled === false && (
+        avatar ? (
+          <div className='avatar-wrapper-no-video'>
+            <UserAvatar
+              src={avatar}
+              nickname={nickname || ''}
+            />
+          </div>
+        ) : (
+          <div>NO VIDEO</div>
+        )
       )}
-      {handleSwitchAudio && (
-        <button
-          className={`videochat-overlay videochat-switch-mic ${audioTrackEnabled ? '' : 'videochat-diasbled'}`}
-          onClick={handleSwitchAudio}
-        >
-          🎤
-        </button>
-      )}
-      {children}
+      <div style={{ ...(videoTrackEnabled === false && { display: 'none' }) }}>
+        {children}
+      </div>
     </div>
   );
 };

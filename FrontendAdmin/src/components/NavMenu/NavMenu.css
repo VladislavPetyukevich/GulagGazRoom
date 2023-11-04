@@ -43,11 +43,9 @@
   flex-direction: row;
 }
 
-.nav-menu .nav-menu-user-avatar {
+.nav-menu .user-avatar {
   width: 2rem;
   height: 2rem;
   margin-left: 1rem;
   margin-right: 1rem;
-  border-radius: 50%;
-  object-fit: contain;
 }

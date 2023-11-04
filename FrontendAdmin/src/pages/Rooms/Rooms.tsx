@@ -14,6 +14,7 @@ import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { TagsView } from '../../components/TagsView/TagsView';
 import { RoomsSearch } from '../../components/RoomsSearch/RoomsSearch';
+import { UserAvatar } from '../../components/UserAvatar/UserAvatar';
 
 import './Rooms.css';
 
@@ -83,10 +84,9 @@ export const Rooms: FunctionComponent = () => {
             {room.users.map((user, index, usersArr) => (
               <span key={user.id}>
                 {user.avatar ? (
-                  <img
+                  <UserAvatar
                     src={user.avatar}
-                    className="room-users-avatar"
-                    alt={`${user.nickname} avatar`}
+                    nickname={user.nickname}
                     data-tooltip-id={userTooltipId}
                     data-tooltip-content={user.nickname}
                   />
