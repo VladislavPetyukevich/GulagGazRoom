@@ -7,9 +7,6 @@ interface VideochatParticipantProps {
   avatar?: string;
   nickname?: string;
   videoTrackEnabled?: boolean;
-  audioTrackEnabled?: boolean;
-  handleSwitchVideo?: () => void;
-  handleSwitchAudio?: () => void;
 }
 
 export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> = ({
@@ -18,9 +15,6 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
   avatar,
   nickname,
   videoTrackEnabled,
-  audioTrackEnabled,
-  handleSwitchVideo,
-  handleSwitchAudio,
 }) => {
   const orderSafe = order || 2;
   return (
@@ -28,7 +22,7 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
       className={`videochat-participant ${orderSafe === 1 ? 'videochat-participant-big' : 'videochat-participant'}`}
       style={{ order: orderSafe }}
     >
-      <div className='videochat-overlay videochat-participant-name'>
+      <div className='videochat-caption videochat-overlay videochat-participant-name'>
         {avatar && (
           <UserAvatar
             src={avatar}
@@ -37,23 +31,7 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
         )}
         {nickname}
       </div>
-      {handleSwitchVideo && (
-        <button
-          className={`videochat-overlay videochat-switch-camera ${videoTrackEnabled ? '' : 'videochat-diasbled'}`}
-          onClick={handleSwitchVideo}
-        >
-          📷
-        </button>
-      )}
-      {handleSwitchAudio && (
-        <button
-          className={`videochat-overlay videochat-switch-mic ${audioTrackEnabled ? '' : 'videochat-diasbled'}`}
-          onClick={handleSwitchAudio}
-        >
-          🎤
-        </button>
-      )}
-      {!videoTrackEnabled && (
+      {videoTrackEnabled === false && (
         avatar ? (
           <div className='avatar-wrapper-no-video'>
             <UserAvatar
@@ -65,7 +43,9 @@ export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> 
           <div>NO VIDEO</div>
         )
       )}
-      {children}
+      <div style={{ ...(videoTrackEnabled === false && { display: 'none' }) }}>
+        {children}
+      </div>
     </div>
   );
 };

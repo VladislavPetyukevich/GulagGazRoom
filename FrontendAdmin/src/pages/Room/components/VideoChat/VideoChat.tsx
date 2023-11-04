@@ -12,6 +12,7 @@ import { getAverageVolume } from './utils/getAverageVolume';
 import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnalyser';
 import { limitLength } from './utils/limitLength';
 import { randomId } from './utils/randomId';
+import { SwitchButton } from './SwitchButton';
 
 import './VideoChat.css';
 
@@ -54,6 +55,14 @@ const createTranscript = (body: { userNickname: string; value: string; fromChat:
   ...body,
 });
 
+const enableDisableUserTrack = (stream: MediaStream, kind: string, enabled: boolean) => {
+  const track = stream.getTracks().find(track => track.kind === kind);
+  if (!track) {
+    return;
+  }
+  track.enabled = enabled;
+};
+
 export const VideoChat: FunctionComponent<VideoChatProps> = ({
   roomId,
   viewerMode,
@@ -62,7 +71,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
 }) => {
   const auth = useContext(AuthContext);
   const [userStream, setUserStream] = useState<MediaStream | null>(null);
-  const [videoTrackEnabled, setVideoTrackEnabled] = useState(true);
+  const [videoTrackEnabled, setVideoTrackEnabled] = useState(false);
   const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
   const [videochatEnabled, setVideochatEnabled] = useState(false);
   const [transcripts, setTranscripts] = useState<Transcript[]>([createTranscript({
@@ -387,6 +396,8 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           video: videoConstraints,
           audio: audioConstraints,
         });
+        enableDisableUserTrack(newUserStream, 'video', videoTrackEnabled);
+        enableDisableUserTrack(newUserStream, 'audio', audioTrackEnabled);
         setUserStream(newUserStream);
         setVideochatEnabled(true);
 
@@ -411,28 +422,17 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     userIdToAudioAnalyser.current[auth.id] = createAudioAnalyser(userStream);
   }, [userStream, auth?.id]);
 
-  const switchUserTrack = (kind: string) => {
-    if (!userStream) {
-      return;
-    }
-    const track = userStream.getTracks().find(track => track.kind === kind);
-    if (!track) {
-      return;
-    }
-    if (track.enabled) {
-      track.enabled = false;
-    } else {
-      track.enabled = true;
-    }
-  };
-
   const handleSwitchVideo = () => {
-    switchUserTrack('video');
+    if (userStream) {
+      enableDisableUserTrack(userStream, 'video', !videoTrackEnabled);
+    }
     setVideoTrackEnabled(!videoTrackEnabled);
   };
 
   const handleSwitchAudio = () => {
-    switchUserTrack('audio');
+    if (userStream) {
+      enableDisableUserTrack(userStream, 'audio', !audioTrackEnabled);
+    }
     setAudioTrackEnabled(!audioTrackEnabled);
     switchAudioRecognition();
   };
@@ -448,16 +448,23 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     <div className='room-columns'>
       {videochatAvailable && (
         <div className='videochat-field'>
+          <SwitchButton
+            enabled={audioTrackEnabled}
+            caption='🎤'
+            onClick={handleSwitchAudio}
+          />
+          <SwitchButton
+            enabled={videoTrackEnabled}
+            caption='📷'
+            onClick={handleSwitchVideo}
+          />
           {videochatEnabled ? (
             <div className='videochat'>
               <VideochatParticipant
                 order={videoOrder[auth?.id || '']}
                 avatar={auth?.avatar}
                 nickname={auth?.nickname}
-                audioTrackEnabled={audioTrackEnabled}
                 videoTrackEnabled={videoTrackEnabled}
-                handleSwitchAudio={handleSwitchAudio}
-                handleSwitchVideo={handleSwitchVideo}
               >
                 <video
                   ref={userVideo}
