@@ -448,16 +448,19 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     <div className='room-columns'>
       {videochatAvailable && (
         <div className='videochat-field'>
-          <SwitchButton
-            enabled={audioTrackEnabled}
-            caption='🎤'
-            onClick={handleSwitchAudio}
-          />
-          <SwitchButton
-            enabled={videoTrackEnabled}
-            caption='📷'
-            onClick={handleSwitchVideo}
-          />
+          {!videochatEnabled && <h3>{Captions.Videochat}</h3>}
+          <div className='videochat-switch-buttons'>
+            <SwitchButton
+              enabled={audioTrackEnabled}
+              caption='🎤'
+              onClick={handleSwitchAudio}
+            />
+            <SwitchButton
+              enabled={videoTrackEnabled}
+              caption='📷'
+              onClick={handleSwitchVideo}
+            />
+          </div>
           {videochatEnabled ? (
             <div className='videochat'>
               <VideochatParticipant
@@ -490,7 +493,6 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
             </div>
           ) : (
             <div>
-              <h3>{Captions.Videochat}</h3>
               <button
                 className='videochat-join-button'
                 onClick={handleVideochatJoin}
