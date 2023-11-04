@@ -452,12 +452,12 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           <div className='videochat-switch-buttons'>
             <SwitchButton
               enabled={audioTrackEnabled}
-              caption='🎤'
+              caption={Captions.Microphone}
               onClick={handleSwitchAudio}
             />
             <SwitchButton
               enabled={videoTrackEnabled}
-              caption='📷'
+              caption={Captions.Camera}
               onClick={handleSwitchVideo}
             />
           </div>

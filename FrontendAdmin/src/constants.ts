@@ -122,6 +122,10 @@ export const enum Captions {
   VoiceRecognitionNotSupported = 'Распознавание голоса не поддерживается вашим браузером',
   ArchiveQuestion = 'Архивировать вопрос?',
   ArchiveQuestionLoading = 'Ахивирование вопроса...',
+  Microphone = '🎤',
+  Camera= '📷',
+  SwitchOn = '✔',
+  SwitchOff = '❌',
 };
 
 export const toastSuccessOptions = {
