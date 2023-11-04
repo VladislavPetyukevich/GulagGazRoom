@@ -8,6 +8,7 @@
 .tagsSelector-input {
   height: 1rem;
   padding: 0.25rem;
+  height: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -53,7 +54,7 @@
   border-radius: 1rem;
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.25rem;
 }
 
 .tagsSelector-item:hover {
