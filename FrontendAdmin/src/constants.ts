@@ -125,6 +125,7 @@ export const enum Captions {
   Camera= '📷',
   SwitchOn = '✔',
   SwitchOff = '❌',
+  NoQuestionsSelector = 'Нет доступных вопросов',
 };
 
 export const toastSuccessOptions = {
