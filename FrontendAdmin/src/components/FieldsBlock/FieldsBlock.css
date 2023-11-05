@@ -1,15 +1,13 @@
 .fields-block {
   display: flex;
   flex-direction: column;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin: var(--fields-block-margin);
   color: var(--text);
 }
 
 .fields-block .fields-wrap {
   background-color: var(--form-bg);
-  margin-right: 2.5rem;
-  margin-left: 2.5rem;
+  margin: var(--fields-wrap-margin);
 }
 
 .fields-block .field-wrap {
