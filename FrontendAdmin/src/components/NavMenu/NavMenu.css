@@ -21,19 +21,19 @@
   background-color: var(--shadow);
 }
 
-.nav-menu .field-wrap:first-child {
-  margin-left: -2.5rem;
-  border-top-left-radius: var(--border-radius);
-  border-bottom-left-radius: var(--border-radius);
-}
-
 .nav-menu .field-wrap {
   margin-right: 0px;
   margin-left: 0px;
 }
 
+.nav-menu .field-wrap:first-child {
+  margin-left: var(--nav-menu-margin-horizontal);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+}
+
 .nav-menu .field-wrap:last-child {
-  margin-right: -2.5rem;
+  margin-right: var(--nav-menu-margin-horizontal);
   border-top-right-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
 }
