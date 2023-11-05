@@ -33,6 +33,8 @@ const audioVolumeThreshold = 10.0;
 
 const transcriptsMaxLength = 100;
 
+const updateLoudedUserTimeout = 5000;
+
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 interface VideoChatProps {
@@ -123,7 +125,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         result[userId] = averageVolume;
       }
       if (newLouderUserId && newLouderUserId !== louderUserId.current) {
-        updateAnalyserTimeout.current = 2000;
+        updateAnalyserTimeout.current = updateLoudedUserTimeout;
         setVideoOrder({
           [newLouderUserId]: 1,
           [louderUserId.current]: 2,
