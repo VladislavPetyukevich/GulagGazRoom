@@ -1,6 +1,7 @@
 import React, { ChangeEventHandler, FunctionComponent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { Question } from '../../types/question';
 import { OpenIcon } from '../OpenIcon/OpenIcon';
+import { Captions } from '../../constants';
 
 import './ActiveQuestionSelector.css';
 
@@ -33,6 +34,19 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
     question => showClosedQuestions ? !isOpened(question) : isOpened(question)
   );
 
+  const getOptions = () => {
+    if (!searchValue) {
+      return questionsFiltered;
+    }
+
+    return questionsFiltered.filter(
+      (question) =>
+        question.value.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
+    );
+  };
+
+  const options = getOptions();
+
   useEffect(() => {
     setSearchValue("");
     if (showMenu && searchRef.current) {
@@ -45,7 +59,10 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
       if (!e.target) {
         return;
       }
-      if (inputRef.current && !inputRef.current.contains(e.target as any)) {
+      const inputRefContainsTarget = inputRef.current?.contains(e.target as any);
+      const searchRefTarget = e.target === searchRef.current
+      const shouldClose = !inputRefContainsTarget && !searchRefTarget;
+      if (shouldClose) {
         setShowMenu(false);
       }
     };
@@ -55,6 +72,7 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
       window.removeEventListener('click', handler);
     };
   });
+
   const handleInputClick: MouseEventHandler<HTMLDivElement> = () => {
     setShowMenu(!showMenu);
   };
@@ -75,17 +93,6 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
     setSearchValue(e.target.value);
   };
 
-  const getOptions = () => {
-    if (!searchValue) {
-      return questionsFiltered;
-    }
-
-    return questionsFiltered.filter(
-      (question) =>
-        question.value.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
-    );
-  };
-
   return (
     <div className="activeQuestionSelector-container">
       <div ref={inputRef} onClick={handleInputClick} className="activeQuestionSelector-input">
@@ -101,7 +108,10 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
           <div className="search-box">
             <input onChange={onSearch} value={searchValue} ref={searchRef} />
           </div>
-          {getOptions().map((option) => (
+          {options.length === 0 && (
+            <div>{Captions.NoQuestionsSelector}</div>
+          )}
+          {options.map((option) => (
             <div
               onClick={() => onItemClick(option)}
               key={option.value}
