@@ -1,11 +1,11 @@
-import { forwardRef } from 'react';
+import { forwardRef, memo } from 'react';
 import { REACT_APP_INTERVIEW_FRONTEND_URL } from '../../../../config';
 
 export interface IntervieweeProps {
   roomId: string;
 }
 
-export const Interviewee = forwardRef<HTMLIFrameElement, IntervieweeProps>((
+export const Interviewee = memo(forwardRef<HTMLIFrameElement, IntervieweeProps>((
   {
     roomId,
   },
@@ -20,4 +20,4 @@ export const Interviewee = forwardRef<HTMLIFrameElement, IntervieweeProps>((
     >
     </iframe>
   )
-});
+}));
