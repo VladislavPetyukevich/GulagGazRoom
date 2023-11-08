@@ -6,6 +6,7 @@ on:
       - "**.md"
       - 'Frontend'
       - 'FrontendAdmin'
+      - '.github'
 
 jobs:
   lint:
