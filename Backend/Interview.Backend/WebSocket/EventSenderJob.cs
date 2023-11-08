@@ -1,9 +1,10 @@
-using System.Net.WebSockets;
 using System.Text;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Backend.WebSocket.Events.EventSender;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Events.Sender;
 using Interview.Domain.Rooms.Service;
 
 namespace Interview.Backend.WebSocket;
@@ -17,19 +18,25 @@ public class EventSenderJob : BackgroundService
     private readonly IWebSocketConnectionSource _webSocketConnectionSource;
     private readonly ILogger<EventSenderJob> _logger;
     private readonly IRoomEventSerializer _roomEventSerializer;
+    private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
+    private readonly IEventSenderAdapter _eventSenderAdapter;
 
     public EventSenderJob(
         IRoomEventDispatcher roomEventDispatcher,
         IWebSocketConnectionSource webSocketConnectionSource,
         ILogger<EventSenderJob> logger,
         IRoomEventSerializer roomEventSerializer,
-        IServiceScopeFactory scopeFactory)
+        IServiceScopeFactory scopeFactory,
+        ILogger<WebSocketEventSender> webSocketEventSender,
+        IEventSenderAdapter eventSenderAdapter)
     {
         _roomEventDispatcher = roomEventDispatcher;
         _webSocketConnectionSource = webSocketConnectionSource;
         _logger = logger;
         _roomEventSerializer = roomEventSerializer;
         _scopeFactory = scopeFactory;
+        _webSocketEventSender = webSocketEventSender;
+        _eventSenderAdapter = eventSenderAdapter;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -103,17 +110,8 @@ public class EventSenderJob : BackgroundService
         _logger.LogDebug("Start sending {Event}", eventAsString);
         await Parallel.ForEachAsync(subscribers, cancellationToken, async (entry, token) =>
         {
-            try
-            {
-                if (!entry.ShouldCloseWebSocket())
-                {
-                    await entry.SendAsync(eventAsBytes, WebSocketMessageType.Text, true, token);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Send {Event}", eventAsString);
-            }
+            var sender = new WebSocketEventSender(_webSocketEventSender, entry);
+            await _eventSenderAdapter.SendAsync(eventAsBytes, sender, token);
         });
     }
 

@@ -9,6 +9,7 @@ using Interview.Backend.Swagger;
 using Interview.Backend.WebSocket;
 using Interview.Backend.WebSocket.Events;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Backend.WebSocket.Events.EventSender;
 using Interview.Backend.WebSocket.Events.Handlers;
 using Interview.DependencyInjection;
 using Interview.Domain.RoomQuestions;
@@ -78,12 +79,31 @@ public class ServiceConfigurator
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
 
-        var oAuthServiceDispatcher = new OAuthServiceDispatcher(_configuration);
+        AddAppServices(serviceCollection);
+
+        serviceCollection.AddHostedService<EventSenderJob>();
+
+        serviceCollection.AddSingleton(new OAuthServiceDispatcher(_configuration));
+        serviceCollection.AddSingleton<UserClaimService>();
+
+        AddWebSocketServices(serviceCollection);
+
+        serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
+        serviceCollection.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        });
+        AddRateLimiter(serviceCollection);
+
+        AddSwagger(serviceCollection);
+    }
+
+    private void AddAppServices(IServiceCollection serviceCollection)
+    {
+        var twitchService = new OAuthServiceDispatcher(_configuration).GetAuthService("twitch");
 
         var adminUsers = _configuration.GetSection(nameof(AdminUsers))
             .Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
-
-        var twitchService = oAuthServiceDispatcher.GetAuthService("twitch");
 
         var serviceOption = new DependencyInjectionAppServiceOption(
             new TwitchTokenProviderOption
@@ -97,18 +117,22 @@ public class ServiceConfigurator
                 var connectionString = _configuration.GetConnectionString("database");
                 var database = _configuration.GetConnectionString("type")?.ToLower().Trim();
                 var customDb = !string.IsNullOrWhiteSpace(database);
-                if ((_environment.IsDevelopment() && !customDb) || "sqlite".Equals(database, StringComparison.InvariantCultureIgnoreCase))
+                if ((_environment.IsDevelopment() && !customDb) ||
+                    "sqlite".Equals(database, StringComparison.InvariantCultureIgnoreCase))
                 {
                     optionsBuilder.UseSqlite(
                         connectionString,
-                        builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly.FullName));
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly
+                            .FullName));
                 }
-                else if ((_environment.IsPreProduction() && !customDb) || "postgres".Equals(database, StringComparison.InvariantCultureIgnoreCase))
+                else if ((_environment.IsPreProduction() && !customDb) ||
+                         "postgres".Equals(database, StringComparison.InvariantCultureIgnoreCase))
                 {
                     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
                     optionsBuilder.UseNpgsql(
                         connectionString,
-                        builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly.FullName));
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly
+                            .FullName));
                 }
                 else
                 {
@@ -117,21 +141,11 @@ public class ServiceConfigurator
             });
 
         serviceCollection.AddAppServices(serviceOption);
-
         serviceCollection.AddAppAuth(twitchService);
+    }
 
-        serviceCollection.AddHostedService<EventSenderJob>();
-
-        serviceCollection.AddSingleton(oAuthServiceDispatcher);
-        serviceCollection.AddSingleton<UserClaimService>();
-
-        AddWebSocketServices(serviceCollection);
-
-        serviceCollection.Configure<ChatBotAccount>(_configuration.GetSection(nameof(ChatBotAccount)));
-        serviceCollection.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        });
+    private void AddRateLimiter(IServiceCollection serviceCollection)
+    {
         serviceCollection.AddRateLimiter(_ =>
         {
             _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
@@ -156,7 +170,7 @@ public class ServiceConfigurator
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                 {
                     context.HttpContext.Response.Headers.RetryAfter =
-                        ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+                        ((int) retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
                 }
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
@@ -167,7 +181,10 @@ public class ServiceConfigurator
                 return ValueTask.CompletedTask;
             };
         });
+    }
 
+    private void AddSwagger(IServiceCollection serviceCollection)
+    {
         serviceCollection.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo
@@ -193,7 +210,7 @@ public class ServiceConfigurator
             options.CustomSchemaIds(type => (type.FullName ?? type.Name).Replace("+", "_"));
 
             var swaggerOption = _configuration.GetSection(nameof(SwaggerOption)).Get<SwaggerOption>() ??
-                         throw new InvalidOperationException(nameof(SwaggerOption));
+                                throw new InvalidOperationException(nameof(SwaggerOption));
             if (!string.IsNullOrEmpty(swaggerOption.RoutePrefix))
             {
                 options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);
