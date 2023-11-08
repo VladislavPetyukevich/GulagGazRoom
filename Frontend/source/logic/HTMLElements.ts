@@ -21,7 +21,7 @@ export class HTMLElements {
     this.audioVolumeValue = this.getElementByIdOrError('audio-volume-value');
     this.editorContainer = this.getElementByIdOrError('editor-container');
 
-    this.instructions.addEventListener('click', () => {
+    window.addEventListener('click', () => {
       this.setBlockerVisibility(false);
       props.onControlsEnabled(true);
     });
