@@ -4,6 +4,7 @@ using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Events.Sender;
 using Interview.Domain.Repository;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
@@ -80,6 +81,7 @@ public static class ServiceCollectionExt
 
         self.AddScoped<ICurrentPermissionAccessor, CurrentPermissionAccessor>();
 
+        self.AddSingleton<IEventSenderAdapter, DefaultEventSenderAdapter>();
         return self;
     }
 }

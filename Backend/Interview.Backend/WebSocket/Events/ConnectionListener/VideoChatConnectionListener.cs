@@ -3,7 +3,11 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
+using Interview.Backend.WebSocket.Events.EventSender;
 using Interview.Backend.WebSocket.Events.Handlers;
+using Interview.Domain.Events;
+using Interview.Domain.Events.Events;
+using Interview.Domain.Events.Sender;
 using Interview.Domain.RoomParticipants;
 
 namespace Interview.Backend.WebSocket.Events.ConnectionListener;
@@ -13,10 +17,17 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
     private readonly ConcurrentDictionary<Guid, ImmutableList<Payload>> _store = new();
     private readonly ConcurrentDictionary<(Guid UserId, Guid RoomId), ImmutableList<System.Net.WebSockets.WebSocket>> _storeByUserAndRoom = new();
     private readonly ILogger<VideoChatConnectionListener> _logger;
+    private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
+    private readonly IEventSenderAdapter _eventSenderAdapter;
 
-    public VideoChatConnectionListener(ILogger<VideoChatConnectionListener> logger)
+    public VideoChatConnectionListener(
+        ILogger<VideoChatConnectionListener> logger,
+        ILogger<WebSocketEventSender> webSocketEventSender,
+        IEventSenderAdapter eventSenderAdapter)
     {
         _logger = logger;
+        _webSocketEventSender = webSocketEventSender;
+        _eventSenderAdapter = eventSenderAdapter;
     }
 
     public Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
@@ -61,14 +72,8 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
 
             foreach (var (_, webSocket) in connections)
             {
-                try
-                {
-                    await webSocket.SendAsync(sendEventAsBytes, WebSocketMessageType.Text, true, cancellationToken);
-                }
-                catch
-                {
-                    // ignore
-                }
+                var sender = new WebSocketEventSender(_webSocketEventSender, webSocket);
+                await _eventSenderAdapter.SendAsync(sendEventAsBytes, sender, cancellationToken);
             }
         }
     }
