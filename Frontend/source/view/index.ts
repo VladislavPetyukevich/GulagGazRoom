@@ -113,6 +113,7 @@ export default class ThreeShooter {
         }
       });
       gameProps.onLoad();
+      this.setEnabled(true);
     };
 
     const onTexturesProgress = (progress: number) => {
