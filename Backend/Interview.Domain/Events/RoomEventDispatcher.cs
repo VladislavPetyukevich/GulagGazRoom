@@ -13,28 +13,42 @@ public class RoomEventDispatcher : IRoomEventDispatcher
     {
         using var cts = new CancellationTokenSource(timeout);
 
+        var list = new List<IRoomEvent>();
         try
         {
-            var list = new List<IRoomEvent>();
-
             foreach (var value in _queue.Values)
             {
-                var roomEvent = await value.Reader.ReadAsync(cts.Token);
-                list.Add(roomEvent);
+                try
+                {
+                    var roomEvent = await value.Reader.ReadAsync(cts.Token);
+                    list.Add(roomEvent);
+                }
+                catch (ChannelClosedException)
+                {
+                    // ignore: May occur when competitively accessing the queue
+                }
             }
 
             return list;
         }
         catch (TaskCanceledException)
         {
-            return Enumerable.Empty<IRoomEvent>();
+            return list;
         }
     }
 
     public async Task WriteAsync(IRoomEvent @event, CancellationToken cancellationToken = default)
     {
-        var channel = GetChannel(@event.RoomId);
-        await channel.Writer.WriteAsync(@event, cancellationToken).AsTask();
+        try
+        {
+            var channel = GetChannel(@event.RoomId);
+            await channel.Writer.WriteAsync(@event, cancellationToken);
+        }
+        catch (ChannelClosedException)
+        {
+            // ignore: May occur when competitively accessing the queue
+        }
+
         _semaphore.Release();
     }
 
