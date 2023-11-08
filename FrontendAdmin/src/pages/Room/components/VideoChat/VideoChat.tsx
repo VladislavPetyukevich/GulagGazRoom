@@ -189,11 +189,13 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   }, [userStream, onSendWsMessage]);
 
   useEffect(() => {
+    const recog = recognition.current;
     return () => {
       if (!userStream) {
         return;
       }
       userStream.getTracks().forEach(track => track.stop());
+      recog?.stop();
     };
   }, [userStream]);
 
