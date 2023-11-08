@@ -3,11 +3,13 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+ARG Database
 ARG ConnectionString
 ARG ClientId
 ARG ClientSecret
 ARG SwaggerPrefix
 
+ENV INTERVIEW_BACKEND_ConnectionStrings__type ${Database}
 ENV INTERVIEW_BACKEND_ConnectionStrings__database ${ConnectionString}
 ENV INTERVIEW_BACKEND_OAuthServiceDispatcher__0__ClientId ${ClientId}
 ENV INTERVIEW_BACKEND_OAuthServiceDispatcher__0__ClientSecret ${ClientSecret}

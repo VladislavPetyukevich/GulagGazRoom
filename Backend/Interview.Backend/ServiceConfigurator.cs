@@ -95,13 +95,15 @@ public class ServiceConfigurator
             optionsBuilder =>
             {
                 var connectionString = _configuration.GetConnectionString("database");
-                if (_environment.IsDevelopment())
+                var database = _configuration.GetConnectionString("type")?.ToLower().Trim();
+                var customDb = !string.IsNullOrWhiteSpace(database);
+                if ((_environment.IsDevelopment() && !customDb) || "sqlite".Equals(database, StringComparison.InvariantCultureIgnoreCase))
                 {
                     optionsBuilder.UseSqlite(
                         connectionString,
                         builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly.FullName));
                 }
-                else if (_environment.IsPreProduction())
+                else if ((_environment.IsPreProduction() && !customDb) || "postgres".Equals(database, StringComparison.InvariantCultureIgnoreCase))
                 {
                     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
                     optionsBuilder.UseNpgsql(
