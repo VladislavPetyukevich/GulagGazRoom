@@ -4,7 +4,7 @@ using Interview.Domain.Events.Sender;
 
 namespace Interview.Backend.WebSocket.Events;
 
-public class WebSocketEventSender : IEventSender<ReadOnlyMemory<byte>>
+public class WebSocketEventSender : IEventSender
 {
     private readonly ILogger<WebSocketEventSender> _logger;
     private readonly System.Net.WebSockets.WebSocket _webSocket;

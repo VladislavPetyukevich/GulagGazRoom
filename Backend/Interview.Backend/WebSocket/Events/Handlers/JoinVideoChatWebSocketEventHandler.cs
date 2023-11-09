@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Events.Sender;
 
 namespace Interview.Backend.WebSocket.Events.Handlers;
@@ -11,17 +12,20 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
     private readonly IVideChatConnectionProvider _videChatConnectionProvider;
     private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
     private readonly IEventSenderAdapter _eventSenderAdapter;
+    private readonly IRoomEventSerializer _serializer;
 
     public JoinVideoChatWebSocketEventHandler(
         ILogger<JoinVideoChatWebSocketEventHandler> logger,
         IVideChatConnectionProvider videChatConnectionProvider,
         ILogger<WebSocketEventSender> webSocketEventSender,
-        IEventSenderAdapter eventSenderAdapter)
+        IEventSenderAdapter eventSenderAdapter,
+        IRoomEventSerializer serializer)
         : base(logger)
     {
         _videChatConnectionProvider = videChatConnectionProvider;
         _webSocketEventSender = webSocketEventSender;
         _eventSenderAdapter = eventSenderAdapter;
+        _serializer = serializer;
     }
 
     protected override string SupportType => "join video chat";
@@ -59,14 +63,10 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
                 Nickname = e.User.Nickname,
                 Avatar = e.User.Avatar,
             }).ToList();
-        var newEvent = new WebSocketEvent
-        {
-            Type = "all users",
-            Payload = JsonSerializer.Serialize(users),
-        };
-        var eventAsStr = JsonSerializer.Serialize(newEvent);
-        var bytes = Encoding.UTF8.GetBytes(eventAsStr);
+        var strPayload = JsonSerializer.Serialize(users);
+        var newEvent = new WebSocketEvent(detail.RoomId, "all users", strPayload, false);
+        var provider = new CachedRoomEventProvider(newEvent, _serializer);
         var sender = new WebSocketEventSender(_webSocketEventSender, detail.WebSocket);
-        await _eventSenderAdapter.SendAsync(bytes, sender, cancellationToken);
+        await _eventSenderAdapter.SendAsync(provider, sender, cancellationToken);
     }
 }

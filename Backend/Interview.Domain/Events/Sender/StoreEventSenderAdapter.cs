@@ -1,4 +1,3 @@
-﻿using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Storage;
 
 namespace Interview.Domain.Events.Sender;
@@ -14,19 +13,21 @@ public class StoreEventSenderAdapter : IEventSenderAdapter
         _eventStorage = eventStorage;
     }
 
-    public async Task SendAsync<T>(T @event, IEventSender<T> sender, CancellationToken cancellationToken)
-        where T : IRoomEvent
+    public async Task SendAsync(
+        IRoomEventProvider provider,
+        IEventSender sender,
+        CancellationToken cancellationToken)
     {
-        await _root.SendAsync(@event, sender, cancellationToken);
+        await _root.SendAsync(provider, sender, cancellationToken);
 
         var storageEvent = new StorageEvent
         {
-            Id = @event.Id,
-            RoomId = @event.RoomId,
-            Type = @event.Type,
-            Payload = @event.BuildStringPayload(),
-            Stateful = @event.Stateful,
-            CreatedAt = @event.CreatedAt,
+            Id = provider.Event.Id,
+            RoomId = provider.Event.RoomId,
+            Type = provider.Event.Type,
+            Payload = provider.Event.BuildStringPayload(),
+            Stateful = provider.Event.Stateful,
+            CreatedAt = provider.Event.CreatedAt,
         };
 
         await _eventStorage.AddAsync(storageEvent, cancellationToken);

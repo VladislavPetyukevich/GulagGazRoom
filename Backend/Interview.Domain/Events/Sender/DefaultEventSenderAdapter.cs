@@ -1,10 +1,13 @@
-using Interview.Domain.Events.Events;
-
 namespace Interview.Domain.Events.Sender;
 
 public sealed class DefaultEventSenderAdapter : IEventSenderAdapter
 {
-    public Task SendAsync<T>(T @event, IEventSender<T> sender, CancellationToken cancellationToken)
-        where T : IRoomEvent
-        => sender.SendAsync(@event, cancellationToken);
+    public Task SendAsync(
+        IRoomEventProvider provider,
+        IEventSender sender,
+        CancellationToken cancellationToken)
+    {
+        var bytes = provider.ToBytes();
+        return sender.SendAsync(bytes, cancellationToken);
+    }
 }

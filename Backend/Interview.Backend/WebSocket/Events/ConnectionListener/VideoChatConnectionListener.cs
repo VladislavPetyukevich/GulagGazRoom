@@ -6,6 +6,7 @@ using System.Text;
 using Interview.Backend.WebSocket.Events.Handlers;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
+using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Events.Sender;
 using Interview.Domain.RoomParticipants;
 
@@ -18,15 +19,18 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
     private readonly ILogger<VideoChatConnectionListener> _logger;
     private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
     private readonly IEventSenderAdapter _eventSenderAdapter;
+    private readonly IRoomEventSerializer _serializer;
 
     public VideoChatConnectionListener(
         ILogger<VideoChatConnectionListener> logger,
         ILogger<WebSocketEventSender> webSocketEventSender,
-        IEventSenderAdapter eventSenderAdapter)
+        IEventSenderAdapter eventSenderAdapter,
+        IRoomEventSerializer serializer)
     {
         _logger = logger;
         _webSocketEventSender = webSocketEventSender;
         _eventSenderAdapter = eventSenderAdapter;
+        _serializer = serializer;
     }
 
     public Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
@@ -61,18 +65,14 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         if (disconnectUser && TryGetConnections(detail.Room.Id, out var connections))
         {
             var payload = new { Id = detail.User.Id, };
-            var sendEvent = new WebSocketEvent
-            {
-                Type = "user left",
-                Payload = System.Text.Json.JsonSerializer.Serialize(payload),
-            };
-            var sendEventAsStr = System.Text.Json.JsonSerializer.Serialize(sendEvent);
-            var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);
+            var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
+            var sendEvent = new WebSocketEvent(detail.Room.Id, "user left", payloadJson, false);
+            var provider = new CachedRoomEventProvider(sendEvent, _serializer);
 
             foreach (var (_, webSocket) in connections)
             {
                 var sender = new WebSocketEventSender(_webSocketEventSender, webSocket);
-                await _eventSenderAdapter.SendAsync(sendEventAsBytes, sender, cancellationToken);
+                await _eventSenderAdapter.SendAsync(provider, sender, cancellationToken);
             }
         }
     }

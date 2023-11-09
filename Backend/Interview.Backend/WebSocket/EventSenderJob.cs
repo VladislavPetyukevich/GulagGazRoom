@@ -105,13 +105,12 @@ public class EventSenderJob : BackgroundService
             statefulEvents.Add(currentEvent);
         }
 
-        var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
-        var eventAsBytes = Encoding.UTF8.GetBytes(eventAsString);
-        _logger.LogDebug("Start sending {Event}", eventAsString);
+        var provider = new CachedRoomEventProvider(currentEvent, _roomEventSerializer);
+        _logger.LogDebug("Start sending {@Event}", currentEvent);
         await Parallel.ForEachAsync(subscribers, cancellationToken, async (entry, token) =>
         {
             var sender = new WebSocketEventSender(_webSocketEventSender, entry);
-            await _eventSenderAdapter.SendAsync(eventAsBytes, sender, token);
+            await _eventSenderAdapter.SendAsync(provider, sender, token);
         });
     }
 

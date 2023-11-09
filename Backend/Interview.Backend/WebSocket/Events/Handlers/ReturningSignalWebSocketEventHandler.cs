@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Events.Sender;
 
 namespace Interview.Backend.WebSocket.Events.Handlers;
@@ -11,17 +12,20 @@ public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<Re
     private readonly IVideChatConnectionProvider _userWebSocketConnectionProvider;
     private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
     private readonly IEventSenderAdapter _eventSenderAdapter;
+    private readonly IRoomEventSerializer _serializer;
 
     public ReturningSignalWebSocketEventHandler(
         ILogger<WebSocketEventHandlerBase<ReceivePayload>> logger,
         IVideChatConnectionProvider userWebSocketConnectionProvider,
         ILogger<WebSocketEventSender> webSocketEventSender,
-        IEventSenderAdapter eventSenderAdapter)
+        IEventSenderAdapter eventSenderAdapter,
+        IRoomEventSerializer serializer)
         : base(logger)
     {
         _userWebSocketConnectionProvider = userWebSocketConnectionProvider;
         _webSocketEventSender = webSocketEventSender;
         _eventSenderAdapter = eventSenderAdapter;
+        _serializer = serializer;
     }
 
     protected override string SupportType => "returning signal";
@@ -35,17 +39,13 @@ public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<Re
         }
 
         var receivingReturnedSignalPayload = new { Signal = payload.Signal, From = detail.UserId };
-        var sendEvent = new WebSocketEvent
-        {
-            Type = "receiving returned signal",
-            Payload = JsonSerializer.Serialize(receivingReturnedSignalPayload),
-        };
-        var sendEventAsStr = JsonSerializer.Serialize(sendEvent);
-        var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);
+        var strPayload = JsonSerializer.Serialize(receivingReturnedSignalPayload);
+        var sendEvent = new WebSocketEvent(detail.RoomId, "receiving returned signal", strPayload, false);
+        var provider = new CachedRoomEventProvider(sendEvent, _serializer);
         foreach (var webSocket in connections)
         {
             var sender = new WebSocketEventSender(_webSocketEventSender, webSocket);
-            await _eventSenderAdapter.SendAsync(sendEventAsBytes, sender, cancellationToken);
+            await _eventSenderAdapter.SendAsync(provider, sender, cancellationToken);
         }
     }
 

@@ -1,6 +1,6 @@
 namespace Interview.Domain.Events.Sender;
 
-public interface IEventSender<in T>
+public interface IEventSender
 {
-    Task SendAsync(T @event, CancellationToken cancellationToken);
+    Task SendAsync(ReadOnlyMemory<byte> @event, CancellationToken cancellationToken);
 }
