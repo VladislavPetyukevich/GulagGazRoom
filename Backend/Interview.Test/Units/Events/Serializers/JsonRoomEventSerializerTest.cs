@@ -15,8 +15,8 @@ namespace Interview.Test.Units.Events.Serializers
 
                 yield return new object?[]
                 {
-                    """{"RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Stateful":false}""",
-                    new RoomEvent(Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Test", null, false)
+                    """{"Id":"55ad40ec-c89d-11ed-ac80-463da0479b2d","RoomId":"81ad40ec-c89d-11ed-ac80-463da0479b2d","Type":"Test","Stateful":false,"CreatedAt":"2005-02-01 00:00:00:000"}""",
+                    new RoomEvent(Guid.Parse("55ad40ec-c89d-11ed-ac80-463da0479b2d"), Guid.Parse("81ad40ec-c89d-11ed-ac80-463da0479b2d"), "Test", null, false, new DateTime(2005, 02, 01))
                 };
 
                 yield return new object?[]

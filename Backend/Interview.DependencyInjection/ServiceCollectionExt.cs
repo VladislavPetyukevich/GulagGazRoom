@@ -108,5 +108,7 @@ public static class ServiceCollectionExt
             self.AddSingleton<IEventStorage, RedisEventStorage>(_ => redisStorage);
             redisStorage.CreateIndexes();
         }
+
+        self.Decorate<IEventSenderAdapter, StoreEventSenderAdapter>();
     }
 }
