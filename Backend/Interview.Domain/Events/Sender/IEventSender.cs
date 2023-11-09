@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Events.Sender;
+namespace Interview.Domain.Events.Sender;
 
 public interface IEventSender<in T>
 {

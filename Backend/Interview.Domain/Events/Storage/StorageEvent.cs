@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Events.Storage;
+namespace Interview.Domain.Events.Storage;
 
 public class StorageEvent
 {
@@ -11,4 +11,6 @@ public class StorageEvent
     public required string? Payload { get; set; }
 
     public required bool Stateful { get; set; }
+
+    public required DateTime CreatedAt { get; init; }
 }

@@ -1,4 +1,4 @@
-﻿using NSpecifications;
+using NSpecifications;
 
 namespace Interview.Domain.Events.Storage;
 

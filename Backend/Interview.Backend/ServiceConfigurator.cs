@@ -104,20 +104,19 @@ public class ServiceConfigurator
         var adminUsers = _configuration.GetSection(nameof(AdminUsers))
             .Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
 
-        var serviceOption = new DependencyInjectionAppServiceOption(
-            new TwitchTokenProviderOption
-            {
-                ClientSecret = twitchService.ClientSecret,
-                ClientId = twitchService.ClientId,
-            },
-            adminUsers,
-            optionsBuilder =>
+        var serviceOption = new DependencyInjectionAppServiceOption
+        {
+            DbConfigurator = optionsBuilder =>
             {
                 var connectionString = _configuration.GetConnectionString("database");
-                var database = _configuration.GetConnectionString("type")?.ToLower().Trim();
+                var database = _configuration.GetConnectionString("type")
+                    ?.ToLower()
+                    .Trim();
                 var customDb = !string.IsNullOrWhiteSpace(database);
                 if ((_environment.IsDevelopment() && !customDb) ||
-                    "sqlite".Equals(database, StringComparison.InvariantCultureIgnoreCase))
+                    "sqlite".Equals(
+                        database,
+                        StringComparison.InvariantCultureIgnoreCase))
                 {
                     optionsBuilder.UseSqlite(
                         connectionString,
@@ -125,9 +124,13 @@ public class ServiceConfigurator
                             .FullName));
                 }
                 else if ((_environment.IsPreProduction() && !customDb) ||
-                         "postgres".Equals(database, StringComparison.InvariantCultureIgnoreCase))
+                         "postgres".Equals(
+                             database,
+                             StringComparison.InvariantCultureIgnoreCase))
                 {
-                    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+                    AppContext.SetSwitch(
+                        "Npgsql.EnableLegacyTimestampBehavior",
+                        true);
                     optionsBuilder.UseNpgsql(
                         connectionString,
                         builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly
@@ -137,7 +140,28 @@ public class ServiceConfigurator
                 {
                     throw new InvalidOperationException("Unknown environment");
                 }
-            });
+            },
+            TwitchTokenProviderOption = new TwitchTokenProviderOption
+            {
+                ClientSecret = twitchService.ClientSecret,
+                ClientId = twitchService.ClientId,
+            },
+            AdminUsers = adminUsers,
+            EventStorageConfigurator = builder =>
+            {
+                var storageSection = _configuration.GetSection("EventStorage");
+                var useRedis = storageSection?.GetValue<bool?>("UseRedis") ?? false;
+                if (useRedis || !_environment.IsDevelopment())
+                {
+                    var connectionString = storageSection?.GetValue<string>("RedisConnectionString");
+                    builder.UseRedis(connectionString ?? string.Empty);
+                }
+                else
+                {
+                    builder.UseEmpty();
+                }
+            },
+        };
 
         serviceCollection.AddAppServices(serviceOption);
         serviceCollection.AddAppAuth(twitchService);
@@ -169,7 +193,7 @@ public class ServiceConfigurator
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                 {
                     context.HttpContext.Response.Headers.RetryAfter =
-                        ((int) retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+                        ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
                 }
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
