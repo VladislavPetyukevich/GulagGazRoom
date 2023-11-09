@@ -1,6 +1,6 @@
 using System.Text;
+using Interview.Backend.WebSocket.Events;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
-using Interview.Backend.WebSocket.Events.EventSender;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;

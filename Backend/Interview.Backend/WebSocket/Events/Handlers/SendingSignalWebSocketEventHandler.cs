@@ -2,19 +2,26 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Domain.Events.Sender;
 
 namespace Interview.Backend.WebSocket.Events.Handlers;
 
 public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<SendingSignalWebSocketEventHandler.ReceivePayload>
 {
     private readonly IVideChatConnectionProvider _userWebSocketConnectionProvider;
+    private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
+    private readonly IEventSenderAdapter _eventSenderAdapter;
 
     public SendingSignalWebSocketEventHandler(
         ILogger<WebSocketEventHandlerBase<ReceivePayload>> logger,
-        IVideChatConnectionProvider userWebSocketConnectionProvider)
+        IVideChatConnectionProvider userWebSocketConnectionProvider,
+        ILogger<WebSocketEventSender> webSocketEventSender,
+        IEventSenderAdapter eventSenderAdapter)
         : base(logger)
     {
         _userWebSocketConnectionProvider = userWebSocketConnectionProvider;
+        _webSocketEventSender = webSocketEventSender;
+        _eventSenderAdapter = eventSenderAdapter;
     }
 
     protected override string SupportType => "sending signal";
@@ -46,14 +53,8 @@ public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<Send
         var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);
         foreach (var webSocket in connections)
         {
-            try
-            {
-                await webSocket.SendAsync(sendEventAsBytes, WebSocketMessageType.Text, true, cancellationToken);
-            }
-            catch
-            {
-                // ignore
-            }
+            var sender = new WebSocketEventSender(_webSocketEventSender, webSocket);
+            await _eventSenderAdapter.SendAsync(sendEventAsBytes, sender, cancellationToken);
         }
     }
 

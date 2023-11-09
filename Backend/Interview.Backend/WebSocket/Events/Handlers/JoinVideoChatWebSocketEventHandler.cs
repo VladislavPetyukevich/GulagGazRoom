@@ -2,19 +2,26 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Domain.Events.Sender;
 
 namespace Interview.Backend.WebSocket.Events.Handlers;
 
 public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
 {
     private readonly IVideChatConnectionProvider _videChatConnectionProvider;
+    private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
+    private readonly IEventSenderAdapter _eventSenderAdapter;
 
     public JoinVideoChatWebSocketEventHandler(
         ILogger<JoinVideoChatWebSocketEventHandler> logger,
-        IVideChatConnectionProvider videChatConnectionProvider)
+        IVideChatConnectionProvider videChatConnectionProvider,
+        ILogger<WebSocketEventSender> webSocketEventSender,
+        IEventSenderAdapter eventSenderAdapter)
         : base(logger)
     {
         _videChatConnectionProvider = videChatConnectionProvider;
+        _webSocketEventSender = webSocketEventSender;
+        _eventSenderAdapter = eventSenderAdapter;
     }
 
     protected override string SupportType => "join video chat";
@@ -59,6 +66,7 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
         };
         var eventAsStr = JsonSerializer.Serialize(newEvent);
         var bytes = Encoding.UTF8.GetBytes(eventAsStr);
-        await detail.WebSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken);
+        var sender = new WebSocketEventSender(_webSocketEventSender, detail.WebSocket);
+        await _eventSenderAdapter.SendAsync(bytes, sender, cancellationToken);
     }
 }

@@ -2,7 +2,7 @@
 using System.Text;
 using Interview.Domain.Events.Sender;
 
-namespace Interview.Backend.WebSocket.Events.EventSender;
+namespace Interview.Backend.WebSocket.Events;
 
 public class WebSocketEventSender : IEventSender<ReadOnlyMemory<byte>>
 {

@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
-using Interview.Backend.WebSocket.Events.EventSender;
 using Interview.Backend.WebSocket.Events.Handlers;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
