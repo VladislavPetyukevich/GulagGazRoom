@@ -1,5 +1,7 @@
+using System.Linq.Expressions;
 using Interview.Domain.Events.Storage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using NSpecifications;
 using Redis.OM;
 using Redis.OM.Modeling;
@@ -23,7 +25,7 @@ public class RedisEventStorage : IEventStorage
         _redis.Connection.CreateIndex(typeof(RedisEvent));
     }
 
-    public Task AddAsync(StorageEvent @event, CancellationToken cancellationToken)
+    public Task AddAsync(IStorageEvent @event, CancellationToken cancellationToken)
     {
         var redisEvent = new RedisEvent
         {
@@ -37,24 +39,17 @@ public class RedisEventStorage : IEventStorage
         return _collection.InsertAsync(redisEvent);
     }
 
-    public Task<List<StorageEvent>> GetBySpecAsync(Spec<StorageEvent> spec, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken)
     {
-        return _collection
-            .Select(e => new StorageEvent
-            {
-                Id = e.Id,
-                RoomId = e.RoomId,
-                Type = e.Type,
-                Payload = e.Payload,
-                Stateful = e.Stateful,
-                CreatedAt = e.CreatedAt,
-            })
-            .Where(spec.Expression)
-            .ToListAsync(cancellationToken);
+        var newSpec = (Expression<Func<RedisEvent, bool>>)Expression.Lambda(
+            spec.Expression.Body,
+            Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
+        var result = await _collection.Where(newSpec).ToListAsync(cancellationToken);
+        return result;
     }
 
     [Document(StorageType = StorageType.Json)]
-    private class RedisEvent
+    private class RedisEvent : IStorageEvent
     {
         [Indexed]
         public required Guid Id { get; set; }

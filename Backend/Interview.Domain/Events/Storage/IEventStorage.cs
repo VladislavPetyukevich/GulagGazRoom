@@ -4,7 +4,7 @@ namespace Interview.Domain.Events.Storage;
 
 public interface IEventStorage
 {
-    Task AddAsync(StorageEvent @event, CancellationToken cancellationToken);
+    Task AddAsync(IStorageEvent @event, CancellationToken cancellationToken);
 
-    Task<List<StorageEvent>> GetBySpecAsync(Spec<StorageEvent> spec, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken);
 }

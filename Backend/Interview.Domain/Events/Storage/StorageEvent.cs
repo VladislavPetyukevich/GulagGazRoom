@@ -1,6 +1,6 @@
 namespace Interview.Domain.Events.Storage;
 
-public class StorageEvent
+public class StorageEvent : IStorageEvent
 {
     public required Guid Id { get; set; }
 
