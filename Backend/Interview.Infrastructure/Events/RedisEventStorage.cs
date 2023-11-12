@@ -48,9 +48,19 @@ public class RedisEventStorage : IEventStorage
         return result;
     }
 
+    public void Test()
+    {
+        var rAll = _collection.ToList();
+        var r1 = _collection.Where(e => e.Type == "join video chat").ToList();
+        var r2 = _collection.Where(e => e.Type == "all users").ToList();
+        var r4 = _collection.Where(e => e.Payload!.Contains("11")).ToList();
+        var r5 = _collection.Where(e => e.Payload!.Contains("Test")).ToList();
+    }
+
     [Document(StorageType = StorageType.Json)]
     private class RedisEvent : IStorageEvent
     {
+        [RedisIdField]
         [Indexed]
         public required Guid Id { get; set; }
 

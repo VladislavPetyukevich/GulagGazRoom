@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Net.WebSockets;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.Handlers;
+using Interview.Domain.Events.Storage;
 using Microsoft.IO;
 
 namespace Interview.Backend.WebSocket.Events;
@@ -10,10 +11,15 @@ public class WebSocketReader
 {
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly IWebSocketEventHandler[] _handlers;
+    private readonly IEventStorage _eventStorage;
 
-    public WebSocketReader(RecyclableMemoryStreamManager manager, IEnumerable<IWebSocketEventHandler> handlers)
+    public WebSocketReader(
+        RecyclableMemoryStreamManager manager,
+        IEnumerable<IWebSocketEventHandler> handlers,
+        IEventStorage eventStorage)
     {
         _manager = manager;
+        _eventStorage = eventStorage;
         _handlers = handlers.ToArray();
     }
 
@@ -61,12 +67,29 @@ public class WebSocketReader
                     break;
                 }
 
-                if (deserializeResult is not null)
+                if (deserializeResult is null)
                 {
-                    var socketEventDetail = new SocketEventDetail(scopedServiceProvider, webSocket, deserializeResult, user, room);
-                    var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
-                    await Task.WhenAll(tasks);
+                    continue;
                 }
+
+                var storageEvent = new StorageEvent
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    Payload = deserializeResult.Value,
+                    RoomId = deserializeResult.RoomId,
+                    Stateful = deserializeResult.Stateful,
+                    Type = deserializeResult.Type,
+                };
+                await _eventStorage.AddAsync(storageEvent, ct);
+                var socketEventDetail = new SocketEventDetail(
+                    scopedServiceProvider,
+                    webSocket,
+                    deserializeResult,
+                    user,
+                    room);
+                var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
+                await Task.WhenAll(tasks);
             }
         }
         catch (Exception e)
