@@ -55,24 +55,22 @@ public class AppDbContext : DbContext
 
     public DbSet<RoomState> RoomStates { get; private set; } = null!;
 
+    public DbSet<QueuedRoomEvent> QueuedRoomEvents { get; private set; } = null!;
+
     public override int SaveChanges()
     {
-        using (var saveCookie = new SaveCookie(this, CancellationToken.None))
-        {
-            saveCookie.NotifyPreProcessors();
-            return base.SaveChanges();
-        }
+        using var saveCookie = new SaveCookie(this, CancellationToken.None);
+        saveCookie.NotifyPreProcessors();
+        return base.SaveChanges();
     }
 
     public override async Task<int> SaveChangesAsync(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
     {
-        await using (var saveCookie = new SaveCookie(this, cancellationToken))
-        {
-            await saveCookie.NotifyPreProcessorsAsync();
-            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
+        await using var saveCookie = new SaveCookie(this, cancellationToken);
+        await saveCookie.NotifyPreProcessorsAsync();
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

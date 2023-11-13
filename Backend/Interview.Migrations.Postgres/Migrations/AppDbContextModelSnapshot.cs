@@ -331,6 +331,34 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("RoomReview");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.QueuedRoomEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
+                    b.ToTable("queued_room_event", (string)null);
+                });
+
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1102,6 +1130,21 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Interview.Domain.Rooms.QueuedRoomEvent", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Interview.Domain.Rooms.Room", null)
+                        .WithOne()
+                        .HasForeignKey("Interview.Domain.Rooms.QueuedRoomEvent", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
