@@ -1,4 +1,4 @@
-﻿namespace Interview.Domain.Events.Storage;
+namespace Interview.Domain.Events.Storage;
 
 public interface IStorageEvent
 {

@@ -57,6 +57,8 @@ public class AppDbContext : DbContext
 
     public DbSet<QueuedRoomEvent> QueuedRoomEvents { get; private set; } = null!;
 
+    public DbSet<DbRoomEvent> RoomEvents { get; private set; } = null!;
+
     public override int SaveChanges()
     {
         using var saveCookie = new SaveCookie(this, CancellationToken.None);

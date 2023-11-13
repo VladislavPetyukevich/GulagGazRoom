@@ -25,8 +25,15 @@ public abstract class Entity
 
     public void UpdateCreateDate(DateTime dateTime)
     {
-        CreateDate = dateTime;
-        UpdateDate = dateTime;
+        if (CreateDate == default)
+        {
+            CreateDate = dateTime;
+        }
+
+        if (UpdateDate == default)
+        {
+            UpdateDate = dateTime;
+        }
     }
 
     public void UpdateUpdateDate(DateTime dateTime)

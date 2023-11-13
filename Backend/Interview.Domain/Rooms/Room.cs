@@ -37,4 +37,6 @@ public class Room : Entity
     public List<RoomState> RoomStates { get; set; } = new();
 
     public List<Tag> Tags { get; set; } = new();
+
+    public QueuedRoomEvent? QueuedRoomEvent { get; set; }
 }

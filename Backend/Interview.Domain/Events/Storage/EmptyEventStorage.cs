@@ -9,8 +9,8 @@ public sealed class EmptyEventStorage : IEventStorage
         return Task.CompletedTask;
     }
 
-    public Task<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken)
+    public IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken)
     {
-        return Task.FromResult<IReadOnlyCollection<IStorageEvent>>(Array.Empty<IStorageEvent>());
+        return AsyncEnumerable.Empty<IReadOnlyCollection<IStorageEvent>>();
     }
 }

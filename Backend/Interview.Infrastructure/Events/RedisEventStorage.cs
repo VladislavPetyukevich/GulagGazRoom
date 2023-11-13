@@ -39,22 +39,25 @@ public class RedisEventStorage : IEventStorage
         return _collection.InsertAsync(redisEvent);
     }
 
-    public async Task<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken)
     {
         var newSpec = (Expression<Func<RedisEvent, bool>>)Expression.Lambda(
             spec.Expression.Body,
             Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
-        var result = await _collection.Where(newSpec).ToListAsync(cancellationToken);
-        return result;
-    }
+        var result = await _collection.Where(newSpec).ToListAsync();
+        yield return new List<IStorageEvent>(result);
+        var offset = 0;
+        while (result.Count > 0)
+        {
+            offset += _collection.ChunkSize;
+            result = await _collection.Where(newSpec).Skip(offset).ToListAsync();
+            if (result.Count == 0)
+            {
+                break;
+            }
 
-    public void Test()
-    {
-        var rAll = _collection.ToList();
-        var r1 = _collection.Where(e => e.Type == "join video chat").ToList();
-        var r2 = _collection.Where(e => e.Type == "all users").ToList();
-        var r4 = _collection.Where(e => e.Payload!.Contains("11")).ToList();
-        var r5 = _collection.Where(e => e.Payload!.Contains("Test")).ToList();
+            yield return new List<IStorageEvent>(result);
+        }
     }
 
     [Document(StorageType = StorageType.Json)]

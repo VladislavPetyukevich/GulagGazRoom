@@ -70,6 +70,43 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.ToTable("AppEvent");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Events.DbRoomEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Payload")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Stateful")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("RoomEvents");
+                });
+
             modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
                 {
                     b.Property<Guid>("Id")
@@ -351,7 +388,7 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.HasIndex("RoomId")
                         .IsUnique();
 
-                    b.ToTable("queued_room_event", (string)null);
+                    b.ToTable("QueuedRoomEvents");
                 });
 
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
@@ -984,6 +1021,23 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("CreatedBy");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Events.DbRoomEvent", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Interview.Domain.Rooms.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
                 {
                     b.HasOne("Interview.Domain.Users.User", "CreatedBy")
@@ -1134,7 +1188,7 @@ namespace Interview.Migrations.Sqlite.Migrations
                         .HasForeignKey("CreatedById");
 
                     b.HasOne("Interview.Domain.Rooms.Room", null)
-                        .WithOne()
+                        .WithOne("QueuedRoomEvent")
                         .HasForeignKey("Interview.Domain.Rooms.QueuedRoomEvent", "RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1271,6 +1325,8 @@ namespace Interview.Migrations.Sqlite.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
+
+                    b.Navigation("QueuedRoomEvent");
 
                     b.Navigation("RoomStates");
                 });

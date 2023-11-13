@@ -1,4 +1,4 @@
-﻿using Interview.Domain.Rooms;
+using Interview.Domain.Rooms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,11 +8,10 @@ public class QueuedRoomEventConfiguration : EntityTypeConfigurationBase<QueuedRo
 {
     protected override void ConfigureCore(EntityTypeBuilder<QueuedRoomEvent> builder)
     {
-        builder.ToTable("queued_room_event");
         builder.Property(e => e.RoomId).IsRequired();
         builder.HasIndex(e => e.RoomId).IsUnique();
         builder.HasOne<Room>()
-            .WithOne()
+            .WithOne(e => e.QueuedRoomEvent)
             .HasForeignKey<QueuedRoomEvent>(e => e.RoomId)
             .IsRequired();
     }

@@ -95,6 +95,7 @@ public class ServiceConfigurator
         AddRateLimiter(serviceCollection);
 
         AddSwagger(serviceCollection);
+        serviceCollection.AddHostedService<EventStorage2DatabaseBackgroundService>();
     }
 
     private void AddAppServices(IServiceCollection serviceCollection)
