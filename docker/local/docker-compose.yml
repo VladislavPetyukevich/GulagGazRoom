@@ -27,6 +27,7 @@ services:
         ClientId: ${CLIENT_ID}
         ClientSecret: ${CLIENT_SECRET}
         SwaggerPrefix: ""
+        RedisConnectionString: ${REDIS_CONNECTION_STRING}
     ports:
       - '8800:8800'
     environment:
@@ -36,9 +37,12 @@ services:
       - backend-drive:/app/
     depends_on:
       - postgres
+      - cache
     networks:
       - local.network
-
+    links:
+      - cache
+  
   frontend-admin:
     container_name: "frontend-admin"
     build:
@@ -55,6 +59,14 @@ services:
     networks:
       - local.network
 
+  cache:
+    image: redis/redis-stack-server
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+
 networks:
   local.network:
     driver: bridge
@@ -63,3 +75,5 @@ volumes:
   backend-drive:
   frontend-admin-drive:
   database-drive:
+  cache:
+    driver: local
