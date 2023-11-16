@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Storage;
 using Interview.Domain.Rooms;
@@ -19,7 +19,7 @@ public class EventStorage2DatabaseServiceTest
     {
         var clock = new TestSystemClock();
         await using var appDbContext = new TestAppDbContextFactory().Create(clock);
-        
+
         var room1 = new Room("Test 1", string.Empty) { Status = SERoomStatus.Close, };
         appDbContext.Rooms.Add(room1);
         appDbContext.Rooms.Add(new Room("Test 2", string.Empty) { Status = SERoomStatus.Close, });
@@ -65,7 +65,7 @@ public class EventStorage2DatabaseServiceTest
         {
             await eventStorage.AddAsync(storageEvent, CancellationToken.None);
         }
-        
+
         var initialEvents = await appDbContext.RoomEvents.ToListAsync();
         var service = new EventStorage2DatabaseService(
             new QueuedRoomEventRepository(appDbContext),
@@ -92,11 +92,11 @@ public class EventStorage2DatabaseServiceTest
                roomEvent.Type == storageEvent.Type &&
                roomEvent.Id == storageEvent.Id;
     }
-    
+
     private sealed class InMemoryEventStorage : IEventStorage
     {
-        private List<IStorageEvent> _storage = new();
-        
+        private readonly List<IStorageEvent> _storage = new();
+
         public Task AddAsync(IStorageEvent @event, CancellationToken cancellationToken)
         {
             _storage.Add(@event);

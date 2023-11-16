@@ -28,6 +28,7 @@ services:
         ClientSecret: ${CLIENT_SECRET}
         SwaggerPrefix: ""
         RedisConnectionString: ${REDIS_CONNECTION_STRING}
+        UseRedis: ${USE_REDIS}
     ports:
       - '8800:8800'
     environment:
@@ -36,12 +37,12 @@ services:
     volumes:
       - backend-drive:/app/
     depends_on:
-      - postgres
-      - cache
+      - 'postgres'
+      - 'redis_image'
     networks:
       - local.network
     links:
-      - cache
+      - 'redis_image'
   
   frontend-admin:
     container_name: "frontend-admin"
@@ -59,13 +60,11 @@ services:
     networks:
       - local.network
 
-  cache:
+  redis_image:
+    container_name: cache
     image: redis/redis-stack-server
-    restart: always
     ports:
       - '6379:6379'
-    volumes:
-      - cache:/data
 
 networks:
   local.network:
@@ -75,5 +74,3 @@ volumes:
   backend-drive:
   frontend-admin-drive:
   database-drive:
-  cache:
-    driver: local

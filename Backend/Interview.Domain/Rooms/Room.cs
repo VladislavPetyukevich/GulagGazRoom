@@ -7,7 +7,8 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Tags;
 
-[assembly:InternalsVisibleTo("Interview.Test")]
+[assembly: InternalsVisibleTo("Interview.Test")]
+
 namespace Interview.Domain.Rooms;
 
 public class Room : Entity
