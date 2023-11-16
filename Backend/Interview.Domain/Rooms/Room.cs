@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Interview.Domain.Questions;
 using Interview.Domain.Repository;
 using Interview.Domain.RoomConfigurations;
@@ -6,6 +7,7 @@ using Interview.Domain.RoomQuestionReactions;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Tags;
 
+[assembly:InternalsVisibleTo("Interview.Test")]
 namespace Interview.Domain.Rooms;
 
 public class Room : Entity

@@ -39,18 +39,19 @@ public class RedisEventStorage : IEventStorage
         return _collection.InsertAsync(redisEvent);
     }
 
-    public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
     {
         var newSpec = (Expression<Func<RedisEvent, bool>>)Expression.Lambda(
             spec.Expression.Body,
             Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
-        var result = await _collection.Where(newSpec).ToListAsync();
+        var collection = _redis.RedisCollection<RedisEvent>(chunkSize);
+        var result = await collection.Where(newSpec).ToListAsync();
         yield return new List<IStorageEvent>(result);
         var offset = 0;
         while (result.Count > 0)
         {
-            offset += _collection.ChunkSize;
-            result = await _collection.Where(newSpec).Skip(offset).ToListAsync();
+            offset += collection.ChunkSize;
+            result = await collection.Where(newSpec).Skip(offset).ToListAsync();
             if (result.Count == 0)
             {
                 break;

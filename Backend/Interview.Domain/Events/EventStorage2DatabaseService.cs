@@ -12,6 +12,8 @@ public class EventStorage2DatabaseService
     private readonly IEventStorage _eventStorage;
     private readonly ILogger<EventStorage2DatabaseService> _logger;
 
+    private int ChunkSize { get; set; } = 100;
+
     public EventStorage2DatabaseService(
         IQueuedRoomEventRepository queuedRoomEventRepository,
         IDbRoomEventRepository roomEventRepository,
@@ -68,10 +70,11 @@ public class EventStorage2DatabaseService
     public async Task ProcessRoomAsync(Guid roomId, CancellationToken cancellationToken)
     {
         var specification = new Spec<IStorageEvent>(e => e.RoomId == roomId);
-        await foreach (var collection in _eventStorage.GetBySpecAsync(specification, cancellationToken))
+        await foreach (var collection in _eventStorage.GetBySpecAsync(specification, ChunkSize, cancellationToken))
         {
             var dbEvents = collection.Select(e => new DbRoomEvent
             {
+                Id = e.Id,
                 RoomId = e.RoomId,
                 Type = e.Type,
                 Stateful = e.Stateful,
