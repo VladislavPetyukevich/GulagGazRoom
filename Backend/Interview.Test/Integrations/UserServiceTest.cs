@@ -1,5 +1,8 @@
+using System.Linq.Expressions;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using Interview.Domain.Permissions;
+using Interview.Domain.Repository;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
 using Interview.Infrastructure.Users;
@@ -45,9 +48,10 @@ public class UserServiceTest
         expectedUser.UpdateCreateDate(user.CreateDate);
         expectedUser.Roles.AddRange(entity.Roles);
         expectedUser.Permissions.AddRange(entity.Permissions);
-        upsertUser.Should().BeEquivalentTo(expectedUser);
+        var excluder = CreateDatesExcluder();
+        upsertUser.Should().BeEquivalentTo(expectedUser, e => e.Excluding(excluder));
     }
-
+    
     [Theory(DisplayName = "'UpsertByTwitchIdentityAsync' when there is no such user in the database")]
     [MemberData(nameof(UpsertUsersWhenUserNotExistsInDatabaseData))]
     public async Task UpsertUsersWhenUserNotExistsInDatabase(string nickname, AdminUsers adminUsers,
@@ -93,5 +97,12 @@ public class UserServiceTest
             await userService.UpsertByTwitchIdentityAsync(user));
 
         error.Message.Should().NotBeNull().And.NotBeEmpty();
+    }
+    
+    private static Expression<Func<IMemberInfo, bool>> CreateDatesExcluder()
+    {
+        Expression<Func<IMemberInfo, bool>> excluder = info =>
+            info.Name == nameof(Entity.UpdateDate) || info.Name == nameof(Entity.CreateDate);
+        return excluder;
     }
 }
