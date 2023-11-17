@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Events.Sender;
 
@@ -64,7 +65,7 @@ public class JoinVideoChatWebSocketEventHandler : WebSocketEventHandlerBase
                 Avatar = e.User.Avatar,
             }).ToList();
         var strPayload = JsonSerializer.Serialize(users);
-        var newEvent = new WebSocketEvent(detail.RoomId, "all users", strPayload, false);
+        var newEvent = new RoomEvent(detail.RoomId, "all users", strPayload, false);
         var provider = new CachedRoomEventProvider(newEvent, _serializer);
         var sender = new WebSocketEventSender(_webSocketEventSender, detail.WebSocket);
         await _eventSenderAdapter.SendAsync(provider, sender, cancellationToken);

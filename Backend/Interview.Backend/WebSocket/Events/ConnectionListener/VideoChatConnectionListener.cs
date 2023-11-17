@@ -66,7 +66,7 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         {
             var payload = new { Id = detail.User.Id, };
             var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
-            var sendEvent = new WebSocketEvent(detail.Room.Id, "user left", payloadJson, false);
+            var sendEvent = new RoomEvent(detail.Room.Id, "user left", payloadJson, false);
             var provider = new CachedRoomEventProvider(sendEvent, _serializer);
 
             foreach (var (_, webSocket) in connections)

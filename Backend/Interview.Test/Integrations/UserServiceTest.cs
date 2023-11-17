@@ -51,7 +51,7 @@ public class UserServiceTest
         var excluder = CreateDatesExcluder();
         upsertUser.Should().BeEquivalentTo(expectedUser, e => e.Excluding(excluder));
     }
-    
+
     [Theory(DisplayName = "'UpsertByTwitchIdentityAsync' when there is no such user in the database")]
     [MemberData(nameof(UpsertUsersWhenUserNotExistsInDatabaseData))]
     public async Task UpsertUsersWhenUserNotExistsInDatabase(string nickname, AdminUsers adminUsers,
@@ -98,7 +98,7 @@ public class UserServiceTest
 
         error.Message.Should().NotBeNull().And.NotBeEmpty();
     }
-    
+
     private static Expression<Func<IMemberInfo, bool>> CreateDatesExcluder()
     {
         Expression<Func<IMemberInfo, bool>> excluder = info =>

@@ -49,7 +49,7 @@ public class EfCoreRepositoryTest
 
         var dbUser = await repository.FindByIdDetailedAsync(TestUserId);
         var excluder = CreateDatesExcluder();
-        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser, e=> e.Excluding(excluder));
+        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser, e => e.Excluding(excluder));
     }
 
     [Fact(DisplayName = "FindByIdDetailedAsync with mapper should include roles")]

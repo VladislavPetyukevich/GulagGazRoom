@@ -1,11 +1,8 @@
-using Interview.Domain.Events.Events;
-
 namespace Interview.Backend.WebSocket.Events;
 
-public class WebSocketEvent : RoomEvent
+public class WebSocketEvent
 {
-    public WebSocketEvent(Guid roomId, string type, string? value, bool stateful)
-        : base(roomId, type, value, stateful)
-    {
-    }
+    public string Type { get; set; } = string.Empty;
+
+    public string Value { get; set; } = string.Empty;
 }

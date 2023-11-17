@@ -77,8 +77,8 @@ public class WebSocketReader
                     Id = Guid.NewGuid(),
                     CreatedAt = DateTime.UtcNow,
                     Payload = deserializeResult.Value,
-                    RoomId = deserializeResult.RoomId,
-                    Stateful = deserializeResult.Stateful,
+                    RoomId = room.Id,
+                    Stateful = false,
                     Type = deserializeResult.Type,
                 };
                 await _eventStorage.AddAsync(storageEvent, ct);

@@ -2,6 +2,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
+using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Events.Sender;
 
@@ -49,7 +50,7 @@ public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<Send
             Signal = payload.Signal,
         };
         var payloadStr = JsonSerializer.Serialize(payloadForSerialization);
-        var sendEvent = new WebSocketEvent(detail.RoomId, "user joined", payloadStr, false);
+        var sendEvent = new RoomEvent(detail.RoomId, "user joined", payloadStr, false);
         var provider = new CachedRoomEventProvider(sendEvent, _serializer);
         foreach (var webSocket in connections)
         {
