@@ -19,10 +19,14 @@ export class TextCanvas {
   context: CanvasRenderingContext2D;
   textX: number;
   maxLineLength: number;
+  size: ImageSize;
+  padding: number;
 
   constructor(props: TextCanvasProps) {
     this.fontSize = 32;
     this.maxLineLength = 28;
+    this.size = props.size;
+    this.padding = 160;
     this.textAlign = props.textAlign || 'left';
     this.canvas = this.initCanvas(props.size);
     this.context = this.initContext();
@@ -70,7 +74,7 @@ export class TextCanvas {
   }
 
   print(text: string, line: number) {
-    this.context.fillText(`${text}`, this.textX, this.fontSize * line);
+    this.context.fillText(`${text}`, this.textX, this.fontSize * line, this.size.width - this.padding);
     this.sprite.material.map && (this.sprite.material.map.needsUpdate = true);
   }
 
