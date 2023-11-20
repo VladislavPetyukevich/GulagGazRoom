@@ -12,14 +12,17 @@ public class WebSocketReader
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly IWebSocketEventHandler[] _handlers;
     private readonly IEventStorage _eventStorage;
+    private readonly ILogger<WebSocketReader> _logger;
 
     public WebSocketReader(
         RecyclableMemoryStreamManager manager,
         IEnumerable<IWebSocketEventHandler> handlers,
-        IEventStorage eventStorage)
+        IEventStorage eventStorage,
+        ILogger<WebSocketReader> logger)
     {
         _manager = manager;
         _eventStorage = eventStorage;
+        _logger = logger;
         _handlers = handlers.ToArray();
     }
 
@@ -28,7 +31,6 @@ public class WebSocketReader
         Room room,
         IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
-        Action<Exception> onError,
         CancellationToken ct)
     {
         try
@@ -57,7 +59,7 @@ public class WebSocketReader
                     {
                         if (!webSocket.ShouldCloseWebSocket())
                         {
-                            onError(e);
+                            _logger.LogError(e, "During read event");
                         }
                     }
                 }
@@ -89,14 +91,18 @@ public class WebSocketReader
                     user,
                     room);
                 var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
-                await Task.WhenAll(tasks);
+                var results = await Task.WhenAll(tasks);
+                if (results.All(e => !e))
+                {
+                    _logger.LogWarning("Not found handler for {Type} {Value}", socketEventDetail.Event.Type, socketEventDetail.Event.Value);
+                }
             }
         }
         catch (Exception e)
         {
             if (!webSocket.ShouldCloseWebSocket())
             {
-                onError(e);
+                _logger.LogError(e, "During read events");
             }
         }
     }

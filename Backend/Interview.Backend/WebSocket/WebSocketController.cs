@@ -133,16 +133,12 @@ public class WebSocketController : ControllerBase
         CancellationToken ct)
     {
         return Task.Run(
-            () =>
-            {
-                return _webSocketReader.ReadAsync(
-                    user,
-                    room,
-                    scopedServiceProvider,
-                    webSocket,
-                    exception => _logger.LogError(exception, "During read event"),
-                    ct);
-            },
+            () => _webSocketReader.ReadAsync(
+                user,
+                room,
+                scopedServiceProvider,
+                webSocket,
+                ct),
             ct);
     }
 
