@@ -156,7 +156,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     peer.on('signal', signal => {
       onSendWsMessage(JSON.stringify({
         Type: 'sending signal',
-        Payload: JSON.stringify({
+        Value: JSON.stringify({
           To: to,
           Signal: JSON.stringify(signal),
         }),
@@ -176,7 +176,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     peer.on('signal', signal => {
       onSendWsMessage(JSON.stringify({
         Type: 'returning signal',
-        Payload: JSON.stringify({
+        Value: JSON.stringify({
           To: callerID,
           Signal: JSON.stringify(signal),
         }),
@@ -211,10 +211,16 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     }
     try {
       const parsedData = JSON.parse(lastWsMessage?.data);
-      if (!parsedData?.Payload) {
+      if (
+        parsedData?.Type === 'ChangeCodeEditor' ||
+        parsedData?.Type === 'VoiceRecognition'
+      ) {
         return;
       }
-      const parsedPayload = JSON.parse(parsedData?.Payload);
+      if (!parsedData?.Value) {
+        return;
+      }
+      const parsedPayload = JSON.parse(parsedData?.Value);
       switch (parsedData?.Type) {
         case 'all users':
           if (!Array.isArray(parsedPayload)) {
@@ -357,7 +363,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         const res = event.results[i][0];
         onSendWsMessage(JSON.stringify({
           Type: 'voice-recognition',
-          Payload: res.transcript,
+          Value: res.transcript,
         }));
       }
     };
@@ -442,7 +448,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const handleTextMessageSubmit = (message: string) => {
     onSendWsMessage(JSON.stringify({
       Type: 'chat-message',
-      Payload: message,
+      Value: message,
     }));
   };
 
