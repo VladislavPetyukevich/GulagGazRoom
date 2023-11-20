@@ -13,11 +13,11 @@ public abstract class WebSocketEventHandlerBase<TPayload> : IWebSocketEventHandl
 
     protected abstract string SupportType { get; }
 
-    public Task HandleAsync(SocketEventDetail detail, CancellationToken cancellationToken)
+    public async Task HandleAsync(SocketEventDetail detail, CancellationToken cancellationToken)
     {
         if (!SupportType.Equals(detail.Event.Type, StringComparison.InvariantCultureIgnoreCase))
         {
-            return Task.CompletedTask;
+            return;
         }
 
         try
@@ -25,15 +25,13 @@ public abstract class WebSocketEventHandlerBase<TPayload> : IWebSocketEventHandl
             var payload = ParsePayload(detail.Event);
             if (payload is not null)
             {
-                return HandleEventAsync(detail, payload, cancellationToken);
+                await HandleEventAsync(detail, payload, cancellationToken);
             }
         }
         catch (Exception e)
         {
             Logger.LogError(e, "Unable to parse payload {Payload}", detail.Event.Value);
         }
-
-        return Task.CompletedTask;
     }
 
     protected abstract Task HandleEventAsync(SocketEventDetail detail, TPayload payload, CancellationToken cancellationToken);
