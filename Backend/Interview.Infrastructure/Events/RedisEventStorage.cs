@@ -25,25 +25,15 @@ public class RedisEventStorage : IEventStorage
         _redis.Connection.CreateIndex(typeof(RedisEvent));
     }
 
-    public Task AddAsync(IStorageEvent @event, CancellationToken cancellationToken)
+    public ValueTask AddAsync(IStorageEvent @event, CancellationToken cancellationToken)
     {
-        var redisEvent = new RedisEvent
-        {
-            Id = @event.Id,
-            RoomId = @event.RoomId,
-            Type = @event.Type,
-            Payload = @event.Payload,
-            Stateful = @event.Stateful,
-            CreatedAt = @event.CreatedAt,
-        };
-        return _collection.InsertAsync(redisEvent);
+        var redisEvent = ToRedisEvent(@event);
+        return new ValueTask(_collection.InsertAsync(redisEvent));
     }
 
     public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
     {
-        var newSpec = (Expression<Func<RedisEvent, bool>>)Expression.Lambda(
-            spec.Expression.Body,
-            Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
+        var newSpec = BuildNewSpec(spec);
         var collection = _redis.RedisCollection<RedisEvent>(chunkSize);
         var result = await collection.Where(newSpec).ToListAsync();
         yield return new List<IStorageEvent>(result);
@@ -59,6 +49,34 @@ public class RedisEventStorage : IEventStorage
 
             yield return new List<IStorageEvent>(result);
         }
+    }
+
+    public ValueTask DeleteAsync(IEnumerable<IStorageEvent> items, CancellationToken cancellationToken)
+    {
+        var redisEvents = items.Select(ToRedisEvent);
+        return new ValueTask(_collection.DeleteAsync(redisEvents));
+    }
+
+    private static RedisEvent ToRedisEvent(IStorageEvent @event)
+    {
+        var redisEvent = new RedisEvent
+        {
+            Id = @event.Id,
+            RoomId = @event.RoomId,
+            Type = @event.Type,
+            Payload = @event.Payload,
+            Stateful = @event.Stateful,
+            CreatedAt = @event.CreatedAt,
+        };
+        return redisEvent;
+    }
+
+    private static Expression<Func<RedisEvent, bool>> BuildNewSpec(ISpecification<IStorageEvent> spec)
+    {
+        var newSpec = (Expression<Func<RedisEvent, bool>>) Expression.Lambda(
+            spec.Expression.Body,
+            Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
+        return newSpec;
     }
 
     [Document(StorageType = StorageType.Json)]

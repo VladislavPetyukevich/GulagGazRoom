@@ -115,7 +115,7 @@ public class WebSocketReader
         return deserializeResult;
     }
 
-    private Task SaveEventAsync(Room room, WebSocketEvent deserializeResult, CancellationToken ct)
+    private ValueTask SaveEventAsync(Room room, WebSocketEvent deserializeResult, CancellationToken ct)
     {
         var storageEvent = new StorageEvent
         {

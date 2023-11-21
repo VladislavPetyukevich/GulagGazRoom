@@ -70,8 +70,10 @@ public class EventStorage2DatabaseService
     public async Task ProcessRoomAsync(Guid roomId, CancellationToken cancellationToken)
     {
         var specification = new Spec<IStorageEvent>(e => e.RoomId == roomId);
+        var pageNumber = 0;
         await foreach (var collection in _eventStorage.GetBySpecAsync(specification, ChunkSize, cancellationToken))
         {
+            pageNumber += 1;
             var dbEvents = collection.Select(e => new DbRoomEvent
             {
                 Id = e.Id,
@@ -83,6 +85,17 @@ public class EventStorage2DatabaseService
                 UpdateDate = e.CreatedAt,
             });
             await _roomEventRepository.CreateRangeAsync(dbEvents, cancellationToken);
+
+            try
+            {
+                _logger.LogInformation("Start delete {RoomId} events {Page}", roomId, pageNumber);
+                await _eventStorage.DeleteAsync(collection, cancellationToken);
+                _logger.LogInformation("End delete {RoomId} events {Page}", roomId, pageNumber);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "During delete events {RoomId} {Page}", roomId, pageNumber);
+            }
         }
 
         await _queuedRoomEventRepository.CreateAsync(new QueuedRoomEvent { RoomId = roomId }, cancellationToken);
