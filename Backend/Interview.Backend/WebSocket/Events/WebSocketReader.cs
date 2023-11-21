@@ -33,78 +33,100 @@ public class WebSocketReader
         System.Net.WebSockets.WebSocket webSocket,
         CancellationToken ct)
     {
-        try
+        while (!webSocket.ShouldCloseWebSocket())
         {
-            while (!webSocket.ShouldCloseWebSocket())
+            try
             {
-                WebSocketEvent? deserializeResult = null;
-                using (var buffer = new PoolItem(8192))
+                await HandleAsync(user, room, scopedServiceProvider, webSocket, ct);
+            }
+            catch (Exception e)
+            {
+                if (!webSocket.ShouldCloseWebSocket())
                 {
-                    using var ms = _manager.GetStream();
-                    WebSocketReceiveResult result;
-                    do
-                    {
-                        result = await webSocket.ReceiveAsync(buffer.Buffer, ct);
-                        await ms.WriteAsync(buffer.Buffer.AsMemory(0, result.Count), ct);
-                    }
-                    while (!result.EndOfMessage);
-
-                    ms.Seek(0, SeekOrigin.Begin);
-
-                    try
-                    {
-                        deserializeResult = await JsonSerializer.DeserializeAsync<WebSocketEvent>(ms, (JsonSerializerOptions?)null, ct);
-                    }
-                    catch (Exception e)
-                    {
-                        if (!webSocket.ShouldCloseWebSocket())
-                        {
-                            _logger.LogError(e, "During read event");
-                        }
-                    }
-                }
-
-                if (webSocket.ShouldCloseWebSocket())
-                {
-                    break;
-                }
-
-                if (deserializeResult is null)
-                {
-                    continue;
-                }
-
-                var storageEvent = new StorageEvent
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    Payload = deserializeResult.Value,
-                    RoomId = room.Id,
-                    Stateful = false,
-                    Type = deserializeResult.Type,
-                };
-                await _eventStorage.AddAsync(storageEvent, ct);
-                var socketEventDetail = new SocketEventDetail(
-                    scopedServiceProvider,
-                    webSocket,
-                    deserializeResult,
-                    user,
-                    room);
-                var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
-                var results = await Task.WhenAll(tasks);
-                if (results.All(e => !e))
-                {
-                    _logger.LogWarning("Not found handler for {Type} {Value}", socketEventDetail.Event.Type, socketEventDetail.Event.Value);
+                    _logger.LogError(e, "During read events");
                 }
             }
+        }
+    }
+
+    private async Task HandleAsync(
+        User user,
+        Room room,
+        IServiceProvider scopedServiceProvider,
+        System.Net.WebSockets.WebSocket webSocket,
+        CancellationToken ct)
+    {
+        var deserializeResult = await DeserializeResultAsync(webSocket, ct);
+        if (webSocket.ShouldCloseWebSocket())
+        {
+            return;
+        }
+
+        if (deserializeResult is null)
+        {
+            return;
+        }
+
+        await SaveEventAsync(room, deserializeResult, ct);
+        var socketEventDetail = new SocketEventDetail(
+            scopedServiceProvider,
+            webSocket,
+            deserializeResult,
+            user,
+            room);
+        var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
+        var results = await Task.WhenAll(tasks);
+        if (results.All(e => !e))
+        {
+            _logger.LogWarning(
+                "Not found handler for {Type} {Value}",
+                socketEventDetail.Event.Type,
+                socketEventDetail.Event.Value);
+        }
+    }
+
+    private async Task<WebSocketEvent?> DeserializeResultAsync(System.Net.WebSockets.WebSocket webSocket, CancellationToken ct)
+    {
+        WebSocketEvent? deserializeResult = null;
+        using var buffer = new PoolItem(8192);
+        using var ms = _manager.GetStream();
+        WebSocketReceiveResult result;
+        do
+        {
+            result = await webSocket.ReceiveAsync(buffer.Buffer, ct);
+            await ms.WriteAsync(buffer.Buffer.AsMemory(0, result.Count), ct);
+        }
+        while (!result.EndOfMessage);
+
+        ms.Seek(0, SeekOrigin.Begin);
+
+        try
+        {
+            deserializeResult = await JsonSerializer.DeserializeAsync<WebSocketEvent>(ms, JsonSerializerOptions.Default, ct);
         }
         catch (Exception e)
         {
             if (!webSocket.ShouldCloseWebSocket())
             {
-                _logger.LogError(e, "During read events");
+                _logger.LogError(e, "During read event");
             }
         }
+
+        return deserializeResult;
+    }
+
+    private Task SaveEventAsync(Room room, WebSocketEvent deserializeResult, CancellationToken ct)
+    {
+        var storageEvent = new StorageEvent
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            Payload = deserializeResult.Value,
+            RoomId = room.Id,
+            Stateful = false,
+            Type = deserializeResult.Type,
+        };
+        return _eventStorage.AddAsync(storageEvent, ct);
     }
 
     private class PoolItem : IDisposable
