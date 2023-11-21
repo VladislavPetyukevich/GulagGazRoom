@@ -41,56 +41,58 @@ public class EventSenderJob : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Start sending");
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await SendEventsAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Stop sending");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "During sending events");
+            }
+        }
+
+        _logger.LogDebug("Stop sending");
+    }
+
+    private async Task SendEventsAsync(CancellationToken cancellationToken)
+    {
         try
         {
-            _logger.LogDebug("Start sending");
-            while (!cancellationToken.IsCancellationRequested)
+            var statefulEvents = new List<IRoomEvent>();
+            foreach (var group in await _roomEventDispatcher.ReadAsync(ReadTimeout).ToLookupAsync(e => e.RoomId, cancellationToken: cancellationToken))
             {
-                IEnumerable<IRoomEvent>? events;
-                try
+                if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
+                    subscribers.Count == 0)
                 {
-                    events = await _roomEventDispatcher.ReadAsync(ReadTimeout);
-                }
-                catch (Exception e)
-                {
-                    if (e is not OperationCanceledException)
-                    {
-                        _logger.LogError(e, "Read events");
-                        await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
-                    }
-
                     continue;
                 }
 
-                var statefulEvents = new List<IRoomEvent>();
-                foreach (var group in events.ToLookup(e => e.RoomId))
+                foreach (var currentEvent in group)
                 {
-                    if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
-                        subscribers.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach (var currentEvent in group)
-                    {
-                        await ProcessEventAsync(currentEvent, statefulEvents, subscribers, cancellationToken);
-                    }
+                    await ProcessEventAsync(currentEvent, statefulEvents, subscribers, cancellationToken);
                 }
-
-                await UpdateRoomStateAsync(statefulEvents, cancellationToken);
-
-                _logger.LogDebug("Before wait async");
-                await _roomEventDispatcher.WaitAsync(cancellationToken);
-                _logger.LogDebug("After wait async");
             }
+
+            await UpdateRoomStateAsync(statefulEvents, cancellationToken);
+
+            _logger.LogDebug("Before wait async");
+            await _roomEventDispatcher.WaitAsync(cancellationToken);
+            _logger.LogDebug("After wait async");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            _logger.LogError(ex, "During sending events");
-        }
-        finally
-        {
-            _logger.LogDebug("Stop sending");
+            if (e is not OperationCanceledException)
+            {
+                _logger.LogError(e, "Read events");
+                await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+            }
         }
     }
 

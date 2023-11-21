@@ -4,7 +4,7 @@ namespace Interview.Domain.Events;
 
 public interface IRoomEventDispatcher
 {
-    Task<IEnumerable<IRoomEvent>> ReadAsync(TimeSpan timeSpan);
+    IAsyncEnumerable<IRoomEvent> ReadAsync(TimeSpan timeSpan);
 
     Task WriteAsync(IRoomEvent @event, CancellationToken cancellationToken = default);
 
