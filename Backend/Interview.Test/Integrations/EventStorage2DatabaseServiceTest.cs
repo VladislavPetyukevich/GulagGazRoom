@@ -92,33 +92,33 @@ public class EventStorage2DatabaseServiceTest
                roomEvent.Type == storageEvent.Type &&
                roomEvent.Id == storageEvent.Id;
     }
+}
 
-    private sealed class InMemoryEventStorage : IEventStorage
+public sealed class InMemoryEventStorage : IEventStorage
+{
+    private readonly List<IStorageEvent> _storage = new();
+
+    public ValueTask AddAsync(IStorageEvent @event, CancellationToken cancellationToken)
     {
-        private readonly List<IStorageEvent> _storage = new();
+        _storage.Add(@event);
+        return ValueTask.CompletedTask;
+    }
 
-        public ValueTask AddAsync(IStorageEvent @event, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
+    {
+        await foreach (var res in _storage.Where(spec.IsSatisfiedBy).Chunk(chunkSize).ToAsyncEnumerable().WithCancellation(cancellationToken))
         {
-            _storage.Add(@event);
-            return ValueTask.CompletedTask;
+            yield return res;
         }
+    }
 
-        public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
+    public ValueTask DeleteAsync(IEnumerable<IStorageEvent> items, CancellationToken cancellationToken)
+    {
+        foreach (var e in items)
         {
-            await foreach (var res in _storage.Where(spec.IsSatisfiedBy).Chunk(chunkSize).ToAsyncEnumerable().WithCancellation(cancellationToken))
-            {
-                yield return res;
-            }
+            _storage.Remove(e);
         }
-
-        public ValueTask DeleteAsync(IEnumerable<IStorageEvent> items, CancellationToken cancellationToken)
-        {
-            foreach (var e in items)
-            {
-                _storage.Remove(e);
-            }
             
-            return ValueTask.CompletedTask;
-        }
+        return ValueTask.CompletedTask;
     }
 }
