@@ -81,10 +81,6 @@ public class EventSenderJob : BackgroundService
             }
 
             await UpdateRoomStateAsync(statefulEvents, cancellationToken);
-
-            _logger.LogDebug("Before wait async");
-            await _roomEventDispatcher.WaitAsync(cancellationToken);
-            _logger.LogDebug("After wait async");
         }
         catch (Exception e)
         {
@@ -93,6 +89,17 @@ public class EventSenderJob : BackgroundService
                 _logger.LogError(e, "Read events");
                 await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
             }
+        }
+
+        try
+        {
+            _logger.LogDebug("Before wait async");
+            await _roomEventDispatcher.WaitAsync(cancellationToken);
+            _logger.LogDebug("After wait async");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "During wait");
         }
     }
 
