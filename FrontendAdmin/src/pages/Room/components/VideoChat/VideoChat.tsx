@@ -13,6 +13,7 @@ import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnaly
 import { limitLength } from './utils/limitLength';
 import { randomId } from './utils/randomId';
 import { SwitchButton } from './SwitchButton';
+import { parseWsMessage } from './utils/parseWsMessage';
 
 import './VideoChat.css';
 
@@ -210,18 +211,9 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
       return;
     }
     try {
-      const parsedData = JSON.parse(lastWsMessage?.data);
-      if (
-        parsedData?.Type === 'ChangeCodeEditor' ||
-        parsedData?.Type === 'VoiceRecognition'
-      ) {
-        return;
-      }
-      if (!parsedData?.Value) {
-        return;
-      }
-      const parsedPayload = JSON.parse(parsedData?.Value);
-      switch (parsedData?.Type) {
+      const parsedMessage = parseWsMessage(lastWsMessage?.data);
+      const parsedPayload = parsedMessage?.Value;
+      switch (parsedMessage?.Type) {
         case 'all users':
           if (!Array.isArray(parsedPayload)) {
             break;
@@ -293,7 +285,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
       return;
     }
     try {
-      const parsedData = JSON.parse(lastWsMessage?.data);
+      const parsedData = parseWsMessage(lastWsMessage?.data);
       switch (parsedData?.Type) {
         case 'ChatMessage':
           setTranscripts(transcripts => limitLength(
