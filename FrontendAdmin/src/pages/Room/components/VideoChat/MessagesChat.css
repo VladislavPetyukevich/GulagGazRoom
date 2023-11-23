@@ -1,15 +1,7 @@
 .messages-chat {
-  position: relative;
   display: flex;
   flex-direction: column;
-  top: 320px;
-  width: calc(300px - 0.75rem * 2 - 2px);
-  height: calc(480px - 0.75rem * 2);
-  background-color: var(--wrap-bg);
-  border: 1px solid;
-  border-color: var(--form-bg);
-  padding: 0.75rem;
-  border-radius: var(--border-radius);
+  height: 100%;
 }
 
 .messages-chat .message-from-chat {
@@ -35,7 +27,6 @@
 
 .messages-chat .videochat-transcripts {
   text-align: left;
-  height: 20rem;
   overflow: auto;
   flex: 1;
 }

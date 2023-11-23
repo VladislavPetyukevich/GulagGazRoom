@@ -8,7 +8,6 @@ import {
   roomQuestionApiDeclaration,
   roomsApiDeclaration,
 } from '../../apiDeclarations';
-import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { REACT_APP_WS_URL } from '../../config';
 import { Captions, pathnames } from '../../constants';
@@ -22,6 +21,8 @@ import { ActiveQuestion } from './components/ActiveQuestion/ActiveQuestion';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { Question } from '../../types/question';
 import { VideoChat } from './components/VideoChat/VideoChat';
+import { SwitchButton } from './components/VideoChat/SwitchButton';
+import { Link } from 'react-router-dom';
 
 import './Room.css';
 
@@ -45,6 +46,9 @@ export const Room: FunctionComponent = () => {
   const [reactionsVisible, setReactionsVisible] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState<Question['id']>();
   const [currentQuestion, setCurrentQuestion] = useState<Question>();
+  const [messagesChatEnabled, setMessagesChatEnabled] = useState(false);
+  const [videoTrackEnabled, setVideoTrackEnabled] = useState(false);
+  const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
   const { process: { loading, error }, data: room } = apiMethodState;
@@ -166,15 +170,24 @@ export const Room: FunctionComponent = () => {
     setCurrentQuestion(newCurrentQuestion);
   }, [currentQuestionId, room?.questions]);
 
-  const handleCopyRoomLink = () =>
-    navigator.clipboard.writeText(window.location.href);
-
   const handleStartReviewRoom = useCallback(() => {
     if (!id) {
       throw new Error('Room id not found');
     }
     fetchRoomStartReview(id);
   }, [id, fetchRoomStartReview]);
+
+  const handleMessagesChatSwitch = () => {
+    setMessagesChatEnabled(!messagesChatEnabled);
+  };
+
+  const handleSwitchAudio = () => {
+    setAudioTrackEnabled(!audioTrackEnabled);
+  };
+
+  const handleSwitchVideo = () => {
+    setVideoTrackEnabled(!videoTrackEnabled);
+  };
 
   const loaders = [
     {},
@@ -187,7 +200,7 @@ export const Room: FunctionComponent = () => {
   }
 
   return (
-    <MainContentWrapper className="room-page">
+    <MainContentWrapper className="room-wrapper">
       <ProcessWrapper
         loading={loading}
         loadingPrefix={Captions.LoadingRoom}
@@ -196,63 +209,106 @@ export const Room: FunctionComponent = () => {
         errorPrefix={Captions.ErrorLoadingRoom}
       >
         <>
-          <Field className='room-title'>
-            <h2>{Captions.Room}: {room?.name}</h2>
-            {!viewerMode && (
-              <button
-                className="copy-link-button"
-                onClick={handleCopyRoomLink}
-              >
-                {Captions.CopyRoomLink}
-              </button>
-            )}
-          </Field>
-          {!viewerMode && (
-            <Field>
-              <ActionModal
-                title={Captions.StartReviewRoomModalTitle}
-                openButtonCaption={Captions.StartReviewRoom}
-                loading={roomStartReviewLoading}
-                loadingCaption={Captions.CloseRoomLoading}
-                error={roomStartReviewError}
-                onAction={handleStartReviewRoom}
-              />
-            </Field>
-          )}
-          <Field>
-            <div className="reactions-field">
-              {viewerMode && (
-                <Field>
-                  <div>{Captions.ActiveQuestion}: {currentQuestion?.value}</div>
-                </Field>
-              )}
-              {!viewerMode && (
-                <ActiveQuestion
-                  room={room}
-                  placeHolder={currentQuestion?.value}
-                />
-              )}
-              {reactionsVisible && (
-                <Reactions
-                  room={room}
-                  roles={auth?.roles || []}
-                  participantType={roomParticipant?.userType || null}
-                  lastWsMessage={lastMessage}
-                />
-              )}
-              {!reactionsVisible && (
-                <div>{Captions.WaitingRoom}</div>
-              )}
+          <div className="room-page">
+            <div className="room-page-main">
+              <div className="room-page-header">
+                <div>
+                  <span
+                    className={`room-page-header-caption ${viewerMode ? 'room-page-header-caption-viewer' : ''}`}
+                  >
+                    <div>{room?.name}</div>
+                    {viewerMode && (
+                      <div
+                        className="room-page-header-question-viewer"
+                      >
+                        {Captions.ActiveQuestion}: {currentQuestion?.value}
+                      </div>
+                    )}
+                  </span>
+                </div>
+
+                {!viewerMode && (
+                  <div className="reactions-field">
+                    <ActiveQuestion
+                      room={room}
+                      initialQuestionText={currentQuestion?.value}
+                    />
+                  </div>
+                )}
+                {!reactionsVisible && (
+                  <div>{Captions.WaitingRoom}</div>
+                )}
+                {!viewerMode && (
+                  <div className='start-room-review'>
+                    <ActionModal
+                      title={Captions.StartReviewRoomModalTitle}
+                      openButtonCaption={Captions.StartReviewRoom}
+                      loading={roomStartReviewLoading}
+                      loadingCaption={Captions.CloseRoomLoading}
+                      error={roomStartReviewError}
+                      onAction={handleStartReviewRoom}
+                    />
+                  </div>
+                )}
+
+              </div>
+              <div className="room-page-main-content">
+                {getWsStatusMessage(readyState) || (
+                  <VideoChat
+                    roomId={room?.id || ''}
+                    roomName={room?.name}
+                    viewerMode={viewerMode}
+                    lastWsMessage={lastMessage}
+                    messagesChatEnabled={messagesChatEnabled}
+                    audioTrackEnabled={audioTrackEnabled}
+                    videoTrackEnabled={videoTrackEnabled}
+                    onAudioTrackEnabled={setAudioTrackEnabled}
+                    onVideoTrackEnabled={setVideoTrackEnabled}
+                    onSendWsMessage={sendMessage}
+                  />
+                )}
+              </div>
             </div>
-            {getWsStatusMessage(readyState) || (
-              <VideoChat
-                roomId={room?.id || ''}
-                viewerMode={viewerMode}
-                lastWsMessage={lastMessage}
-                onSendWsMessage={sendMessage}
-              />
-            )}
-          </Field>
+            <div className="room-tools-container">
+              {!viewerMode && (
+                <div className="room-tools room-tools-left">
+                  <SwitchButton
+                    enabled={audioTrackEnabled}
+                    caption={Captions.MicrophoneIcon}
+                    subCaption={Captions.Microphone}
+                    onClick={handleSwitchAudio}
+                  />
+                  <SwitchButton
+                    enabled={videoTrackEnabled}
+                    caption={Captions.CameraIcon}
+                    subCaption={Captions.Camera}
+                    onClick={handleSwitchVideo}
+                  />
+                </div>
+              )}
+              <div className="room-tools room-tools-center">
+                <SwitchButton
+                  enabled={!messagesChatEnabled}
+                  caption={Captions.ChatIcon}
+                  subCaption={Captions.Chat}
+                  onClick={handleMessagesChatSwitch}
+                />
+                {reactionsVisible && (
+                  <Reactions
+                    room={room}
+                    roles={auth?.roles || []}
+                    participantType={roomParticipant?.userType || null}
+                    lastWsMessage={lastMessage}
+                  />
+                )}
+              </div>
+              <div className="room-tools room-tools-right">
+                <Link to={pathnames.rooms}>
+                  <button>{Captions.Exit}</button>
+                </Link>
+              </div>
+            </div>
+          </div>
         </>
       </ProcessWrapper>
     </MainContentWrapper>

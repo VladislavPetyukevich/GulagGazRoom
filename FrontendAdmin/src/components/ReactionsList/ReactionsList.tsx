@@ -1,18 +1,12 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { Reaction } from '../../types/reaction';
+import { SwitchButton } from '../../pages/Room/components/VideoChat/SwitchButton';
 
 import './ReactionsList.css';
 
 const reactionNameReplaces: Record<string, string> = {
-  like1: '👍',
-  like2: '👋',
-  dislike1: '😬',
-  dislike4: '🤥',
-  dislike5: '💩',
-  dislike6: '❓',
-  dislike8: '🍌',
-  dislike10: '😢',
-  dislike11: '🦍',
+  Like: '👍',
+  Dislike: '👎',
   Gas: '🤿',
   CodeEditor: '📜',
 }
@@ -45,13 +39,13 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
           return 0;
         })
         .map(reaction => (
-          <button
+          <SwitchButton
             key={`${reaction.id}${reaction.type.name}`}
-            className='reaction'
+            enabled={true}
+            caption={reactionNameReplaces[reaction.type.name] || reaction.type.name}
+            subCaption={reaction.type.name}
             onClick={handleReactionClick(reaction)}
-          >
-            {reactionNameReplaces[reaction.type.name] || reaction.type.name}
-          </button>
+          />
         ))}
     </div>
   );

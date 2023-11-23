@@ -1,6 +1,6 @@
 .activeQuestionSelector-container {
   text-align: left;
-  border: 1px solid var(--form-bg);
+  border: 1px solid var(--button-bg);
   position: relative;
   cursor: pointer;
 }

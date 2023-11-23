@@ -6,19 +6,23 @@ import { Captions } from '../../constants';
 import './ActiveQuestionSelector.css';
 
 export interface ActiveQuestionSelectorProps {
+  initialQuestionText?: string;
   placeHolder: string;
   showClosedQuestions: boolean;
   questions: Question[];
   openQuestions: Array<Question['id']>;
   onSelect: (question: Question) => void;
+  onShowClosedQuestions: MouseEventHandler<HTMLInputElement>;
 }
 
 export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorProps> = ({
+  initialQuestionText,
   placeHolder,
   showClosedQuestions,
   questions,
   openQuestions,
-  onSelect
+  onSelect,
+  onShowClosedQuestions,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [selectedValue, setSelectedValue] = useState<Question | null>(null);
@@ -60,7 +64,7 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
         return;
       }
       const inputRefContainsTarget = inputRef.current?.contains(e.target as any);
-      const searchRefTarget = e.target === searchRef.current
+      const searchRefTarget = searchRef.current?.contains(e.target as any);
       const shouldClose = !inputRefContainsTarget && !searchRefTarget;
       if (shouldClose) {
         setShowMenu(false);
@@ -78,10 +82,10 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
   };
 
   const getDisplay = () => {
-    if (!selectedValue) {
+    if (!selectedValue && !initialQuestionText) {
       return placeHolder;
     }
-    return selectedValue.value;
+    return `${Captions.ActiveQuestion}: ${selectedValue?.value || initialQuestionText}`;
   };
 
   const onItemClick = (option: Question) => {
@@ -105,8 +109,12 @@ export const ActiveQuestionSelector: FunctionComponent<ActiveQuestionSelectorPro
       </div>
       {showMenu && (
         <div className="activeQuestionSelector-menu">
-          <div className="search-box">
-            <input onChange={onSearch} value={searchValue} ref={searchRef} />
+          <div ref={searchRef}>
+            <span>{Captions.ShowClosedQuestions}</span>
+            <input type="checkbox" onClick={onShowClosedQuestions} />
+            <div className="search-box" >
+              <input onChange={onSearch} value={searchValue} />
+            </div>
           </div>
           {options.length === 0 && (
             <div>{Captions.NoQuestionsSelector}</div>

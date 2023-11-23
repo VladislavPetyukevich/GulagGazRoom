@@ -2,16 +2,12 @@ import React, { FunctionComponent, useCallback, useEffect } from 'react';
 import { HashRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AppRoutes } from './routes/AppRoutes';
-import { NavMenu } from './components/NavMenu/NavMenu';
 import { AuthContext } from './context/AuthContext';
 import { useGetMeApi } from './hooks/useGetMeApi';
 import { Loader } from './components/Loader/Loader';
 import { MainContentWrapper } from './components/MainContentWrapper/MainContentWrapper';
 import { Field } from './components/FieldsBlock/Field';
 import { useCommunist } from './hooks/useCommunist';
-import { Captions } from './constants';
-import { FieldsBlock } from './components/FieldsBlock/FieldsBlock';
-import { REACT_APP_BUILD_HASH } from './config';
 
 import './App.css';
 
@@ -78,18 +74,7 @@ export const App: FunctionComponent = () => {
       />
       <AuthContext.Provider value={user}>
         <div className="App">
-          <header>
-            <FieldsBlock>
-              <h1>{Captions.AppName}</h1>
-            </FieldsBlock>
-            <NavMenu />
-          </header>
-          <div className="App-content">
             {renderMainContent()}
-          </div>
-          <footer>
-            <div>{Captions.BuildHash}: {REACT_APP_BUILD_HASH}</div>
-          </footer>
         </div>
       </AuthContext.Provider>
     </HashRouter>

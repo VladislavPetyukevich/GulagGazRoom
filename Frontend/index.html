@@ -10,16 +10,6 @@
 </head>
 
 <body>
-  <div id="blocker">
-    <div id="instructions" class="blocker-content">
-      <div>🔊 Нажмите, чтобы включить звук</div>
-      <br />
-      <div>TV set model is adapted from "<a
-          href="https://opengameart.org/content/simple-house-objects">house-objects</a>" by IllusionOfMana, used under
-        CC BY 4.0. TV set model is licensed under CC BY 4.0 by VladislavPetyukevich</div>
-      <br />
-    </div>
-  </div>
   <div id="main-content">
     <div id="authentication" class="blocker-content">
       <div>Authentication</div>
@@ -27,13 +17,6 @@
         href="<%=htmlWebpackPlugin.options.REACT_APP_BACKEND_URL %>/login/twitch?redirectUri=%2Fapi%2FUser%2FGetMe">Login</a>
     </div>
     <div id="editor-container"></div>
-    <div id="render-container">
-      <div id="audio-volume-container">
-        <span>Громкость:</span>
-        <input id="audio-volume" type="range" min="0" max="10" value="10" step="1">
-        <span id="audio-volume-value"></span>
-      </div>
-    </div>
   </div>
 
   <% for(var i=0; i < htmlWebpackPlugin.files.js.length; i++) {%>

@@ -16,7 +16,8 @@ import { Room, RoomState, RoomStateAdditionalStatefulPayload } from '../../../..
 import { Event } from '../../../../types/event';
 import { UserType } from '../../../../types/user';
 import { Loader } from '../../../../components/Loader/Loader';
-import { useAdditionalReactions } from '../../hooks/useAdditionalReactions';
+
+import './Reactions.css';
 
 const reactionsPageSize = 30;
 const reactionsPageNumber = 1;
@@ -91,26 +92,6 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const [parsedStates, setParsedStates] = useState<ParsedStates>({});
 
   const reactionsSafe = reactions || [];
-  const additionalReactionsLike = useAdditionalReactions({
-    reactions: reactionsSafe,
-    eventTypeAdditionalNames: {
-      Like: ['like1', 'like2'],
-    },
-  });
-  const additionalReactionsDisLike = useAdditionalReactions({
-    reactions: reactionsSafe,
-    eventTypeAdditionalNames: {
-      Dislike: [
-        'dislike1',
-        'dislike4',
-        'dislike5',
-        'dislike6',
-        'dislike8',
-        'dislike10',
-        'dislike11',
-      ],
-    },
-  });
 
   const eventsReationsFiltered =
     !events ?
@@ -139,7 +120,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   }, [room?.id, fetchRoomState, fetchReactions, fetchRoomEvents]);
 
   useEffect(() => {
-    if(!roomState) {
+    if (!roomState) {
       return;
     }
     const parsedStates: ParsedStates = {};
@@ -206,31 +187,17 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   }
 
   return (
-    <div>
-      <div className="reaction-wrapper">
-        <span>{Captions.LikeReactions}</span>
-        <ReactionsList
-          sortOrder={-1}
-          reactions={additionalReactionsLike}
-          onClick={handleReactionClick}
-        />
-      </div>
-      <div className="reaction-wrapper">
-        <span>{Captions.DislikeReactions}</span>
-        <ReactionsList
-          sortOrder={-1}
-          reactions={additionalReactionsDisLike}
-          onClick={handleReactionClick}
-        />
-      </div>
-      <div className="reaction-wrapper">
-        <span>{Captions.Events}</span>
-        <ReactionsList
-          sortOrder={1}
-          reactions={eventsReationsFiltered}
-          onClick={handleEventClick}
-        />
-      </div>
+    <div className='reactions'>
+      <ReactionsList
+        sortOrder={-1}
+        reactions={reactionsSafe}
+        onClick={handleReactionClick}
+      />
+      <ReactionsList
+        sortOrder={1}
+        reactions={eventsReationsFiltered}
+        onClick={handleEventClick}
+      />
       {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
       {errorRoomState && <div>{Captions.ErrorLoadingRoomState}...</div>}
       {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}

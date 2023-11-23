@@ -1,8 +1,8 @@
 :root {
   --text: #ccc;
-  --page-bg: #333;
+  --page-bg: #080808;
   --form-bg: var(--page-bg);
-  --wrap-bg: #000;
+  --wrap-bg: #171717;
   --active: #b9221c;
   --shadow: #100908;
   --bg: #400000;
@@ -13,6 +13,7 @@
   --menu-font-size: 1.15rem;
   --menu-line-height: calc(var(--menu-font-size) * 1.4);
   --button-bg: #444;
+  --button-bg-active: var(--active);
   --border-radius: 0.5rem;
   --fields-block-margin: 0rem 1rem;
   --fields-wrap-margin: 0rem 2.5rem;
@@ -54,8 +55,12 @@ button {
   border-radius: var(--border-radius);
 }
 
+button.active {
+  background-color: var(--button-bg-active);
+}
+
 button:hover {
-  background-color: #7D110E;
+  background-color: #262626;
 }
 
 button:disabled,
