@@ -4,8 +4,8 @@
   height: 100%;
 }
 
-.messages-chat .message-from-chat {
-  background-color: var(--bg);
+.messages-chat .tabs {
+  margin-bottom: 0.5rem;
 }
 
 .messages-chat .message-input-box {

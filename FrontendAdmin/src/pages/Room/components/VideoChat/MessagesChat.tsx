@@ -1,9 +1,25 @@
-import { FunctionComponent, useRef, KeyboardEvent, useEffect } from 'react';
+import { FunctionComponent, useRef, KeyboardEvent, useEffect, useState } from 'react';
 import { Transcript } from '../../../../types/transcript';
 import { Captions } from '../../../../constants';
 import { stringToColor } from './utils/stringToColor';
+import { Tab, Tabs } from '../../../../components/Tabs/Tabs';
 
 import './MessagesChat.css';
+
+const chatTab: Tab = {
+  id: 'chat-tab',
+  caption: Captions.ChatTab,
+};
+
+const recognitionTab: Tab = {
+  id: 'recognition-tab',
+  caption: Captions.RecognitionTab,
+};
+
+const tabs = [
+  chatTab,
+  recognitionTab,
+];
 
 interface MessagesChatProps {
   transcripts: Transcript[];
@@ -16,6 +32,10 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
 }) => {
   const messageInputRef = useRef<HTMLInputElement>(null);
   const videochatTranscriptsRef = useRef<HTMLDivElement>(null);
+  const [activeTabId, setActiveTabId] = useState(chatTab.id);
+  const transcriptsFiltered = transcripts.filter(transcript =>
+    activeTabId === chatTab.id ? transcript.fromChat : !transcript.fromChat
+  );
 
   useEffect(() => {
     const chatEl = videochatTranscriptsRef.current;
@@ -26,7 +46,7 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
     const height = chatEl.clientHeight;
     const maxScrollTop = scrollHeight - height;
     chatEl.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
-  }, [transcripts]);
+  }, [transcriptsFiltered]);
 
   const handleChatMessageSubmit = () => {
     if (!messageInputRef.current) {
@@ -49,11 +69,15 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
 
   return (
     <div className='messages-chat'>
+      <Tabs
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onTabClick={setActiveTabId}
+      />
       <div className='videochat-transcripts' ref={videochatTranscriptsRef}>
-        {transcripts.map(transcript => (
+        {transcriptsFiltered.map(transcript => (
           <div
             key={transcript.frontendId}
-            className={`${transcript.fromChat ? 'message-from-chat' : ''}`}
           >
             <span>
               {!transcript.fromChat && `${Captions.Recognized} `}
@@ -68,19 +92,21 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
           </div>
         ))}
       </div>
-      <div className='message-input-box'>
-        <div className='message-input-wrapper'>
-          <input
-            type='text'
-            placeholder={Captions.ChatMessagePlaceholder}
-            ref={messageInputRef}
-            onKeyDown={handleInputKeyDown}
-          />
+      {activeTabId === chatTab.id && (
+        <div className='message-input-box'>
+          <div className='message-input-wrapper'>
+            <input
+              type='text'
+              placeholder={Captions.ChatMessagePlaceholder}
+              ref={messageInputRef}
+              onKeyDown={handleInputKeyDown}
+            />
+          </div>
+          <div>
+            <button onClick={handleChatMessageSubmit}>{Captions.SendToChat}</button>
+          </div>
         </div>
-        <div>
-          <button onClick={handleChatMessageSubmit}>{Captions.SendToChat}</button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
