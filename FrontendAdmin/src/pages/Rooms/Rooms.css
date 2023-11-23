@@ -1,34 +1,40 @@
 .rooms-list {
   padding: 0px;
   list-style-type: none;
+  text-align: left;
+}
+
+.rooms-list .room-item {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 1rem;
+  margin: 0rem 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--button-bg);
 }
 
 .rooms-list .room-link {
+  flex: 1;
+  align-self: flex-start;
   font-size: var(--menu-font-size);
 }
 
-.rooms-list .room-users {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  justify-content: center;
-  align-items: center;
+.rooms-list .room-status {
   font-size: 0.75rem;
 }
 
-.rooms-list .user-avatar {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  object-fit: contain;
+.rooms-list .room-tags {
+  flex: 1;
+  text-align: right;
+  margin-top: 0.5rem;
 }
 
-.rooms-list .room-tags {
-  width: 100%;
-  justify-content: center;
+.rooms-list .room-edit-participants-link {
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.rooms-list .room-action-links {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 0.5rem;
+  flex-direction: column;
 }

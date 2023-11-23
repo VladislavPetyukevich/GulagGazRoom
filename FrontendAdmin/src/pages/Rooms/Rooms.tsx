@@ -14,7 +14,6 @@ import { checkAdmin } from '../../utils/checkAdmin';
 import { ProcessWrapper } from '../../components/ProcessWrapper/ProcessWrapper';
 import { TagsView } from '../../components/TagsView/TagsView';
 import { RoomsSearch } from '../../components/RoomsSearch/RoomsSearch';
-import { UserAvatar } from '../../components/UserAvatar/UserAvatar';
 
 import './Rooms.css';
 
@@ -72,30 +71,14 @@ export const Rooms: FunctionComponent = () => {
 
     return (
       <li key={room.id}>
-        <Field>
-          <Link to={roomLink} className='room-link'>
-            {room.name}
-          </Link>
-          <div>
-            {roomStatusCaption[room.roomStatus]}
-          </div>
-          <div className="room-users">
-            <span>Участники ({room.users.length}):&nbsp;</span>
-            {room.users.map((user, index, usersArr) => (
-              <span key={user.id}>
-                {user.avatar ? (
-                  <UserAvatar
-                    src={user.avatar}
-                    nickname={user.nickname}
-                    data-tooltip-id={userTooltipId}
-                    data-tooltip-content={user.nickname}
-                  />
-                ) : (
-                  <span>{user.nickname}</span>
-                )}
-                {index < usersArr.length - 1 ? (<>,&nbsp;</>) : ''}
-              </span>
-            ))}
+        <div className='room-item'>
+          <div className='room-link'>
+            <Link to={roomLink} >
+              {room.name}
+            </Link>
+            <div className='room-status'>
+              {roomStatusCaption[room.roomStatus]}
+            </div>
           </div>
           <div className="room-tags">
             <TagsView
@@ -103,27 +86,35 @@ export const Rooms: FunctionComponent = () => {
               tags={room.tags}
             />
           </div>
-          {admin && (
-            <Link to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}>
-              {Captions.EditParticipants}
+          <div className='room-action-links'>
+            <Link
+              to={roomLink}
+              className='room-join-link'
+            >
+              {Captions.Join}
             </Link>
-          )}
-        </Field>
+            {admin && (
+              <Link
+                to={`${pathnames.roomsParticipants.replace(':id', room.id)}`}
+                className='room-edit-participants-link'
+              >
+                {Captions.EditParticipants}
+              </Link>
+            )}
+          </div>
+        </div>
       </li>
     );
   }, [admin]);
 
   return (
-    <MainContentWrapper>
+    <MainContentWrapper thin>
       <HeaderWithLink
-        title={`${Captions.RoomsPageName}:`}
         linkVisible={admin}
         path={pathnames.roomsCreate}
         linkCaption="+"
         linkFloat="right"
-      />
-      <Tooltip id={userTooltipId} />
-      <Field>
+      >
         <RoomsSearch
           searchValue={searchValue}
           participating={participating}
@@ -132,16 +123,19 @@ export const Rooms: FunctionComponent = () => {
           onParticipatingChange={setParticipating}
           onClosedChange={setClosed}
         />
-      </Field>
+      </HeaderWithLink>
+      <Tooltip id={userTooltipId} />
       <ProcessWrapper
         loading={loading}
         error={error}
         loaders={loaders}
       >
         <>
-          <ul className="rooms-list">
-            {roomsSafe.map(createRoomItem)}
-          </ul>
+          <Field>
+            <ul className="rooms-list">
+              {roomsSafe.map(createRoomItem)}
+            </ul>
+          </Field>
           <Paginator
             pageNumber={pageNumber}
             prevDisabled={pageNumber === initialPageNumber}

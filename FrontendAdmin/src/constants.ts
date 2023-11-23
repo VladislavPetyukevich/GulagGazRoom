@@ -137,8 +137,10 @@ export const enum Captions {
   Chat = 'Чат',
   ChatIcon = '💬',
   Exit = 'Выйти',
+  BackIcon = '<',
   ChatTab = 'Чат',
   RecognitionTab = 'Транскрипция',
+  OpenRooms = 'Открытые',
 };
 
 export const toastSuccessOptions = {

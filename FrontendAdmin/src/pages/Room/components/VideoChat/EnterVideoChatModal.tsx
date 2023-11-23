@@ -1,6 +1,7 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
-import { Captions } from '../../../../constants';
+import { Link } from 'react-router-dom';
+import { Captions, pathnames } from '../../../../constants';
 import { DeviceSelect } from './DeviceSelect';
 import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnalyser';
 import { getAverageVolume } from './utils/getAverageVolume';
@@ -240,6 +241,9 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
           <button className="active" onClick={onClose}>{Captions.Join}</button>
         </div>
       )}
+      <Link to={pathnames.rooms} className="enter-videochat-exit">
+        {Captions.Exit}
+      </Link>
     </Modal>
   );
 };

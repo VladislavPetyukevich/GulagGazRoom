@@ -1,8 +1,13 @@
 .nav-menu {
   font-size: var(--menu-font-size);
+  margin: 0rem;
 }
 .nav-menu nav {
   display: contents;
+}
+
+.nav-menu a {
+  text-decoration: none;
 }
 
 .nav-menu .fields-wrap {
@@ -18,7 +23,7 @@
 }
 
 .nav-menu .active {
-  background-color: var(--shadow);
+  background-color: var(--active-nav-tab);
 }
 
 .nav-menu .field-wrap {
@@ -27,13 +32,11 @@
 }
 
 .nav-menu .field-wrap:first-child {
-  margin-left: var(--nav-menu-margin-horizontal);
   border-top-left-radius: var(--border-radius);
   border-bottom-left-radius: var(--border-radius);
 }
 
 .nav-menu .field-wrap:last-child {
-  margin-right: var(--nav-menu-margin-horizontal);
   border-top-right-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
 }

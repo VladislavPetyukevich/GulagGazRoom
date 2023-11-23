@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from 'react';
-import { Field } from '../../../../components/FieldsBlock/Field';
 import { Captions, pathnames } from '../../../../constants';
 import { REACT_APP_BACKEND_URL } from '../../../../config';
 import { User } from '../../../../types/user';
@@ -14,18 +13,18 @@ export const HomeContent: FunctionComponent<HomeContentProps> = ({
 }) => {
   if (auth) {
     return (
-      <Field>
+      <div>
         <div>{Captions.WelcomeMessage}, {auth.nickname}</div>
         <Link to={pathnames.rooms}>{Captions.ToRooms}</Link>
-      </Field>
+      </div>
     );
   }
   return (
-    <Field>
+    <div>
       <div>{Captions.WhoAreYou}</div>
       <a href={`${REACT_APP_BACKEND_URL}/login/twitch?redirectUri=${encodeURIComponent(window.location.href)}`}>
         <button className="home-login-button">{Captions.Login}</button>
       </a>
-    </Field>
+    </div>
   );
 };

@@ -4,6 +4,7 @@
   --form-bg: var(--page-bg);
   --wrap-bg: #171717;
   --active: #b9221c;
+  --active-nav-tab: #222;
   --shadow: #100908;
   --bg: #400000;
   --bg-success: #103000;
@@ -14,6 +15,7 @@
   --menu-line-height: calc(var(--menu-font-size) * 1.4);
   --button-bg: #444;
   --button-bg-active: var(--active);
+  --button-bg-disabled: #222;
   --active-tab-color: #5993FF;
   --border-radius: 0.5rem;
   --fields-block-margin: 0rem 1rem;
@@ -66,13 +68,13 @@ button:hover {
 
 button:disabled,
 button[disabled] {
-  background-color: #0C0909;
+  background-color: var(--button-bg-disabled);
   color: var(--wrap-bg);
 }
 
 a {
-  color: var(--active);
-  text-decoration: none;
+  color: var(--text);
+  text-decoration: underline;
 }
 
 table {

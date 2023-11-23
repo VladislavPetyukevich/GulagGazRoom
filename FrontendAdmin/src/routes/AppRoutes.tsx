@@ -14,7 +14,6 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { User } from '../types/user';
 import { Terms } from '../pages/Terms/Terms';
 import { RoomAnayticsSummary } from '../pages/RoomAnayticsSummary/RoomAnayticsSummary';
-import { FieldsBlock } from '../components/FieldsBlock/FieldsBlock';
 import { NavMenu } from '../components/NavMenu/NavMenu';
 import { REACT_APP_BUILD_HASH } from '../config';
 
@@ -24,9 +23,6 @@ interface AppRoutesProps {
 
 const rednerHeader = () => (
   <header>
-    <FieldsBlock>
-      <h1>{Captions.AppName}</h1>
-    </FieldsBlock>
     <NavMenu />
   </header>
 );

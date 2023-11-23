@@ -81,20 +81,18 @@ export const Questions: FunctionComponent = () => {
   ), [archiveLoading, archiveError, archiveQuestion]);
 
   return (
-    <MainContentWrapper>
+    <MainContentWrapper thin>
       <HeaderWithLink
-        title={`${Captions.QuestionsPageName}:`}
         linkVisible={admin}
         path={pathnames.questionsCreate}
         linkCaption="+"
         linkFloat="right"
-      />
-      <Field>
+      >
         <QustionsSearch
           onSearchChange={setSearchValue}
           onTagsChange={setSelectedTags}
         />
-      </Field>
+        </HeaderWithLink>
       <ProcessWrapper
         loading={loading || archiveLoading}
         error={error|| archiveError}
