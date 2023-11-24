@@ -33,7 +33,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  /* height: 100%; */
+  padding-bottom: 0.25rem;
 }
 
 .room-page .room-page-main-content {
@@ -123,4 +123,10 @@
 .room-page .room-columns {
   display: flex;
   height: 100%;
+}
+
+.background-canvas {
+  position:absolute;
+  top:-99999999px;
+  left:-9999999999px;
 }
