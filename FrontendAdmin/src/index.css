@@ -121,3 +121,8 @@ h3 {
   line-height: var(--menu-line-height) !important;
   color: var(--text);
 }
+
+p {
+  margin-top: 0rem;
+  margin-bottom: 1rem;
+}

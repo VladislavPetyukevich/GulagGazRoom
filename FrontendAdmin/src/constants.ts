@@ -14,6 +14,7 @@ export const pathnames = {
 
 export const enum Captions {
   AppName = 'ГУЛАГ ГАЗ РУМ',
+  AppDescription = 'Интерактивная платформа для проведения собеседований с возможностью составления детальных отчётов.',
   WelcomeMessage = 'Салют',
   HomePageName = 'Проходная',
   RoomsPageName = 'Заседания',
