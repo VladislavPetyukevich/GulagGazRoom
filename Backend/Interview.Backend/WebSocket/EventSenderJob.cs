@@ -60,10 +60,38 @@ public class EventSenderJob : BackgroundService
 
     private async Task SendEventsAsync(CancellationToken cancellationToken)
     {
+        ILookup<Guid, IRoomEvent> lookup;
+
+        try
+        {
+            lookup = _roomEventDispatcher.Read().ToLookup(e => e.RoomId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "During read events");
+            return;
+        }
+
+        try
+        {
+            // not found actual events
+            if (lookup.Count == 0)
+            {
+                _logger.LogDebug("Before wait async");
+                await _roomEventDispatcher.WaitAsync(cancellationToken);
+                _logger.LogDebug("After wait async");
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "During wait");
+        }
+
         try
         {
             var statefulEvents = new List<IRoomEvent>();
-            foreach (var group in _roomEventDispatcher.Read().ToLookup(e => e.RoomId))
+            foreach (var group in lookup)
             {
                 if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
                     subscribers.Count == 0)
@@ -86,17 +114,6 @@ public class EventSenderJob : BackgroundService
                 _logger.LogError(e, "Read events");
                 await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
             }
-        }
-
-        try
-        {
-            _logger.LogDebug("Before wait async");
-            await _roomEventDispatcher.WaitAsync(cancellationToken);
-            _logger.LogDebug("After wait async");
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "During wait");
         }
     }
 
