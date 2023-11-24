@@ -73,7 +73,7 @@ public class RedisEventStorage : IEventStorage
 
     private static Expression<Func<RedisEvent, bool>> BuildNewSpec(ISpecification<IStorageEvent> spec)
     {
-        var newSpec = (Expression<Func<RedisEvent, bool>>) Expression.Lambda(
+        var newSpec = (Expression<Func<RedisEvent, bool>>)Expression.Lambda(
             spec.Expression.Body,
             Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
         return newSpec;

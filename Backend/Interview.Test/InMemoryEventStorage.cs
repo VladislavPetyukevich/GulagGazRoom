@@ -27,7 +27,7 @@ public sealed class InMemoryEventStorage : IEventStorage
         {
             _storage.Remove(e);
         }
-            
+
         return ValueTask.CompletedTask;
     }
 }
