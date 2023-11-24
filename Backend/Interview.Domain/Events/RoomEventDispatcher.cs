@@ -16,8 +16,10 @@ public class RoomEventDispatcher : IRoomEventDispatcher
             IRoomEvent? roomEvent = null;
             try
             {
-                using var cts = new CancellationTokenSource(timeout);
-                roomEvent = await value.Reader.ReadAsync(cts.Token);
+                if (!value.Reader.TryRead(out roomEvent))
+                {
+                    continue;
+                }
             }
             catch (ChannelClosedException)
             {
