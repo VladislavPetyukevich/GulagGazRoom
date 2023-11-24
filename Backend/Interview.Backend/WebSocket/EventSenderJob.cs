@@ -11,7 +11,7 @@ namespace Interview.Backend.WebSocket;
 
 public class EventSenderJob : BackgroundService
 {
-    private static TimeSpan ReadTimeout => TimeSpan.FromSeconds(30);
+    private static TimeSpan ReadTimeout => TimeSpan.FromMilliseconds(100);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IRoomEventDispatcher _roomEventDispatcher;

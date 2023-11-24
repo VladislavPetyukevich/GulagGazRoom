@@ -11,18 +11,21 @@ public class RoomEventDispatcher : IRoomEventDispatcher
 
     public async IAsyncEnumerable<IRoomEvent> ReadAsync(TimeSpan timeout)
     {
-        using var cts = new CancellationTokenSource(timeout);
-
         foreach (var value in _queue.Values)
         {
             IRoomEvent? roomEvent = null;
             try
             {
+                using var cts = new CancellationTokenSource(timeout);
                 roomEvent = await value.Reader.ReadAsync(cts.Token);
             }
             catch (ChannelClosedException)
             {
                 // ignore: May occur when competitively accessing the queue
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore
             }
 
             if (roomEvent is not null)
