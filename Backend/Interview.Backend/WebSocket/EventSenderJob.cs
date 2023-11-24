@@ -1,4 +1,3 @@
-using System.Text;
 using Interview.Backend.WebSocket.Events;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Domain.Events;
@@ -11,8 +10,6 @@ namespace Interview.Backend.WebSocket;
 
 public class EventSenderJob : BackgroundService
 {
-    private static TimeSpan ReadTimeout => TimeSpan.FromMilliseconds(100);
-
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly IWebSocketConnectionSource _webSocketConnectionSource;
@@ -66,7 +63,7 @@ public class EventSenderJob : BackgroundService
         try
         {
             var statefulEvents = new List<IRoomEvent>();
-            foreach (var group in await _roomEventDispatcher.ReadAsync(ReadTimeout).ToLookupAsync(e => e.RoomId, cancellationToken: cancellationToken))
+            foreach (var group in _roomEventDispatcher.Read().ToLookup(e => e.RoomId))
             {
                 if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
                     subscribers.Count == 0)

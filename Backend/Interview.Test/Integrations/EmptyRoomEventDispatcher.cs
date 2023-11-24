@@ -5,8 +5,8 @@ namespace Interview.Test.Integrations
 {
     public class EmptyRoomEventDispatcher : IRoomEventDispatcher
     {
-        public IAsyncEnumerable<IRoomEvent> ReadAsync(TimeSpan timeSpan)
-            => AsyncEnumerable.Empty<IRoomEvent>();
+        public IEnumerable<IRoomEvent> Read()
+            => Enumerable.Empty<IRoomEvent>();
 
         public Task WriteAsync(IRoomEvent @event, CancellationToken cancellationToken = default)
             => Task.CompletedTask;

@@ -9,7 +9,7 @@ public class RoomEventDispatcher : IRoomEventDispatcher
     private readonly ConcurrentDictionary<Guid, Channel<IRoomEvent>> _queue = new();
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public async IAsyncEnumerable<IRoomEvent> ReadAsync(TimeSpan timeout)
+    public IEnumerable<IRoomEvent> Read()
     {
         foreach (var value in _queue.Values)
         {
@@ -24,10 +24,6 @@ public class RoomEventDispatcher : IRoomEventDispatcher
             catch (ChannelClosedException)
             {
                 // ignore: May occur when competitively accessing the queue
-            }
-            catch (OperationCanceledException)
-            {
-                // ignore
             }
 
             if (roomEvent is not null)
