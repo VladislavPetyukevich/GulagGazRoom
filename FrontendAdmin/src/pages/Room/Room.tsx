@@ -23,6 +23,7 @@ import { Question } from '../../types/question';
 import { VideoChat } from './components/VideoChat/VideoChat';
 import { SwitchButton } from './components/VideoChat/SwitchButton';
 import { Link } from 'react-router-dom';
+import { ThemeSwitchMini } from '../../components/ThemeSwitchMini/ThemeSwitchMini';
 
 import './Room.css';
 
@@ -201,6 +202,7 @@ export const Room: FunctionComponent = () => {
 
   return (
     <MainContentWrapper className="room-wrapper">
+      <ThemeSwitchMini />
       <ProcessWrapper
         loading={loading}
         loadingPrefix={Captions.LoadingRoom}

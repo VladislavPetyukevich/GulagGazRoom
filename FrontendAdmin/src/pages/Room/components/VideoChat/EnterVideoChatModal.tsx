@@ -169,7 +169,7 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
       className="action-modal enter-videochat-modal"
       style={{
         overlay: {
-          backgroundColor: 'rgba(0, 0, 0, 1.0)',
+          backgroundColor: 'var(--form-bg)',
           zIndex: 2,
         },
       }}

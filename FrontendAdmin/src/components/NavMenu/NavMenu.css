@@ -20,10 +20,11 @@
   border-radius: 0px;
   margin-bottom: 0.5rem;
   line-height: 1.6;
+  border-bottom: 2px solid var(--wrap-bg);
 }
 
 .nav-menu .active {
-  background-color: var(--active-nav-tab);
+  border-bottom: 2px solid var(--active-nav-tab);
 }
 
 .nav-menu .field-wrap {
@@ -51,4 +52,10 @@
   height: 2rem;
   margin-left: 1rem;
   margin-right: 1rem;
+}
+
+.nav-menu .theme-switch-mini {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
 }

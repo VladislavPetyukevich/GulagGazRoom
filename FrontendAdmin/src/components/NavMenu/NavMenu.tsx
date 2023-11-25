@@ -5,6 +5,7 @@ import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
 import { Captions, pathnames } from '../../constants';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { UserAvatar } from '../UserAvatar/UserAvatar';
+import { ThemeSwitchMini } from '../ThemeSwitchMini/ThemeSwitchMini';
 
 import './NavMenu.css';
 
@@ -57,6 +58,7 @@ export const NavMenu: FunctionComponent = () => {
       <nav>
         {items.map(item => createMenuItem(item))}
       </nav>
+      <ThemeSwitchMini />
     </FieldsBlock>
   );
 };

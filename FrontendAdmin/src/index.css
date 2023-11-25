@@ -4,7 +4,7 @@
   --form-bg: var(--page-bg);
   --wrap-bg: #171717;
   --active: #b9221c;
-  --active-nav-tab: #222;
+  --active-nav-tab: #424242;
   --shadow: #100908;
   --bg: #400000;
   --bg-success: #103000;
@@ -13,14 +13,33 @@
   --progress-2: var(--form-bg);
   --menu-font-size: 1.15rem;
   --menu-line-height: calc(var(--menu-font-size) * 1.4);
-  --button-bg: #444;
+  --button-border-color: #424242;
+  --button-bg: #171717;
+  --button-hover-color: #4096FF;
   --button-bg-active: var(--active);
-  --button-bg-disabled: #222;
+  --button-bg-disabled: #1E1E1E;
+  --button-border-disabled: unset;
+  --list-border-color: #444;
+  --tab-border-color: var(--list-border-color);
   --active-tab-color: #5993FF;
   --border-radius: 0.5rem;
   --fields-block-margin: 0rem 1rem;
   --fields-wrap-margin: 0rem 2.5rem;
   --nav-menu-margin-horizontal: -2.5rem;
+}
+
+:root[data-theme="Light"] {
+  --text: #1F1F1F;
+  --page-bg: #F0F0F0;
+  --wrap-bg: #FFF;
+  --active-nav-tab: #D9D9D9;
+  --button-border-color: #D9D9D9;
+  --button-bg: #FFF;
+  --button-bg-disabled: #F5F5F5;
+}
+
+:root[data-color-transition="enabled"] * {
+  transition: background-color 300ms, border-color 300ms;
 }
 
 @media screen and (max-width: 1100px) {
@@ -37,39 +56,42 @@ body {
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--text);
   background-color: var(--page-bg);
 
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 button {
   color: var(--text);
   background-color: var(--button-bg);
   font-size: 0.9rem;
-  border: none;
+  border: 1px solid var(--button-border-color);
   padding: 0rem 2rem;
   height: 1.75rem;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 300ms !important;
   border-radius: var(--border-radius);
 }
 
-button.active {
-  background-color: var(--button-bg-active);
+button:hover {
+  border-color: var(--text);
 }
 
-button:hover {
-  background-color: #262626;
+button.active {
+  background-color: var(--button-hover-color);
+  color: var(--button-bg);
 }
 
 button:disabled,
 button[disabled] {
   background-color: var(--button-bg-disabled);
   color: var(--wrap-bg);
+  border: var(--button-border-disabled);
 }
 
 a {
@@ -101,7 +123,7 @@ textarea, input[type="text"], input[type="color"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
-  border: 1px solid var(--button-bg);
+  border: 1px solid var(--button-border-color);
   border-radius: var(--border-radius);
 }
 

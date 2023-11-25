@@ -5,6 +5,7 @@ import { MainContentWrapper } from '../../components/MainContentWrapper/MainCont
 import { useCommunist } from '../../hooks/useCommunist';
 import { Captions } from '../../constants';
 import { checkAdmin } from '../../utils/checkAdmin';
+import { ThemeSwitch } from '../../components/ThemeSwitch/ThemeSwitch';
 
 import './Session.css';
 
@@ -29,6 +30,7 @@ export const Session: FunctionComponent = () => {
     return (
       <>
         <Field className="session-info">
+          <ThemeSwitch />
           <table>
             <thead>
               <tr>

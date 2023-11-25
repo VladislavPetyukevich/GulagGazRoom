@@ -10,7 +10,7 @@
   padding-bottom: 1rem;
   margin: 0rem 1rem;
   margin-bottom: 1rem;
-  border-bottom: 1px solid var(--button-bg);
+  border-bottom: 1px solid var(--list-border-color);
 }
 
 .rooms-list .room-link {

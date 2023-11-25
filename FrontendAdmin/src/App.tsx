@@ -8,6 +8,7 @@ import { Loader } from './components/Loader/Loader';
 import { MainContentWrapper } from './components/MainContentWrapper/MainContentWrapper';
 import { Field } from './components/FieldsBlock/Field';
 import { useCommunist } from './hooks/useCommunist';
+import { ThemeProvider } from './context/ThemeContext';
 
 import './App.css';
 
@@ -72,11 +73,13 @@ export const App: FunctionComponent = () => {
           },
         }}
       />
-      <AuthContext.Provider value={user}>
-        <div className="App">
+      <ThemeProvider>
+        <AuthContext.Provider value={user}>
+          <div className="App">
             {renderMainContent()}
-        </div>
-      </AuthContext.Provider>
+          </div>
+        </AuthContext.Provider>
+      </ThemeProvider>
     </HashRouter>
   );
 };

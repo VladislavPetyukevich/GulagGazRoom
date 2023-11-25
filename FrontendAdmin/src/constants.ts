@@ -142,6 +142,10 @@ export const enum Captions {
   ChatTab = 'Чат',
   RecognitionTab = 'Транскрипция',
   OpenRooms = 'Открытые',
+  Theme = 'Тема оформления',
+  ThemeSystem = 'Системная',
+  ThemeLight = 'Светлая',
+  ThemeDark = 'Тёмная',
 };
 
 export const toastSuccessOptions = {

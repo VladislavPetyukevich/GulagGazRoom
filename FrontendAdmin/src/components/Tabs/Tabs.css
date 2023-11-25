@@ -8,7 +8,7 @@
   content: '';
   width: 15.6rem;
   padding-top: calc(2rem - 0.35rem);
-  border-bottom: 1px solid var(--button-bg);
+  border-bottom: 1px solid var(--tab-border-color);
 }
 
 .tabs .tabs-tab {
