@@ -73,10 +73,9 @@ public class RedisEventStorage : IEventStorage
 
     private static Expression<Func<RedisEvent, bool>> BuildNewSpec(ISpecification<IStorageEvent> spec)
     {
-        var newSpec = (Expression<Func<RedisEvent, bool>>)Expression.Lambda(
-            spec.Expression.Body,
-            Expression.Parameter(typeof(RedisEvent), spec.Expression.Parameters[0].Name));
-        return newSpec;
+        var param = Expression.Parameter(typeof(RedisEvent));
+        var body = new Visitor<RedisEvent>(param).Visit(spec.Expression.Body);
+        return Expression.Lambda<Func<RedisEvent, bool>>(body, param);
     }
 
     [Document(StorageType = StorageType.Json)]
@@ -100,5 +99,41 @@ public class RedisEventStorage : IEventStorage
 
         [Indexed(Sortable = true)]
         public required DateTime CreatedAt { get; set; }
+    }
+
+    private class Visitor<T> : ExpressionVisitor
+    {
+        private readonly ParameterExpression _parameter;
+
+        public Visitor(ParameterExpression parameter)
+        {
+            _parameter = parameter;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return _parameter;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            // only properties are allowed if you use fields then you need to extend
+            // this method to handle them
+            if (node.Member.MemberType != System.Reflection.MemberTypes.Property)
+            {
+                return node;
+            }
+
+            // name of a member referenced in original expression in your
+            // sample Id in mine Prop
+            var memberName = node.Member.Name;
+
+            // find property on type T (=PersonData) by name
+            var otherMember = typeof(T).GetProperty(memberName);
+
+            // visit left side of this expression p.Id this would be p
+            var inner = Visit(node.Expression);
+            return Expression.Property(inner, otherMember);
+        }
     }
 }
