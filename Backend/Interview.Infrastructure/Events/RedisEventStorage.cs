@@ -73,9 +73,9 @@ public class RedisEventStorage : IEventStorage
 
     private static Expression<Func<RedisEvent, bool>> BuildNewSpec(ISpecification<IStorageEvent> spec)
     {
-        var param = Expression.Parameter(typeof(RedisEvent));
-        var body = new Visitor<RedisEvent>(param).Visit(spec.Expression.Body);
-        return Expression.Lambda<Func<RedisEvent, bool>>(body, param);
+        var newParameter = Expression.Parameter(typeof(RedisEvent));
+        var body = new Visitor<RedisEvent>(newParameter, spec.Expression.Parameters[0]).Visit(spec.Expression.Body);
+        return Expression.Lambda<Func<RedisEvent, bool>>(body, newParameter);
     }
 
     [Document(StorageType = StorageType.Json)]
@@ -103,23 +103,25 @@ public class RedisEventStorage : IEventStorage
 
     private class Visitor<T> : ExpressionVisitor
     {
-        private readonly ParameterExpression _parameter;
+        private readonly ParameterExpression _newParameter;
+        private readonly ParameterExpression _replaceParameter;
 
-        public Visitor(ParameterExpression parameter)
+        public Visitor(ParameterExpression newParameter, ParameterExpression replaceParameter)
         {
-            _parameter = parameter;
+            _newParameter = newParameter;
+            _replaceParameter = replaceParameter;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            return _parameter;
+            return _replaceParameter == node ? _newParameter : node;
         }
 
         protected override Expression VisitMember(MemberExpression node)
         {
             // only properties are allowed if you use fields then you need to extend
             // this method to handle them
-            if (node.Member.MemberType != System.Reflection.MemberTypes.Property)
+            if (node.Member.MemberType != System.Reflection.MemberTypes.Property || node.Expression != _replaceParameter)
             {
                 return node;
             }
@@ -128,7 +130,7 @@ public class RedisEventStorage : IEventStorage
             // sample Id in mine Prop
             var memberName = node.Member.Name;
 
-            // find property on type T (=PersonData) by name
+            // find property on type T by name
             var otherMember = typeof(T).GetProperty(memberName);
 
             // visit left side of this expression p.Id this would be p
