@@ -16,6 +16,15 @@ services:
     networks:
       - local.network
 
+  redis_image:
+    container_name: cache
+    image: redis/redis-stack-server
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - local.network
+
   backend:
     container_name: "backend"
     build:
@@ -59,12 +68,6 @@ services:
       - backend
     networks:
       - local.network
-
-  redis_image:
-    container_name: cache
-    image: redis/redis-stack-server
-    ports:
-      - '6379:6379'
 
 networks:
   local.network:
