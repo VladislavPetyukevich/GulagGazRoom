@@ -33,7 +33,7 @@ public class EventStorage2DatabaseServiceTest
         var eventStorage = new InMemoryEventStorage();
         var storageEvents = new StorageEvent[]
         {
-            new StorageEvent
+            new()
             {
                 Id = Guid.NewGuid(),
                 Payload = "1",
@@ -42,7 +42,7 @@ public class EventStorage2DatabaseServiceTest
                 CreatedAt = new DateTime(2000, 1, 15),
                 RoomId = room1.Id,
             },
-            new StorageEvent
+            new()
             {
                 Id = Guid.NewGuid(),
                 Payload = "2",
@@ -51,7 +51,7 @@ public class EventStorage2DatabaseServiceTest
                 CreatedAt = new DateTime(2015, 12, 1),
                 RoomId = room1.Id,
             },
-            new StorageEvent
+            new()
             {
                 Id = Guid.NewGuid(),
                 Payload = "3",
@@ -60,7 +60,9 @@ public class EventStorage2DatabaseServiceTest
                 CreatedAt = new DateTime(2023, 05, 04),
                 RoomId = room1.Id,
             },
-        };
+        }
+            .OrderBy(e => e.Payload)
+            .ToArray();
         foreach (var storageEvent in storageEvents)
         {
             await eventStorage.AddAsync(storageEvent, CancellationToken.None);
@@ -75,25 +77,23 @@ public class EventStorage2DatabaseServiceTest
 
         await service.ProcessAsync(CancellationToken.None);
 
-        var actualEvents = await appDbContext.RoomEvents.ToListAsync();
+        var actualEvents = await appDbContext.RoomEvents.OrderBy(e => e.Payload).ToListAsync();
         var actualStorageEvents = await eventStorage
             .GetBySpecAsync(Spec<IStorageEvent>.Any, 100, CancellationToken.None)
             .ToListAsync();
 
         initialEvents.Should().BeEmpty();
-        actualEvents.Should().HaveSameCount(storageEvents)
-            .And.ContainSingle(e => IsSame(e, storageEvents[0]))
-            .And.ContainSingle(e => IsSame(e, storageEvents[1]))
-            .And.ContainSingle(e => IsSame(e, storageEvents[2]));
+        var checks = storageEvents
+            .Select(storageEvent => new Action<DbRoomEvent>(ev =>
+            {
+                ev.RoomId.Should().Be(storageEvent.RoomId);
+                ev.Stateful.Should().Be(storageEvent.Stateful);
+                ev.Payload.Should().Be(storageEvent.Payload);
+                ev.Type.Should().Be(storageEvent.Type);
+                ev.Id.Should().Be(storageEvent.Id);
+            }))
+            .ToList();
+        actualEvents.Should().HaveSameCount(storageEvents).And.SatisfyRespectively(checks);
         actualStorageEvents.SelectMany(e => e).Count().Should().Be(0);
-    }
-
-    private bool IsSame(DbRoomEvent roomEvent, StorageEvent storageEvent)
-    {
-        return roomEvent.RoomId == storageEvent.RoomId &&
-               roomEvent.Stateful == storageEvent.Stateful &&
-               roomEvent.Payload == storageEvent.Payload &&
-               roomEvent.Type == storageEvent.Type &&
-               roomEvent.Id == storageEvent.Id;
     }
 }
