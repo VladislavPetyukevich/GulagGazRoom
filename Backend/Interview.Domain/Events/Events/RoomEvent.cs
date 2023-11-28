@@ -9,25 +9,41 @@ public class RoomEvent : RoomEvent<string>
         : base(roomId, type, value, stateful)
     {
     }
+
+    public RoomEvent(Guid id, Guid roomId, string type, string? value, bool stateful, DateTime createdAt)
+        : base(id, roomId, type, value, stateful, createdAt)
+    {
+    }
 }
 
 [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Can't have two files with same name")]
 public class RoomEvent<T> : IRoomEvent<T>
 {
+    public Guid Id { get; }
+
     public Guid RoomId { get; }
 
     public string Type { get; }
 
     public bool Stateful { get; }
 
+    public DateTime CreatedAt { get; }
+
     public T? Value { get; }
 
-    public RoomEvent(Guid roomId, string type, T? value, bool stateful)
+    public RoomEvent(Guid id, Guid roomId, string type, T? value, bool stateful, DateTime createdAt)
     {
+        Id = id;
         RoomId = roomId;
         Type = type;
         Value = value;
         Stateful = stateful;
+        CreatedAt = createdAt;
+    }
+
+    public RoomEvent(Guid roomId, string type, T? value, bool stateful)
+        : this(Guid.NewGuid(), roomId, type, value, stateful, DateTime.UtcNow)
+    {
     }
 
     public string? BuildStringPayload()

@@ -133,16 +133,12 @@ public class WebSocketController : ControllerBase
         CancellationToken ct)
     {
         return Task.Run(
-            () =>
-            {
-                return _webSocketReader.ReadAsync(
-                    user,
-                    room,
-                    scopedServiceProvider,
-                    webSocket,
-                    exception => Console.WriteLine("On error: {0}", exception),
-                    ct);
-            },
+            () => _webSocketReader.ReadAsync(
+                user,
+                room,
+                scopedServiceProvider,
+                webSocket,
+                ct),
             ct);
     }
 
@@ -180,20 +176,5 @@ public class WebSocketController : ControllerBase
         }
 
         return true;
-    }
-
-    private class PoolItem : IDisposable
-    {
-        public byte[] Buffer { get; }
-
-        public PoolItem(int size)
-        {
-            Buffer = ArrayPool<byte>.Shared.Rent(size);
-        }
-
-        public void Dispose()
-        {
-            ArrayPool<byte>.Shared.Return(Buffer);
-        }
     }
 }

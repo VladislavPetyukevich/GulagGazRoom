@@ -221,7 +221,7 @@ async function init() {
       await codeEditorwebSocketConnection.connect();
       codeEditor.onChange = code => codeEditorwebSocketConnection.send(JSON.stringify({
         Type: 'code',
-        Payload: code,
+        Value: code,
       }));
     }
   } catch (err) {

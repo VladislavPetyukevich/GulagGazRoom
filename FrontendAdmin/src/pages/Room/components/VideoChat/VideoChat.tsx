@@ -13,6 +13,7 @@ import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnaly
 import { limitLength } from './utils/limitLength';
 import { randomId } from './utils/randomId';
 import { SwitchButton } from './SwitchButton';
+import { parseWsMessage } from './utils/parseWsMessage';
 
 import './VideoChat.css';
 
@@ -156,7 +157,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     peer.on('signal', signal => {
       onSendWsMessage(JSON.stringify({
         Type: 'sending signal',
-        Payload: JSON.stringify({
+        Value: JSON.stringify({
           To: to,
           Signal: JSON.stringify(signal),
         }),
@@ -176,7 +177,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     peer.on('signal', signal => {
       onSendWsMessage(JSON.stringify({
         Type: 'returning signal',
-        Payload: JSON.stringify({
+        Value: JSON.stringify({
           To: callerID,
           Signal: JSON.stringify(signal),
         }),
@@ -212,12 +213,9 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
       return;
     }
     try {
-      const parsedData = JSON.parse(lastWsMessage?.data);
-      if (!parsedData?.Payload) {
-        return;
-      }
-      const parsedPayload = JSON.parse(parsedData?.Payload);
-      switch (parsedData?.Type) {
+      const parsedMessage = parseWsMessage(lastWsMessage?.data);
+      const parsedPayload = parsedMessage?.Value;
+      switch (parsedMessage?.Type) {
         case 'all users':
           if (!Array.isArray(parsedPayload)) {
             break;
@@ -289,7 +287,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
       return;
     }
     try {
-      const parsedData = JSON.parse(lastWsMessage?.data);
+      const parsedData = parseWsMessage(lastWsMessage?.data);
       switch (parsedData?.Type) {
         case 'ChatMessage':
           setTranscripts(transcripts => limitLength(
@@ -359,7 +357,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         const res = event.results[i][0];
         onSendWsMessage(JSON.stringify({
           Type: 'voice-recognition',
-          Payload: res.transcript,
+          Value: res.transcript,
         }));
       }
     };
@@ -444,7 +442,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const handleTextMessageSubmit = (message: string) => {
     onSendWsMessage(JSON.stringify({
       Type: 'chat-message',
-      Payload: message,
+      Value: message,
     }));
   };
 

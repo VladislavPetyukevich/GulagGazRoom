@@ -75,6 +75,43 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.ToTable("AppEvent");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Events.DbRoomEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Payload")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Stateful")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("RoomEvents");
+                });
+
             modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
                 {
                     b.Property<Guid>("Id")
@@ -329,6 +366,34 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RoomReview");
+                });
+
+            modelBuilder.Entity("Interview.Domain.Rooms.QueuedRoomEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
+                    b.ToTable("QueuedRoomEvents");
                 });
 
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
@@ -961,6 +1026,23 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("CreatedBy");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Events.DbRoomEvent", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Interview.Domain.Rooms.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("Interview.Domain.Questions.Question", b =>
                 {
                     b.HasOne("Interview.Domain.Users.User", "CreatedBy")
@@ -1104,6 +1186,21 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Interview.Domain.Rooms.QueuedRoomEvent", b =>
+                {
+                    b.HasOne("Interview.Domain.Users.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Interview.Domain.Rooms.Room", null)
+                        .WithOne("QueuedRoomEvent")
+                        .HasForeignKey("Interview.Domain.Rooms.QueuedRoomEvent", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("Interview.Domain.Rooms.Room", b =>
                 {
                     b.HasOne("Interview.Domain.Users.User", "CreatedBy")
@@ -1233,6 +1330,8 @@ namespace Interview.Migrations.Postgres.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("Questions");
+
+                    b.Navigation("QueuedRoomEvent");
 
                     b.Navigation("RoomStates");
                 });

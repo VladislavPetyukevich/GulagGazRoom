@@ -1,89 +1,119 @@
-using System.Net.WebSockets;
-using System.Text;
+using Interview.Backend.WebSocket.Events;
 using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Domain.Events;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Events.Sender;
 using Interview.Domain.Rooms.Service;
 
 namespace Interview.Backend.WebSocket;
 
 public class EventSenderJob : BackgroundService
 {
-    private static TimeSpan ReadTimeout => TimeSpan.FromSeconds(30);
-
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly IWebSocketConnectionSource _webSocketConnectionSource;
     private readonly ILogger<EventSenderJob> _logger;
     private readonly IRoomEventSerializer _roomEventSerializer;
+    private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
+    private readonly IEventSenderAdapter _eventSenderAdapter;
 
     public EventSenderJob(
         IRoomEventDispatcher roomEventDispatcher,
         IWebSocketConnectionSource webSocketConnectionSource,
         ILogger<EventSenderJob> logger,
         IRoomEventSerializer roomEventSerializer,
-        IServiceScopeFactory scopeFactory)
+        IServiceScopeFactory scopeFactory,
+        ILogger<WebSocketEventSender> webSocketEventSender,
+        IEventSenderAdapter eventSenderAdapter)
     {
         _roomEventDispatcher = roomEventDispatcher;
         _webSocketConnectionSource = webSocketConnectionSource;
         _logger = logger;
         _roomEventSerializer = roomEventSerializer;
         _scopeFactory = scopeFactory;
+        _webSocketEventSender = webSocketEventSender;
+        _eventSenderAdapter = eventSenderAdapter;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Start sending");
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await SendEventsAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Stop sending");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "During sending events");
+            }
+        }
+
+        _logger.LogDebug("Stop sending");
+    }
+
+    private async Task SendEventsAsync(CancellationToken cancellationToken)
+    {
+        ILookup<Guid, IRoomEvent> lookup;
+
         try
         {
-            _logger.LogDebug("Start sending");
-            while (!cancellationToken.IsCancellationRequested)
+            lookup = _roomEventDispatcher.Read().ToLookup(e => e.RoomId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "During read events");
+            return;
+        }
+
+        try
+        {
+            // not found actual events
+            if (lookup.Count == 0)
             {
-                IEnumerable<IRoomEvent>? events;
-                try
-                {
-                    events = await _roomEventDispatcher.ReadAsync(ReadTimeout);
-                }
-                catch (Exception e)
-                {
-                    if (e is not OperationCanceledException)
-                    {
-                        _logger.LogError(e, "Read events");
-                        await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
-                    }
-
-                    continue;
-                }
-
-                var statefulEvents = new List<IRoomEvent>();
-                foreach (var group in events.ToLookup(e => e.RoomId))
-                {
-                    if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
-                        subscribers.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach (var currentEvent in group)
-                    {
-                        await ProcessEventAsync(currentEvent, statefulEvents, subscribers, cancellationToken);
-                    }
-                }
-
-                await UpdateRoomStateAsync(statefulEvents, cancellationToken);
-
                 _logger.LogDebug("Before wait async");
                 await _roomEventDispatcher.WaitAsync(cancellationToken);
                 _logger.LogDebug("After wait async");
+                return;
             }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            _logger.LogError(ex, "During sending events");
+            _logger.LogError(e, "During wait");
         }
-        finally
+
+        try
         {
-            _logger.LogDebug("Stop sending");
+            var statefulEvents = new List<IRoomEvent>();
+            foreach (var group in lookup)
+            {
+                if (!_webSocketConnectionSource.TryGetConnections(group.Key, out var subscribers) ||
+                    subscribers.Count == 0)
+                {
+                    continue;
+                }
+
+                foreach (var currentEvent in group)
+                {
+                    await ProcessEventAsync(currentEvent, statefulEvents, subscribers, cancellationToken);
+                }
+            }
+
+            await UpdateRoomStateAsync(statefulEvents, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            if (e is not OperationCanceledException)
+            {
+                _logger.LogError(e, "Read events");
+                await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
+            }
         }
     }
 
@@ -98,22 +128,12 @@ public class EventSenderJob : BackgroundService
             statefulEvents.Add(currentEvent);
         }
 
-        var eventAsString = _roomEventSerializer.SerializeAsString(currentEvent);
-        var eventAsBytes = Encoding.UTF8.GetBytes(eventAsString);
-        _logger.LogDebug("Start sending {Event}", eventAsString);
+        var provider = new CachedRoomEventProvider(currentEvent, _roomEventSerializer);
+        _logger.LogDebug("Start sending {@Event}", currentEvent);
         await Parallel.ForEachAsync(subscribers, cancellationToken, async (entry, token) =>
         {
-            try
-            {
-                if (!entry.ShouldCloseWebSocket())
-                {
-                    await entry.SendAsync(eventAsBytes, WebSocketMessageType.Text, true, token);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Send {Event}", eventAsString);
-            }
+            var sender = new WebSocketEventSender(_webSocketEventSender, entry);
+            await _eventSenderAdapter.SendAsync(provider, sender, token);
         });
     }
 

@@ -9,31 +9,27 @@ public class RoomEventDispatcher : IRoomEventDispatcher
     private readonly ConcurrentDictionary<Guid, Channel<IRoomEvent>> _queue = new();
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public async Task<IEnumerable<IRoomEvent>> ReadAsync(TimeSpan timeout)
+    public IEnumerable<IRoomEvent> Read()
     {
-        using var cts = new CancellationTokenSource(timeout);
-
-        var list = new List<IRoomEvent>();
-        try
+        foreach (var value in _queue.Values)
         {
-            foreach (var value in _queue.Values)
+            IRoomEvent? roomEvent = null;
+            try
             {
-                try
+                if (!value.Reader.TryRead(out roomEvent))
                 {
-                    var roomEvent = await value.Reader.ReadAsync(cts.Token);
-                    list.Add(roomEvent);
-                }
-                catch (ChannelClosedException)
-                {
-                    // ignore: May occur when competitively accessing the queue
+                    continue;
                 }
             }
+            catch (ChannelClosedException)
+            {
+                // ignore: May occur when competitively accessing the queue
+            }
 
-            return list;
-        }
-        catch (TaskCanceledException)
-        {
-            return list;
+            if (roomEvent is not null)
+            {
+                yield return roomEvent;
+            }
         }
     }
 
