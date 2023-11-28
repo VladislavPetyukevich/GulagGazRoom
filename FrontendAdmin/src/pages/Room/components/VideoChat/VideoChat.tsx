@@ -2,7 +2,6 @@ import { FunctionComponent, useCallback, useContext, useEffect, useRef, useState
 import { SendMessage } from 'react-use-websocket';
 import Peer from 'simple-peer';
 import { AuthContext } from '../../../../context/AuthContext';
-import { Interviewee } from '../Interviewee/Interviewee';
 import { Captions } from '../../../../constants';
 import { Transcript } from '../../../../types/transcript';
 import { VideoChatVideo } from './VideoChatVideo';
@@ -14,6 +13,8 @@ import { limitLength } from './utils/limitLength';
 import { randomId } from './utils/randomId';
 import { Devices, EnterVideoChatModal } from './EnterVideoChatModal';
 import { Field } from '../../../../components/FieldsBlock/Field';
+import { CodeEditor } from '../CodeEditor/CodeEditor';
+import { RoomState } from '../../../../types/room';
 
 import './VideoChat.css';
 
@@ -39,7 +40,7 @@ const updateLoudedUserTimeout = 5000;
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 interface VideoChatProps {
-  roomId: string;
+  roomState: RoomState | null;
   roomName?: string;
   viewerMode: boolean;
   lastWsMessage: MessageEvent<any> | null;
@@ -73,7 +74,7 @@ const enableDisableUserTrack = (stream: MediaStream, kind: string, enabled: bool
 };
 
 export const VideoChat: FunctionComponent<VideoChatProps> = ({
-  roomId,
+  roomState,
   roomName,
   viewerMode,
   lastWsMessage,
@@ -566,7 +567,12 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         </Field>
       )}
       <Field className='videochat-field videochat-field-main'>
-        <Interviewee roomId={roomId} ref={intervieweeFrameRef} />
+        <CodeEditor
+          roomState={roomState}
+          readOnly={viewerMode}
+          lastWsMessage={lastWsMessage}
+          onSendWsMessage={onSendWsMessage}
+        />
       </Field>
       {!!messagesChatEnabled && (
         <Field className='videochat-field'>

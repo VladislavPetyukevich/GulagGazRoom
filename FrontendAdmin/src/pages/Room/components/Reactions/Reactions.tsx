@@ -35,6 +35,7 @@ type ParsedStates = Record<string, boolean>;
 
 export interface ReactionsProps {
   room: Room | null;
+  roomState: RoomState | null;
   roles: string[];
   participantType: UserType | null;
   lastWsMessage: MessageEvent<any> | null;
@@ -42,6 +43,7 @@ export interface ReactionsProps {
 
 export const Reactions: FunctionComponent<ReactionsProps> = ({
   room,
+  roomState,
   roles,
   participantType,
   lastWsMessage,
@@ -62,15 +64,6 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const {
     process: { loading: loadingRoomReaction, error: errorRoomReaction },
   } = apiRoomReactionState;
-
-  const {
-    apiMethodState: apiRoomStateState,
-    fetchData: fetchRoomState,
-  } = useApiMethod<RoomState, Room['id']>(roomsApiDeclaration.getState);
-  const {
-    process: { loading: loadingRoomState, error: errorRoomState },
-    data: roomState,
-  } = apiRoomStateState;
 
   const {
     apiMethodState: apiGetEventState,
@@ -114,10 +107,7 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
       PageSize: reactionsPageSize,
       PageNumber: reactionsPageNumber,
     });
-    if (room?.id) {
-      fetchRoomState(room.id);
-    }
-  }, [room?.id, fetchRoomState, fetchReactions, fetchRoomEvents]);
+  }, [room?.id, fetchReactions, fetchRoomEvents]);
 
   useEffect(() => {
     if (!roomState) {
@@ -198,8 +188,6 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
         reactions={eventsReationsFiltered}
         onClick={handleEventClick}
       />
-      {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
-      {errorRoomState && <div>{Captions.ErrorLoadingRoomState}...</div>}
       {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
       {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
       {loadingRoomEvent && <div>{Captions.GetRoomEvent}...</div>}

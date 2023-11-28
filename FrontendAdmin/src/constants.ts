@@ -146,6 +146,8 @@ export const enum Captions {
   ThemeSystem = 'Системная',
   ThemeLight = 'Светлая',
   ThemeDark = 'Тёмная',
+  Language = 'Язык',
+  FontSize = 'Размер шрифта',
 };
 
 export const toastSuccessOptions = {

@@ -14,7 +14,7 @@ import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
-import { RoomParticipant, Room as RoomType } from '../../types/room';
+import { RoomParticipant, RoomState, Room as RoomType } from '../../types/room';
 import { ActionModal } from '../../components/ActionModal/ActionModal';
 import { Reactions } from './components/Reactions/Reactions';
 import { ActiveQuestion } from './components/ActiveQuestion/ActiveQuestion';
@@ -78,6 +78,15 @@ export const Room: FunctionComponent = () => {
     data: roomParticipant,
   } = apiRoomParticipantState;
 
+  const {
+    apiMethodState: apiRoomStateState,
+    fetchData: fetchRoomState,
+  } = useApiMethod<RoomState, RoomType['id']>(roomsApiDeclaration.getState);
+  const {
+    process: { loading: loadingRoomState, error: errorRoomState },
+    data: roomState,
+  } = apiRoomStateState;
+
   const currentUserExpert = roomParticipant?.userType === 'Expert';
   const currentUserExaminee = roomParticipant?.userType === 'Examinee';
   const viewerMode = !(currentUserExpert || currentUserExaminee);
@@ -90,6 +99,7 @@ export const Room: FunctionComponent = () => {
       throw new Error('Room id not found');
     }
     fetchData(id);
+    fetchRoomState(id);
     getRoomOpenQuestions({
       RoomId: id,
       State: 'Active',
@@ -98,7 +108,7 @@ export const Room: FunctionComponent = () => {
       RoomId: id,
       UserId: auth.id,
     });
-  }, [id, auth?.id, fetchData, getRoomOpenQuestions, getRoomParticipant]);
+  }, [id, auth?.id, fetchData, fetchRoomState, getRoomOpenQuestions, getRoomParticipant]);
 
   useEffect(() => {
     if (!room) {
@@ -255,9 +265,11 @@ export const Room: FunctionComponent = () => {
 
               </div>
               <div className="room-page-main-content">
+              {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
+              {errorRoomState && <div>{Captions.ErrorLoadingRoomState}...</div>}
                 {getWsStatusMessage(readyState) || (
                   <VideoChat
-                    roomId={room?.id || ''}
+                    roomState={roomState}
                     roomName={room?.name}
                     viewerMode={viewerMode}
                     lastWsMessage={lastMessage}
@@ -298,6 +310,7 @@ export const Room: FunctionComponent = () => {
                 {reactionsVisible && (
                   <Reactions
                     room={room}
+                    roomState={roomState}
                     roles={auth?.roles || []}
                     participantType={roomParticipant?.userType || null}
                     lastWsMessage={lastMessage}

@@ -105,7 +105,8 @@ table {
   margin-right: auto;
 }
 
-table td, th {
+table td,
+th {
   padding: 0.75rem 0rem;
   padding-left: 0.75rem;
   padding-right: 1rem;
@@ -119,7 +120,9 @@ table td {
   background-color: var(--bg);
 }
 
-textarea, input[type="text"], input[type="color"] {
+textarea,
+input[type="text"],
+input[type="color"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
@@ -147,4 +150,13 @@ h3 {
 p {
   margin-top: 0rem;
   margin-bottom: 1rem;
+}
+
+select {
+  background-color: var(--wrap-bg);
+  color: var(--text);
+  margin-left: 6px;
+  font-size: 1rem;
+  border: 1px solid var(--button-border-color);
+  border-radius: 0.5rem;
 }
