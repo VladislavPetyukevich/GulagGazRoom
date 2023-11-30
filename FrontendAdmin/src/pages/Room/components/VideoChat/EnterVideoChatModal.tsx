@@ -8,25 +8,20 @@ import { getAverageVolume } from './utils/getAverageVolume';
 import { SwitchButton } from './SwitchButton';
 import { AuthContext } from '../../../../context/AuthContext';
 import { UserAvatar } from '../../../../components/UserAvatar/UserAvatar';
+import { Devices } from '../../hooks/useUserStream';
 
 import './EnterVideoChatModal.css';
-
-interface Device {
-  deviceId?: MediaDeviceInfo['deviceId'];
-  enabled: boolean;
-}
-
-export interface Devices {
-  mic?: Device;
-  camera?: Device;
-}
 
 interface EnterVideoChatModalProps {
   open: boolean;
   roomName?: string;
   userStream: MediaStream | null;
+  micEnabled: boolean;
+  cameraEnabled: boolean;
   onClose: () => void;
   onSelect: (devices: Devices) => void;
+  onMicSwitch: () => void;
+  onCameraSwitch: () => void;
 }
 
 const micDeviceKind = 'audioinput';
@@ -42,8 +37,12 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
   open,
   roomName,
   userStream,
+  micEnabled,
+  cameraEnabled,
   onClose,
   onSelect,
+  onMicSwitch,
+  onCameraSwitch,
 }) => {
   const auth = useContext(AuthContext);
   const [joiningScreen, setJoiningScreen] = useState(true);
@@ -52,8 +51,6 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
   const [cameraDevices, setCameraDevices] = useState<MediaDeviceInfo[]>([]);
   const [cameraId, setCameraId] = useState<MediaDeviceInfo['deviceId']>();
   const [micVolume, setMicVolume] = useState(0);
-  const [micEnabled, setMicEnabled] = useState(true);
-  const [cameraEnabled, setCameraEnabled] = useState(true);
   const [settingsEnabled, setSettingsEnabled] = useState(false);
   const userVideo = useRef<HTMLVideoElement>(null);
   const requestRef = useRef<number>();
@@ -81,14 +78,12 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
     onSelect({
       mic: {
         deviceId: micId,
-        enabled: micEnabled,
       },
       camera: {
         deviceId: cameraId,
-        enabled: cameraEnabled,
       },
     });
-  }, [micId, micEnabled, cameraId, cameraEnabled, onSelect]);
+  }, [micId, cameraId, onSelect]);
 
   useEffect(() => {
     const frequencyData = new Uint8Array(frequencyBinCount);
@@ -149,14 +144,6 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
     setCameraId(deviceId);
   }, []);
 
-  const handleSwitchMic = () => {
-    setMicEnabled(!micEnabled);
-  };
-
-  const handleSwitchCamera = () => {
-    setCameraEnabled(!cameraEnabled);
-  };
-
   const handleSwitchSettings = () => {
     setSettingsEnabled(!settingsEnabled);
   };
@@ -205,12 +192,12 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
                   <SwitchButton
                     enabled={micEnabled}
                     caption={Captions.MicrophoneIcon}
-                    onClick={handleSwitchMic}
+                    onClick={onMicSwitch}
                   />
                   <SwitchButton
                     enabled={cameraEnabled}
                     caption={Captions.CameraIcon}
-                    onClick={handleSwitchCamera}
+                    onClick={onCameraSwitch}
                   />
                   <SwitchButton
                     enabled={!settingsEnabled}

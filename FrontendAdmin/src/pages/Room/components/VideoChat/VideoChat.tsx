@@ -11,25 +11,11 @@ import { getAverageVolume } from './utils/getAverageVolume';
 import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnalyser';
 import { limitLength } from './utils/limitLength';
 import { randomId } from './utils/randomId';
-import { Devices, EnterVideoChatModal } from './EnterVideoChatModal';
 import { Field } from '../../../../components/FieldsBlock/Field';
 import { CodeEditor } from '../CodeEditor/CodeEditor';
 import { RoomState } from '../../../../types/room';
 
 import './VideoChat.css';
-
-const videoConstraints = {
-  height: 300,
-  width: 300,
-  frameRate: 15,
-};
-
-const audioConstraints = {
-  channelCount: 1,
-  sampleRate: 16000,
-  sampleSize: 16,
-  volume: 1
-};
 
 const audioVolumeThreshold = 10.0;
 
@@ -37,18 +23,13 @@ const transcriptsMaxLength = 100;
 
 const updateLoudedUserTimeout = 5000;
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
 interface VideoChatProps {
   roomState: RoomState | null;
-  roomName?: string;
   viewerMode: boolean;
   lastWsMessage: MessageEvent<any> | null;
   messagesChatEnabled: boolean;
+  userStream: MediaStream | null;
   videoTrackEnabled: boolean;
-  audioTrackEnabled: boolean;
-  onVideoTrackEnabled: (enabled: boolean) => void;
-  onAudioTrackEnabled: (enabled: boolean) => void;
   onSendWsMessage: SendMessage;
 };
 
@@ -65,30 +46,16 @@ const createTranscript = (body: { userNickname: string; value: string; fromChat:
   ...body,
 });
 
-const enableDisableUserTrack = (stream: MediaStream, kind: string, enabled: boolean) => {
-  const track = stream.getTracks().find(track => track.kind === kind);
-  if (!track) {
-    return;
-  }
-  track.enabled = enabled;
-};
-
 export const VideoChat: FunctionComponent<VideoChatProps> = ({
   roomState,
-  roomName,
   viewerMode,
   lastWsMessage,
   messagesChatEnabled,
-  audioTrackEnabled,
+  userStream,
   videoTrackEnabled,
-  onAudioTrackEnabled,
-  onVideoTrackEnabled,
   onSendWsMessage,
 }) => {
   const auth = useContext(AuthContext);
-  const [userStream, setUserStream] = useState<MediaStream | null>(null);
-  const [videochatEnabled, setVideochatEnabled] = useState(true);
-  const [welcomeScreen, setWelcomeScreen] = useState(true);
   const [transcripts, setTranscripts] = useState<Transcript[]>([createTranscript({
     userNickname: 'GULAG',
     value: `${Captions.ChatWelcomeMessage}, ${auth?.nickname}.`,
@@ -98,9 +65,6 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const [peers, setPeers] = useState<PeerMeta[]>([]);
   const peersRef = useRef<PeerMeta[]>([]);
   const userIdToAudioAnalyser = useRef<Record<string, AnalyserNode>>({});
-  const recognition = useRef(SpeechRecognition ? new SpeechRecognition() : null);
-  const [recognitionNotSupported, setRecognitionNotSupported] = useState(false);
-  const [recognitionEnabled, setRecognitionEnabled] = useState(false);
   const requestRef = useRef<number>();
   const louderUserId = useRef(auth?.id || '');
   const [videoOrder, setVideoOrder] = useState<Record<string, number>>({
@@ -202,13 +166,11 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   }, [userStream, onSendWsMessage]);
 
   useEffect(() => {
-    const recog = recognition.current;
     return () => {
       if (!userStream) {
         return;
       }
       userStream.getTracks().forEach(track => track.stop());
-      recog?.stop();
     };
   }, [userStream]);
 
@@ -339,133 +301,17 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   }, [lastWsMessage]);
 
   useEffect(() => {
-    if (!recognition.current) {
-      setRecognitionNotSupported(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    const recog = recognition.current;
-    if (!recog) {
-      return;
-    }
-    recog.lang = 'ru';
-    recog.continuous = true;
-    recog.onend = () => {
-      if (recognitionEnabled) {
-        recog.start();
-      }
-    }
-
-    return () => {
-      recog.onend = null;
-    }
-  }, [recognitionEnabled]);
-
-  useEffect(() => {
-    const recog = recognition.current;
-    if (!recog) {
-      return;
-    }
-    recog.onresult = (event) => {
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const res = event.results[i][0];
-        onSendWsMessage(JSON.stringify({
-          Type: 'voice-recognition',
-          Payload: res.transcript,
-        }));
-      }
-    };
-
-    return () => {
-      recog.onresult = null;
-    };
-  }, [transcripts, auth?.nickname, onSendWsMessage]);
-
-  const handleRecognitionStart = () => {
-    if (!recognition.current) {
-      return;
-    }
-    recognition.current.start();
-    setRecognitionEnabled(true);
-  };
-
-  const handleRecognitionStop = () => {
-    if (!recognition.current) {
-      return;
-    }
-    recognition.current.stop();
-    setRecognitionEnabled(false);
-  };
-
-  const switchAudioRecognition = useCallback((enabled: boolean) => {
-    try {
-      if (!enabled) {
-        handleRecognitionStop();
-      } else {
-        handleRecognitionStart();
-      }
-    } catch { }
-  }, []);
-
-  const handleVideochatJoin = () => {
-    const initUserMedia = async () => {
-      try {
-        const newUserStream = await navigator.mediaDevices.getUserMedia({
-          video: videoConstraints,
-          audio: audioConstraints,
-        });
-        enableDisableUserTrack(newUserStream, 'video', videoTrackEnabled);
-        enableDisableUserTrack(newUserStream, 'audio', audioTrackEnabled);
-        setUserStream(newUserStream);
-        setVideochatEnabled(true);
-
-        onSendWsMessage(JSON.stringify({
-          Type: "join video chat",
-        }));
-      } catch {
-        alert(Captions.UserStreamError);
-      }
-    };
-    initUserMedia();
-  };
-
-  useEffect(() => {
-    if (userVideo.current) {
-      userVideo.current.srcObject = userStream;
-    }
     if (!userStream || !auth?.id) {
       return;
+    }
+    if (userVideo.current) {
+      console.log('userStream update');
+      userVideo.current.srcObject = userStream;
     }
     try {
       userIdToAudioAnalyser.current[auth.id] = createAudioAnalyser(userStream);
     } catch { }
   }, [userStream, auth?.id]);
-
-  const handleEnableDisableVideo = useCallback((currentUserStream: MediaStream | null, enabled: boolean) => {
-    if (currentUserStream) {
-      enableDisableUserTrack(currentUserStream, 'video', enabled);
-    }
-    onVideoTrackEnabled(enabled);
-  }, [onVideoTrackEnabled]);
-
-  const handleEnableDisableAudio = useCallback((currentUserStream: MediaStream | null, enabled: boolean) => {
-    if (currentUserStream) {
-      enableDisableUserTrack(currentUserStream, 'audio', enabled);
-    }
-    onAudioTrackEnabled(enabled);
-  }, [onAudioTrackEnabled]);
-
-  useEffect(() => {
-    handleEnableDisableAudio(userStream, audioTrackEnabled);
-    if (!welcomeScreen) {
-      switchAudioRecognition(audioTrackEnabled);
-    }
-  }, [userStream, audioTrackEnabled, welcomeScreen, switchAudioRecognition, handleEnableDisableAudio]);
-
-  useEffect(() => {
-    handleEnableDisableVideo(userStream, videoTrackEnabled);
-  }, [userStream, videoTrackEnabled, handleEnableDisableVideo]);
 
   const handleTextMessageSubmit = (message: string) => {
     onSendWsMessage(JSON.stringify({
@@ -474,96 +320,41 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     }));
   };
 
-  const handleMediaSelect = useCallback((devices: Devices) => {
-    const updateUserStream = async () => {
-      const videoRequest = devices.camera?.deviceId && {
-        ...videoConstraints,
-        deviceId: devices.camera?.deviceId,
-      };
-      const micRequest = devices.mic?.deviceId && {
-        ...audioConstraints,
-        deviceId: devices.mic?.deviceId,
-      };
-      const newUserStream = await navigator.mediaDevices.getUserMedia({
-        video: videoRequest || undefined,
-        audio: micRequest || undefined,
-      });
-      setUserStream(newUserStream);
-      onAudioTrackEnabled(!!devices.mic?.enabled);
-      onVideoTrackEnabled(!!devices.camera?.enabled);
-      handleEnableDisableAudio(newUserStream, !!devices.mic?.enabled);
-      handleEnableDisableVideo(newUserStream, !!devices.camera?.enabled);
-      if (devices.mic?.enabled) {
-        handleRecognitionStart();
-      } else {
-        handleRecognitionStop();
-      }
-    };
-    updateUserStream();
-  }, [onAudioTrackEnabled, onVideoTrackEnabled, handleEnableDisableAudio, handleEnableDisableVideo]);
-
-  const handleWelcomeScreenClose = () => {
-    setWelcomeScreen(false);
-    setVideochatEnabled(true);
-  };
-
   return (
     <div className='room-columns'>
-      <EnterVideoChatModal
-        open={welcomeScreen}
-        roomName={roomName}
-        userStream={userStream}
-        onClose={handleWelcomeScreenClose}
-        onSelect={handleMediaSelect}
-      />
       {videochatAvailable && (
         <Field className='videochat-field'>
-          {!videochatEnabled && <h3>{Captions.Videochat}</h3>}
           <div className='videochat-switch-buttons'>
           </div>
-          {videochatEnabled ? (
-            <div className='videochat'>
-              <VideochatParticipant
-                order={videoOrder[auth?.id || '']}
-                avatar={auth?.avatar}
-                nickname={auth?.nickname}
-                videoTrackEnabled={videoTrackEnabled}
+          <div className='videochat'>
+            <VideochatParticipant
+              order={videoOrder[auth?.id || '']}
+              avatar={auth?.avatar}
+              nickname={auth?.nickname}
+              videoTrackEnabled={videoTrackEnabled}
+            >
+              <video
+                ref={userVideo}
+                className='videochat-video'
+                muted
+                autoPlay
+                playsInline
               >
-                <video
-                  ref={userVideo}
-                  className='videochat-video'
-                  muted
-                  autoPlay
-                  playsInline
-                >
-                  Video not supported
-                </video>
-              </VideochatParticipant>
+                Video not supported
+              </video>
+            </VideochatParticipant>
 
-              {peers.map(peer => (
-                <VideochatParticipant
-                  key={peer.targetUserId}
-                  order={videoOrder[peer.targetUserId]}
-                  avatar={peer?.avatar}
-                  nickname={peer?.nickname}
-                >
-                  <VideoChatVideo peer={peer.peer} />
-                </VideochatParticipant>
-              ))}
-            </div>
-          ) : (
-            <div>
-              <button
-                className='videochat-join-button'
-                onClick={handleVideochatJoin}
+            {peers.map(peer => (
+              <VideochatParticipant
+                key={peer.targetUserId}
+                order={videoOrder[peer.targetUserId]}
+                avatar={peer?.avatar}
+                nickname={peer?.nickname}
               >
-                {Captions.Enter}
-              </button>
-              <div>{Captions.Warning}</div>
-              <div>{Captions.CallRecording}</div>
-              {recognitionNotSupported && (<div>{Captions.VoiceRecognitionNotSupported}</div>)}
-            </div>
-          )}
+                <VideoChatVideo peer={peer.peer} />
+              </VideochatParticipant>
+            ))}
+          </div>
         </Field>
       )}
       <Field className='videochat-field videochat-field-main'>

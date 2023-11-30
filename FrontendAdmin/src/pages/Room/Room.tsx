@@ -24,6 +24,9 @@ import { VideoChat } from './components/VideoChat/VideoChat';
 import { SwitchButton } from './components/VideoChat/SwitchButton';
 import { Link } from 'react-router-dom';
 import { ThemeSwitchMini } from '../../components/ThemeSwitchMini/ThemeSwitchMini';
+import { EnterVideoChatModal } from './components/VideoChat/EnterVideoChatModal';
+import { Devices, useUserStream } from './hooks/useUserStream';
+import { useSpeechRecognition } from './hooks/useSpeechRecognition';
 
 import './Room.css';
 
@@ -34,6 +37,14 @@ const getWsStatusMessage = (readyState: number) => {
     case 3: return 'WS CLOSED';
     default: return null;
   }
+};
+
+const enableDisableUserTrack = (stream: MediaStream, kind: string, enabled: boolean) => {
+  const track = stream.getTracks().find(track => track.kind === kind);
+  if (!track) {
+    return;
+  }
+  track.enabled = enabled;
 };
 
 export const Room: FunctionComponent = () => {
@@ -48,8 +59,26 @@ export const Room: FunctionComponent = () => {
   const [currentQuestionId, setCurrentQuestionId] = useState<Question['id']>();
   const [currentQuestion, setCurrentQuestion] = useState<Question>();
   const [messagesChatEnabled, setMessagesChatEnabled] = useState(false);
-  const [videoTrackEnabled, setVideoTrackEnabled] = useState(false);
-  const [audioTrackEnabled, setAudioTrackEnabled] = useState(true);
+  const [welcomeScreen, setWelcomeScreen] = useState(true);
+  const [micEnabled, setMicEnabled] = useState(true);
+  const [cameraEnabled, setCameraEnabled] = useState(true);
+  const [selectedDevices, setSelectedDevices] = useState<Devices | null>(null);
+  const [recognitionEnabled, setRecognitionEnabled] = useState(false);
+  const { userStream } = useUserStream({
+    selectedDevices,
+  });
+
+  const handleVoiceRecognition = (transcript: string) => {
+    sendMessage(JSON.stringify({
+      Type: 'voice-recognition',
+      Payload: transcript,
+    }));
+  };
+
+  const { recognitionNotSupported } = useSpeechRecognition({
+    recognitionEnabled,
+    onVoiceRecognition: handleVoiceRecognition,
+  });
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
   const { process: { loading, error }, data: room } = apiMethodState;
@@ -192,19 +221,47 @@ export const Room: FunctionComponent = () => {
     setMessagesChatEnabled(!messagesChatEnabled);
   };
 
-  const handleSwitchAudio = () => {
-    setAudioTrackEnabled(!audioTrackEnabled);
-  };
-
-  const handleSwitchVideo = () => {
-    setVideoTrackEnabled(!videoTrackEnabled);
-  };
-
   const loaders = [
     {},
     {},
     { height: '890px' }
   ];
+
+  const handleMediaSelect = useCallback((devices: Devices) => {
+    setSelectedDevices(devices);
+    setMicEnabled(true);
+    setCameraEnabled(true);
+  }, []);
+
+  const handleWelcomeScreenClose = () => {
+    setWelcomeScreen(false);
+    setRecognitionEnabled(true);
+    sendMessage(JSON.stringify({
+      Type: "join video chat",
+    }));
+  };
+
+  const handleCameraSwitch = useCallback(() => {
+    if (userStream) {
+      enableDisableUserTrack(userStream, 'video', !cameraEnabled);
+    }
+    setCameraEnabled(!cameraEnabled);
+  }, [userStream, cameraEnabled]);
+
+  const handleMicSwitch = useCallback(() => {
+    if (userStream) {
+      enableDisableUserTrack(userStream, 'audio', !micEnabled);
+    }
+    setMicEnabled(!micEnabled);
+  }, [userStream, micEnabled]);
+
+  useEffect(() => {
+    setRecognitionEnabled(micEnabled);
+  }, [micEnabled]);
+
+  const handleVoiceRecognitionSwitch = useCallback(() => {
+    setRecognitionEnabled(!recognitionEnabled);
+  }, [recognitionEnabled]);
 
   if (roomInReview && id) {
     return <Navigate to={pathnames.roomAnalyticsSummary.replace(':id', id)} replace />;
@@ -213,6 +270,17 @@ export const Room: FunctionComponent = () => {
   return (
     <MainContentWrapper className="room-wrapper">
       <ThemeSwitchMini />
+      <EnterVideoChatModal
+        open={welcomeScreen}
+        roomName={room?.name}
+        userStream={userStream}
+        micEnabled={micEnabled}
+        cameraEnabled={cameraEnabled}
+        onSelect={handleMediaSelect}
+        onClose={handleWelcomeScreenClose}
+        onMicSwitch={handleMicSwitch}
+        onCameraSwitch={handleCameraSwitch}
+      />
       <ProcessWrapper
         loading={loading}
         loadingPrefix={Captions.LoadingRoom}
@@ -220,111 +288,115 @@ export const Room: FunctionComponent = () => {
         error={error}
         errorPrefix={Captions.ErrorLoadingRoom}
       >
-        <>
-          <div className="room-page">
-            <div className="room-page-main">
-              <div className="room-page-header">
-                <div>
-                  <span
-                    className={`room-page-header-caption ${viewerMode ? 'room-page-header-caption-viewer' : ''}`}
-                  >
-                    <div>{room?.name}</div>
-                    {viewerMode && (
-                      <div
-                        className="room-page-header-question-viewer"
-                      >
-                        {Captions.ActiveQuestion}: {currentQuestion?.value}
-                      </div>
-                    )}
-                  </span>
-                </div>
-
-                {!viewerMode && (
-                  <div className="reactions-field">
-                    <ActiveQuestion
-                      room={room}
-                      initialQuestionText={currentQuestion?.value}
-                    />
-                  </div>
-                )}
-                {!reactionsVisible && (
-                  <div>{Captions.WaitingRoom}</div>
-                )}
-                {!viewerMode && (
-                  <div className='start-room-review'>
-                    <ActionModal
-                      title={Captions.StartReviewRoomModalTitle}
-                      openButtonCaption={Captions.StartReviewRoom}
-                      loading={roomStartReviewLoading}
-                      loadingCaption={Captions.CloseRoomLoading}
-                      error={roomStartReviewError}
-                      onAction={handleStartReviewRoom}
-                    />
-                  </div>
-                )}
-
+        <div className="room-page">
+          <div className="room-page-main">
+            <div className="room-page-header">
+              <div>
+                <span
+                  className={`room-page-header-caption ${viewerMode ? 'room-page-header-caption-viewer' : ''}`}
+                >
+                  <div>{room?.name}</div>
+                  {viewerMode && (
+                    <div
+                      className="room-page-header-question-viewer"
+                    >
+                      {Captions.ActiveQuestion}: {currentQuestion?.value}
+                    </div>
+                  )}
+                </span>
               </div>
-              <div className="room-page-main-content">
-              {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
-              {errorRoomState && <div>{Captions.ErrorLoadingRoomState}...</div>}
-                {getWsStatusMessage(readyState) || (
-                  <VideoChat
-                    roomState={roomState}
-                    roomName={room?.name}
-                    viewerMode={viewerMode}
-                    lastWsMessage={lastMessage}
-                    messagesChatEnabled={messagesChatEnabled}
-                    audioTrackEnabled={audioTrackEnabled}
-                    videoTrackEnabled={videoTrackEnabled}
-                    onAudioTrackEnabled={setAudioTrackEnabled}
-                    onVideoTrackEnabled={setVideoTrackEnabled}
-                    onSendWsMessage={sendMessage}
-                  />
-                )}
-              </div>
-            </div>
-            <div className="room-tools-container">
+
               {!viewerMode && (
-                <div className="room-tools room-tools-left">
-                  <SwitchButton
-                    enabled={audioTrackEnabled}
-                    caption={Captions.MicrophoneIcon}
-                    subCaption={Captions.Microphone}
-                    onClick={handleSwitchAudio}
-                  />
-                  <SwitchButton
-                    enabled={videoTrackEnabled}
-                    caption={Captions.CameraIcon}
-                    subCaption={Captions.Camera}
-                    onClick={handleSwitchVideo}
+                <div className="reactions-field">
+                  <ActiveQuestion
+                    room={room}
+                    initialQuestionText={currentQuestion?.value}
                   />
                 </div>
               )}
-              <div className="room-tools room-tools-center">
-                <SwitchButton
-                  enabled={!messagesChatEnabled}
-                  caption={Captions.ChatIcon}
-                  subCaption={Captions.Chat}
-                  onClick={handleMessagesChatSwitch}
+              {!reactionsVisible && (
+                <div>{Captions.WaitingRoom}</div>
+              )}
+              {!viewerMode && (
+                <div className='start-room-review'>
+                  <ActionModal
+                    title={Captions.StartReviewRoomModalTitle}
+                    openButtonCaption={Captions.StartReviewRoom}
+                    loading={roomStartReviewLoading}
+                    loadingCaption={Captions.CloseRoomLoading}
+                    error={roomStartReviewError}
+                    onAction={handleStartReviewRoom}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="room-page-main-content">
+              {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
+              {errorRoomState && <div>{Captions.ErrorLoadingRoomState}...</div>}
+              {getWsStatusMessage(readyState) || (
+                <VideoChat
+                  roomState={roomState}
+                  viewerMode={viewerMode}
+                  lastWsMessage={lastMessage}
+                  messagesChatEnabled={messagesChatEnabled}
+                  userStream={userStream}
+                  videoTrackEnabled={cameraEnabled}
+                  onSendWsMessage={sendMessage}
                 />
-                {reactionsVisible && (
-                  <Reactions
-                    room={room}
-                    roomState={roomState}
-                    roles={auth?.roles || []}
-                    participantType={roomParticipant?.userType || null}
-                    lastWsMessage={lastMessage}
+              )}
+            </div>
+          </div>
+          <div className="room-tools-container">
+            {!viewerMode && (
+              <div className="room-tools room-tools-left">
+                <SwitchButton
+                  enabled={micEnabled}
+                  caption={Captions.MicrophoneIcon}
+                  subCaption={Captions.Microphone}
+                  onClick={handleMicSwitch}
+                />
+                <SwitchButton
+                  enabled={cameraEnabled}
+                  caption={Captions.CameraIcon}
+                  subCaption={Captions.Camera}
+                  onClick={handleCameraSwitch}
+                />
+                {recognitionNotSupported ? (
+                  <div>{Captions.VoiceRecognitionNotSupported}</div>
+                ) : (
+                  <SwitchButton
+                    enabled={recognitionEnabled}
+                    caption={Captions.VoiceRecognitionIcon}
+                    subCaption={Captions.VoiceRecognition}
+                    onClick={handleVoiceRecognitionSwitch}
                   />
                 )}
               </div>
-              <div className="room-tools room-tools-right">
-                <Link to={pathnames.rooms}>
-                  <button>{Captions.Exit}</button>
-                </Link>
-              </div>
+            )}
+            <div className="room-tools room-tools-center">
+              <SwitchButton
+                enabled={!messagesChatEnabled}
+                caption={Captions.ChatIcon}
+                subCaption={Captions.Chat}
+                onClick={handleMessagesChatSwitch}
+              />
+              {reactionsVisible && (
+                <Reactions
+                  room={room}
+                  roomState={roomState}
+                  roles={auth?.roles || []}
+                  participantType={roomParticipant?.userType || null}
+                  lastWsMessage={lastMessage}
+                />
+              )}
+            </div>
+            <div className="room-tools room-tools-right">
+              <Link to={pathnames.rooms}>
+                <button>{Captions.Exit}</button>
+              </Link>
             </div>
           </div>
-        </>
+        </div>
       </ProcessWrapper>
     </MainContentWrapper>
   );
