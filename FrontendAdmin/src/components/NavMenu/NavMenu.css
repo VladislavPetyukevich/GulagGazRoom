@@ -55,7 +55,7 @@
 }
 
 .nav-menu .theme-switch-mini {
-  position: absolute;
+  position: fixed;
   bottom: 1rem;
   right: 1rem;
 }
