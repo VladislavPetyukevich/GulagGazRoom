@@ -366,7 +366,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         />
       </Field>
       {!!messagesChatEnabled && (
-        <Field className='videochat-field'>
+        <Field className='videochat-field videochat-field-chat'>
           <MessagesChat
             transcripts={transcripts}
             onMessageSubmit={handleTextMessageSubmit}

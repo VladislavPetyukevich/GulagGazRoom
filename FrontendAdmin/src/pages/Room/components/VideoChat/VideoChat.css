@@ -20,6 +20,10 @@
   overflow-y: hidden;
 }
 
+.room-columns .videochat-field-chat {
+  width: 19.5rem;
+}
+
 .videochat {
   display: flex;
   flex-direction: column;
