@@ -256,8 +256,11 @@ export const Room: FunctionComponent = () => {
   }, [userStream, micEnabled]);
 
   useEffect(() => {
+    if (welcomeScreen) {
+      return;
+    }
     setRecognitionEnabled(micEnabled);
-  }, [micEnabled]);
+  }, [welcomeScreen, micEnabled]);
 
   const handleVoiceRecognitionSwitch = useCallback(() => {
     setRecognitionEnabled(!recognitionEnabled);
@@ -269,7 +272,6 @@ export const Room: FunctionComponent = () => {
 
   return (
     <MainContentWrapper className="room-wrapper">
-      <ThemeSwitchMini />
       <EnterVideoChatModal
         open={welcomeScreen}
         roomName={room?.name}
@@ -329,6 +331,7 @@ export const Room: FunctionComponent = () => {
                   />
                 </div>
               )}
+              <ThemeSwitchMini className={viewerMode ? 'viewer-theme-switch' : ''} />
             </div>
             <div className="room-page-main-content">
               {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}

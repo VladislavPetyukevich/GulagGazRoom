@@ -3,10 +3,16 @@ import { Theme, ThemeContext } from '../../context/ThemeContext';
 
 import './ThemeSwitchMini.css';
 
+interface ThemeSwitchMiniProps {
+  className?: string | null;
+}
+
 const getNextTheme = (themeInUi: Theme) =>
 themeInUi === Theme.Light ? Theme.Dark : Theme.Light;
 
-export const ThemeSwitchMini: FunctionComponent = () => {
+export const ThemeSwitchMini: FunctionComponent<ThemeSwitchMiniProps> = ({
+  className,
+}) => {
   const { themeInUi, setTheme } = useContext(ThemeContext);
 
   const handleSwitch = () => {
@@ -15,7 +21,7 @@ export const ThemeSwitchMini: FunctionComponent = () => {
 
   return (
     <div
-      className='theme-switch-mini'
+      className={`theme-switch-mini ${className}`}
       onClick={handleSwitch}
     >
       {themeInUi === Theme.Light ? '🌙' : '💡'}

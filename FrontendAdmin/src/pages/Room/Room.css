@@ -3,9 +3,13 @@
 }
 
 .room-wrapper .theme-switch-mini {
-  position: absolute;
-  right: 9px;
-  top: 10px;
+  width: 1rem;
+  padding-left: 0.5rem;
+}
+
+.room-wrapper .viewer-theme-switch {
+  margin-left: auto;
+  padding-left: 0rem;
 }
 
 .room-page {
@@ -18,7 +22,6 @@
   display: flex;
   padding-top: 0.5rem;
   padding-bottom: 1rem;
-  padding-right: 20px;
 }
 
 .room-page .room-page-header-caption {
@@ -109,7 +112,7 @@
 }
 
 .room-page .start-room-review {
-  width: 254px;
+  width: 250px;
 }
 
 .room-page .start-room-review button {
