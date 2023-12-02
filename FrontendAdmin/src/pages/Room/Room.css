@@ -108,7 +108,6 @@
   align-items: center;
   margin-bottom: 0.25rem;
   flex: 1;
-  z-index: 2;
 }
 
 .room-page .start-room-review {
