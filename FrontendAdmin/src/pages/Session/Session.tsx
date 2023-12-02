@@ -30,6 +30,7 @@ export const Session: FunctionComponent = () => {
     return (
       <>
         <Field className="session-info">
+          <h2>{Captions.Settings}</h2>
           <ThemeSwitch />
           <table>
             <thead>
