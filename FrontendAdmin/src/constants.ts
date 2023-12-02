@@ -136,6 +136,7 @@ export const enum Captions {
   ThemeDark = 'Тёмная',
   Language = 'Язык',
   FontSize = 'Размер шрифта',
+  You = 'Вы',
 };
 
 export const toastSuccessOptions = {

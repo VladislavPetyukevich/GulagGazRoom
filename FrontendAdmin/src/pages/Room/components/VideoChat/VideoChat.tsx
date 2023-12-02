@@ -73,7 +73,6 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   });
   const updateAnalyserTimeout = useRef(0);
   const intervieweeFrameRef = useRef<HTMLIFrameElement>(null);
-  const videochatAvailable = !viewerMode;
 
   useEffect(() => {
     const frequencyData = new Uint8Array(frequencyBinCount);
@@ -128,7 +127,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     const peer = new Peer({
       initiator: true,
       trickle: false,
-      stream: userStream || undefined,
+      stream: viewerMode ? undefined : userStream || undefined,
     });
 
     peer.on('signal', signal => {
@@ -142,13 +141,13 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     });
 
     return peer;
-  }, [userStream, onSendWsMessage]);
+  }, [userStream, viewerMode, onSendWsMessage]);
 
   const addPeer = useCallback((incomingSignal: Peer.SignalData, callerID: string) => {
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      stream: userStream || undefined,
+      stream: viewerMode ? undefined : userStream || undefined,
     });
 
     peer.on('signal', signal => {
@@ -164,7 +163,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     peer.signal(incomingSignal);
 
     return peer;
-  }, [userStream, onSendWsMessage]);
+  }, [userStream, viewerMode, onSendWsMessage]);
 
   useEffect(() => {
     return () => {
@@ -319,41 +318,39 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
 
   return (
     <div className='room-columns'>
-      {videochatAvailable && (
-        <Field className='videochat-field'>
-          <div className='videochat-switch-buttons'>
-          </div>
-          <div className='videochat'>
-            <VideochatParticipant
-              order={videoOrder[auth?.id || '']}
-              avatar={auth?.avatar}
-              nickname={auth?.nickname}
-              videoTrackEnabled={videoTrackEnabled}
+      <Field className='videochat-field'>
+        <div className='videochat'>
+          <VideochatParticipant
+            order={videoOrder[auth?.id || '']}
+            viewer={viewerMode}
+            avatar={auth?.avatar}
+            nickname={`${auth?.nickname} (${Captions.You})`}
+            videoTrackEnabled={videoTrackEnabled}
+          >
+            <video
+              ref={userVideo}
+              className='videochat-video'
+              muted
+              autoPlay
+              playsInline
             >
-              <video
-                ref={userVideo}
-                className='videochat-video'
-                muted
-                autoPlay
-                playsInline
-              >
-                Video not supported
-              </video>
-            </VideochatParticipant>
+              Video not supported
+            </video>
+          </VideochatParticipant>
 
-            {peers.map(peer => (
-              <VideochatParticipant
-                key={peer.targetUserId}
-                order={videoOrder[peer.targetUserId]}
-                avatar={peer?.avatar}
-                nickname={peer?.nickname}
-              >
-                <VideoChatVideo peer={peer.peer} />
-              </VideochatParticipant>
-            ))}
-          </div>
-        </Field>
-      )}
+          {peers.map(peer => (
+            <VideochatParticipant
+              key={peer.targetUserId}
+              viewer={peer.peer.streams.length === 0}
+              order={videoOrder[peer.targetUserId]}
+              avatar={peer?.avatar}
+              nickname={peer?.nickname}
+            >
+              <VideoChatVideo peer={peer.peer} />
+            </VideochatParticipant>
+          ))}
+        </div>
+      </Field>
       <Field className='videochat-field videochat-field-main'>
         <CodeEditor
           roomState={roomState}

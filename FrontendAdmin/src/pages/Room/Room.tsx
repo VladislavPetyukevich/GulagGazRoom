@@ -237,13 +237,13 @@ export const Room: FunctionComponent = () => {
 
   const handleWelcomeScreenClose = () => {
     setWelcomeScreen(false);
+    sendMessage(JSON.stringify({
+      Type: "join video chat",
+    }));
     if (viewerMode) {
       return;
     }
     setRecognitionEnabled(true);
-    sendMessage(JSON.stringify({
-      Type: "join video chat",
-    }));
   };
 
   const handleCameraSwitch = useCallback(() => {
