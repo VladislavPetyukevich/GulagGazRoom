@@ -70,7 +70,19 @@
 }
 
 .room-page .room-tools-right {
-  align-self: flex-end;
+  height: 100%;
+  align-items: center;
+}
+
+.room-page .room-tools-right a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+}
+
+.room-page .room-tools-right button {
+  height: calc(100% - 1rem);
 }
 
 .room-page .room-tools-center {
