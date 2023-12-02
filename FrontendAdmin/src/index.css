@@ -113,11 +113,11 @@ th {
 }
 
 table th {
-  background-color: var(--bg);
+  background-color: var(--active-nav-tab);
 }
 
 table td {
-  background-color: var(--bg);
+  background-color: var(--active-nav-tab);
 }
 
 textarea,
