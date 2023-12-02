@@ -4,6 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
 using Interview.Backend.WebSocket.Events.Handlers;
+using Interview.Domain.Events;
+using Interview.Domain.Events.Events;
+using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Events.Sender;
 using Interview.Domain.RoomParticipants;
 
 namespace Interview.Backend.WebSocket.Events.ConnectionListener;
@@ -13,10 +17,20 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
     private readonly ConcurrentDictionary<Guid, ImmutableList<Payload>> _store = new();
     private readonly ConcurrentDictionary<(Guid UserId, Guid RoomId), ImmutableList<System.Net.WebSockets.WebSocket>> _storeByUserAndRoom = new();
     private readonly ILogger<VideoChatConnectionListener> _logger;
+    private readonly ILogger<WebSocketEventSender> _webSocketEventSender;
+    private readonly IEventSenderAdapter _eventSenderAdapter;
+    private readonly IRoomEventSerializer _serializer;
 
-    public VideoChatConnectionListener(ILogger<VideoChatConnectionListener> logger)
+    public VideoChatConnectionListener(
+        ILogger<VideoChatConnectionListener> logger,
+        ILogger<WebSocketEventSender> webSocketEventSender,
+        IEventSenderAdapter eventSenderAdapter,
+        IRoomEventSerializer serializer)
     {
         _logger = logger;
+        _webSocketEventSender = webSocketEventSender;
+        _eventSenderAdapter = eventSenderAdapter;
+        _serializer = serializer;
     }
 
     public Task OnConnectAsync(WebSocketConnectDetail detail, CancellationToken cancellationToken)
@@ -51,24 +65,14 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
         if (disconnectUser && TryGetConnections(detail.Room.Id, out var connections))
         {
             var payload = new { Id = detail.User.Id, };
-            var sendEvent = new WebSocketEvent
-            {
-                Type = "user left",
-                Payload = System.Text.Json.JsonSerializer.Serialize(payload),
-            };
-            var sendEventAsStr = System.Text.Json.JsonSerializer.Serialize(sendEvent);
-            var sendEventAsBytes = Encoding.UTF8.GetBytes(sendEventAsStr);
+            var payloadJson = System.Text.Json.JsonSerializer.Serialize(payload);
+            var sendEvent = new RoomEvent(detail.Room.Id, "user left", payloadJson, false);
+            var provider = new CachedRoomEventProvider(sendEvent, _serializer);
 
             foreach (var (_, webSocket) in connections)
             {
-                try
-                {
-                    await webSocket.SendAsync(sendEventAsBytes, WebSocketMessageType.Text, true, cancellationToken);
-                }
-                catch
-                {
-                    // ignore
-                }
+                var sender = new WebSocketEventSender(_webSocketEventSender, webSocket);
+                await _eventSenderAdapter.SendAsync(provider, sender, cancellationToken);
             }
         }
     }

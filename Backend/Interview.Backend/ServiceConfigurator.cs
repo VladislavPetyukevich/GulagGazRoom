@@ -78,51 +78,11 @@ public class ServiceConfigurator
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen();
 
-        var oAuthServiceDispatcher = new OAuthServiceDispatcher(_configuration);
-
-        var adminUsers = _configuration.GetSection(nameof(AdminUsers))
-            .Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
-
-        var twitchService = oAuthServiceDispatcher.GetAuthService("twitch");
-
-        var serviceOption = new DependencyInjectionAppServiceOption(
-            new TwitchTokenProviderOption
-            {
-                ClientSecret = twitchService.ClientSecret,
-                ClientId = twitchService.ClientId,
-            },
-            adminUsers,
-            optionsBuilder =>
-            {
-                var connectionString = _configuration.GetConnectionString("database");
-                var database = _configuration.GetConnectionString("type")?.ToLower().Trim();
-                var customDb = !string.IsNullOrWhiteSpace(database);
-                if ((_environment.IsDevelopment() && !customDb) || "sqlite".Equals(database, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    optionsBuilder.UseSqlite(
-                        connectionString,
-                        builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly.FullName));
-                }
-                else if ((_environment.IsPreProduction() && !customDb) || "postgres".Equals(database, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-                    optionsBuilder.UseNpgsql(
-                        connectionString,
-                        builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly.FullName));
-                }
-                else
-                {
-                    throw new InvalidOperationException("Unknown environment");
-                }
-            });
-
-        serviceCollection.AddAppServices(serviceOption);
-
-        serviceCollection.AddAppAuth(twitchService);
+        AddAppServices(serviceCollection);
 
         serviceCollection.AddHostedService<EventSenderJob>();
 
-        serviceCollection.AddSingleton(oAuthServiceDispatcher);
+        serviceCollection.AddSingleton(new OAuthServiceDispatcher(_configuration));
         serviceCollection.AddSingleton<UserClaimService>();
 
         AddWebSocketServices(serviceCollection);
@@ -132,6 +92,84 @@ public class ServiceConfigurator
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
         });
+        AddRateLimiter(serviceCollection);
+
+        AddSwagger(serviceCollection);
+        serviceCollection.AddHostedService<EventStorage2DatabaseBackgroundService>();
+    }
+
+    private void AddAppServices(IServiceCollection serviceCollection)
+    {
+        var twitchService = new OAuthServiceDispatcher(_configuration).GetAuthService("twitch");
+
+        var adminUsers = _configuration.GetSection(nameof(AdminUsers))
+            .Get<AdminUsers>() ?? throw new ArgumentException($"Not found \"{nameof(AdminUsers)}\" section");
+
+        var serviceOption = new DependencyInjectionAppServiceOption
+        {
+            DbConfigurator = optionsBuilder =>
+            {
+                var connectionString = _configuration.GetConnectionString("database");
+                var database = _configuration.GetConnectionString("type")
+                    ?.ToLower()
+                    .Trim();
+                var customDb = !string.IsNullOrWhiteSpace(database);
+                if ((_environment.IsDevelopment() && !customDb) ||
+                    "sqlite".Equals(
+                        database,
+                        StringComparison.InvariantCultureIgnoreCase))
+                {
+                    optionsBuilder.UseSqlite(
+                        connectionString,
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Sqlite.AppDbContextFactory).Assembly
+                            .FullName));
+                }
+                else if ((_environment.IsPreProduction() && !customDb) ||
+                         "postgres".Equals(
+                             database,
+                             StringComparison.InvariantCultureIgnoreCase))
+                {
+                    AppContext.SetSwitch(
+                        "Npgsql.EnableLegacyTimestampBehavior",
+                        true);
+                    optionsBuilder.UseNpgsql(
+                        connectionString,
+                        builder => builder.MigrationsAssembly(typeof(Migrations.Postgres.AppDbContextFactory).Assembly
+                            .FullName));
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unknown environment");
+                }
+            },
+            TwitchTokenProviderOption = new TwitchTokenProviderOption
+            {
+                ClientSecret = twitchService.ClientSecret,
+                ClientId = twitchService.ClientId,
+            },
+            AdminUsers = adminUsers,
+            EventStorageConfigurator = builder =>
+            {
+                var storageSection = _configuration.GetSection("EventStorage");
+                var useRedis = storageSection?.GetValue<bool?>("UseRedis") ?? false;
+                if (useRedis || !_environment.IsDevelopment())
+                {
+                    var connectionString = storageSection?.GetValue<string>("RedisConnectionString");
+                    builder.UseRedis(connectionString ?? string.Empty);
+                }
+                else
+                {
+                    builder.UseEmpty();
+                }
+            },
+        };
+
+        serviceCollection.AddAppServices(serviceOption);
+        serviceCollection.AddAppAuth(twitchService);
+    }
+
+    private void AddRateLimiter(IServiceCollection serviceCollection)
+    {
         serviceCollection.AddRateLimiter(_ =>
         {
             _.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
@@ -167,7 +205,10 @@ public class ServiceConfigurator
                 return ValueTask.CompletedTask;
             };
         });
+    }
 
+    private void AddSwagger(IServiceCollection serviceCollection)
+    {
         serviceCollection.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo
@@ -193,7 +234,7 @@ public class ServiceConfigurator
             options.CustomSchemaIds(type => (type.FullName ?? type.Name).Replace("+", "_"));
 
             var swaggerOption = _configuration.GetSection(nameof(SwaggerOption)).Get<SwaggerOption>() ??
-                         throw new InvalidOperationException(nameof(SwaggerOption));
+                                throw new InvalidOperationException(nameof(SwaggerOption));
             if (!string.IsNullOrEmpty(swaggerOption.RoutePrefix))
             {
                 options.DocumentFilter<SwaggerDocumentFilter>(swaggerOption.RoutePrefix);

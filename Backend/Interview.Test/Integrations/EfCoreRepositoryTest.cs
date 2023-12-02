@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using Interview.Domain.Repository;
 using Interview.Domain.Users;
 using Interview.Domain.Users.Roles;
@@ -46,8 +48,8 @@ public class EfCoreRepositoryTest
         var expectedUser = CreateUserWithRoles(TestUserId);
 
         var dbUser = await repository.FindByIdDetailedAsync(TestUserId);
-
-        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser);
+        var excluder = CreateDatesExcluder();
+        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser, e => e.Excluding(excluder));
     }
 
     [Fact(DisplayName = "FindByIdDetailedAsync with mapper should include roles")]
@@ -101,7 +103,15 @@ public class EfCoreRepositoryTest
 
         var dbUser = await repository.FindByIdsDetailedAsync(new List<Guid> { TestUserId, TestUserId2 });
 
-        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser);
+        var excluder = CreateDatesExcluder();
+        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser, e => e.Excluding(excluder));
+    }
+
+    private static Expression<Func<IMemberInfo, bool>> CreateDatesExcluder()
+    {
+        Expression<Func<IMemberInfo, bool>> excluder = info =>
+            info.Name == nameof(Entity.UpdateDate) || info.Name == nameof(Entity.CreateDate);
+        return excluder;
     }
 
     [Fact(DisplayName = "FindByIdsDetailedAsync with mapper should include roles")]
@@ -177,7 +187,8 @@ public class EfCoreRepositoryTest
 
         var dbUser = await repository.GetPageDetailedAsync(pageNumber, pageSize);
 
-        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser);
+        var excluder = CreateDatesExcluder();
+        dbUser.Should().NotBeNull().And.BeEquivalentTo(expectedUser, e => e.Excluding(excluder));
     }
 
     [Fact(DisplayName = "GetPageDetailedAsync with roles should include roles")]
@@ -204,7 +215,7 @@ public class EfCoreRepositoryTest
     {
         var user = new User(id, "TEST " + id, "1" + id);
         var clock = new TestSystemClock();
-        user.UpdateCreateDate(clock.UtcNow.DateTime);
+        user.UpdateCreateDate(clock.UtcNow.UtcDateTime);
         return user;
     }
 
@@ -218,7 +229,7 @@ public class EfCoreRepositoryTest
         var user = CreateUserWithoutRoles(id);
         user.Roles.Add(role);
         var clock = new TestSystemClock();
-        role.UpdateCreateDate(clock.UtcNow.DateTime);
+        role.UpdateCreateDate(clock.UtcNow.UtcDateTime);
         return user;
     }
 

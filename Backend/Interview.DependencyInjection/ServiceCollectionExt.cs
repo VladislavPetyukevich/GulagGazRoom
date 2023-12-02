@@ -1,14 +1,15 @@
 using Interview.Domain;
 using Interview.Domain.Certificates;
-using Interview.Domain.Connections;
 using Interview.Domain.Events;
 using Interview.Domain.Events.ChangeEntityProcessors;
 using Interview.Domain.Events.Events.Serializers;
+using Interview.Domain.Events.Sender;
+using Interview.Domain.Events.Storage;
 using Interview.Domain.Repository;
-using Interview.Domain.Rooms.Service;
 using Interview.Domain.Users;
 using Interview.Infrastructure.Certificates.Pdf;
 using Interview.Infrastructure.Database;
+using Interview.Infrastructure.Events;
 using Interview.Infrastructure.Users;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,7 +80,33 @@ public static class ServiceCollectionExt
         self.AddScoped<ICurrentUserAccessor>(e => e.GetRequiredService<IEditableCurrentUserAccessor>());
 
         self.AddScoped<ICurrentPermissionAccessor, CurrentPermissionAccessor>();
-
+        self.AddEventServices(option);
+        self.AddScoped<EventStorage2DatabaseService>();
         return self;
+    }
+
+    private static void AddEventServices(
+        this IServiceCollection self,
+        DependencyInjectionAppServiceOption dependencyInjectionAppServiceOption)
+    {
+        self.AddSingleton<IEventSenderAdapter, DefaultEventSenderAdapter>();
+
+        var builder = new EventStorageOptionBuilder();
+        dependencyInjectionAppServiceOption.EventStorageConfigurator?.Invoke(builder);
+        if (string.IsNullOrWhiteSpace(builder.RedisConnectionString))
+        {
+            self.AddSingleton<IEventStorage, EmptyEventStorage>();
+        }
+        else
+        {
+            var redisStorage = new RedisEventStorage(new RedisEventStorageConfiguration
+            {
+                ConnectionString = builder.RedisConnectionString,
+            });
+            self.AddSingleton<IEventStorage, RedisEventStorage>(_ => redisStorage);
+            redisStorage.CreateIndexes();
+        }
+
+        self.Decorate<IEventSenderAdapter, StoreEventSenderAdapter>();
     }
 }

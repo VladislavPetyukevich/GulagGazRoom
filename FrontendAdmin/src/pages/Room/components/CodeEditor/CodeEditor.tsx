@@ -94,7 +94,7 @@ export const CodeEditor: FunctionComponent<CodeEditorProps> = ({
   const handleChange: OnChange = (value) => {
     onSendWsMessage(JSON.stringify({
       Type: 'code',
-      Payload: value,
+      Value: value,
     }));
     ignoreChangeRef.current = true;
   };

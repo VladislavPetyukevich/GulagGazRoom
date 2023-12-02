@@ -20,10 +20,13 @@ namespace Interview.Test.Units
                 ValidateOnBuild = true,
                 ValidateScopes = true,
             }));
-            var option = new DependencyInjectionAppServiceOption(
-                new TwitchTokenProviderOption(),
-                new AdminUsers(),
-                builder => builder.UseSqlite("DataSource=:memory:"));
+            var option = new DependencyInjectionAppServiceOption
+            {
+                DbConfigurator = builder => builder.UseSqlite("DataSource=:memory:"),
+                TwitchTokenProviderOption = new TwitchTokenProviderOption(),
+                AdminUsers = new AdminUsers(),
+                EventStorageConfigurator = builder => builder.UseEmpty(),
+            };
             webAppBuilder.Services.AddAppServices(option);
             ServiceConfigurator.AddWebSocketServices(webAppBuilder.Services);
 

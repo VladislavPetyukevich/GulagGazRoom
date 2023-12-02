@@ -13,11 +13,11 @@ public abstract class WebSocketEventHandlerBase<TPayload> : IWebSocketEventHandl
 
     protected abstract string SupportType { get; }
 
-    public Task HandleAsync(SocketEventDetail detail, CancellationToken cancellationToken)
+    public async Task<bool> HandleAsync(SocketEventDetail detail, CancellationToken cancellationToken)
     {
         if (!SupportType.Equals(detail.Event.Type, StringComparison.InvariantCultureIgnoreCase))
         {
-            return Task.CompletedTask;
+            return false;
         }
 
         try
@@ -25,20 +25,22 @@ public abstract class WebSocketEventHandlerBase<TPayload> : IWebSocketEventHandl
             var payload = ParsePayload(detail.Event);
             if (payload is not null)
             {
-                return HandleEventAsync(detail, payload, cancellationToken);
+                await HandleEventAsync(detail, payload, cancellationToken);
             }
+
+            return true;
         }
         catch (Exception e)
         {
-            Logger.LogError(e, "Unable to parse payload {Payload}", detail.Event.Payload);
+            Logger.LogError(e, "Unable to parse payload {Payload}", detail.Event.Value);
         }
 
-        return Task.CompletedTask;
+        return false;
     }
 
     protected abstract Task HandleEventAsync(SocketEventDetail detail, TPayload payload, CancellationToken cancellationToken);
 
-    protected virtual TPayload? ParsePayload(WebSocketEvent @event) => JsonSerializer.Deserialize<TPayload>(@event.Payload);
+    protected virtual TPayload? ParsePayload(WebSocketEvent @event) => @event.Value is null ? default : JsonSerializer.Deserialize<TPayload>(@event.Value);
 }
 
 public abstract class WebSocketEventHandlerBase : WebSocketEventHandlerBase<string>
@@ -48,5 +50,5 @@ public abstract class WebSocketEventHandlerBase : WebSocketEventHandlerBase<stri
     {
     }
 
-    protected override string? ParsePayload(WebSocketEvent @event) => @event.Payload;
+    protected override string? ParsePayload(WebSocketEvent @event) => @event.Value;
 }

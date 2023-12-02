@@ -71,7 +71,7 @@ export const Room: FunctionComponent = () => {
   const handleVoiceRecognition = (transcript: string) => {
     sendMessage(JSON.stringify({
       Type: 'voice-recognition',
-      Payload: transcript,
+      Value: transcript,
     }));
   };
 
