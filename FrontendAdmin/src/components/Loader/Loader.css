@@ -1,3 +1,7 @@
+.loader-wrapper {
+  height: 1rem;
+}
+
 .loader,
 .loader:before,
 .loader:after {
