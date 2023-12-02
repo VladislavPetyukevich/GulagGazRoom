@@ -4,8 +4,8 @@
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  color: var(--text);
   background-color: var(--wrap-bg);
-  border: 1px solid var(--active);
   border-radius: var(--border-radius);
 }
 

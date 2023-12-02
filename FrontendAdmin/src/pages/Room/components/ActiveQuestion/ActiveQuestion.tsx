@@ -10,12 +10,12 @@ import './ActiveQuestion.css';
 
 export interface ActiveQuestionProps {
   room: Room | null;
-  placeHolder?: string;
+  initialQuestionText?: string;
 }
 
 export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
   room,
-  placeHolder,
+  initialQuestionText,
 }) => {
   const [showClosedQuestions, setShowClosedQuestions] = useState(false);
 
@@ -61,14 +61,14 @@ export const ActiveQuestion: FunctionComponent<ActiveQuestionProps> = ({
 
   return (
     <div className='active-question-container'>
-      <span>{Captions.ShowClosedQuestions}</span>
-      <input type="checkbox" onClick={handleShowClosedQuestions} />
       <ActiveQuestionSelector
         showClosedQuestions={showClosedQuestions}
         questions={room?.questions || []}
         openQuestions={openRoomQuestions || []}
-        placeHolder={placeHolder || Captions.SelectActiveQuestion}
+        initialQuestionText={initialQuestionText}
+        placeHolder={Captions.SelectActiveQuestion}
         onSelect={handleQuestionSelect}
+        onShowClosedQuestions={handleShowClosedQuestions}
       />
       {loadingRoomActiveQuestion && <div>{Captions.SendingActiveQuestion}...</div>}
       {errorRoomActiveQuestion && <div>{Captions.ErrorSendingActiveQuestion}...</div>}

@@ -17,9 +17,11 @@ export const Home: FunctionComponent = () => {
   }
 
   return (
-    <MainContentWrapper className="home">
-      <HomeContent auth={auth} />
+    <MainContentWrapper thin>
       <Field>
+        <h1>{Captions.AppName}</h1>
+        <p>{Captions.AppDescription}</p>
+        <HomeContent auth={auth} />
         <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
       </Field>
     </MainContentWrapper>

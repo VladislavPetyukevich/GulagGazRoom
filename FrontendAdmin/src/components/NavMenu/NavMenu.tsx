@@ -5,6 +5,7 @@ import { FieldsBlock } from '../FieldsBlock/FieldsBlock';
 import { Captions, pathnames } from '../../constants';
 import { checkAdmin } from '../../utils/checkAdmin';
 import { UserAvatar } from '../UserAvatar/UserAvatar';
+import { ThemeSwitchMini } from '../ThemeSwitchMini/ThemeSwitchMini';
 
 import './NavMenu.css';
 
@@ -42,12 +43,12 @@ export const NavMenu: FunctionComponent = () => {
     (Captions.UnauthorizedMessage);
 
   const items: MenuItem[] = admin ? [
-    { path: pathnames.home.replace(':redirect?', ''), content: Captions.HomePageName },
+    { path: pathnames.home.replace(':redirect?', ''), content: Captions.AppName },
     { path: pathnames.rooms, content: Captions.RoomsPageName },
     { path: pathnames.questions, content: Captions.QuestionsPageName },
     { path: pathnames.session, content: userContent },
   ] : [
-    { path: pathnames.home.replace(':redirect?', ''), content: Captions.HomePageName },
+    { path: pathnames.home.replace(':redirect?', ''), content: Captions.AppName },
     { path: pathnames.rooms, content: Captions.RoomsPageName },
     { path: pathnames.session, content: userContent },
   ];
@@ -57,6 +58,7 @@ export const NavMenu: FunctionComponent = () => {
       <nav>
         {items.map(item => createMenuItem(item))}
       </nav>
+      <ThemeSwitchMini />
     </FieldsBlock>
   );
 };

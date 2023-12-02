@@ -16,7 +16,8 @@ import { Room, RoomState, RoomStateAdditionalStatefulPayload } from '../../../..
 import { Event } from '../../../../types/event';
 import { UserType } from '../../../../types/user';
 import { Loader } from '../../../../components/Loader/Loader';
-import { useAdditionalReactions } from '../../hooks/useAdditionalReactions';
+
+import './Reactions.css';
 
 const reactionsPageSize = 30;
 const reactionsPageNumber = 1;
@@ -34,6 +35,7 @@ type ParsedStates = Record<string, boolean>;
 
 export interface ReactionsProps {
   room: Room | null;
+  roomState: RoomState | null;
   roles: string[];
   participantType: UserType | null;
   lastWsMessage: MessageEvent<any> | null;
@@ -41,6 +43,7 @@ export interface ReactionsProps {
 
 export const Reactions: FunctionComponent<ReactionsProps> = ({
   room,
+  roomState,
   roles,
   participantType,
   lastWsMessage,
@@ -63,15 +66,6 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   } = apiRoomReactionState;
 
   const {
-    apiMethodState: apiRoomStateState,
-    fetchData: fetchRoomState,
-  } = useApiMethod<RoomState, Room['id']>(roomsApiDeclaration.getState);
-  const {
-    process: { loading: loadingRoomState, error: errorRoomState },
-    data: roomState,
-  } = apiRoomStateState;
-
-  const {
     apiMethodState: apiGetEventState,
     fetchData: fetchRoomEvents,
   } = useApiMethod<Event[], PaginationUrlParams>(eventApiDeclaration.get);
@@ -91,26 +85,6 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   const [parsedStates, setParsedStates] = useState<ParsedStates>({});
 
   const reactionsSafe = reactions || [];
-  const additionalReactionsLike = useAdditionalReactions({
-    reactions: reactionsSafe,
-    eventTypeAdditionalNames: {
-      Like: ['like1', 'like2'],
-    },
-  });
-  const additionalReactionsDisLike = useAdditionalReactions({
-    reactions: reactionsSafe,
-    eventTypeAdditionalNames: {
-      Dislike: [
-        'dislike1',
-        'dislike4',
-        'dislike5',
-        'dislike6',
-        'dislike8',
-        'dislike10',
-        'dislike11',
-      ],
-    },
-  });
 
   const eventsReationsFiltered =
     !events ?
@@ -133,13 +107,10 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
       PageSize: reactionsPageSize,
       PageNumber: reactionsPageNumber,
     });
-    if (room?.id) {
-      fetchRoomState(room.id);
-    }
-  }, [room?.id, fetchRoomState, fetchReactions, fetchRoomEvents]);
+  }, [room?.id, fetchReactions, fetchRoomEvents]);
 
   useEffect(() => {
-    if(!roomState) {
+    if (!roomState) {
       return;
     }
     const parsedStates: ParsedStates = {};
@@ -206,33 +177,17 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
   }
 
   return (
-    <div>
-      <div className="reaction-wrapper">
-        <span>{Captions.LikeReactions}</span>
-        <ReactionsList
-          sortOrder={-1}
-          reactions={additionalReactionsLike}
-          onClick={handleReactionClick}
-        />
-      </div>
-      <div className="reaction-wrapper">
-        <span>{Captions.DislikeReactions}</span>
-        <ReactionsList
-          sortOrder={-1}
-          reactions={additionalReactionsDisLike}
-          onClick={handleReactionClick}
-        />
-      </div>
-      <div className="reaction-wrapper">
-        <span>{Captions.Events}</span>
-        <ReactionsList
-          sortOrder={1}
-          reactions={eventsReationsFiltered}
-          onClick={handleEventClick}
-        />
-      </div>
-      {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
-      {errorRoomState && <div>{Captions.ErrorLoadingRoomState}...</div>}
+    <div className='reactions'>
+      <ReactionsList
+        sortOrder={-1}
+        reactions={reactionsSafe}
+        onClick={handleReactionClick}
+      />
+      <ReactionsList
+        sortOrder={1}
+        reactions={eventsReationsFiltered}
+        onClick={handleEventClick}
+      />
       {loadingRoomReaction && <div>{Captions.SendingReaction}...</div>}
       {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
       {loadingRoomEvent && <div>{Captions.GetRoomEvent}...</div>}

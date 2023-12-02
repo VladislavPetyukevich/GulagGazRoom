@@ -1,9 +1,10 @@
 :root {
   --text: #ccc;
-  --page-bg: #333;
+  --page-bg: #080808;
   --form-bg: var(--page-bg);
-  --wrap-bg: #000;
+  --wrap-bg: #171717;
   --active: #b9221c;
+  --active-nav-tab: #424242;
   --shadow: #100908;
   --bg: #400000;
   --bg-success: #103000;
@@ -12,18 +13,37 @@
   --progress-2: var(--form-bg);
   --menu-font-size: 1.15rem;
   --menu-line-height: calc(var(--menu-font-size) * 1.4);
-  --button-bg: #444;
+  --button-border-color: #424242;
+  --button-bg: #171717;
+  --button-hover-color: #4096FF;
+  --button-bg-active: var(--active);
+  --list-border-color: #444;
+  --tab-border-color: var(--list-border-color);
+  --active-tab-color: #5993FF;
   --border-radius: 0.5rem;
   --fields-block-margin: 0rem 1rem;
   --fields-wrap-margin: 0rem 2.5rem;
   --nav-menu-margin-horizontal: -2.5rem;
+  --chat-width: 19.5rem;
+}
+
+:root[data-theme="Light"] {
+  --text: #1F1F1F;
+  --page-bg: #F0F0F0;
+  --wrap-bg: #FFF;
+  --active-nav-tab: #D9D9D9;
+  --button-border-color: #D9D9D9;
+  --button-bg: #FFF;
+  --bg-success: #00B96B;
+}
+
+:root[data-color-transition="enabled"] * {
+  transition: background-color 300ms, border-color 300ms;
 }
 
 @media screen and (max-width: 1100px) {
   :root {
-    --fields-block-margin: 0rem 0rem;
-    --fields-wrap-margin: 0rem 0rem;
-    --nav-menu-margin-horizontal: 0rem;
+    --chat-width: 14rem;
   }
 }
 
@@ -33,40 +53,50 @@ body {
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--text);
   background-color: var(--page-bg);
 
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 button {
   color: var(--text);
   background-color: var(--button-bg);
   font-size: 0.9rem;
-  border: none;
+  border: 1px solid var(--button-border-color);
   padding: 0rem 2rem;
   height: 1.75rem;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 300ms !important;
   border-radius: var(--border-radius);
 }
 
 button:hover {
-  background-color: #7D110E;
+  border-color: var(--text);
+}
+
+button.active {
+  background-color: var(--button-hover-color);
+  color: var(--button-bg);
 }
 
 button:disabled,
 button[disabled] {
-  background-color: #0C0909;
-  color: var(--wrap-bg);
+  opacity: 0.45;
+}
+
+button:disabled:hover,
+button[disabled]:hover {
+  border-color: var(--button-border-color);
 }
 
 a {
-  color: var(--active);
-  text-decoration: none;
+  color: var(--text);
+  text-decoration: underline;
 }
 
 table {
@@ -75,25 +105,28 @@ table {
   margin-right: auto;
 }
 
-table td, th {
+table td,
+th {
   padding: 0.75rem 0rem;
   padding-left: 0.75rem;
   padding-right: 1rem;
 }
 
 table th {
-  background-color: var(--bg);
+  background-color: var(--active-nav-tab);
 }
 
 table td {
-  background-color: var(--bg);
+  background-color: var(--active-nav-tab);
 }
 
-textarea, input[type="text"], input[type="color"] {
+textarea,
+input[type="text"],
+input[type="color"] {
   font-size: 1.0rem;
   color: var(--text);
   background-color: var(--wrap-bg);
-  border: 1px solid var(--button-bg);
+  border: 1px solid var(--button-border-color);
   border-radius: var(--border-radius);
 }
 
@@ -112,4 +145,18 @@ h3 {
   font-size: 1.25rem;
   line-height: var(--menu-line-height) !important;
   color: var(--text);
+}
+
+p {
+  margin-top: 0rem;
+  margin-bottom: 1rem;
+}
+
+select {
+  background-color: var(--wrap-bg);
+  color: var(--text);
+  margin-left: 6px;
+  font-size: 1rem;
+  border: 1px solid var(--button-border-color);
+  border-radius: 0.5rem;
 }

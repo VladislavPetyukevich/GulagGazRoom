@@ -1,23 +1,27 @@
 .activeQuestionSelector-container {
   text-align: left;
-  border: 1px solid var(--form-bg);
+  border: 1px solid var(--button-border-color);
+  border-radius: var(--border-radius);
   position: relative;
   cursor: pointer;
+  background-color: var(--button-bg);
 }
 
 .activeQuestionSelector-input {
-  padding: 0.25rem;
+  height: 1.625rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   user-select: none;
+  padding: 0rem 0.2rem;
+  line-height: 1rem;
 }
 
 .activeQuestionSelector-menu {
   position: absolute;
   transform: translateY(0.25rem);
   width: 100%;
-  border: 1px solid var(--form-bg);
+  border: 1px solid var(--button-border-color);
   border-radius: 0.25rem;
   overflow: auto;
   max-height: 150px;

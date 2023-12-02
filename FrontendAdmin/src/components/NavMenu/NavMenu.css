@@ -1,8 +1,13 @@
 .nav-menu {
   font-size: var(--menu-font-size);
+  margin: 0rem;
 }
 .nav-menu nav {
   display: contents;
+}
+
+.nav-menu a {
+  text-decoration: none;
 }
 
 .nav-menu .fields-wrap {
@@ -15,10 +20,11 @@
   border-radius: 0px;
   margin-bottom: 0.5rem;
   line-height: 1.6;
+  border-bottom: 2px solid var(--wrap-bg);
 }
 
 .nav-menu .active {
-  background-color: var(--shadow);
+  border-bottom: 2px solid var(--active-nav-tab);
 }
 
 .nav-menu .field-wrap {
@@ -27,13 +33,11 @@
 }
 
 .nav-menu .field-wrap:first-child {
-  margin-left: var(--nav-menu-margin-horizontal);
   border-top-left-radius: var(--border-radius);
   border-bottom-left-radius: var(--border-radius);
 }
 
 .nav-menu .field-wrap:last-child {
-  margin-right: var(--nav-menu-margin-horizontal);
   border-top-right-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
 }
@@ -48,4 +52,10 @@
   height: 2rem;
   margin-left: 1rem;
   margin-right: 1rem;
+}
+
+.nav-menu .theme-switch-mini {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
 }

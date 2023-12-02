@@ -1,15 +1,16 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Field } from '../../components/FieldsBlock/Field';
 
 import './HeaderWithLink.css';
 
 interface HeaderWithLinkProps {
-  title: string;
+  title?: string;
   linkVisible: boolean;
   path: string;
   linkCaption: string;
   linkFloat: 'left' | 'right';
+  children?: ReactNode;
 }
 
 export const HeaderWithLink: FunctionComponent<HeaderWithLinkProps> = ({
@@ -18,6 +19,7 @@ export const HeaderWithLink: FunctionComponent<HeaderWithLinkProps> = ({
   path,
   linkCaption,
   linkFloat,
+  children,
 }) => {
   return (
     <Field className="header-with-link">
@@ -26,7 +28,8 @@ export const HeaderWithLink: FunctionComponent<HeaderWithLinkProps> = ({
           <button className={`button-link float-${linkFloat}`}>{linkCaption}</button>
         </Link>
       )}
-      <span>{title}</span>
+      {!!title && <span>{title}</span>}
+      {!!children && children}
     </Field>
   );
 };
