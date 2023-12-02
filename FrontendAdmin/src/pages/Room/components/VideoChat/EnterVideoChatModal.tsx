@@ -182,6 +182,10 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
             />
           )}
           <p>{Captions.JoinAs}: {auth?.nickname}</p>
+          <div className="enter-videochat-warning">
+            <div>{Captions.Warning}</div>
+            <div>{Captions.CallRecording}</div>
+          </div>
           {loading ? (
             <Loader />
           ) : (
