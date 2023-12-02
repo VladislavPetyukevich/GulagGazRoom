@@ -104,7 +104,7 @@ export const Room: FunctionComponent = () => {
     fetchData: getRoomParticipant,
   } = useApiMethod<RoomParticipant, GetRoomParticipantParams>(roomsApiDeclaration.getParticipant);
   const {
-    data: roomParticipant,
+    data: roomParticipant, process: { loading: roomParticipantLoading },
   } = apiRoomParticipantState;
 
   const {
@@ -235,6 +235,9 @@ export const Room: FunctionComponent = () => {
 
   const handleWelcomeScreenClose = () => {
     setWelcomeScreen(false);
+    if (viewerMode) {
+      return;
+    }
     setRecognitionEnabled(true);
     sendMessage(JSON.stringify({
       Type: "join video chat",
@@ -256,11 +259,11 @@ export const Room: FunctionComponent = () => {
   }, [userStream, micEnabled]);
 
   useEffect(() => {
-    if (welcomeScreen) {
+    if (welcomeScreen || viewerMode) {
       return;
     }
     setRecognitionEnabled(micEnabled);
-  }, [welcomeScreen, micEnabled]);
+  }, [welcomeScreen, viewerMode, micEnabled]);
 
   const handleVoiceRecognitionSwitch = useCallback(() => {
     setRecognitionEnabled(!recognitionEnabled);
@@ -274,6 +277,8 @@ export const Room: FunctionComponent = () => {
     <MainContentWrapper className="room-wrapper">
       <EnterVideoChatModal
         open={welcomeScreen}
+        loading={loading || roomParticipantLoading || roomParticipant === null}
+        viewerMode={viewerMode}
         roomName={room?.name}
         userStream={userStream}
         micEnabled={micEnabled}

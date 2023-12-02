@@ -9,11 +9,14 @@ import { SwitchButton } from './SwitchButton';
 import { AuthContext } from '../../../../context/AuthContext';
 import { UserAvatar } from '../../../../components/UserAvatar/UserAvatar';
 import { Devices } from '../../hooks/useUserStream';
+import { Loader } from '../../../../components/Loader/Loader';
 
 import './EnterVideoChatModal.css';
 
 interface EnterVideoChatModalProps {
   open: boolean;
+  viewerMode: boolean;
+  loading: boolean;
   roomName?: string;
   userStream: MediaStream | null;
   micEnabled: boolean;
@@ -35,6 +38,8 @@ const getDevices = async () =>
 
 export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = ({
   open,
+  loading,
+  viewerMode,
   roomName,
   userStream,
   micEnabled,
@@ -117,7 +122,6 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
         cancelAnimationFrame(requestRef.current);
       }
     };
-
   }, []);
 
   const handleUseMic = async () => {
@@ -173,7 +177,15 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
             />
           )}
           <p>{Captions.JoinAs}: {auth?.nickname}</p>
-          <button onClick={handleUseAll}>{Captions.SetupDevices}</button>
+          {loading ? (
+            <Loader />
+          ) : (
+            viewerMode ? (
+              <button className="active" onClick={onClose}>{Captions.Join}</button>
+            ) : (
+              <button onClick={handleUseAll}>{Captions.SetupDevices}</button>
+            )
+          )}
         </div>
       ) : (
         <div>
