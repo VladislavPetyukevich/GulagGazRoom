@@ -134,10 +134,15 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
     setCameraDevices(newCameraDevices);
   };
 
-  const handleUseAll = () => {
-    handleUseMic();
-    handleUseCamera();
-    setJoiningScreen(false);
+  const handleUseAll = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      handleUseMic();
+      handleUseCamera();
+      setJoiningScreen(false);
+    } catch {
+      alert(Captions.UserStreamError);
+    }
   };
 
   const handleSelectMic = useCallback((deviceId: MediaDeviceInfo['deviceId']) => {
