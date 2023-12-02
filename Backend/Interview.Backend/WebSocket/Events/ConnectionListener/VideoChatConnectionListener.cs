@@ -87,11 +87,6 @@ public class VideoChatConnectionListener : IConnectionListener, IVideChatConnect
             return false;
         }
 
-        if (roomParticipant.Type != RoomParticipantType.Examinee && roomParticipant.Type != RoomParticipantType.Expert)
-        {
-            _logger.LogWarning("Not enough permissions to connect to video chat {RoomId} {UserId}", detail.RoomId, detail.UserId);
-            return false;
-        }
 
         _store.AddOrUpdate(
             detail.RoomId,
