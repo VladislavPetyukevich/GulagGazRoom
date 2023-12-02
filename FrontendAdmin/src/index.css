@@ -17,8 +17,6 @@
   --button-bg: #171717;
   --button-hover-color: #4096FF;
   --button-bg-active: var(--active);
-  --button-bg-disabled: #1E1E1E;
-  --button-border-disabled: unset;
   --list-border-color: #444;
   --tab-border-color: var(--list-border-color);
   --active-tab-color: #5993FF;
@@ -35,7 +33,6 @@
   --active-nav-tab: #D9D9D9;
   --button-border-color: #D9D9D9;
   --button-bg: #FFF;
-  --button-bg-disabled: #F5F5F5;
 }
 
 :root[data-color-transition="enabled"] * {
@@ -89,9 +86,12 @@ button.active {
 
 button:disabled,
 button[disabled] {
-  background-color: var(--button-bg-disabled);
-  color: var(--wrap-bg);
-  border: var(--button-border-disabled);
+  opacity: 0.45;
+}
+
+button:disabled:hover,
+button[disabled]:hover {
+  border-color: var(--button-border-color);
 }
 
 a {
