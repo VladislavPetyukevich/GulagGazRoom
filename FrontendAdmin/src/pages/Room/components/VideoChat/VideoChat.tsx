@@ -305,7 +305,6 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
       return;
     }
     if (userVideo.current) {
-      console.log('userStream update');
       userVideo.current.srcObject = userStream;
     }
     try {

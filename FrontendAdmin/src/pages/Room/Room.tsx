@@ -104,8 +104,10 @@ export const Room: FunctionComponent = () => {
     fetchData: getRoomParticipant,
   } = useApiMethod<RoomParticipant, GetRoomParticipantParams>(roomsApiDeclaration.getParticipant);
   const {
-    data: roomParticipant, process: { loading: roomParticipantLoading },
+    data: roomParticipant, process: { loading: roomParticipantLoading, error: roomParticipantError },
   } = apiRoomParticipantState;
+
+  const roomParticipantWillLoaded = roomParticipant === null && !roomParticipantError;
 
   const {
     apiMethodState: apiRoomStateState,
@@ -277,7 +279,7 @@ export const Room: FunctionComponent = () => {
     <MainContentWrapper className="room-wrapper">
       <EnterVideoChatModal
         open={welcomeScreen}
-        loading={loading || roomParticipantLoading || roomParticipant === null}
+        loading={loading || roomParticipantLoading || roomParticipantWillLoaded}
         viewerMode={viewerMode}
         roomName={room?.name}
         userStream={userStream}
