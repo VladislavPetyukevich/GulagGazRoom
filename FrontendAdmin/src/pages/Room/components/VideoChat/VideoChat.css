@@ -21,7 +21,7 @@
 }
 
 .room-columns .videochat-field-chat {
-  width: 19.5rem;
+  width: var(--chat-width);
 }
 
 .videochat {

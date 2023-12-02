@@ -326,19 +326,21 @@ export const Room: FunctionComponent = () => {
               {!reactionsVisible && (
                 <div>{Captions.WaitingRoom}</div>
               )}
-              {!viewerMode && (
-                <div className='start-room-review'>
-                  <ActionModal
-                    title={Captions.StartReviewRoomModalTitle}
-                    openButtonCaption={Captions.StartReviewRoom}
-                    loading={roomStartReviewLoading}
-                    loadingCaption={Captions.CloseRoomLoading}
-                    error={roomStartReviewError}
-                    onAction={handleStartReviewRoom}
-                  />
-                </div>
-              )}
-              <ThemeSwitchMini className={viewerMode ? 'viewer-theme-switch' : ''} />
+              <div className='actions-field'>
+                {!viewerMode && (
+                  <div className='start-room-review'>
+                    <ActionModal
+                      title={Captions.StartReviewRoomModalTitle}
+                      openButtonCaption={Captions.StartReviewRoom}
+                      loading={roomStartReviewLoading}
+                      loadingCaption={Captions.CloseRoomLoading}
+                      error={roomStartReviewError}
+                      onAction={handleStartReviewRoom}
+                    />
+                  </div>
+                )}
+                <ThemeSwitchMini className={viewerMode ? 'viewer-theme-switch' : ''} />
+              </div>
             </div>
             <div className="room-page-main-content">
               {loadingRoomState && <div>{Captions.LoadingRoomState}...</div>}
