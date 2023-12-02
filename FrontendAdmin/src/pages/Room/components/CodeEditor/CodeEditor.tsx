@@ -54,7 +54,7 @@ export const CodeEditor: FunctionComponent<CodeEditorProps> = ({
 }) => {
   const { themeInUi } = useContext(ThemeContext);
   const ignoreChangeRef = useRef(false);
-  const [value, setValue] = useState<string | undefined>('');
+  const [value, setValue] = useState<string>('');
   const [fontSize, setFontSize] = useState(22);
   const [language, setLanguage] = useState<string>('plaintext');
 
@@ -62,7 +62,7 @@ export const CodeEditor: FunctionComponent<CodeEditorProps> = ({
     if (!roomState) {
       return;
     }
-    setValue(roomState.codeEditorContent);
+    setValue(roomState.codeEditorContent || '');
   }, [roomState]);
 
   useEffect(() => {
