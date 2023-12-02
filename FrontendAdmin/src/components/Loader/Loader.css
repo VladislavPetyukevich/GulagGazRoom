@@ -1,7 +1,7 @@
 .loader,
 .loader:before,
 .loader:after {
-  --loader-color: var(--form-bg);
+  --loader-color: var(--active-nav-tab);
   display: inline-block;
   background: var(--loader-color);
   -webkit-animation: load1 1s infinite ease-in-out;
