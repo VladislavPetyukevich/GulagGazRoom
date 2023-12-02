@@ -326,7 +326,7 @@ export const Room: FunctionComponent = () => {
               {!reactionsVisible && (
                 <div>{Captions.WaitingRoom}</div>
               )}
-              <div className='actions-field'>
+              <div className={`actions-field ${viewerMode ? 'actions-field-viewer' : ''}`}>
                 {!viewerMode && (
                   <div className='start-room-review'>
                     <ActionModal
@@ -339,7 +339,7 @@ export const Room: FunctionComponent = () => {
                     />
                   </div>
                 )}
-                <ThemeSwitchMini className={viewerMode ? 'viewer-theme-switch' : ''} />
+                <ThemeSwitchMini />
               </div>
             </div>
             <div className="room-page-main-content">
