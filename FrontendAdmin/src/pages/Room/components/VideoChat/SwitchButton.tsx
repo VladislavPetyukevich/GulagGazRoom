@@ -1,4 +1,6 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useContext } from 'react';
+import { Theme, ThemeContext } from '../../../../context/ThemeContext';
+import { IconThemePostfix } from '../../../../constants';
 
 import './SwitchButton.css';
 
@@ -19,6 +21,8 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
   subCaption,
   onClick,
 }) => {
+  const { themeInUi } = useContext(ThemeContext);
+  const iconPostfix = themeInUi === Theme.Dark ? IconThemePostfix.Dark : IconThemePostfix.Light;
   const iconName = enabled ? iconEnabledName : iconDisabledName;
 
   return (
@@ -27,7 +31,7 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
         className={`switch-button ${(!enabled && disabledColor) ? 'switch-button-disabled' : ''}`}
         onClick={onClick}
       >
-        <ion-icon name={iconName}></ion-icon>
+        <ion-icon name={`${iconName}${iconPostfix}`}></ion-icon>
       </button>
       {!!subCaption && (
         <span className="switch-button-subcaption">{subCaption}</span>

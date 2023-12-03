@@ -13,20 +13,25 @@ export const pathnames = {
 };
 
 export const enum IconNames {
-  MicOn = 'mic-sharp',
-  MicOff = 'mic-off-sharp',
-  VideocamOn = 'videocam-sharp',
-  VideocamOff = 'videocam-off-sharp',
-  Settings = 'settings-sharp',
-  RecognitionOn = 'volume-high-sharp',
-  RecognitionOff = 'volume-mute-sharp',
-  Chat = 'chatbubble-ellipses-sharp',
-  Like = 'thumbs-up-sharp',
-  Dislike = 'thumbs-down-sharp',
-  Gas = 'thunderstorm-sharp',
-  CodeEditor = 'code-slash-sharp',
-  ThemeSwitchLight = 'sunny-sharp',
-  ThemeSwitchDark = 'moon-sharp',
+  MicOn = 'mic',
+  MicOff = 'mic-off',
+  VideocamOn = 'videocam',
+  VideocamOff = 'videocam-off',
+  Settings = 'settings',
+  RecognitionOn = 'volume-high',
+  RecognitionOff = 'volume-mute',
+  Chat = 'chatbubble-ellipses',
+  Like = 'thumbs-up',
+  Dislike = 'thumbs-down',
+  Gas = 'thunderstorm',
+  CodeEditor = 'code-slash',
+  ThemeSwitchLight = 'sunny',
+  ThemeSwitchDark = 'moon',
+}
+
+export const enum IconThemePostfix {
+  Dark = '-sharp',
+  Light = '-outline',
 }
 
 export const enum Captions {
