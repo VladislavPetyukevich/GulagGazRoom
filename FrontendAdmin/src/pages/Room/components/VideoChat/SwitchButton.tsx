@@ -6,6 +6,7 @@ interface SwitchButtonProps {
   enabled: boolean;
   iconEnabledName: string;
   iconDisabledName: string;
+  disabledColor?: boolean;
   subCaption?: string;
   onClick: () => void;
 }
@@ -14,6 +15,7 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
   enabled,
   iconDisabledName,
   iconEnabledName,
+  disabledColor,
   subCaption,
   onClick,
 }) => {
@@ -22,7 +24,7 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
   return (
     <div className="switch-button-container">
       <button
-        className="switch-button"
+        className={`switch-button ${(!enabled && disabledColor) ? 'switch-button-disabled' : ''}`}
         onClick={onClick}
       >
         <ion-icon name={iconName}></ion-icon>

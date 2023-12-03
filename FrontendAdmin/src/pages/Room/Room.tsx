@@ -365,6 +365,7 @@ export const Room: FunctionComponent = () => {
                   enabled={micEnabled}
                   iconEnabledName={IconNames.MicOn}
                   iconDisabledName={IconNames.MicOff}
+                  disabledColor
                   subCaption={Captions.Microphone}
                   onClick={handleMicSwitch}
                 />
@@ -372,6 +373,7 @@ export const Room: FunctionComponent = () => {
                   enabled={cameraEnabled}
                   iconEnabledName={IconNames.VideocamOn}
                   iconDisabledName={IconNames.VideocamOff}
+                  disabledColor
                   subCaption={Captions.Camera}
                   onClick={handleCameraSwitch}
                 />
@@ -383,6 +385,7 @@ export const Room: FunctionComponent = () => {
                     iconEnabledName={IconNames.RecognitionOn}
                     iconDisabledName={IconNames.RecognitionOff}
                     subCaption={Captions.VoiceRecognition}
+                    disabledColor
                     onClick={handleVoiceRecognitionSwitch}
                   />
                 )}

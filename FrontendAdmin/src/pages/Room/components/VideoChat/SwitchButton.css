@@ -4,6 +4,10 @@
   align-items: center;
 }
 
+.switch-button-disabled {
+  color: var(--disabled-icon);
+}
+
 .switch-button {
   display: flex;
   justify-content: center;
