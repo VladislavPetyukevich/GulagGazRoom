@@ -1,5 +1,6 @@
 import { FunctionComponent, useContext } from 'react';
 import { Theme, ThemeContext } from '../../context/ThemeContext';
+import { IconNames } from '../../constants';
 
 import './ThemeSwitchMini.css';
 
@@ -14,6 +15,7 @@ export const ThemeSwitchMini: FunctionComponent<ThemeSwitchMiniProps> = ({
   className,
 }) => {
   const { themeInUi, setTheme } = useContext(ThemeContext);
+  const iconName = themeInUi === Theme.Light ? IconNames.ThemeSwitchDark : IconNames.ThemeSwitchLight;
 
   const handleSwitch = () => {
     setTheme(getNextTheme(themeInUi));
@@ -24,7 +26,7 @@ export const ThemeSwitchMini: FunctionComponent<ThemeSwitchMiniProps> = ({
       className={`theme-switch-mini ${className}`}
       onClick={handleSwitch}
     >
-      {themeInUi === Theme.Light ? '🌙' : '💡'}
+      <ion-icon name={iconName}></ion-icon>
     </div>
   );
 };
