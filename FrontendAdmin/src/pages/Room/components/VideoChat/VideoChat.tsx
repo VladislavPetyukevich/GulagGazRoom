@@ -15,6 +15,7 @@ import { Field } from '../../../../components/FieldsBlock/Field';
 import { CodeEditor } from '../CodeEditor/CodeEditor';
 import { RoomState } from '../../../../types/room';
 import { parseWsMessage } from './utils/parseWsMessage';
+import { UserType } from '../../../../types/user';
 
 import './VideoChat.css';
 
@@ -40,6 +41,7 @@ interface PeerMeta {
   avatar: string;
   peer: Peer.Instance;
   targetUserId: string;
+  participantType: UserType;
 }
 
 const createTranscript = (body: { userNickname: string; value: string; fromChat: boolean; }): Transcript => ({
@@ -204,6 +206,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               nickname: userInChat.Nickname,
               avatar: userInChat.Avatar,
               targetUserId: userInChat.Id,
+              participantType: userInChat.ParticipantType,
               peer,
             };
 
@@ -223,6 +226,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
             nickname: fromUser.Nickname,
             avatar: fromUser.Avatar,
             targetUserId: fromUser.Id,
+            participantType: fromUser.ParticipantType,
             peer,
           };
           peersRef.current.push(newPeerMeta);
@@ -341,7 +345,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
           {peers.map(peer => (
             <VideochatParticipant
               key={peer.targetUserId}
-              viewer={peer.peer.streams.length === 0}
+              viewer={peer.participantType === 'Viewer'}
               order={videoOrder[peer.targetUserId]}
               avatar={peer?.avatar}
               nickname={peer?.nickname}
