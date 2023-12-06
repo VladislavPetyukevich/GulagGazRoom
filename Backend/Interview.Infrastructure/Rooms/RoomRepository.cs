@@ -226,6 +226,11 @@ public class RoomRepository : EfRepository<Room>, IRoomRepository
                 cancellationToken);
     }
 
+    public Task<RoomParticipant?> FindParticipantOrDefaultAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        return Db.RoomParticipants.FirstOrDefaultAsync(e => e.Room.Id == roomId && e.User.Id == userId, cancellationToken);
+    }
+
     public Task<IPagedList<RoomPageDetail>> GetDetailedPageAsync(RoomPageDetailRequestFilter filter, int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         IQueryable<Room> queryable = Set

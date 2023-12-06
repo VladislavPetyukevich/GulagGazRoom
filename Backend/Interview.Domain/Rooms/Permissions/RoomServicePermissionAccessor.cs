@@ -1,4 +1,5 @@
 using Interview.Domain.Permissions;
+using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service;
@@ -48,7 +49,7 @@ public class RoomServicePermissionAccessor : IRoomService, IServiceDecorator
         return _roomService.UpdateAsync(roomId, request, cancellationToken);
     }
 
-    public Task<Room> AddParticipantAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)
+    public Task<(Room, RoomParticipant)> AddParticipantAsync(Guid roomId, Guid userId, CancellationToken cancellationToken = default)
     {
         _securityService.EnsurePermission(SEPermission.RoomAddParticipant);
 

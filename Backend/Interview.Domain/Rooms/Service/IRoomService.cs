@@ -1,3 +1,4 @@
+using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Records.Request;
 using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service.Records.Response;
@@ -21,7 +22,7 @@ public interface IRoomService : IService
     Task<RoomItem> UpdateAsync(
         Guid roomId, RoomUpdateRequest? request, CancellationToken cancellationToken = default);
 
-    Task<Room> AddParticipantAsync(
+    Task<(Room, RoomParticipant)> AddParticipantAsync(
         Guid roomId, Guid userId, CancellationToken cancellationToken = default);
 
     Task SendEventRequestAsync(
