@@ -12,6 +12,28 @@ export const pathnames = {
   terms: '/terms',
 };
 
+export const enum IconNames {
+  MicOn = 'mic',
+  MicOff = 'mic-off',
+  VideocamOn = 'videocam',
+  VideocamOff = 'videocam-off',
+  Settings = 'settings',
+  RecognitionOn = 'volume-high',
+  RecognitionOff = 'volume-mute',
+  Chat = 'chatbubble-ellipses',
+  Like = 'thumbs-up',
+  Dislike = 'thumbs-down',
+  Gas = 'thunderstorm',
+  CodeEditor = 'code-slash',
+  ThemeSwitchLight = 'sunny',
+  ThemeSwitchDark = 'moon',
+}
+
+export const enum IconThemePostfix {
+  Dark = '-sharp',
+  Light = '-outline',
+}
+
 export const enum Captions {
   AppName = 'ГУЛАГ ГАЗ РУМ',
   AppDescription = 'Интерактивная платформа для проведения собеседований с возможностью составления детальных отчётов.',
@@ -109,13 +131,9 @@ export const enum Captions {
   Warning = 'ВНИМАНИЕ!',
   CallRecording = 'Разговор записыватеся',
   VoiceRecognitionNotSupported = 'Распознавание голоса не поддерживается вашим браузером',
-  VoiceRecognitionIcon = '👂',
   VoiceRecognition = 'Прослушка',
   ArchiveQuestion = 'Архивировать вопрос?',
   ArchiveQuestionLoading = 'Ахивирование вопроса...',
-  MicrophoneIcon = '🎤',
-  CameraIcon= '📷',
-  SwitchOff = '❌',
   NoQuestionsSelector = 'Нет доступных вопросов',
   Join = 'Присоединиться',
   JoiningRoom = 'Подключение к видеовстрече',
@@ -124,9 +142,7 @@ export const enum Captions {
   Camera = 'Камера',
   Microphone = 'Аудио',
   Settings = 'Настройки',
-  SettingsIcon = '⚙️',
   Chat = 'Чат',
-  ChatIcon = '💬',
   Exit = 'Выйти',
   ChatTab = 'Чат',
   RecognitionTab = 'Транскрипция',

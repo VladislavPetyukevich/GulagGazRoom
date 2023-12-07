@@ -4,7 +4,14 @@
   align-items: center;
 }
 
+.switch-button-disabled {
+  color: var(--disabled-icon);
+}
+
 .switch-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 2.5rem !important;
   height: 2.5rem !important;
   padding: 0rem !important;
