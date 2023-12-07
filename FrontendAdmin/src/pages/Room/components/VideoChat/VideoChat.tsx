@@ -142,7 +142,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     const peer = new Peer({
       initiator: true,
       trickle: false,
-      ...(!!(userStream) && { stream: userStream }),
+      stream: userStream || undefined,
       ...(forViewer && {
         offerOptions: {
           offerToReceiveAudio: false,
@@ -168,7 +168,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      ...(!!(userStream) && { stream: userStream }),
+      stream: userStream || undefined,
     });
 
     peer.on('signal', signal => {
