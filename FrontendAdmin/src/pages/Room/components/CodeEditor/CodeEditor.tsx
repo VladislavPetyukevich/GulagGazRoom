@@ -92,6 +92,9 @@ export const CodeEditor: FunctionComponent<CodeEditorProps> = ({
   }, [lastWsMessage]);
 
   const handleChange: OnChange = (value) => {
+    if (readOnly) {
+      return;
+    }
     onSendWsMessage(JSON.stringify({
       Type: 'code',
       Value: value,
