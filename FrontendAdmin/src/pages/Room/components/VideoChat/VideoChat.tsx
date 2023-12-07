@@ -127,11 +127,28 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
 
   }, [louderUserId]);
 
-  const createPeer = useCallback((to: string) => {
+  const createPeer = useCallback((to: string, forViewer?: boolean) => {
+    if (viewerMode) {
+      onSendWsMessage(JSON.stringify({
+        Type: 'sending signal',
+        Value: JSON.stringify({
+          To: to,
+          Signal: 'fake-viewer-signal',
+        }),
+      }));
+      return new Peer();
+    }
+
     const peer = new Peer({
       initiator: true,
       trickle: false,
-      stream: viewerMode ? undefined : userStream || undefined,
+      ...(!!(userStream) && { stream: userStream }),
+      ...(forViewer && {
+        offerOptions: {
+          offerToReceiveAudio: false,
+          offerToReceiveVideo: false,
+        },
+      }),
     });
 
     peer.on('signal', signal => {
@@ -151,7 +168,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      stream: viewerMode ? undefined : userStream || undefined,
+      ...(!!(userStream) && { stream: userStream }),
     });
 
     peer.on('signal', signal => {
@@ -167,7 +184,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     peer.signal(incomingSignal);
 
     return peer;
-  }, [userStream, viewerMode, onSendWsMessage]);
+  }, [userStream, onSendWsMessage]);
 
   useEffect(() => {
     return () => {
@@ -216,12 +233,51 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               userIdToAudioAnalyser.current[newPeerMeta.targetUserId] = createAudioAnalyser(stream);
             });
 
-            peersRef.current.push(newPeerMeta)
+            if (!viewerMode) {
+              peersRef.current.push(newPeerMeta)
+            }
           });
           setPeers([...peersRef.current]);
           break;
         case 'user joined':
           const fromUser = parsedPayload.From;
+          if (!viewerMode && fromUser.ParticipantType === 'Viewer') {
+            const peer = createPeer(fromUser.Id, true);
+            const newPeerMeta = {
+              peerID: fromUser.Id,
+              nickname: fromUser.Nickname,
+              avatar: fromUser.Avatar,
+              targetUserId: fromUser.Id,
+              participantType: fromUser.ParticipantType,
+              peer,
+            };
+
+            peer.on('stream', (stream) => {
+              userIdToAudioAnalyser.current[newPeerMeta.targetUserId] = createAudioAnalyser(stream);
+            });
+
+            peersRef.current.push(newPeerMeta);
+            setPeers([...peersRef.current]);
+            break;
+          }
+          if (viewerMode) {
+            const peer = addPeer(JSON.parse(parsedPayload.Signal), fromUser.Id);
+            const newPeerMeta = {
+              peerID: fromUser.Id,
+              nickname: fromUser.Nickname,
+              avatar: fromUser.Avatar,
+              targetUserId: fromUser.Id,
+              participantType: fromUser.ParticipantType,
+              peer,
+            };
+            peersRef.current.push(newPeerMeta);
+
+            peer.on('stream', (stream) => {
+              userIdToAudioAnalyser.current[newPeerMeta.targetUserId] = createAudioAnalyser(stream);
+            });
+            setPeers([...peersRef.current]);
+            break;
+          }
           const peer = addPeer(JSON.parse(parsedPayload.Signal), fromUser.Id);
           const newPeerMeta = {
             peerID: fromUser.Id,
@@ -260,7 +316,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     } catch (err) {
       console.error('parse ws message error: ', err);
     }
-  }, [auth, lastWsMessage, addPeer, createPeer]);
+  }, [auth, lastWsMessage, viewerMode, addPeer, createPeer]);
 
   useEffect(() => {
     if (!lastWsMessage) {
@@ -328,7 +384,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
         <div className='videochat'>
           <div className='videochat-participants'>{Captions.Participants}: {peers.length + 1}</div>
           <VideochatParticipant
-            order={viewerMode ? viewerOrder -1 : videoOrder[auth?.id || '']}
+            order={viewerMode ? viewerOrder - 1 : videoOrder[auth?.id || '']}
             viewer={viewerMode}
             avatar={auth?.avatar}
             nickname={`${auth?.nickname} (${Captions.You})`}
