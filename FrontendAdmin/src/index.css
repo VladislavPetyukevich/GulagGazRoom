@@ -4,6 +4,7 @@
   --form-bg: var(--page-bg);
   --wrap-bg: #171717;
   --active: #b9221c;
+  --disabled-icon: #b9221c;
   --active-nav-tab: #424242;
   --shadow: #100908;
   --bg: #400000;
@@ -159,4 +160,8 @@ select {
   font-size: 1rem;
   border: 1px solid var(--button-border-color);
   border-radius: 0.5rem;
+}
+
+ion-icon {
+  font-size: 1.25rem;
 }
