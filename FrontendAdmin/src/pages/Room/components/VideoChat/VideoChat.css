@@ -40,7 +40,7 @@
 
 .videochat-participant-viewer-wrapper {
   width: var(--videochat-video-size-big);
-  padding: 0.25rem;
+  padding: 0.25rem 0rem;
 }
 
 .videochat-participant-viewer {
