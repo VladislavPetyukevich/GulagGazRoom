@@ -67,10 +67,14 @@ export const useSpeechRecognition = ({
     if (!recog) {
       return;
     }
-    if (recognitionEnabled) {
-      recog.start();
-    } else {
-      recog.stop();
+    try {
+      if (recognitionEnabled) {
+        recog.start();
+      } else {
+        recog.stop();
+      }
+    } catch (error) {
+      console.warn(error);
     }
   }, [recognitionEnabled]);
 
