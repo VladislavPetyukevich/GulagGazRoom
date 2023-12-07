@@ -25,3 +25,16 @@ public class VoiceRecognitionWebSocketEventHandler : WebSocketEventHandlerBase
         return _eventDispatcher.WriteAsync(@event, cancellationToken);
     }
 }
+
+public sealed class UserMessageEventPayload
+{
+    public string Message { get; }
+
+    public string Nickname { get; }
+
+    public UserMessageEventPayload(string message, string nickname)
+    {
+        Message = message;
+        Nickname = nickname;
+    }
+}
