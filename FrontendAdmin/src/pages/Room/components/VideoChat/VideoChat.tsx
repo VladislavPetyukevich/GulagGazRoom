@@ -25,6 +25,8 @@ const transcriptsMaxLength = 100;
 
 const updateLoudedUserTimeout = 5000;
 
+const viewerOrder = 666;
+
 interface VideoChatProps {
   roomState: RoomState | null;
   viewerMode: boolean;
@@ -324,8 +326,9 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
     <div className='room-columns'>
       <Field className='videochat-field'>
         <div className='videochat'>
+          <div className='videochat-participants'>{Captions.Participants}: {peers.length + 1}</div>
           <VideochatParticipant
-            order={videoOrder[auth?.id || '']}
+            order={viewerMode ? viewerOrder -1 : videoOrder[auth?.id || '']}
             viewer={viewerMode}
             avatar={auth?.avatar}
             nickname={`${auth?.nickname} (${Captions.You})`}
@@ -346,7 +349,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
             <VideochatParticipant
               key={peer.targetUserId}
               viewer={peer.participantType === 'Viewer'}
-              order={videoOrder[peer.targetUserId]}
+              order={peer.participantType === 'Viewer' ? viewerOrder : videoOrder[peer.targetUserId]}
               avatar={peer?.avatar}
               nickname={peer?.nickname}
             >

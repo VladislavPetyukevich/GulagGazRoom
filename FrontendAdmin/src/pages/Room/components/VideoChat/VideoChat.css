@@ -32,6 +32,12 @@
   align-items: center;
 }
 
+.videochat-participants {
+  width: 100%;
+  text-align: left;
+  padding-bottom: 0.25rem;
+}
+
 .videochat-participant-viewer-wrapper {
   width: var(--videochat-video-size-big);
   padding: 0.25rem;

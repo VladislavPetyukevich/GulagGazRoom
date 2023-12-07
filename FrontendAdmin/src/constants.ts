@@ -137,6 +137,7 @@ export const enum Captions {
   Language = 'Язык',
   FontSize = 'Размер шрифта',
   You = 'Вы',
+  Participants = 'Участники',
 };
 
 export const toastSuccessOptions = {
