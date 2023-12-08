@@ -4,7 +4,7 @@
 
 .participant-reaction {
   display: flex;
-  animation: fadeIn 300ms;  
+  animation: var(--fadeIn-animation);
 }
 
 @keyframes fadeIn {

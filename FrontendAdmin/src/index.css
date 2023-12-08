@@ -26,6 +26,8 @@
   --fields-wrap-margin: 0rem 2.5rem;
   --nav-menu-margin-horizontal: -2.5rem;
   --chat-width: 19.5rem;
+  --fadeIn-animation: fadeIn 300ms;
+  --fadeIn-animation-fast: fadeIn 100ms;
 }
 
 :root[data-theme="Light"] {
@@ -46,6 +48,11 @@
   :root {
     --chat-width: 14rem;
   }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 body {
