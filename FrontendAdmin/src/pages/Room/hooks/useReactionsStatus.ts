@@ -14,7 +14,7 @@ type UserReactionsTimeout = Map<User['id'], ReactionTimeout | null>;
 
 type ActiveReactions = Record<User['id'], string | null>;
 
-const handledEventTypes = ['Like', 'Dislike', 'Gas'];
+export const handledEventTypes = ['Like', 'Dislike', 'Gas'];
 
 const updateIntervalMs = 500;
 const addReactionTimeoutMs = 3000.0;

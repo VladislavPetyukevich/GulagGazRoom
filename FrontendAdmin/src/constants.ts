@@ -82,6 +82,9 @@ export const enum Captions {
   WhoAreYou = 'Ты кто?',
   LikeTable = '👍',
   DislikeTable = '👎',
+  Like = 'Хорош',
+  Dislike = 'Плох',
+  Gas = 'Газлайт',
   Question = 'Вопрос',
   ActiveQuestion = 'Текущий вопрос',
   QuestionsSummary = 'Отчётики на вопросики',
@@ -165,3 +168,9 @@ export const enum Captions {
 export const toastSuccessOptions = {
   icon: '👌',
 };
+
+export const reactionLocalization: Record<string, string> = {
+  Like: Captions.Like,
+  Dislike: Captions.Dislike,
+  Gas: Captions.Gas,
+}

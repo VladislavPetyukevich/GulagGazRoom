@@ -16,6 +16,7 @@ import { Room, RoomState, RoomStateAdditionalStatefulPayload } from '../../../..
 import { Event } from '../../../../types/event';
 import { UserType } from '../../../../types/user';
 import { Loader } from '../../../../components/Loader/Loader';
+import { useReactionsFeed } from '../../hooks/useReactionsFeed';
 
 import './Reactions.css';
 
@@ -82,6 +83,9 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
     process: { loading: loadingSendRoomEvent, error: errorSendRoomEvent },
   } = apiSendEventState;
 
+  const { reactionsFeed } = useReactionsFeed({
+    lastMessage: lastWsMessage,
+  });
   const [parsedStates, setParsedStates] = useState<ParsedStates>({});
   const [lastSendedReactionType, setLastSendedReactionType] = useState('');
 
@@ -185,12 +189,14 @@ export const Reactions: FunctionComponent<ReactionsProps> = ({
         sortOrder={-1}
         reactions={reactionsSafe}
         loadingReactionName={loadingRoomReaction ? lastSendedReactionType : null}
+        reactionsFeed={reactionsFeed}
         onClick={handleReactionClick}
       />
       <ReactionsList
         sortOrder={1}
         reactions={eventsReationsFiltered}
         loadingReactionName={loadingSendRoomEvent ? lastSendedReactionType : null}
+        reactionsFeed={reactionsFeed}
         onClick={handleEventClick}
       />
       {errorRoomReaction && <div>{Captions.ErrorSendingReaction}</div>}
