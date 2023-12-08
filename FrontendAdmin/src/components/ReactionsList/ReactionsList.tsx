@@ -1,18 +1,11 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { Reaction } from '../../types/reaction';
 import { SwitchButton } from '../../pages/Room/components/VideoChat/SwitchButton';
-import { IconNames } from '../../constants';
+import { IconNames, reactionIcon } from '../../constants';
 
 import './ReactionsList.css';
 
-const reactionNameReplaces: Record<string, string> = {
-  Like: IconNames.Like,
-  Dislike: IconNames.Dislike,
-  Gas: IconNames.Gas,
-  CodeEditor: IconNames.CodeEditor,
-}
-
-const defaultIconName = 'alert-circle';
+const defaultIconName = IconNames.None;
 
 interface ReactionsListProps {
   reactions: Reaction[];
@@ -45,8 +38,8 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
           <SwitchButton
             key={`${reaction.id}${reaction.type.name}`}
             enabled={true}
-            iconEnabledName={reactionNameReplaces[reaction.type.name] || defaultIconName}
-            iconDisabledName={reactionNameReplaces[reaction.type.name] || defaultIconName}
+            iconEnabledName={reactionIcon[reaction.type.name] || defaultIconName}
+            iconDisabledName={reactionIcon[reaction.type.name] || defaultIconName}
             subCaption={reaction.type.name}
             onClick={handleReactionClick(reaction)}
           />

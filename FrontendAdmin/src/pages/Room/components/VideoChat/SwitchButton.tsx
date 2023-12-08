@@ -1,13 +1,13 @@
-import { FunctionComponent, useContext } from 'react';
-import { Theme, ThemeContext } from '../../../../context/ThemeContext';
-import { IconThemePostfix } from '../../../../constants';
+import { FunctionComponent } from 'react';
+import { ThemedIcon } from '../ThemedIcon/ThemedIcon';
+import { IconNames } from '../../../../constants';
 
 import './SwitchButton.css';
 
 interface SwitchButtonProps {
   enabled: boolean;
-  iconEnabledName: string;
-  iconDisabledName: string;
+  iconEnabledName: IconNames;
+  iconDisabledName: IconNames;
   disabledColor?: boolean;
   subCaption?: string;
   onClick: () => void;
@@ -21,8 +21,6 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
   subCaption,
   onClick,
 }) => {
-  const { themeInUi } = useContext(ThemeContext);
-  const iconPostfix = themeInUi === Theme.Dark ? IconThemePostfix.Dark : IconThemePostfix.Light;
   const iconName = enabled ? iconEnabledName : iconDisabledName;
 
   return (
@@ -31,7 +29,7 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
         className={`switch-button ${(!enabled && disabledColor) ? 'switch-button-disabled' : ''}`}
         onClick={onClick}
       >
-        <ion-icon name={`${iconName}${iconPostfix}`}></ion-icon>
+        <ThemedIcon name={iconName} />
       </button>
       {!!subCaption && (
         <span className="switch-button-subcaption">{subCaption}</span>

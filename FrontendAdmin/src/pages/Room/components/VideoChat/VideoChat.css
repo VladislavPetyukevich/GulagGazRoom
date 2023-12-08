@@ -49,6 +49,11 @@
   border-radius: var(--border-radius);
   align-items: center;
   padding: 0.25rem 0.5rem;
+  height: 1.5rem;
+}
+
+.videochat-participant-viewer ion-icon {
+  font-size: 1.25rem;
 }
 
 .videochat-participant-viewer .user-avatar {
@@ -60,6 +65,10 @@
   width: var(--videochat-video-size);
   height: var(--videochat-video-size);
   margin-bottom: 0.5rem;
+}
+
+.videochat-participant ion-icon {
+  font-size: 1.5rem !important;
 }
 
 .videochat-participant-big {
@@ -87,6 +96,13 @@
   display: flex;
   align-items: center;
   bottom: 1rem;
+  right: 0.5rem;
+}
+
+.videochat-participant-reactions {
+  display: flex;
+  align-items: center;
+  bottom: 2.95rem;
   right: 0.5rem;
 }
 

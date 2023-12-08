@@ -9,6 +9,7 @@ interface VideochatParticipantProps {
   avatar?: string;
   nickname?: string;
   videoTrackEnabled?: boolean;
+  reaction?: string | null;
 }
 
 export const VideochatParticipant: FunctionComponent<VideochatParticipantProps> = ({

@@ -1,5 +1,6 @@
 import { FunctionComponent, ReactNode } from 'react';
 import { UserAvatar } from '../../../../components/UserAvatar/UserAvatar';
+import { ParticipantReactions } from './ParticipantReactions';
 
 interface VideochatParticipantWithVideoProps {
   order?: number;
@@ -7,6 +8,7 @@ interface VideochatParticipantWithVideoProps {
   avatar?: string;
   nickname?: string;
   videoTrackEnabled?: boolean;
+  reaction?: string | null;
 }
 
 export const VideochatParticipantWithVideo: FunctionComponent<VideochatParticipantWithVideoProps> = ({
@@ -15,6 +17,7 @@ export const VideochatParticipantWithVideo: FunctionComponent<VideochatParticipa
   avatar,
   nickname,
   videoTrackEnabled,
+  reaction,
 }) => {
   const orderSafe = order || 2;
   return (
@@ -22,6 +25,11 @@ export const VideochatParticipantWithVideo: FunctionComponent<VideochatParticipa
       className={`videochat-participant ${orderSafe === 1 ? 'videochat-participant-big' : 'videochat-participant'}`}
       style={{ order: orderSafe }}
     >
+      {!!reaction && (
+        <div className='videochat-caption videochat-overlay videochat-participant-reactions'>
+          <ParticipantReactions reaction={reaction} />
+        </div>
+      )}
       <div className='videochat-caption videochat-overlay videochat-participant-name'>
         {avatar && (
           <UserAvatar

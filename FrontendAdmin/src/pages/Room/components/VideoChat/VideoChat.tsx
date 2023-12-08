@@ -16,6 +16,7 @@ import { CodeEditor } from '../CodeEditor/CodeEditor';
 import { RoomState } from '../../../../types/room';
 import { parseWsMessage } from './utils/parseWsMessage';
 import { UserType } from '../../../../types/user';
+import { useReactionsStatus } from '../../hooks/useReactionsStatus';
 
 import './VideoChat.css';
 
@@ -77,6 +78,9 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   });
   const updateAnalyserTimeout = useRef(0);
   const intervieweeFrameRef = useRef<HTMLIFrameElement>(null);
+  const { activeReactions } = useReactionsStatus({
+    lastMessage: lastWsMessage,
+  });
 
   useEffect(() => {
     const frequencyData = new Uint8Array(frequencyBinCount);
@@ -389,6 +393,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
             avatar={auth?.avatar}
             nickname={`${auth?.nickname} (${Captions.You})`}
             videoTrackEnabled={videoTrackEnabled}
+            reaction={activeReactions[auth?.id || '']}
           >
             <video
               ref={userVideo}
@@ -408,6 +413,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               order={peer.participantType === 'Viewer' ? viewerOrder : videoOrder[peer.targetUserId]}
               avatar={peer?.avatar}
               nickname={peer?.nickname}
+              reaction={activeReactions[peer.peerID]}
             >
               <VideoChatVideo peer={peer.peer} />
             </VideochatParticipant>

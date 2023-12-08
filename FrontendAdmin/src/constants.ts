@@ -13,6 +13,7 @@ export const pathnames = {
 };
 
 export const enum IconNames {
+  None = 'alert-circle',
   MicOn = 'mic',
   MicOff = 'mic-off',
   VideocamOn = 'videocam',
@@ -32,6 +33,13 @@ export const enum IconNames {
 export const enum IconThemePostfix {
   Dark = '-sharp',
   Light = '-outline',
+}
+
+export const reactionIcon: Record<string, IconNames> = {
+  Like: IconNames.Like,
+  Dislike: IconNames.Dislike,
+  Gas: IconNames.Gas,
+  CodeEditor: IconNames.CodeEditor,
 }
 
 export const enum Captions {
