@@ -237,9 +237,7 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               userIdToAudioAnalyser.current[newPeerMeta.targetUserId] = createAudioAnalyser(stream);
             });
 
-            if (!viewerMode) {
-              peersRef.current.push(newPeerMeta)
-            }
+            peersRef.current.push(newPeerMeta)
           });
           setPeers([...peersRef.current]);
           break;
@@ -260,6 +258,29 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               userIdToAudioAnalyser.current[newPeerMeta.targetUserId] = createAudioAnalyser(stream);
             });
 
+            const peersRefFiltered = peersRef.current.filter(
+              peer => peer.peerID !== newPeerMeta.peerID
+            );
+            peersRef.current = peersRefFiltered;
+
+            peersRef.current.push(newPeerMeta);
+            setPeers([...peersRef.current]);
+            break;
+          }
+          if (viewerMode && fromUser.ParticipantType === 'Viewer') {
+            const peer = new Peer();
+            const newPeerMeta = {
+              peerID: fromUser.Id,
+              nickname: fromUser.Nickname,
+              avatar: fromUser.Avatar,
+              targetUserId: fromUser.Id,
+              participantType: fromUser.ParticipantType,
+              peer,
+            };
+            const peersRefFiltered = peersRef.current.filter(
+              peer => peer.peerID !== newPeerMeta.peerID
+            );
+            peersRef.current = peersRefFiltered;
             peersRef.current.push(newPeerMeta);
             setPeers([...peersRef.current]);
             break;
@@ -274,6 +295,10 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
               participantType: fromUser.ParticipantType,
               peer,
             };
+            const peersRefFiltered = peersRef.current.filter(
+              peer => peer.peerID !== newPeerMeta.peerID
+            );
+            peersRef.current = peersRefFiltered;
             peersRef.current.push(newPeerMeta);
 
             peer.on('stream', (stream) => {
@@ -291,6 +316,10 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
             participantType: fromUser.ParticipantType,
             peer,
           };
+          const peersRefFiltered = peersRef.current.filter(
+            peer => peer.peerID !== newPeerMeta.peerID
+          );
+          peersRef.current = peersRefFiltered;
           peersRef.current.push(newPeerMeta);
 
           peer.on('stream', (stream) => {
