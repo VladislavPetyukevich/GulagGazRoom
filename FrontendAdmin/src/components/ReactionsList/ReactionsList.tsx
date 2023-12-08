@@ -9,12 +9,14 @@ const defaultIconName = IconNames.None;
 
 interface ReactionsListProps {
   reactions: Reaction[];
+  loadingReactionName?: string | null;
   sortOrder: 1 | -1;
   onClick: (reaction: Reaction) => void;
 }
 
 export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
   reactions,
+  loadingReactionName,
   sortOrder,
   onClick,
 }) => {
@@ -38,6 +40,7 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
           <SwitchButton
             key={`${reaction.id}${reaction.type.name}`}
             enabled={true}
+            loading={reaction.type.name === loadingReactionName}
             iconEnabledName={reactionIcon[reaction.type.name] || defaultIconName}
             iconDisabledName={reactionIcon[reaction.type.name] || defaultIconName}
             subCaption={reaction.type.name}

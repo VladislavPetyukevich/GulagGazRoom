@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
 import { ThemedIcon } from '../ThemedIcon/ThemedIcon';
 import { IconNames } from '../../../../constants';
+import { Loader } from '../../../../components/Loader/Loader';
 
 import './SwitchButton.css';
 
@@ -10,6 +11,7 @@ interface SwitchButtonProps {
   iconDisabledName: IconNames;
   disabledColor?: boolean;
   subCaption?: string;
+  loading?: boolean;
   onClick: () => void;
 }
 
@@ -19,6 +21,7 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
   iconEnabledName,
   disabledColor,
   subCaption,
+  loading,
   onClick,
 }) => {
   const iconName = enabled ? iconEnabledName : iconDisabledName;
@@ -29,7 +32,11 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
         className={`switch-button ${(!enabled && disabledColor) ? 'switch-button-disabled' : ''}`}
         onClick={onClick}
       >
-        <ThemedIcon name={iconName} />
+        {loading ? (
+          <Loader />
+        ) : (
+          <ThemedIcon name={iconName} />
+        )}
       </button>
       {!!subCaption && (
         <span className="switch-button-subcaption">{subCaption}</span>
