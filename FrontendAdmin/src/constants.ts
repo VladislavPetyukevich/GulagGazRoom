@@ -13,6 +13,7 @@ export const pathnames = {
 };
 
 export const enum IconNames {
+  None = 'alert-circle',
   MicOn = 'mic',
   MicOff = 'mic-off',
   VideocamOn = 'videocam',
@@ -32,6 +33,13 @@ export const enum IconNames {
 export const enum IconThemePostfix {
   Dark = '-sharp',
   Light = '-outline',
+}
+
+export const reactionIcon: Record<string, IconNames> = {
+  Like: IconNames.Like,
+  Dislike: IconNames.Dislike,
+  Gas: IconNames.Gas,
+  CodeEditor: IconNames.CodeEditor,
 }
 
 export const enum Captions {
@@ -65,17 +73,18 @@ export const enum Captions {
   RoomCreated = 'Заседание успешно создано',
   ErrorSendingActiveQuestion = 'Ошибка в установке активного вопроса',
   ReactionsLoadingError = 'Ошибка загрузки реакций',
-  SendingReaction = 'Отправка реакции',
   ErrorSendingReaction = 'Ошибка в отправке реакции',
   GetRoomEvent = 'Получение событий',
   ErrorGetRoomEvent = 'Ошибка в получении событий',
-  SendingRoomEvent = 'Отправка события',
   ErrorSendingRoomEvent = 'Ошибка в отправке собтия',
   TermsOfUsage = 'Условия использования',
   Login = 'Представиться',
   WhoAreYou = 'Ты кто?',
   LikeTable = '👍',
   DislikeTable = '👎',
+  Like = 'Хорош',
+  Dislike = 'Плох',
+  Gas = 'Газлайт',
   Question = 'Вопрос',
   ActiveQuestion = 'Текущий вопрос',
   QuestionsSummary = 'Отчётики на вопросики',
@@ -152,8 +161,16 @@ export const enum Captions {
   ThemeDark = 'Тёмная',
   Language = 'Язык',
   FontSize = 'Размер шрифта',
+  You = 'Вы',
+  Participants = 'Участники',
 };
 
 export const toastSuccessOptions = {
   icon: '👌',
 };
+
+export const reactionLocalization: Record<string, string> = {
+  Like: Captions.Like,
+  Dislike: Captions.Dislike,
+  Gas: Captions.Gas,
+}

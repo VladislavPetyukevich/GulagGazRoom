@@ -21,9 +21,11 @@ namespace Interview.Domain.Events.Events.Serializers
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         };
 
-        public string SerializeAsString(IRoomEvent? @event)
+        public string SerializeAsString(IRoomEvent? @event) => SerializePayloadAsString(@event);
+
+        public string SerializePayloadAsString<T>(T? payload)
         {
-            return @event is null ? "{}" : JsonSerializer.Serialize(@event, @event.GetType(), _options);
+            return payload is null ? "{}" : JsonSerializer.Serialize(payload, payload.GetType(), _options);
         }
     }
 }

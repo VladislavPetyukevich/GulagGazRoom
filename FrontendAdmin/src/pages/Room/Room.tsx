@@ -170,7 +170,6 @@ export const Room: FunctionComponent = () => {
     }
     try {
       const parsedData = JSON.parse(lastMessage?.data);
-      console.log('parsedData: ', parsedData);
       switch (parsedData?.Type) {
         case 'ChatMessage':
           const message = parsedData?.Value?.Message;
@@ -237,13 +236,13 @@ export const Room: FunctionComponent = () => {
 
   const handleWelcomeScreenClose = () => {
     setWelcomeScreen(false);
+    sendMessage(JSON.stringify({
+      Type: "join video chat",
+    }));
     if (viewerMode) {
       return;
     }
     setRecognitionEnabled(true);
-    sendMessage(JSON.stringify({
-      Type: "join video chat",
-    }));
   };
 
   const handleCameraSwitch = useCallback(() => {
