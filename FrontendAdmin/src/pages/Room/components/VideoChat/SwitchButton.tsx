@@ -12,6 +12,7 @@ interface SwitchButtonProps {
   disabledColor?: boolean;
   subCaption?: string;
   loading?: boolean;
+  counter?: number;
   onClick: () => void;
 }
 
@@ -22,6 +23,7 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
   disabledColor,
   subCaption,
   loading,
+  counter,
   onClick,
 }) => {
   const iconName = enabled ? iconEnabledName : iconDisabledName;
@@ -36,6 +38,13 @@ export const SwitchButton: FunctionComponent<SwitchButtonProps> = ({
           <Loader />
         ) : (
           <ThemedIcon name={iconName} />
+        )}
+        {!!counter && (
+          <div className="switch-button-counter-wrapper">
+            <div className="switch-button-counter">
+              {counter > 99 ? '99+' : counter}
+            </div>
+          </div>
         )}
       </button>
       {!!subCaption && (

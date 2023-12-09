@@ -27,6 +27,7 @@ import { ThemeSwitchMini } from '../../components/ThemeSwitchMini/ThemeSwitchMin
 import { EnterVideoChatModal } from './components/VideoChat/EnterVideoChatModal';
 import { Devices, useUserStream } from './hooks/useUserStream';
 import { useSpeechRecognition } from './hooks/useSpeechRecognition';
+import { useUnreadChatMessages } from './hooks/useUnreadChatMessages';
 
 import './Room.css';
 
@@ -78,6 +79,10 @@ export const Room: FunctionComponent = () => {
   const { recognitionNotSupported } = useSpeechRecognition({
     recognitionEnabled,
     onVoiceRecognition: handleVoiceRecognition,
+  });
+  const { unreadChatMessages } = useUnreadChatMessages({
+    lastMessage,
+    messagesChatEnabled,
   });
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
@@ -392,6 +397,7 @@ export const Room: FunctionComponent = () => {
             )}
             <div className="room-tools room-tools-center">
               <SwitchButton
+                counter={unreadChatMessages}
                 enabled={!messagesChatEnabled}
                 iconEnabledName={IconNames.Chat}
                 iconDisabledName={IconNames.Chat}
