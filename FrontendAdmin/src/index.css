@@ -28,6 +28,7 @@
   --chat-width: 19.5rem;
   --fadeIn-animation: fadeIn 300ms;
   --fadeIn-animation-fast: fadeIn 100ms;
+  --fadeOutUp-animation: 1s fadeOutUp both;
 }
 
 :root[data-theme="Light"] {
@@ -53,6 +54,19 @@
 @keyframes fadeIn {
   0% { opacity: 0; }
   100% { opacity: 1; }
+}
+
+@keyframes fadeOutUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-3.5rem);
+  }
 }
 
 body {
