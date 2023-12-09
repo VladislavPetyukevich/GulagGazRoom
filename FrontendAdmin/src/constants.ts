@@ -163,6 +163,7 @@ export const enum Captions {
   FontSize = 'Размер шрифта',
   You = 'Вы',
   Participants = 'Участники',
+  NoRecords = 'Нет записей',
 };
 
 export const toastSuccessOptions = {
