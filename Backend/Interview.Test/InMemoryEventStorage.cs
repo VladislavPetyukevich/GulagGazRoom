@@ -21,6 +21,14 @@ public sealed class InMemoryEventStorage : IEventStorage
         }
     }
 
+    public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetLatestBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
+    {
+        await foreach (var res in _storage.Where(spec.IsSatisfiedBy).OrderByDescending(e => e.CreatedAt).Chunk(chunkSize).ToAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            yield return res;
+        }
+    }
+
     public ValueTask DeleteAsync(IEnumerable<IStorageEvent> items, CancellationToken cancellationToken)
     {
         foreach (var e in items)

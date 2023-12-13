@@ -14,6 +14,11 @@ public sealed class EmptyEventStorage : IEventStorage
         return AsyncEnumerable.Empty<IReadOnlyCollection<IStorageEvent>>();
     }
 
+    public IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetLatestBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
+    {
+        return AsyncEnumerable.Empty<IReadOnlyCollection<IStorageEvent>>();
+    }
+
     public ValueTask DeleteAsync(IEnumerable<IStorageEvent> items, CancellationToken cancellationToken)
     {
         return ValueTask.CompletedTask;

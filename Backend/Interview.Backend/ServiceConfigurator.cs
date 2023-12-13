@@ -213,14 +213,14 @@ public class ServiceConfigurator
         {
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Gulag Open API",
+                Title = "Open API",
                 Version = "v1",
-                Description = "Gulag Service Interface",
+                Description = "Service Interface",
                 Contact = new OpenApiContact
                 {
                     Name = "Vladislav Petyukevich",
                     Url = new Uri("https://github.com/VladislavPetyukevich"),
-                    Email = "gulaglinkfun@yandex.ru",
+                    Email = "test@yandex.ru",
                 },
                 License = new OpenApiLicense
                 {

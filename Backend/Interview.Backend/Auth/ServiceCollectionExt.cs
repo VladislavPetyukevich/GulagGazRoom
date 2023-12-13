@@ -61,11 +61,11 @@ public static class ServiceCollectionExt
 
         self.AddAuthorization(options =>
         {
-            options.AddPolicy(GulagSecurePolicy.Manager, policyBuilder =>
+            options.AddPolicy(SecurePolicy.Manager, policyBuilder =>
             {
                 policyBuilder.RequireRole(RoleNameConstants.Admin);
             });
-            options.AddPolicy(GulagSecurePolicy.User, policyBuilder =>
+            options.AddPolicy(SecurePolicy.User, policyBuilder =>
             {
                 policyBuilder.RequireAuthenticatedUser();
             });

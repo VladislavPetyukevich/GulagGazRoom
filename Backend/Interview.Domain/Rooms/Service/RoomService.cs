@@ -1,4 +1,5 @@
 using Interview.Domain.Events;
+using Interview.Domain.Events.Storage;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.Repository;
@@ -8,6 +9,7 @@ using Interview.Domain.RoomQuestionReactions.Mappers;
 using Interview.Domain.RoomQuestionReactions.Specifications;
 using Interview.Domain.RoomQuestions;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Request.Transcription;
 using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
@@ -34,6 +36,7 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
     private readonly IRoomQuestionReactionRepository _roomQuestionReactionRepository;
     private readonly ITagRepository _tagRepository;
     private readonly IRoomParticipantRepository _roomParticipantRepository;
+    private readonly IEventStorage _eventStorage;
 
     public RoomService(
         IRoomRepository roomRepository,
@@ -45,7 +48,8 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
         ITagRepository tagRepository,
         IRoomParticipantRepository roomParticipantRepository,
         IAppEventRepository eventRepository,
-        IRoomStateRepository roomStateRepository)
+        IRoomStateRepository roomStateRepository,
+        IEventStorage eventStorage)
     {
         _roomRepository = roomRepository;
         _questionRepository = questionRepository;
@@ -56,6 +60,7 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
         _roomParticipantRepository = roomParticipantRepository;
         _eventRepository = eventRepository;
         _roomStateRepository = roomStateRepository;
+        _eventStorage = eventStorage;
         _roomQuestionRepository = roomQuestionRepository;
     }
 
@@ -239,11 +244,7 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
 
         if (dbEvent.ParticipantTypes is not null && dbEvent.ParticipantTypes.Count > 0)
         {
-            var participantType = await _roomParticipantRepository.FindByRoomIdAndUserId(request.RoomId, request.UserId, cancellationToken);
-            if (participantType is null)
-            {
-                throw new NotFoundException($"Not found participant type by room id {request.RoomId} and user id {request.UserId}");
-            }
+            var participantType = await EnsureParticipantTypeAsync(request.RoomId, request.UserId, cancellationToken);
 
             if (dbEvent.ParticipantTypes.All(e => e != participantType.Type))
             {
@@ -404,6 +405,46 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
         }
 
         return analytics;
+    }
+
+    public async Task<Dictionary<string, List<IStorageEvent>>> GetTranscriptionAsync(TranscriptionRequest request, CancellationToken cancellationToken = default)
+    {
+        await EnsureParticipantTypeAsync(request.RoomId, request.UserId, cancellationToken);
+        var response = new Dictionary<string, List<IStorageEvent>>();
+        foreach (var (type, option) in request.TranscriptionTypeMap)
+        {
+            var result = await _eventStorage.GetLatestBySpecAsync(new Spec<IStorageEvent>(e => e.Type == type), option.Last, cancellationToken)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (response.TryGetValue(option.ResponseName, out var responses))
+            {
+                if (result is null)
+                {
+                    continue;
+                }
+
+                foreach (var @event in result.Take(option.Last))
+                {
+                    responses.Add(@event);
+                }
+            }
+            else
+            {
+                response[option.ResponseName] = result?.Take(option.Last).ToList() ?? new List<IStorageEvent>();
+            }
+        }
+
+        return response;
+    }
+
+    private async Task<RoomParticipant?> EnsureParticipantTypeAsync(Guid roomId, Guid userId, CancellationToken cancellationToken)
+    {
+        var participantType = await _roomParticipantRepository.FindByRoomIdAndUserId(roomId, userId, cancellationToken);
+        if (participantType is null)
+        {
+            throw new NotFoundException($"Not found participant type by room id {roomId} and user id {userId}");
+        }
+
+        return participantType;
     }
 
     private string FindNotFoundEntityIds<T>(IEnumerable<Guid> guids, IEnumerable<T> collection)

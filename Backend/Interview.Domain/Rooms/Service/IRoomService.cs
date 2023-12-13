@@ -1,5 +1,7 @@
+using Interview.Domain.Events.Storage;
 using Interview.Domain.RoomParticipants;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Request.Transcription;
 using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service.Records.Response;
 using Interview.Domain.Rooms.Service.Records.Response.Detail;
@@ -55,6 +57,9 @@ public interface IRoomService : IService
 
     Task<AnalyticsSummary> GetAnalyticsSummaryAsync(
         RoomAnalyticsRequest request, CancellationToken cancellationToken = default);
+
+    Task<Dictionary<string, List<IStorageEvent>>> GetTranscriptionAsync(
+        TranscriptionRequest request, CancellationToken cancellationToken = default);
 }
 
 public interface IRoomServiceWithoutPermissionCheck : IRoomService
