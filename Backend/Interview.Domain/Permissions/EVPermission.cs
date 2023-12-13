@@ -148,5 +148,8 @@ public enum EVPermission
 
     [Description("Удаление состояния комнаты")]
     DeleteRoomState,
+
+    [Description("Получение транскрипции комнаты")]
+    TranscriptionGet,
 #pragma warning restore SA1602
 }

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Interview.Domain.Events.Storage;
 using Interview.Domain.Questions;
 using Interview.Domain.Reactions;
 using Interview.Domain.RoomParticipants;
@@ -47,7 +48,8 @@ public class RoomServiceTest
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
             new AppEventRepository(appDbContext),
-            new RoomStateRepository(appDbContext));
+            new RoomStateRepository(appDbContext),
+            new EmptyEventStorage());
 
         var roomPatchUpdateRequest = new RoomUpdateRequest { Name = "New_Value_Name_Room", TwitchChannel = "TwitchCH" };
 
@@ -101,7 +103,8 @@ public class RoomServiceTest
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
             new AppEventRepository(appDbContext),
-            new RoomStateRepository(appDbContext));
+            new RoomStateRepository(appDbContext),
+            new EmptyEventStorage());
 
         await roomService.CloseAsync(savedRoom.Id);
 
@@ -236,7 +239,8 @@ public class RoomServiceTest
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
             new AppEventRepository(appDbContext),
-            new RoomStateRepository(appDbContext));
+            new RoomStateRepository(appDbContext),
+            new EmptyEventStorage());
 
         var expectAnalytics = new Analytics
         {
@@ -541,7 +545,8 @@ public class RoomServiceTest
             new TagRepository(appDbContext),
             new RoomParticipantRepository(appDbContext),
             new AppEventRepository(appDbContext),
-            new RoomStateRepository(appDbContext));
+            new RoomStateRepository(appDbContext),
+            new EmptyEventStorage());
 
         var expectAnalytics = new AnalyticsSummary
         {

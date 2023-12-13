@@ -1,5 +1,7 @@
+using Interview.Domain.Events.Storage;
 using Interview.Domain.Permissions;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Request.Transcription;
 using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Response;
@@ -109,5 +111,12 @@ public class RoomServicePermissionAccessor : IRoomService, IServiceDecorator
         _securityService.EnsurePermission(SEPermission.RoomGetAnalyticsSummary);
 
         return _roomService.GetAnalyticsSummaryAsync(request, cancellationToken);
+    }
+
+    public Task<Dictionary<string, List<IStorageEvent>>> GetTranscriptionAsync(TranscriptionRequest request, CancellationToken cancellationToken = default)
+    {
+        _securityService.EnsurePermission(SEPermission.TranscriptionGet);
+
+        return _roomService.GetTranscriptionAsync(request, cancellationToken);
     }
 }

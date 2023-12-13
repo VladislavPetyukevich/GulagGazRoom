@@ -2,8 +2,10 @@ using System.Net.Mime;
 using Interview.Backend.Auth;
 using Interview.Backend.Responses;
 using Interview.Domain;
+using Interview.Domain.Events.Storage;
 using Interview.Domain.RoomReviews.Records;
 using Interview.Domain.Rooms.Records.Request;
+using Interview.Domain.Rooms.Records.Request.Transcription;
 using Interview.Domain.Rooms.Records.Response.RoomStates;
 using Interview.Domain.Rooms.Service;
 using Interview.Domain.Rooms.Service.Records.Response;
@@ -223,5 +225,30 @@ public class RoomController : ControllerBase
         var sendRequest = request.ToDomainRequest(user.Id);
         await _roomService.SendEventRequestAsync(sendRequest, HttpContext.RequestAborted);
         return Ok();
+    }
+
+    /// <summary>
+    /// Get transcription by room.
+    /// </summary>
+    /// <param name="roomId">Room id.</param>
+    /// <param name="options">Options. Key = transcription type, value = response options.</param>
+    /// <param name="currentUserAccessor">Current user accessor.</param>
+    /// <returns>Analytics.</returns>
+    [Authorize]
+    [HttpPost("{roomId:guid}/transcription/search")]
+    [ProducesResponseType(typeof(Dictionary<string, IReadOnlyCollection<IStorageEvent>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status404NotFound)]
+    public Task<Dictionary<string, List<IStorageEvent>>> GetTranscription(
+        Guid roomId,
+        [FromBody] Dictionary<string, TranscriptionRequestOption> options,
+        [FromServices] ICurrentUserAccessor currentUserAccessor)
+    {
+        var request = new TranscriptionRequest
+        {
+            RoomId = roomId,
+            UserId = currentUserAccessor.UserId ?? throw new AccessDeniedException("User is unauthorized"),
+            TranscriptionTypeMap = options,
+        };
+        return _roomService.GetTranscriptionAsync(request, HttpContext.RequestAborted);
     }
 }

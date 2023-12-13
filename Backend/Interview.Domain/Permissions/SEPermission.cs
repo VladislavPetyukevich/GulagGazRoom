@@ -173,6 +173,10 @@ namespace Interview.Domain.Permissions
                 new(Guid.Parse("1f6c85db-c2a0-4096-8ead-a292397ab4e5"), "DeleteRoomState",
                     "Удаление состояния комнаты", EVPermission.DeleteRoomState);
 
+        public static readonly SEPermission TranscriptionGet =
+            new(Guid.Parse("9f020c9e-e0b4-4e6d-9fb3-38ba44cfa3f9"), "TranscriptionGet",
+                "Получение транскрипции комнаты", EVPermission.TranscriptionGet);
+
         public Guid Id { get; }
 
         public string Description { get; }

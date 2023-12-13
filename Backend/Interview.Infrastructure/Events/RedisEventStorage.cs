@@ -51,6 +51,26 @@ public class RedisEventStorage : IEventStorage
         }
     }
 
+    public async IAsyncEnumerable<IReadOnlyCollection<IStorageEvent>> GetLatestBySpecAsync(ISpecification<IStorageEvent> spec, int chunkSize, CancellationToken cancellationToken)
+    {
+        var newSpec = BuildNewSpec(spec);
+        var collection = _redis.RedisCollection<RedisEvent>(chunkSize);
+        var result = await collection.Where(newSpec).OrderByDescending(e => e.CreatedAt).ToListAsync();
+        yield return new List<IStorageEvent>(result);
+        var offset = 0;
+        while (result.Count > 0)
+        {
+            offset += collection.ChunkSize;
+            result = await collection.Where(newSpec).Skip(offset).OrderByDescending(e => e.CreatedAt).ToListAsync();
+            if (result.Count == 0)
+            {
+                break;
+            }
+
+            yield return new List<IStorageEvent>(result);
+        }
+    }
+
     public ValueTask DeleteAsync(IEnumerable<IStorageEvent> items, CancellationToken cancellationToken)
     {
         var redisEvents = items.Select(ToRedisEvent);
