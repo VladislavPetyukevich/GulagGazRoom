@@ -15,6 +15,9 @@ import { Field } from '../../../../components/FieldsBlock/Field';
 import { CodeEditor } from '../CodeEditor/CodeEditor';
 import { RoomState } from '../../../../types/room';
 import { parseWsMessage } from './utils/parseWsMessage';
+import { useApiMethod } from '../../../../hooks/useApiMethod';
+import { EventsSearchParams, roomsApiDeclaration } from '../../../../apiDeclarations';
+import { EventsSearch } from '../../../../types/event';
 
 import './VideoChat.css';
 
@@ -47,6 +50,29 @@ const createTranscript = (body: { userNickname: string; value: string; fromChat:
   ...body,
 });
 
+const getChatMessageEvents = (roomEventsSearch: EventsSearch, type: string, toChat: boolean) => {
+  const roomEvents = roomEventsSearch[type];
+  if (!roomEvents) {
+    return [];
+  }
+  return roomEvents.map(chatMessageEvent => {
+    try {
+      const chatMessageEventParsed = JSON.parse(chatMessageEvent?.payload);
+      return createTranscript({
+        fromChat: toChat,
+        userNickname: chatMessageEventParsed.Nickname || 'Nickname not found',
+        value: chatMessageEventParsed.Message,
+      });
+    } catch {
+      return createTranscript({
+        fromChat: toChat,
+        userNickname: 'Message not found',
+        value: '',
+      });
+    };
+  }).reverse();
+};
+
 export const VideoChat: FunctionComponent<VideoChatProps> = ({
   roomState,
   viewerMode,
@@ -57,6 +83,13 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   onSendWsMessage,
 }) => {
   const auth = useContext(AuthContext);
+  const {
+    apiMethodState: apiRoomEventsSearchState,
+    fetchData: fetchRoomEventsSearch,
+  } = useApiMethod<EventsSearch, EventsSearchParams>(roomsApiDeclaration.eventsSearch);
+  const {
+    data: roomEventsSearch,
+  } = apiRoomEventsSearchState;
   const [transcripts, setTranscripts] = useState<Transcript[]>([createTranscript({
     userNickname: 'GULAG',
     value: `${Captions.ChatWelcomeMessage}, ${auth?.nickname}.`,
@@ -74,6 +107,26 @@ export const VideoChat: FunctionComponent<VideoChatProps> = ({
   const updateAnalyserTimeout = useRef(0);
   const intervieweeFrameRef = useRef<HTMLIFrameElement>(null);
   const videochatAvailable = !viewerMode;
+
+  useEffect(() => {
+    if (!roomState) {
+      return;
+    }
+    fetchRoomEventsSearch({
+      roomId: roomState.id,
+    });
+  }, [roomState, fetchRoomEventsSearch]);
+
+  useEffect(() => {
+    if (!roomEventsSearch) {
+      return;
+    }
+    const newTranscripts = [
+      ...getChatMessageEvents(roomEventsSearch, 'ChatMessage', true),
+      ...getChatMessageEvents(roomEventsSearch, 'VoiceRecognition', false),
+    ];
+    setTranscripts(newTranscripts);
+  }, [roomEventsSearch]);
 
   useEffect(() => {
     const frequencyData = new Uint8Array(frequencyBinCount);

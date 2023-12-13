@@ -6,3 +6,8 @@ export interface Event {
   participantTypes: UserType[];
   roles: Role[];
 }
+
+export type EventsSearch = Record<string, Array<{
+  trype: string;
+  payload: string;
+}>>;
