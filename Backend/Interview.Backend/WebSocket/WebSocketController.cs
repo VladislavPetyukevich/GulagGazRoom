@@ -54,15 +54,16 @@ public class WebSocketController : ControllerBase
                 return;
             }
 
-            var dbRoom = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
+            var (dbRoom, participant) = await _roomService.AddParticipantAsync(roomIdentity.Value, user.Id, ct);
 
-            detail = new WebSocketConnectDetail(webSocket, dbRoom, user);
+            var participantType = participant.Type.EnumValue;
+            detail = new WebSocketConnectDetail(webSocket, dbRoom, user, participantType);
             await HandleListenersSafely(
                 nameof(IConnectionListener.OnConnectAsync),
                 e => e.OnConnectAsync(detail, ct));
 
             var waitTask = CreateWaitTask(ct);
-            var readerTask = RunEventReaderJob(user, dbRoom, HttpContext.RequestServices, webSocket, ct);
+            var readerTask = RunEventReaderJob(user, dbRoom, participantType, HttpContext.RequestServices, webSocket, ct);
             await Task.WhenAny(waitTask, readerTask);
             await CloseSafely(webSocket, WebSocketCloseStatus.NormalClosure, string.Empty, ct);
         }
@@ -128,6 +129,7 @@ public class WebSocketController : ControllerBase
     private Task RunEventReaderJob(
         User user,
         Room room,
+        EVRoomParticipantType participantType,
         IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
         CancellationToken ct)
@@ -136,6 +138,7 @@ public class WebSocketController : ControllerBase
             () => _webSocketReader.ReadAsync(
                 user,
                 room,
+                participantType,
                 scopedServiceProvider,
                 webSocket,
                 ct),

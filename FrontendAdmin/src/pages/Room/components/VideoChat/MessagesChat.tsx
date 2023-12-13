@@ -1,8 +1,9 @@
-import { FunctionComponent, useRef, KeyboardEvent, useEffect, useState } from 'react';
+import { FunctionComponent, useRef, KeyboardEvent, useEffect, useState, useContext } from 'react';
 import { Transcript } from '../../../../types/transcript';
 import { Captions } from '../../../../constants';
 import { stringToColor } from './utils/stringToColor';
 import { Tab, Tabs } from '../../../../components/Tabs/Tabs';
+import { ThemeContext } from '../../../../context/ThemeContext';
 
 import './MessagesChat.css';
 
@@ -30,6 +31,7 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
   transcripts,
   onMessageSubmit,
 }) => {
+  const { themeInUi } = useContext(ThemeContext);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const videochatTranscriptsRef = useRef<HTMLDivElement>(null);
   const [activeTabId, setActiveTabId] = useState(chatTab.id);
@@ -83,7 +85,7 @@ export const MessagesChat: FunctionComponent<MessagesChatProps> = ({
               {!transcript.fromChat && `${Captions.Recognized} `}
             </span>
             <span
-              style={{ color: stringToColor(transcript.userNickname) }}
+              style={{ color: stringToColor(transcript.userNickname, themeInUi) }}
             >
               {transcript.userNickname}
             </span>

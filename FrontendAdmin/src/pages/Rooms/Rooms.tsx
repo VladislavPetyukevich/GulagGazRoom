@@ -133,7 +133,11 @@ export const Rooms: FunctionComponent = () => {
         <>
           <Field>
             <ul className="rooms-list">
-              {roomsSafe.map(createRoomItem)}
+              {roomsSafe.length === 0 ? (
+                <div className="rooms-list-no-data">{Captions.NoRecords}</div>
+              ) : (
+                roomsSafe.map(createRoomItem)
+              )}
             </ul>
           </Field>
           <Paginator

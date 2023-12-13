@@ -1,7 +1,7 @@
 import { FunctionComponent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
-import { Captions, pathnames } from '../../../../constants';
+import { Captions, IconNames, pathnames } from '../../../../constants';
 import { DeviceSelect } from './DeviceSelect';
 import { createAudioAnalyser, frequencyBinCount } from './utils/createAudioAnalyser';
 import { getAverageVolume } from './utils/getAverageVolume';
@@ -212,17 +212,20 @@ export const EnterVideoChatModal: FunctionComponent<EnterVideoChatModalProps> = 
                 <div className="enter-videochat-row switch-row">
                   <SwitchButton
                     enabled={micEnabled}
-                    caption={Captions.MicrophoneIcon}
+                    iconEnabledName={IconNames.MicOn}
+                    iconDisabledName={IconNames.MicOff}
                     onClick={onMicSwitch}
                   />
                   <SwitchButton
                     enabled={cameraEnabled}
-                    caption={Captions.CameraIcon}
+                    iconEnabledName={IconNames.VideocamOn}
+                    iconDisabledName={IconNames.VideocamOff}
                     onClick={onCameraSwitch}
                   />
                   <SwitchButton
                     enabled={!settingsEnabled}
-                    caption={Captions.SettingsIcon}
+                    iconEnabledName={IconNames.Settings}
+                    iconDisabledName={IconNames.Settings}
                     onClick={handleSwitchSettings}
                   />
                 </div>

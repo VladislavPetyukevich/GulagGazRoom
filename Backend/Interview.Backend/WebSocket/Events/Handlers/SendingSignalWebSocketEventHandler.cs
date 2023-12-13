@@ -3,6 +3,7 @@ using Interview.Backend.WebSocket.Events.ConnectionListener;
 using Interview.Domain.Events.Events;
 using Interview.Domain.Events.Events.Serializers;
 using Interview.Domain.Events.Sender;
+using Interview.Domain.RoomParticipants;
 
 namespace Interview.Backend.WebSocket.Events.Handlers;
 
@@ -44,10 +45,11 @@ public class SendingSignalWebSocketEventHandler : WebSocketEventHandlerBase<Send
                 Id = detail.User.Id,
                 Nickname = detail.User.Nickname,
                 Avatar = detail.User.Avatar,
+                ParticipantType = detail.ParticipantType,
             },
             Signal = payload.Signal,
         };
-        var payloadStr = JsonSerializer.Serialize(payloadForSerialization);
+        var payloadStr = _serializer.SerializePayloadAsString(payloadForSerialization);
         var sendEvent = new RoomEvent(detail.RoomId, "user joined", payloadStr, false);
         var provider = new CachedRoomEventProvider(sendEvent, _serializer);
         foreach (var webSocket in connections)
@@ -79,4 +81,6 @@ public class UserDetail
     public required string Nickname { get; init; }
 
     public required string? Avatar { get; init; }
+
+    public required EVRoomParticipantType ParticipantType { get; init; }
 }

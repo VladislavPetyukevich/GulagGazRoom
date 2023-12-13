@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using Interview.Backend.WebSocket.Events.Handlers;
 using Interview.Domain.Events.Storage;
+using Interview.Domain.RoomParticipants;
 using Microsoft.IO;
 
 namespace Interview.Backend.WebSocket.Events;
@@ -29,6 +30,7 @@ public class WebSocketReader
     public async Task ReadAsync(
         User user,
         Room room,
+        EVRoomParticipantType participantType,
         IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
         CancellationToken ct)
@@ -37,7 +39,7 @@ public class WebSocketReader
         {
             try
             {
-                await HandleAsync(user, room, scopedServiceProvider, webSocket, ct);
+                await HandleAsync(user, room, participantType, scopedServiceProvider, webSocket, ct);
             }
             catch (Exception e)
             {
@@ -52,6 +54,7 @@ public class WebSocketReader
     private async Task HandleAsync(
         User user,
         Room room,
+        EVRoomParticipantType participantType,
         IServiceProvider scopedServiceProvider,
         System.Net.WebSockets.WebSocket webSocket,
         CancellationToken ct)
@@ -73,7 +76,8 @@ public class WebSocketReader
             webSocket,
             deserializeResult,
             user,
-            room);
+            room,
+            participantType);
         var tasks = _handlers.Select(e => e.HandleAsync(socketEventDetail, ct));
         var results = await Task.WhenAll(tasks);
         if (results.All(e => !e))

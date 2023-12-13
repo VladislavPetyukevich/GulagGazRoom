@@ -1,3 +1,5 @@
+using Interview.Domain.RoomParticipants;
+
 namespace Interview.Backend.WebSocket.Events.Handlers;
 
 public interface IWebSocketEventHandler
@@ -10,7 +12,8 @@ public record SocketEventDetail(
     System.Net.WebSockets.WebSocket WebSocket,
     WebSocketEvent Event,
     User User,
-    Room Room)
+    Room Room,
+    EVRoomParticipantType ParticipantType)
 {
     public Guid UserId => User.Id;
 

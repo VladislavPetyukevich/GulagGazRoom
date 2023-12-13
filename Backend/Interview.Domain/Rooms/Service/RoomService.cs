@@ -184,7 +184,7 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
         };
     }
 
-    public async Task<Room> AddParticipantAsync(
+    public async Task<(Room, RoomParticipant)> AddParticipantAsync(
         Guid roomId, Guid userId, CancellationToken cancellationToken = default)
     {
         var currentRoom = await _roomRepository.FindByIdAsync(roomId, cancellationToken);
@@ -199,18 +199,19 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
             throw NotFoundException.Create<User>(userId);
         }
 
-        if (await _roomRepository.HasUserAsync(roomId, user.Id, cancellationToken))
+        var participant = await _roomRepository.FindParticipantOrDefaultAsync(roomId, user.Id, cancellationToken);
+        if (participant is not null)
         {
-            return currentRoom;
+            return (currentRoom, participant);
         }
 
-        var participant = new RoomParticipant(user, currentRoom, RoomParticipantType.Viewer);
+        participant = new RoomParticipant(user, currentRoom, RoomParticipantType.Viewer);
 
         currentRoom.Participants.Add(participant);
 
         await _roomRepository.UpdateAsync(currentRoom, cancellationToken);
 
-        return currentRoom;
+        return (currentRoom, participant);
     }
 
     public async Task SendEventRequestAsync(

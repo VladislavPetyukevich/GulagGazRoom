@@ -4,7 +4,7 @@ import { Field } from '../../components/FieldsBlock/Field';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { Captions, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
-import { HomeContent } from './components/HomeContent/HomeContent';
+import { HomeAction } from './components/HomeContent/HomeAction';
 
 import './Home.css';
 
@@ -21,8 +21,15 @@ export const Home: FunctionComponent = () => {
       <Field>
         <h1>{Captions.AppName}</h1>
         <p>{Captions.AppDescription}</p>
-        <HomeContent auth={auth} />
-        <Link to={pathnames.terms}>{Captions.TermsOfUsage}</Link>
+        <div className="home-action">
+          <HomeAction auth={auth} />
+        </div>
+        <Link
+          className="home-terms-link"
+          to={pathnames.terms}
+        >
+          {Captions.TermsOfUsage}
+        </Link>
       </Field>
     </MainContentWrapper>
   );

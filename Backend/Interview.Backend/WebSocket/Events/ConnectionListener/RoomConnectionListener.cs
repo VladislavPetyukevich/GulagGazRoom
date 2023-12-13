@@ -14,14 +14,12 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IW
     private readonly ConcurrentDictionary<Guid, ImmutableList<WebSocketConnectDetail>> _activeRooms = new();
 
     private readonly ChatBotAccount _chatBotAccount;
-    private readonly IRoomEventDispatcher _roomEventDispatcher;
     private readonly ILogger<RoomConnectionListener> _logger;
     private readonly ConcurrentDictionary<Guid, TwitchChatClient> _twitchClients = new();
 
     public RoomConnectionListener(IOptions<ChatBotAccount> chatBotAccount, IRoomEventDispatcher roomEventDispatcher, ILogger<RoomConnectionListener> logger)
     {
         _chatBotAccount = chatBotAccount.Value;
-        _roomEventDispatcher = roomEventDispatcher;
         _logger = logger;
     }
 
@@ -90,7 +88,7 @@ public class RoomConnectionListener : IActiveRoomSource, IConnectionListener, IW
     {
         try
         {
-            var client = new TwitchChatClient(roomId, _roomEventDispatcher);
+            var client = new TwitchChatClient(roomId);
             client.Connect(_chatBotAccount.Username, _chatBotAccount.AccessToken, detail.Room.TwitchChannel);
             _twitchClients.TryAdd(roomId, client);
             _logger.LogInformation("Start listen new room {RoomId} {TwitchChannel}", roomId, detail.Room.TwitchChannel);

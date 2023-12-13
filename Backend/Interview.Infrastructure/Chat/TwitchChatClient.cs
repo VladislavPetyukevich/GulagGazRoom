@@ -11,14 +11,12 @@ namespace Interview.Infrastructure.Chat;
 public class TwitchChatClient : IDisposable
 {
     private readonly Guid _roomId;
-    private readonly IRoomEventDispatcher _eventDispatcher;
     private readonly TwitchClient _client;
     private readonly CancellationTokenSource _cancellationTokenSource;
 
-    public TwitchChatClient(Guid roomId, IRoomEventDispatcher eventDispatcher)
+    public TwitchChatClient(Guid roomId)
     {
         _roomId = roomId;
-        _eventDispatcher = eventDispatcher;
         _cancellationTokenSource = new CancellationTokenSource();
         var clientOptions = new ClientOptions
         {
@@ -57,33 +55,15 @@ public class TwitchChatClient : IDisposable
         {
             // ignore
         }
-
-        _eventDispatcher.DropEventsAsync(_roomId).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     private void ClientOnMessageReceived(object? sender, OnMessageReceivedArgs e)
     {
         var message = e.ChatMessage.Message ?? string.Empty;
-        var payload = new UserMessageEventPayload(message, e.ChatMessage.Username);
-        var @event = new RoomEvent<UserMessageEventPayload>(_roomId, EventType.ChatMessage, payload, false);
-        _eventDispatcher.WriteAsync(@event, _cancellationTokenSource.Token);
 
         if (message.Contains("он"))
         {
             _client.SendMessage(e.ChatMessage.Channel, $"@{e.ChatMessage.Username}, дай бог здаровъя тебе");
         }
-    }
-}
-
-public sealed class UserMessageEventPayload
-{
-    public string Message { get; }
-
-    public string Nickname { get; }
-
-    public UserMessageEventPayload(string message, string nickname)
-    {
-        Message = message;
-        Nickname = nickname;
     }
 }
