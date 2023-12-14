@@ -4,6 +4,7 @@
   --form-bg: var(--page-bg);
   --wrap-bg: #171717;
   --active: #b9221c;
+  --disabled-icon: #b9221c;
   --active-nav-tab: #424242;
   --shadow: #100908;
   --bg: #400000;
@@ -25,6 +26,9 @@
   --fields-wrap-margin: 0rem 2.5rem;
   --nav-menu-margin-horizontal: -2.5rem;
   --chat-width: 19.5rem;
+  --fadeIn-animation: fadeIn 300ms;
+  --fadeIn-animation-fast: fadeIn 100ms;
+  --fadeOutUp-animation: 1s fadeOutUp both;
 }
 
 :root[data-theme="Light"] {
@@ -44,6 +48,24 @@
 @media screen and (max-width: 1100px) {
   :root {
     --chat-width: 14rem;
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeOutUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-3.5rem);
   }
 }
 
@@ -159,4 +181,8 @@ select {
   font-size: 1rem;
   border: 1px solid var(--button-border-color);
   border-radius: 0.5rem;
+}
+
+ion-icon {
+  font-size: 1.25rem;
 }

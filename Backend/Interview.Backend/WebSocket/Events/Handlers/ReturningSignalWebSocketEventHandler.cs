@@ -40,7 +40,7 @@ public class ReturningSignalWebSocketEventHandler : WebSocketEventHandlerBase<Re
         }
 
         var receivingReturnedSignalPayload = new { Signal = payload.Signal, From = detail.UserId };
-        var strPayload = JsonSerializer.Serialize(receivingReturnedSignalPayload);
+        var strPayload = _serializer.SerializePayloadAsString(receivingReturnedSignalPayload);
         var sendEvent = new RoomEvent(detail.RoomId, "receiving returned signal", strPayload, false);
         var provider = new CachedRoomEventProvider(sendEvent, _serializer);
         foreach (var webSocket in connections)

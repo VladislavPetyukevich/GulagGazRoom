@@ -10,7 +10,7 @@ import {
 } from '../../apiDeclarations';
 import { MainContentWrapper } from '../../components/MainContentWrapper/MainContentWrapper';
 import { REACT_APP_WS_URL } from '../../config';
-import { Captions, pathnames } from '../../constants';
+import { Captions, IconNames, pathnames } from '../../constants';
 import { AuthContext } from '../../context/AuthContext';
 import { useApiMethod } from '../../hooks/useApiMethod';
 import { useCommunist } from '../../hooks/useCommunist';
@@ -27,6 +27,7 @@ import { ThemeSwitchMini } from '../../components/ThemeSwitchMini/ThemeSwitchMin
 import { EnterVideoChatModal } from './components/VideoChat/EnterVideoChatModal';
 import { Devices, useUserStream } from './hooks/useUserStream';
 import { useSpeechRecognition } from './hooks/useSpeechRecognition';
+import { useUnreadChatMessages } from './hooks/useUnreadChatMessages';
 
 import './Room.css';
 
@@ -78,6 +79,10 @@ export const Room: FunctionComponent = () => {
   const { recognitionNotSupported } = useSpeechRecognition({
     recognitionEnabled,
     onVoiceRecognition: handleVoiceRecognition,
+  });
+  const { unreadChatMessages } = useUnreadChatMessages({
+    lastMessage,
+    messagesChatEnabled,
   });
 
   const { apiMethodState, fetchData } = useApiMethod<RoomType, RoomType['id']>(roomsApiDeclaration.getById);
@@ -170,7 +175,6 @@ export const Room: FunctionComponent = () => {
     }
     try {
       const parsedData = JSON.parse(lastMessage?.data);
-      console.log('parsedData: ', parsedData);
       switch (parsedData?.Type) {
         case 'ChatMessage':
           const message = parsedData?.Value?.Message;
@@ -237,13 +241,13 @@ export const Room: FunctionComponent = () => {
 
   const handleWelcomeScreenClose = () => {
     setWelcomeScreen(false);
+    sendMessage(JSON.stringify({
+      Type: "join video chat",
+    }));
     if (viewerMode) {
       return;
     }
     setRecognitionEnabled(true);
-    sendMessage(JSON.stringify({
-      Type: "join video chat",
-    }));
   };
 
   const handleCameraSwitch = useCallback(() => {
@@ -363,13 +367,17 @@ export const Room: FunctionComponent = () => {
               <div className="room-tools room-tools-left">
                 <SwitchButton
                   enabled={micEnabled}
-                  caption={Captions.MicrophoneIcon}
+                  iconEnabledName={IconNames.MicOn}
+                  iconDisabledName={IconNames.MicOff}
+                  disabledColor
                   subCaption={Captions.Microphone}
                   onClick={handleMicSwitch}
                 />
                 <SwitchButton
                   enabled={cameraEnabled}
-                  caption={Captions.CameraIcon}
+                  iconEnabledName={IconNames.VideocamOn}
+                  iconDisabledName={IconNames.VideocamOff}
+                  disabledColor
                   subCaption={Captions.Camera}
                   onClick={handleCameraSwitch}
                 />
@@ -378,8 +386,10 @@ export const Room: FunctionComponent = () => {
                 ) : (
                   <SwitchButton
                     enabled={recognitionEnabled}
-                    caption={Captions.VoiceRecognitionIcon}
+                    iconEnabledName={IconNames.RecognitionOn}
+                    iconDisabledName={IconNames.RecognitionOff}
                     subCaption={Captions.VoiceRecognition}
+                    disabledColor
                     onClick={handleVoiceRecognitionSwitch}
                   />
                 )}
@@ -387,8 +397,10 @@ export const Room: FunctionComponent = () => {
             )}
             <div className="room-tools room-tools-center">
               <SwitchButton
+                counter={unreadChatMessages}
                 enabled={!messagesChatEnabled}
-                caption={Captions.ChatIcon}
+                iconEnabledName={IconNames.Chat}
+                iconDisabledName={IconNames.Chat}
                 subCaption={Captions.Chat}
                 onClick={handleMessagesChatSwitch}
               />

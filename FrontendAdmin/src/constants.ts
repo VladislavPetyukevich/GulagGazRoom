@@ -12,6 +12,36 @@ export const pathnames = {
   terms: '/terms',
 };
 
+export const enum IconNames {
+  None = 'alert-circle',
+  MicOn = 'mic',
+  MicOff = 'mic-off',
+  VideocamOn = 'videocam',
+  VideocamOff = 'videocam-off',
+  Settings = 'settings',
+  RecognitionOn = 'volume-high',
+  RecognitionOff = 'volume-mute',
+  Chat = 'chatbubble-ellipses',
+  Like = 'thumbs-up',
+  Dislike = 'thumbs-down',
+  Gas = 'thunderstorm',
+  CodeEditor = 'code-slash',
+  ThemeSwitchLight = 'sunny',
+  ThemeSwitchDark = 'moon',
+}
+
+export const enum IconThemePostfix {
+  Dark = '-sharp',
+  Light = '-outline',
+}
+
+export const reactionIcon: Record<string, IconNames> = {
+  Like: IconNames.Like,
+  Dislike: IconNames.Dislike,
+  Gas: IconNames.Gas,
+  CodeEditor: IconNames.CodeEditor,
+}
+
 export const enum Captions {
   AppName = 'ГУЛАГ ГАЗ РУМ',
   AppDescription = 'Интерактивная платформа для проведения собеседований с возможностью составления детальных отчётов.',
@@ -43,17 +73,18 @@ export const enum Captions {
   RoomCreated = 'Заседание успешно создано',
   ErrorSendingActiveQuestion = 'Ошибка в установке активного вопроса',
   ReactionsLoadingError = 'Ошибка загрузки реакций',
-  SendingReaction = 'Отправка реакции',
   ErrorSendingReaction = 'Ошибка в отправке реакции',
   GetRoomEvent = 'Получение событий',
   ErrorGetRoomEvent = 'Ошибка в получении событий',
-  SendingRoomEvent = 'Отправка события',
   ErrorSendingRoomEvent = 'Ошибка в отправке собтия',
   TermsOfUsage = 'Условия использования',
   Login = 'Представиться',
   WhoAreYou = 'Ты кто?',
   LikeTable = '👍',
   DislikeTable = '👎',
+  Like = 'Хорош',
+  Dislike = 'Плох',
+  Gas = 'Газлайт',
   Question = 'Вопрос',
   ActiveQuestion = 'Текущий вопрос',
   QuestionsSummary = 'Отчётики на вопросики',
@@ -109,13 +140,9 @@ export const enum Captions {
   Warning = 'ВНИМАНИЕ!',
   CallRecording = 'Разговор записыватеся',
   VoiceRecognitionNotSupported = 'Распознавание голоса не поддерживается вашим браузером',
-  VoiceRecognitionIcon = '👂',
   VoiceRecognition = 'Прослушка',
   ArchiveQuestion = 'Архивировать вопрос?',
   ArchiveQuestionLoading = 'Ахивирование вопроса...',
-  MicrophoneIcon = '🎤',
-  CameraIcon= '📷',
-  SwitchOff = '❌',
   NoQuestionsSelector = 'Нет доступных вопросов',
   Join = 'Присоединиться',
   JoiningRoom = 'Подключение к видеовстрече',
@@ -124,9 +151,7 @@ export const enum Captions {
   Camera = 'Камера',
   Microphone = 'Аудио',
   Settings = 'Настройки',
-  SettingsIcon = '⚙️',
   Chat = 'Чат',
-  ChatIcon = '💬',
   Exit = 'Выйти',
   ChatTab = 'Чат',
   RecognitionTab = 'Транскрипция',
@@ -136,8 +161,17 @@ export const enum Captions {
   ThemeDark = 'Тёмная',
   Language = 'Язык',
   FontSize = 'Размер шрифта',
+  You = 'Вы',
+  Participants = 'Участники',
+  NoRecords = 'Нет записей',
 };
 
 export const toastSuccessOptions = {
   icon: '👌',
 };
+
+export const reactionLocalization: Record<string, string> = {
+  Like: Captions.Like,
+  Dislike: Captions.Dislike,
+  Gas: Captions.Gas,
+}

@@ -36,6 +36,12 @@ export interface GetRoomParticipantParams {
   UserId: User['id'];
 }
 
+export interface EventsSearchParams {
+  roomId: Room['id'];
+}
+
+const eventsSearchLimit = 50;
+
 export const roomsApiDeclaration = {
   getPage: (params: GetRoomPageParams): ApiContractGet => ({
     method: 'GET',
@@ -78,6 +84,20 @@ export const roomsApiDeclaration = {
     method: 'GET',
     baseUrl: '/room-participants',
     urlParams: params,
+  }),
+  eventsSearch: (params: EventsSearchParams): ApiContractPost => ({
+    method: 'POST',
+    baseUrl: `/rooms/${params.roomId}/transcription/search`,
+    body: {
+      ChatMessage: {
+        responseName: 'ChatMessage',
+        last: eventsSearchLimit,
+      },
+      VoiceRecognition: {
+        responseName: 'VoiceRecognition',
+        last: eventsSearchLimit,
+      },
+    },
   }),
 };
 

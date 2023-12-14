@@ -1,24 +1,26 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { Reaction } from '../../types/reaction';
 import { SwitchButton } from '../../pages/Room/components/VideoChat/SwitchButton';
+import { IconNames, reactionIcon, reactionLocalization } from '../../constants';
+import { ThemedIcon } from '../../pages/Room/components/ThemedIcon/ThemedIcon';
+import { ReactionsFeed } from '../../pages/Room/hooks/useReactionsFeed';
 
 import './ReactionsList.css';
 
-const reactionNameReplaces: Record<string, string> = {
-  Like: '👍',
-  Dislike: '👎',
-  Gas: '🤿',
-  CodeEditor: '📜',
-}
+const defaultIconName = IconNames.None;
 
 interface ReactionsListProps {
   reactions: Reaction[];
+  reactionsFeed: ReactionsFeed;
+  loadingReactionName?: string | null;
   sortOrder: 1 | -1;
   onClick: (reaction: Reaction) => void;
 }
 
 export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
   reactions,
+  reactionsFeed,
+  loadingReactionName,
   sortOrder,
   onClick,
 }) => {
@@ -39,13 +41,21 @@ export const ReactionsList: FunctionComponent<ReactionsListProps> = ({
           return 0;
         })
         .map(reaction => (
-          <SwitchButton
-            key={`${reaction.id}${reaction.type.name}`}
-            enabled={true}
-            caption={reactionNameReplaces[reaction.type.name] || reaction.type.name}
-            subCaption={reaction.type.name}
-            onClick={handleReactionClick(reaction)}
-          />
+          <div key={`${reaction.id}${reaction.type.name}`}>
+            {!!reactionsFeed[reaction.type.name] && (
+              <div key={reactionsFeed[reaction.type.name]} className='reaction-feed-item'>
+                <ThemedIcon name={reactionIcon[reaction.type.name] || IconNames.None} />
+              </div>
+            )}
+            <SwitchButton
+              enabled={true}
+              loading={reaction.type.name === loadingReactionName}
+              iconEnabledName={reactionIcon[reaction.type.name] || defaultIconName}
+              iconDisabledName={reactionIcon[reaction.type.name] || defaultIconName}
+              subCaption={reactionLocalization[reaction.type.name] || reaction.type.name}
+              onClick={handleReactionClick(reaction)}
+            />
+          </div>
         ))}
     </div>
   );

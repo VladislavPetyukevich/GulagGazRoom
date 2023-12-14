@@ -120,7 +120,9 @@
 .room-page .actions-field {
   display: inline-flex;
   width: calc(var(--chat-width) + 1.5rem);
+  align-items: center;
 }
+
 .room-page .actions-field-viewer {
   width: unset;
   margin-left: auto;
