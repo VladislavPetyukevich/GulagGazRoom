@@ -413,7 +413,8 @@ public sealed class RoomService : IRoomServiceWithoutPermissionCheck
         var response = new Dictionary<string, List<IStorageEvent>>();
         foreach (var (type, option) in request.TranscriptionTypeMap)
         {
-            var result = await _eventStorage.GetLatestBySpecAsync(new Spec<IStorageEvent>(e => e.Type == type), option.Last, cancellationToken)
+            var spec = new Spec<IStorageEvent>(e => e.Type == type && e.RoomId == request.RoomId);
+            var result = await _eventStorage.GetLatestBySpecAsync(spec, option.Last, cancellationToken)
                 .FirstOrDefaultAsync(cancellationToken);
             if (response.TryGetValue(option.ResponseName, out var responses))
             {
